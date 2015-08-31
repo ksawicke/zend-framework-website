@@ -1,4 +1,4 @@
-#PTO Requests#
+## PTO Requests
 
 The PTO website allows employees to initiate PTO requests and also managers the ability to approve and manage these requests.
 
