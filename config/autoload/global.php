@@ -12,5 +12,18 @@
  */
 
 return array(
-    // ...
-);
+     'db' => array(
+        'driver' => 'IbmDb2',
+        'database' => '*LOCAL',
+        'driver_options' => array(
+            'i5_naming' => DB2_I5_NAMING_ON,
+            'i5_libl' => 'SAWIK'
+        ),
+        'platform_options' => array('quote_identifiers' => false)
+     ),
+     'service_manager' => array(
+         'factories' => array(
+             'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
+         ),
+     ),
+ );

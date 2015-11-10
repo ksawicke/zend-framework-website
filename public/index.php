@@ -5,6 +5,30 @@
  */
 chdir(dirname(__DIR__));
 
+$currentSystem = $_SERVER['SERVER_NAME'];
+$currentPath = getcwd();
+
+if (trim($currentSystem) == 'swift') {
+    switch ($currentPath) {
+        case '/www/zendsvr6/htdocs/crew':
+            define('ENVIRONMENT', 'testing');
+            break;
+        case '/www/zendsvr6/htdocs/care':
+            define('ENVIRONMENT', 'production');
+            break;
+        default:
+            define('ENVIRONMENT', 'development');
+            break;
+    }
+} else {
+    define('ENVIRONMENT', 'production');
+}
+
+if (ENVIRONMENT == 'development') {
+     error_reporting(E_ALL);
+     ini_set("display_errors", 1);
+}
+
 // Decline static file requests back to the PHP built-in webserver
 if (php_sapi_name() === 'cli-server') {
     $path = realpath(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
