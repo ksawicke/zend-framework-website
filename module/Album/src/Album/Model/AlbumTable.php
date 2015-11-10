@@ -38,11 +38,11 @@ class AlbumTable
         );
 
         $identity_id = (int) $album->IDENTITY_ID;
-        if ($identity_id == 0) {
+        if ($IDENTITY_ID == 0) {
             $this->tableGateway->insert($data);
         } else {
-            if ($this->getAlbum($identity_id)) {
-                $this->tableGateway->update($data, array('IDENTITY_ID' => $identity_id));
+            if ($this->getAlbum($IDENTITY_ID)) {
+                $this->tableGateway->update($data, array('IDENTITY_ID' => $IDENTITY_ID));
             } else {
                 throw new \Exception('Album identity_id does not exist');
             }
@@ -51,6 +51,6 @@ class AlbumTable
 
     public function deleteAlbum($identity_id)
     {
-        $this->tableGateway->delete(array('IDENTITY_ID' => (int) $identity_id));
+        $this->tableGateway->delete(array('IDENTITY_ID' => (int) $IDENTITY_ID));
     }
 }

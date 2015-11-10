@@ -10,10 +10,7 @@ $currentPath = getcwd();
 
 if (trim($currentSystem) == 'swift') {
     switch ($currentPath) {
-        case '/www/zendsvr6/htdocs/crew':
-            define('ENVIRONMENT', 'testing');
-            break;
-        case '/www/zendsvr6/htdocs/care':
+        case '/www/zendsvr6/htdocs/pto':
             define('ENVIRONMENT', 'production');
             break;
         default:
