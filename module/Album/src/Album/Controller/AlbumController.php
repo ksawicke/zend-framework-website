@@ -42,7 +42,7 @@ class AlbumController extends AbstractActionController
 
     public function editAction()
     {
-        $IDENTITY_ID = (int) $this->params()->fromRoute('identity_id', 0);
+        $IDENTITY_ID = (int) $this->params()->fromRoute('IDENTITY_ID', 0);
         if (!$IDENTITY_ID) {
             return $this->redirect()->toRoute('album', array(
                 'action' => 'add'
@@ -82,13 +82,35 @@ class AlbumController extends AbstractActionController
         }
 
         return array(
-            'id' => $IDENTITY_ID,
+            'identity_id' => $IDENTITY_ID,
             'form' => $form
         );
     }
 
     public function deleteAction()
     {
+        $IDENTITY_ID = (int) $this->params()->fromRoute('IDENTITY_ID', 0);
+        if (!$IDENTITY_ID) {
+            return $this->redirect()->toRoute('album');
+        }
+
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $del = $request->getPost('del', 'No');
+
+            if ($del == 'Yes') {
+                $IDENTITY_ID = (int) $request->getPost('IDENTITY_ID');
+                $this->getAlbumTable()->deleteAlbum($IDENTITY_ID);
+            }
+
+            // Redirect to list of albums
+            return $this->redirect()->toRoute('album');
+        }
+
+        return array(
+            'IDENTITY_ID' => $IDENTITY_ID,
+            'album' => $this->getAlbumTable()->getAlbum($IDENTITY_ID)
+        );
     }
 
     public function getAlbumTable()

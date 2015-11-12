@@ -21,9 +21,9 @@ $this->headTitle($title);
             <td><?php echo $this->escapeHtml($album->ARTIST);?></td>
             <td>
                 <a href="<?php echo $this->url('album',
-                 array('action'=>'edit', 'id' => $album->IDENTITY_ID));?>">Edit</a>
+                 array('action'=>'edit', 'IDENTITY_ID' => $album->IDENTITY_ID));?>">Edit</a>
                 <a href="<?php echo $this->url('album',
-                 array('action'=>'delete', 'id' => $album->IDENTITY_ID));?>">Delete</a>
+                 array('action'=>'delete', 'IDENTITY_ID' => $album->IDENTITY_ID));?>">Delete</a>
             </td>
         </tr>
     <?php endforeach; ?>

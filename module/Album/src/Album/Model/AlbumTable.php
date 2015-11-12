@@ -19,13 +19,13 @@ class AlbumTable
         return $resultSet;
     }
 
-    public function getAlbum($identity_id)
+    public function getAlbum($IDENTITY_ID)
     {
-        $identity_id  = (int) $identity_id;
-        $rowset = $this->tableGateway->select(array('IDENTITY_ID' => $identity_id));
+        $IDENTITY_ID  = (int) $IDENTITY_ID;
+        $rowset = $this->tableGateway->select(array('IDENTITY_ID' => $IDENTITY_ID));
         $row = $rowset->current();
         if (!$row) {
-         throw new \Exception("Could not find row $identity_id");
+            throw new \Exception("Could not find row $IDENTITY_ID");
         }
         return $row;
     }
@@ -37,7 +37,7 @@ class AlbumTable
             'title'  => $album->TITLE,
         );
 
-        $identity_id = (int) $album->IDENTITY_ID;
+        $IDENTITY_ID = (int) $album->IDENTITY_ID;
         if ($IDENTITY_ID == 0) {
             $this->tableGateway->insert($data);
         } else {
@@ -49,7 +49,7 @@ class AlbumTable
         }
     }
 
-    public function deleteAlbum($identity_id)
+    public function deleteAlbum($IDENTITY_ID)
     {
         $this->tableGateway->delete(array('IDENTITY_ID' => (int) $IDENTITY_ID));
     }
