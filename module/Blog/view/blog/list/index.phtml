@@ -1,10 +1,20 @@
 <h1>Blog</h1>
 
-<?php foreach ($this->posts as $post): ?>
-<article>
- <h1 id="post<?= $post->getId() ?>"><?= $post->getTitle() ?></h1>
- <p>
-     <?= $post->getText() ?>
- </p>
-</article>
-<?php endforeach ?>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>TITLE</th>
+            <th>TEXT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($this->posts as $post) { ?>
+            <tr>
+                <td><?php echo $post->getId(); ?></td>
+                <td><?php echo $post->getTitle(); ?></td>
+                <td><?php echo $post->getText(); ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>

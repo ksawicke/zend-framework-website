@@ -20,5 +20,5 @@ interface PostServiceInterface
     * @param  int $id Identifier of the Post that should be returned
     * @return PostInterface
     */
-    public function findPost($ID);
+    public function findPost($id);
 }

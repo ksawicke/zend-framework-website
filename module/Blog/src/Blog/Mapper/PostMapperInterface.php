@@ -11,7 +11,7 @@ interface PostMapperInterface
      * @return PostInterface
      * @throws \InvalidArgumentException
      */
-    public function find($ID);
+    public function find($id);
 
     /**
      * @return array|PostInterface[]
