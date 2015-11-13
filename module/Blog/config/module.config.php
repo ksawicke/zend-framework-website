@@ -3,14 +3,14 @@
 return array(
 //     'db'              => array( /** Db Config */ ),
      'service_manager' => array(
-         'invokables' => array(
-            'Blog\Service\PostServiceInterface' => 'Blog\Service\PostService'
+//         'invokables' => array(
+//            'Blog\Service\PostServiceInterface' => 'Blog\Service\PostService'
+//         ),
+         'factories' => array(
+             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\ZendDbSqlMapperFactory',
+             'Blog\Service\PostServiceInterface' => 'Blog\Factory\PostServiceFactory',
+             'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
          )
-//         'factories' => array(
-//             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\ZendDbSqlMapperFactory',
-//             'Blog\Service\PostServiceInterface' => 'Blog\Service\Factory\PostServiceFactory',
-//             'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
-//         )
      ),
     'controllers' => array(
         'factories' => array(

@@ -5,22 +5,40 @@ namespace Blog\Mapper;
 use Blog\Model\PostInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\Sql\Sql;
+use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class ZendDbSqlMapper implements PostMapperInterface
 {
     /**
-    * @var \Zend\Db\Adapter\AdapterInterface
-    */
+     * @var \Zend\Db\Adapter\AdapterInterface
+     */
     protected $dbAdapter;
 
     /**
-    * @param AdapterInterface  $dbAdapter
-    */
-    public function __construct(AdapterInterface $dbAdapter)
-    {
-        $this->dbAdapter = $dbAdapter;
+     * @var \Zend\Stdlib\Hydrator\HydratorInterface
+     */
+    protected $hydrator;
+
+    /**
+     * @var \Blog\Model\PostInterface
+     */
+    protected $postPrototype;
+
+    /**
+     * @param AdapterInterface  $dbAdapter
+     * @param HydratorInterface $hydrator
+     * @param PostInterface    $postPrototype
+     */
+    public function __construct(
+        AdapterInterface $dbAdapter,
+        HydratorInterface $hydrator,
+        PostInterface $postPrototype
+    ) {
+        $this->dbAdapter      = $dbAdapter;
+        $this->hydrator       = $hydrator;
+        $this->postPrototype  = $postPrototype;
     }
 
     /**
@@ -31,6 +49,18 @@ class ZendDbSqlMapper implements PostMapperInterface
     */
     public function find($ID)
     {
+        $sql    = new Sql($this->dbAdapter);
+        $select = $sql->select('posts');
+        $select->where(array('ID = ?' => $ID));
+
+        $stmt   = $sql->prepareStatementForSqlObject($select);
+        $result = $stmt->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows()) {
+            return $this->hydrator->hydrate($result->current(), $this->postPrototype);
+        }
+
+        throw new \InvalidArgumentException("Blog with given ID:{$ID} not found.");
     }
 
     /**
@@ -45,11 +75,11 @@ class ZendDbSqlMapper implements PostMapperInterface
         $result = $stmt->execute();
 
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
-            $resultSet = new ResultSet();
+            $resultSet = new HydratingResultSet($this->hydrator, $this->postPrototype);
 
-            \Zend\Debug\Debug::dump($resultSet->initialize($result));die();
+            return $resultSet->initialize($result);
         }
 
-        die("no data");
+        return array();
     }
 }
