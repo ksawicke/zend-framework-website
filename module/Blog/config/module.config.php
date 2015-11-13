@@ -18,11 +18,8 @@ return array(
         )
     ),
     'router' => array(
-        // Open configuration for all possible routes
         'routes' => array(
-            // Define a new route called "post"
-            'post' => array(
-                // Define the routes type to be "Zend\Mvc\Router\Http\Literal", which is basically just a string
+            'blog' => array(
                 'type' => 'literal',
                 // Configure the route itself
                 'options' => array(
@@ -32,6 +29,21 @@ return array(
                     'defaults' => array(
                         'controller' => 'Blog\Controller\List',
                         'action'     => 'index',
+                    )
+                ),
+                'may_terminate' => true, // true means /blog, /blog/1241241 are both valid routes
+                'child_routes' => array(
+                    'detail' => array(
+                        'type' => 'segment',
+                        'options' => array(
+                            'route' => '/:id',
+                            'defaults' => array(
+                                'action' => 'detail'
+                            ),
+                            'constraints' => array(
+                                'id' => '[1-9]\d*'
+                            )
+                        )
                     )
                 )
             )

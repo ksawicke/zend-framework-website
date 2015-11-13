@@ -7,32 +7,32 @@ class Post implements PostInterface
     /**
      * @var int
      */
-    protected $ID;
+    protected $id;
 
     /**
      * @var string
      */
-    protected $TITLE;
+    protected $title;
 
     /**
      * @var string
      */
-    protected $TEXT;
+    protected $text;
 
     /**
      * {@inheritDoc}
      */
     public function getId()
     {
-        return $this->ID;
+        return $this->id;
     }
 
     /**
     * @param int $id
     */
-    public function setId($ID)
+    public function setId($id)
     {
-        $this->ID = $ID;
+        $this->id = $id;
     }
 
     /**
@@ -40,15 +40,15 @@ class Post implements PostInterface
     */
     public function getTitle()
     {
-        return $this->TITLE;
+        return $this->title;
     }
 
     /**
     * @param string $title
     */
-    public function setTitle($TITLE)
+    public function setTitle($title)
     {
-        $this->TITLE = $TITLE;
+        $this->title = $title;
     }
 
     /**
@@ -56,14 +56,14 @@ class Post implements PostInterface
     */
     public function getText()
     {
-        return $this->TEXT;
+        return $this->text;
     }
 
     /**
     * @param string $text
     */
-    public function setText($TEXT)
+    public function setText($text)
     {
-        $this->TEXT = $TEXT;
+        $this->text = $text;
     }
 }
