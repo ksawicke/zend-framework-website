@@ -6,3 +6,7 @@
  <dt>Post Text</dt>
  <dd><?php echo $this->escapeHtml($this->post->getText());?></dd>
 </dl>
+
+<a href="<?php echo $this->url('blog/index', array(), true); ?>">
+    View all
+</a>

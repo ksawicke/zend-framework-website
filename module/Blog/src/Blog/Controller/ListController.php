@@ -26,7 +26,7 @@ class ListController extends AbstractActionController
         ));
     }
 
-    public function detailAction()
+    public function viewAction()
     {
         $id = $this->params()->fromRoute('id');
 

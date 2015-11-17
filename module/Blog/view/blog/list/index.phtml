@@ -1,4 +1,4 @@
-<h1>Blog</h1>
+<h1>View records</h1>
 
 <table>
     <thead>
@@ -11,10 +11,24 @@
     <tbody>
         <?php foreach ($this->posts as $post) { ?>
             <tr>
-                <td><?php echo $post->getId(); ?></td>
+                <td>
+                    <a href="blog/view/<?php echo $post->getId(); ?>">
+                        View
+                    </a>
+                    <a href="blog/edit/<?php echo $post->getId(); ?>">
+                        Edit
+                    </a>
+                    <a href="<?php echo $this->url('blog/delete', array('id' => $post->getId()), true); ?>">
+                        Delete
+                    </a>
+                </td>
                 <td><?php echo $post->getTitle(); ?></td>
                 <td><?php echo $post->getText(); ?></td>
             </tr>
         <?php } ?>
     </tbody>
 </table>
+
+<a href="<?php echo $this->url('blog/add', array(), true); ?>">
+    Add a post
+</a>
