@@ -1,9 +1,46 @@
-<h1>WriteController::addAction()</h1>
+<h1>Add Post</h1>
 <?php
 $form = $this->form;
 $form->setAttribute('method', 'POST');
 $form->setAttribute('action', $this->url());
 $form->prepare();
+$form->get('submit')->setValue('Update Post');
+
+$formLabel = $this->plugin('formLabel');
+
 echo $this->form()->openTag($form);
-echo $this->formCollection($form);
-echo $this->form()->closeTag();
+
+$title = $form->get('title');
+$text = $form->get('text');
+
+?>
+
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <?php echo $formLabel->openTag() . $title->getOption('label') . $formLabel->closeTag(); ?>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->formInput($title); ?>
+        <?php echo $this->formElementErrors($title); ?>
+    </div>
+</div>
+
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <?php echo $formLabel->openTag() . $text->getOption('label') . $formLabel->closeTag(); ?>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->formInput($text); ?>
+        <?php echo $this->formElementErrors($text); ?>
+        <br /><br />
+        <?php echo $this->formElement($form->get('submit')); ?>
+    </div>
+</div>
+
+<?php echo $this->form()->closeTag(); ?>

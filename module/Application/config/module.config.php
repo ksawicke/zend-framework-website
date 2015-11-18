@@ -85,8 +85,10 @@ return array(
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => array(
+            // Main application template:
             'layout/layout'           => __DIR__ . '/../view/layout/swiftit_bootstrap.phtml',
 //            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
+            // Home page template:
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',

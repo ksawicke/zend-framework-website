@@ -1,35 +1,46 @@
-<h1>WriteController::editAction()</h1>
+<h1>Edit Post</h1>
 <?php
 $form = $this->form;
 $form->setAttribute('method', 'POST');
 $form->setAttribute('action', $this->url('blog/edit', array(), true));
 $form->prepare();
 $form->get('submit')->setValue('Update Post');
+
+$formLabel = $this->plugin('formLabel');
+
 echo $this->form()->openTag($form);
-echo $this->formCollection($form);
-echo $this->form()->closeTag();
+
+$title = $form->get('title');
+$text = $form->get('text');
+
 ?>
 
-<!--
-<div class="row rowMinHeight visible-lg">
-    <div class="col-lg-1">
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
 
     </div>
-    <div class="col-lg-2">
-        <label for="new_document_type">Abbr.</label>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <?php echo $formLabel->openTag() . $title->getOption('label') . $formLabel->closeTag(); ?>
     </div>
-    <div class="col-lg-6">
-        <label for="new_document_type">Description</label>
-    </div>
-    <div class="col-lg-1 text-center">
-        <label for="new_document_type"># Docs</label>
-    </div>
-    <div class="col-lg-1 text-center">
-        <label for="new_document_type"># Active</label>
-    </div>
-    <div class="col-lg-1">
-
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->formInput($title); ?>
+        <?php echo $this->formElementErrors($title); ?>
     </div>
 </div>
--->
 
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <?php echo $formLabel->openTag() . $text->getOption('label') . $formLabel->closeTag(); ?>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->formInput($text); ?>
+        <?php echo $this->formElementErrors($text); ?>
+        <br /><br />
+        <?php echo $this->formElement($form->get('submit')); ?>
+    </div>
+</div>
+
+<?php echo $this->form()->closeTag(); ?>
