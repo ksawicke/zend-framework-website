@@ -1,10 +1,11 @@
-<h1>Edit Post</h1>
+<h3>Edit Post</h3>
+
 <?php
 $form = $this->form;
 $form->setAttribute('method', 'POST');
 $form->setAttribute('action', $this->url('blog/edit', array(), true));
 $form->prepare();
-$form->get('submit')->setValue('Update Post');
+$form->get('submit')->setValue('Save Changes');
 
 $formLabel = $this->plugin('formLabel');
 
@@ -39,7 +40,7 @@ $text = $form->get('text');
         <?php echo $this->formInput($text); ?>
         <?php echo $this->formElementErrors($text); ?>
         <br /><br />
-        <?php echo $this->formElement($form->get('submit')); ?>
+        <?php echo $this->formElement($form->get('submit')); ?>&nbsp;<a href="<?php echo $this->basepath(); ?>/blog"><button type="button" class="btn btn-form-primary">Cancel</button></a>
     </div>
 </div>
 

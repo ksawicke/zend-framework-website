@@ -62,6 +62,11 @@ return array(
         'factories' => array(
             'translator' => 'Zend\Mvc\Service\TranslatorServiceFactory',
         ),
+        'invokables' => array(
+            'login-form' => 'Application\\Form\\Login',
+            'request-time-form' => 'Application\\Form\\RequestTime',
+            'approve-time-form' => 'Application\\Form\\ApproveTime'
+        )
     ),
     'translator' => array(
         'locale' => 'en_US',
@@ -77,6 +82,9 @@ return array(
         'invokables' => array(
             'Application\Controller\Index' => Controller\IndexController::class
         ),
+        'factories' => array(
+            'Application\Controller\Login' => 'Application\\Factory\\LoginControllerFactory',
+        )
     ),
     'view_manager' => array(
         'display_not_found_reason' => true,

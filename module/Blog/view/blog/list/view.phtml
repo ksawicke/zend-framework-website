@@ -1,10 +1,29 @@
-<h1>Post Details</h1>
+<h3>View Post ID <?php echo $this->post->getId(); ?></h3>
 
-<dl>
- <dt>Post Title</dt>
- <dd><?php echo $this->escapeHtml($this->post->getTitle());?></dd>
- <dt>Post Text</dt>
- <dd><?php echo $this->escapeHtml($this->post->getText());?></dd>
-</dl>
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <strong>Title</strong>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->escapeHtml($this->post->getTitle());?>
+    </div>
+</div>
+
+<div class="row rowMinHeight">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <strong>Text</strong>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
+        <?php echo $this->escapeHtml($this->post->getText());?>
+        <br /><br />
+        <a href="<?php echo $this->basepath(); ?>/blog/edit/<?php echo $this->post->getId(); ?>">Edit</a><br />
+    </div>
+</div>
 
 <a href="<?php echo $this->url('blog'); ?>">View Posts</a>
