@@ -1,0 +1,282 @@
+/**
+ * Color Scheme - See Swift_Style Guide_Q3_2014_V3_DS.pdf
+ *
+ * Swift Blue: #00467E
+ * Swift Gold: #C0AF2C
+ * Swift Light Grey: #CFD4D8
+ * Swift Mid Grey: #919194
+ * Swift White: #254061
+ *
+ **/
+
+body {
+  background: #005590;
+  margin-top: 30px;
+  font-size: 14px;
+  min-height:1px !important;
+}
+html {
+  overflow-y: scroll;
+}
+.copyright {
+  color: #fff;
+}
+.form-control {
+  font-size: 14px;
+}
+
+.navbar {
+  background: #fff;
+  border: 1px solid #005590;
+}
+.navbar-header {
+  margin-bottom: 20px;
+}
+.swift-header-item {
+  float: left;
+  margin-right: 15px;
+}
+.swift-header-item-sm {
+  margin-top: 10px;
+  margin-left:10px;
+}
+
+.ul-sm {
+  margin-top:-15px;
+}
+.li-sm {
+  margin-top:0px;
+}
+.swift-header-item-sm {
+  float: left;
+  margin-right: 5px;
+}
+.swift-site-name,
+.swift-site-name-sm {
+  color: #00467E;
+  font-weight: bold;
+}
+.swift-site-name {
+  margin-top: 30px;
+  font-size: 140%;
+}
+.swift-site-name-sm {
+  margin-top: 20px;
+  font-size: 110%;
+}
+.row-even {
+  background-color:#E6E6E6;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: #00467E;
+  font-weight: bold
+}
+
+#tabs {
+  border-bottom: 0px;
+  margin-bottom:2px;
+}
+#tabs li a {
+  font-weight: bold;
+  background-color:#333;
+  color: #999999;
+  border: none;
+}
+#tabs li.active a {
+  background: #fff;
+  color: #005590;
+  font-weight: bold;
+  border-bottom:1px solid #fff;
+}
+#tabs li a:hover {
+  background: #fff;
+  color: #005590;
+  font-weight: bold;
+  border-bottom:1px solid #fff;
+}
+
+li {
+  margin-top: 30px;
+}
+
+label {
+  color: #000;
+}
+
+.btn-primary {
+  background-color: #FFF;
+  color: #000;
+  font-weight: bold;
+  border: 2px solid #ffcc00;
+}
+.btn-primary:hover {
+  background: #35aeff;
+  color: #fff;
+  font-weight: bold;
+  border: 2px solid #fff;
+}
+
+.btn-form-primary {
+  background: #005590;
+  color: #fff;
+  font-weight: bold;
+}
+.btn-form-primary:hover {
+  background-color: #ffd333;
+  border: 1px solid #000;
+}
+
+.well {
+  background-color: #fff;
+  color: #000;
+  padding: 15px;
+  border: none;
+}
+.btn-group-custom {
+  background-color: #FFF;
+  color: #005590;
+  font-weight: bold;
+  font-size: 140%;
+  border: 1px solid #005590;
+}
+.btn-group-custom:hover {
+  background-color: #ffd333;
+  border: 1px solid #005590;
+}
+
+.tableRowHeight {
+  padding-top:5px;
+  padding-bottom:5px;
+}
+
+div.container {
+  color: #fff;
+}
+.loginPadding {
+  padding:15px;
+}
+
+#navbar > ul.nav.navbar-nav.navbar-right > li.logout {
+  background: #ffcc00;
+  border-top: 1px solid #005590;
+  border-left: 1px solid #005590;
+  border-right: 1px solid #005590;
+  color: #000;
+  font-weight: bold;
+}
+#navbar > ul.nav.navbar-nav.navbar-right > li.logout:hover {
+  background: #0075c3;
+  color: #fff;
+  font-weight: bold;
+}
+
+#navbar > ul.nav.navbar-nav.navbar-right > li.settings {
+  background: #fff;
+  border-top: 1px solid #005590;
+  border-left: 1px solid #005590;
+  color: #fff;
+  font-weight: bold;
+}
+#navbar > ul.nav.navbar-nav.navbar-right > li.settings:hover {
+  background: #0075c3;
+  color: #fff;
+  font-weight: bold;
+}
+
+#navbar > ul.nav.navbar-nav.navbar-right > li.home {
+  background: #fff;
+  border-top: 1px solid #005590;
+  border-left: 1px solid #005590;
+  color: #fff;
+}
+#navbar > ul.nav.navbar-nav.navbar-right > li.home:hover {
+  background: #0075c3;
+  color: #fff;
+}
+.navbar-right {
+}
+
+.parsley-errorUserid {
+  color: red;
+}
+
+.app_breadcrumb {
+  background: #005590;
+  color: #fff;
+}
+.app_breadcrumb:hover {
+  background: #005590;
+  color: #ffcc00;
+}
+
+.well_breadcrumb {
+  color: #005590;
+}
+.well_breadcrumb:hover {
+  background-color: #005590;
+  color: #ffcc00;
+}
+
+.rowMinHeight {
+  height:36px;
+}
+
+.rowLgHeight {
+  height:60px;
+}
+.rowTextareaHeight {
+  height:135px;
+}
+textarea.apiTextArea {
+  font-size:12px;
+  height:125px;
+}
+
+.glyphicon-remove {
+  color: red;
+  margin-top:10px;
+}
+.moveTextDown {
+  margin-top:8px;
+}
+.apiSuccess {
+  background-color:#dff0d8;
+}
+.apiError {
+  background-color:#f2dede;
+}
+.login-label {
+  color:#fff;
+}
+
+.parsley-errors-list {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    /* overflow: hidden; */
+    *zoom: 1
+}
+
+.parsley-errors-list li {
+    list-style-image: none;
+    list-style-type: none;
+    margin-left: 0;
+    display: -moz-inline-stack;
+    display: inline-block;
+    vertical-align: middle;
+    *vertical-align: auto;
+    zoom: 1;
+    *display: inline;
+    white-space: nowrap
+}
+
+.parsley-errors-list li {
+    color: #db3833;
+    font-size: 0.9em;
+    margin-top: 15px;
+    margin-bottom:15px;
+}
+
+.glyphicon-hidden {
+  color: #B2B2B2;
+}

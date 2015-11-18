@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>SWIFT IT Template</title>
+
+    <?php
+
+        $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'));
+
+    ?>
+
+    <link href="<?php echo $this->basePath('templates/swiftit/css/bootstrap.min.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/bootstrap_swift_custom.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/custom_dropzone.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/navbar-fixed-top.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/parsley.css'); ?>" rel="stylesheet">
+
+    <?php
+      $this->headScript()
+        ->prependFile($this->basePath('templates/swiftit/js/jquery/1.11.2/jquery.min.js'));
+      $this->headScript()
+        ->appendFile($this->basePath('templates/swiftit/js/parsley.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/parsley.remote.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/bootstrap.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/ckeditor/ckeditor.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/dropzone.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'));
+      echo $this->headScript();
+    ?>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="visible-lg">
+              <div class="swift-header-item">
+                <a class="navbar-brand" href="<?php echo $this->url('blog') ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
+              </div>
+              <div class="swift-header-item swift-site-name">
+                SWIFT IT Template<?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
+              </div>
+          </div>
+          <div class="visible-xs visible-sm visible-md">
+              <div class="swift-header-item-sm">
+                <a class="navbar-brand-sm" href="/"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
+              </div>
+              <div class="swift-header-item swift-site-name-sm">
+                SPD Documents
+              </div>
+          </div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <!-- li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li-->
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <?php /***<li class="home"><a href="{base_url}" title="Home"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>***/ ?>
+            <?php echo ((isset($sessionVars) && $sessionVars['is_app_administrator']==1) ? '<li class="settings"><a href="{base_url}benefitplans/manage_settings" title="Manage Settings"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></li>' : '' ); ?>
+            <?php echo ((isset($sessionVars) && $sessionVars['is_api_tester']==1) ? '<li class="settings"><a href="{base_url}benefitplans/test_api" title="Manage Settings"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></a></li>' : '' ); ?>
+            <?php echo ((isset($sessionVars) && $sessionVars['is_user_administrator']==1) ? '<li class="settings"><a href="{base_url}benefitplans/manage_users" title="Manage Users"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a></li>' : '' ); ?>
+            <?php echo (isset($sessionVars) ? '<li class="logout"><a href="{base_url}logout">Logout</a></li>' : '<li><a>&nbsp;</a></li>' ); ?>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="well well-sm">
+          <?php echo $this->content; ?>
+
+          <br />
+          <br />
+
+      </div>
+
+      <br /><br />
+
+      <span class="copyright">Copyright &copy; <?php echo date("Y"); ?> Swift Transportation.</span>
+    </div> <!-- /container -->
+
+    <script>
+//     $(document).ready(function() {
+//         function createAutoClosingAlert(selector, delay) {
+//           var alert = $(selector).alert();
+//           window.setTimeout(function() { alert.alert('close') }, delay);
+//        }
+//     });
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!--script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
+
+  </body>
+</html>
