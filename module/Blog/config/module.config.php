@@ -64,7 +64,7 @@ return array(
 
                 'type' => 'literal',
                  'options' => array(
-                     'route'    => '/blog',
+                     'route'    => '/',
                      'defaults' => array(
                          'controller' => 'Blog\Controller\List',
                          'action'     => 'index',
@@ -75,7 +75,7 @@ return array(
                      'view' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => '/view/:id',
+                             'route'    => 'blog/view/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\List',
                                  'action' => 'view'
@@ -88,7 +88,7 @@ return array(
                      'edit' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => '/edit/:id',
+                             'route'    => 'blog/edit/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Write',
                                  'action'     => 'edit'
@@ -101,7 +101,7 @@ return array(
                      'add' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => '/add',
+                             'route'    => 'blog/add',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Write',
                                  'action'     => 'add'
@@ -111,7 +111,7 @@ return array(
                      'delete' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => '/delete/:id',
+                             'route'    => 'blog/delete/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Delete',
                                  'action'     => 'delete'
