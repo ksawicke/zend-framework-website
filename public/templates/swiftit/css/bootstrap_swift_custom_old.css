@@ -1,0 +1,97 @@
+/**
+ * Color Scheme - See Swift_Style Guide_Q3_2014_V3_DS.pdf
+ *
+ * Swift Blue: #00467E
+ * Swift Gold: #C0AF2C
+ * Swift Light Grey: #CFD4D8
+ * Swift Mid Grey: #919194
+ * Swift White: #254061
+ *
+ **/
+
+body {
+  background: #A7B4B9; /* #CFD4D8 */
+  margin-top: 30px;
+  font-size: 14px;
+}
+.form-control {
+  font-size: 14px;
+}
+
+.navbar {
+  background: #fff;
+  border-bottom: 4px solid #00467E;
+}
+.navbar-header {
+  margin-bottom: 20px;
+}
+.swift-header-item {
+  float: left;
+  margin-right: 15px;
+}
+.swift-site-name {
+  margin-top: 30px;
+  color: #00467E;
+  font-weight: bold;
+  font-size: 140%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #00467E;
+  font-weight: bold
+}
+
+#tabs li a {
+  border-color: #00467E;
+  font-weight: bold;
+  background-color:#fff;
+}
+#tabs li.active a {
+  background: #00467E;
+  color: #fff;
+}
+#tabs li a:hover {
+  background: #C0AF2C;
+}
+
+li {
+  margin-top: 30px;
+}
+
+#navbar > ul.nav.navbar-nav.navbar-right > li > a {
+  background: #fff;
+  border-color: #00467E;
+}
+#navbar > ul.nav.navbar-nav.navbar-right > li > a:hover {
+  background: #C0AF2C;
+}
+
+.btn-primary {
+  background: #00467E;
+}
+
+.well {
+  border: 4px solid #00467E;
+  background-color: #fff;
+  padding: 15px;
+}
+.btn-primary:hover {
+  background: #C0AF2C;
+}
+.btn-group-custom {
+  background-color: #D2D8DA;
+  color: #00467E;
+  font-weight: bold;
+  font-size: 140%;
+  border: 2px solid #819298;
+}
+.btn-group-custom:hover {
+  background-color: #C0AF2C;
+  border: 2px solid #819298;
+  color: #00467E;
+}
+
+.tableRowHeight {
+  padding-top:5px;
+  padding-bottom:5px;
+}

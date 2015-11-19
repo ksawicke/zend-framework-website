@@ -1,0 +1,26 @@
+#tabs {
+    overflow:hidden;
+    white-space: nowrap;
+    z-index:-1;
+    position:static;
+}
+
+#tabs>li {
+    float:none;
+    display:inline-block;
+}
+
+.arrow {
+    padding:10px;
+    position:absolute;
+    background-color:#fff;
+    z-index:2
+}
+
+#leftArr {
+    left:0;
+}
+
+#rightArr {
+    right:0;
+}
