@@ -23,5 +23,5 @@ interface PostInterface
      *
      * @return string
      */
-    public function getText();
+    public function getBodytext();
 }

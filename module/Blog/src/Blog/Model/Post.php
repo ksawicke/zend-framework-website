@@ -17,7 +17,7 @@ class Post implements PostInterface
     /**
      * @var string
      */
-    protected $text;
+    protected $bodytext;
 
     /**
      * {@inheritDoc}
@@ -54,16 +54,16 @@ class Post implements PostInterface
     /**
     * {@inheritDoc}
     */
-    public function getText()
+    public function getBodytext()
     {
-        return $this->text;
+        return $this->bodytext;
     }
 
     /**
-    * @param string $text
+    * @param string $bodytext
     */
-    public function setText($text)
+    public function setBodytext($bodytext)
     {
-        $this->text = $text;
+        $this->bodytext = $bodytext;
     }
 }

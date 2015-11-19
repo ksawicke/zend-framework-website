@@ -20,7 +20,7 @@
         <strong>Text</strong>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
-        <?php echo $this->escapeHtml($this->post->getText());?>
+        <?php echo $this->escapeHtml($this->post->getBodytext());?>
         <br /><br />
         <a href="<?php echo $this->basepath(); ?>/blog/edit/<?php echo $this->post->getId(); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
         <a href="<?php echo $this->url('blog', ['action' => 'edit', 'id' => $this->post->getId()]); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />

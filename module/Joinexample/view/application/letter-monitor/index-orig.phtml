@@ -1,0 +1,48 @@
+<div class="row">
+<?php
+    $this->searchForm->setAttribute('action', $this->basepath() . '/lettermonitor/retrieve');
+    $this->searchForm->prepare();
+    echo $this->form()->openTag($this->searchForm)
+       . $this->formText($this->searchForm->get('groupnumber')) . '<br>'
+       . $this->formSubmit($this->searchForm->get('searchsubmit'))
+       . $this->form()->closeTag();
+?>
+</div>
+<div class="row">
+<?php
+    if (!empty($letterMonitor[0])) {
+        echo '<table>';
+
+        $columns = array_keys($letterMonitor[0]);
+        echo '<tr>';
+        foreach ($columns as $column) {
+            echo '<th>' . $this->escapehtml(trim($column)) . '</th>';
+        }
+        echo '</tr>';
+
+        foreach ($letterMonitor as $customer) {
+            echo '<tr style="background-color:'
+               . $this->cycle(array('#F0F0F0', '#FFFFFF'))->next()
+               . '">';
+            foreach ($customer as $column) {
+                echo '<td>' . $this->escapehtml(trim($column)) . '</td>';
+            }
+            echo '</tr>';
+        }
+
+        echo '</table>';
+    }
+?>
+</div>
+
+<div class="span5">
+        <h2><?php echo $this->translate('Letter Monitor Maintenance') ?></h2>
+        <p><?php echo 'Put some explanatory text here...' ?></p>
+        <ol>
+            <li>Create/Add a new Letter Monitor</li>
+            <li>Retrieve/View a detail record</li>
+            <li>Update/Edit a Letter Monitor</li>
+            <li>Delete/Remove a Letter Monitor</li>
+        </ol>
+    </div>
+</div>

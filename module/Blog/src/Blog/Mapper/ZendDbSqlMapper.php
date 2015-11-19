@@ -29,6 +29,8 @@ class ZendDbSqlMapper implements PostMapperInterface
      */
     protected $postPrototype;
 
+    public $postsColumns = [];
+
     /**
      * @param AdapterInterface  $dbAdapter
      * @param HydratorInterface $hydrator
@@ -42,6 +44,11 @@ class ZendDbSqlMapper implements PostMapperInterface
         $this->dbAdapter      = $dbAdapter;
         $this->hydrator       = $hydrator;
         $this->postPrototype  = $postPrototype;
+        $this->postsColumns = [
+            'id' => 'ID',
+            'title' => 'TITLE',
+            'bodytext' => 'TEXT' // you can give an alias to fields here by chaning the key...value here is the actual field name in the table
+        ];
     }
 
     /**
@@ -53,13 +60,16 @@ class ZendDbSqlMapper implements PostMapperInterface
     public function find($id)
     {
         $sql    = new Sql($this->dbAdapter);
-        $select = $sql->select('posts');
+        $select = $sql->select('posts')->columns($this->postsColumns);
         $select->where(array('id = ?' => $id));
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
 
         $currentResult = $result->current();
+
+//        var_dump($currentResult);die("@@@@@");
+
         $resultIsArray = true;
         if( is_array($currentResult) === false ) {
             $resultIsArray = false;
@@ -80,7 +90,16 @@ class ZendDbSqlMapper implements PostMapperInterface
     public function findAll()
     {
         $sql    = new Sql($this->dbAdapter);
-        $select = $sql->select('posts');
+        $select = $sql->select('posts')->columns($this->postsColumns);
+
+        /**
+         *
+
+         ->columns(['Group' => 'LGGRP', 'Section' => 'LGSEC', 'Option' => 'LGOPT','Amount' => 'LGAMT'])
+         ->join('CHOICE.LTRMON', 'POPDTALIB.LTRGRP.LGGRP = CHOICE.LTRMON.LMGRP and POPDTALIB.LTRGRP.LGSEC = CHOICE.LTRMON.LMSEC',
+                   ['Letter_1' => 'LML1DT', 'Letter_2' => 'LML2DT' , 'Letter_3' => 'LML3DT', 'Reminder' => 'LMRDT', 'Suspended' => 'LMSDT'])
+
+         **/
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
@@ -99,7 +118,11 @@ class ZendDbSqlMapper implements PostMapperInterface
       */
      public function save(PostInterface $postObject)
      {
-         $postData = $this->hydrator->extract($postObject);
+         $postDataTmp = $this->hydrator->extract($postObject);
+
+         foreach($this->postsColumns as $key => $val) {
+             $postData[strtolower($val)] = $postDataTmp[$key];
+         }
 
          unset($postData['id']); // Neither Insert nor Update needs the ID in the array
 

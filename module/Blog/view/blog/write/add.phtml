@@ -12,7 +12,7 @@ $formLabel = $this->plugin('formLabel');
 echo $this->form()->openTag($form);
 
 $title = $form->get('title');
-$text = $form->get('text');
+$bodytext = $form->get('bodytext');
 
 ?>
 
@@ -34,11 +34,11 @@ $text = $form->get('text');
 
     </div>
     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <?php echo $formLabel->openTag() . $text->getOption('label') . $formLabel->closeTag(); ?>
+        <?php echo $formLabel->openTag() . $bodytext->getOption('label') . $formLabel->closeTag(); ?>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
-        <?php echo $this->formTextarea($text); ?>
-        <?php echo $this->formElementErrors($text); ?>
+        <?php echo $this->formTextarea($bodytext); ?>
+        <?php echo $this->formElementErrors($bodytext); ?>
         <br /><br />
         <?php echo $this->formElement($form->get('submit')); ?>
     </div>
