@@ -37,7 +37,7 @@ $text = $form->get('text');
         <?php echo $formLabel->openTag() . $text->getOption('label') . $formLabel->closeTag(); ?>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
-        <?php echo $this->formInput($text); ?>
+        <?php echo $this->formTextarea($text); ?>
         <?php echo $this->formElementErrors($text); ?>
         <br /><br />
         <?php echo $this->formElement($form->get('submit')); ?>
@@ -45,3 +45,5 @@ $text = $form->get('text');
 </div>
 
 <?php echo $this->form()->closeTag(); ?>
+
+<div class="clearfix"></div>

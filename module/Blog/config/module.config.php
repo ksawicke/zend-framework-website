@@ -21,50 +21,20 @@ return array(
     ),
     'router' => array(
         'routes' => array(
+            'home' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/',
+                    'defaults' => array(
+                        'controller' => 'Blog\Controller\List',
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
             'blog' => array(
-//                'type' => 'segment',
-//                'options' => array(
-//                    // Listen to "/blog" as uri
-//                    'route'    => '/blog[/:action][/:id]',
-//                    'constraints' => array(
-//                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                    ),
-//                    // Define default controller and action to be called when this route is matched
-//                    'defaults' => array(
-//                        'controller' => 'Blog\Controller\List',
-//                        'action'     => 'index',
-//                    )
-//                ),
-
-
-//                'type' => 'literal',
-//                 'options' => array(
-//                     'route'    => '/blog',
-//                     'defaults' => array(
-//                         'controller' => 'Blog\Controller\List',
-//                         'action'     => 'index',
-//                     )
-//                 ),
-//                 'may_terminate' => true,
-//                 'child_routes'  => array(
-//                     'detail' => array(
-//                         'type' => 'segment',
-//                         'options' => array(
-//                             'route'    => '/detail/:id',
-//                             'defaults' => array(
-//                                 'controller' => 'Blog\Controller\List',
-//                                 'action' => 'detail'
-//                             ),
-//                             'constraints' => array(
-//                                 'id' => '\d+'
-//                             )
-//                         )
-//                     ),
-//                 )
-
                 'type' => 'literal',
                  'options' => array(
-                     'route'    => '/',
+                     'route'    => '/blog',
                      'defaults' => array(
                          'controller' => 'Blog\Controller\List',
                          'action'     => 'index',
@@ -75,7 +45,7 @@ return array(
                      'view' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => 'blog/view/:id',
+                             'route'    => '/view/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\List',
                                  'action' => 'view'
@@ -88,7 +58,7 @@ return array(
                      'edit' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => 'blog/edit/:id',
+                             'route'    => '/edit/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Write',
                                  'action'     => 'edit'
@@ -101,7 +71,7 @@ return array(
                      'add' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => 'blog/add',
+                             'route'    => '/add',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Write',
                                  'action'     => 'add'
@@ -111,7 +81,7 @@ return array(
                      'delete' => array(
                          'type' => 'segment',
                          'options' => array(
-                             'route'    => 'blog/delete/:id',
+                             'route'    => '/delete/:id',
                              'defaults' => array(
                                  'controller' => 'Blog\Controller\Delete',
                                  'action'     => 'delete'

@@ -51,7 +51,7 @@
           </button>
           <div class="visible-lg">
               <div class="swift-header-item">
-                <a class="navbar-brand" href="<?php echo $this->url('blog') ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
+                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/blog"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
               </div>
               <div class="swift-header-item swift-site-name">
                 SWIFT IT Template<?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
@@ -59,7 +59,7 @@
           </div>
           <div class="visible-xs visible-sm visible-md">
               <div class="swift-header-item-sm">
-                <a class="navbar-brand-sm" href="/"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
+                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/blog'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
               </div>
               <div class="swift-header-item swift-site-name-sm">
                 SWIFT IT Template

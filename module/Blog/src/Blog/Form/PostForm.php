@@ -1,7 +1,9 @@
 <?php
 
 namespace Blog\Form;
+
 use Zend\Form\Form;
+use Zend\Form\Element;
 use Blog\Model\Post;
 use Zend\Form\Fieldset;
 use Zend\Stdlib\Hydrator\ClassMethods;
@@ -37,7 +39,16 @@ class PostForm extends Form
             'name' => 'text',
             'options' => array(
                 'label' => 'Text'
-            )
+            ),
+            'attributes' => [
+                'rows' => '4',
+                'cols' => '70',
+                'wrap' => 'hard',
+                'maxlength' => '700',
+                'autofocus' => 'true',
+                'data-role' => 'none',
+                'style' => 'background-color: #bbb;'
+            ]
         ));
         $this->add(array(
             'type' => 'submit',
