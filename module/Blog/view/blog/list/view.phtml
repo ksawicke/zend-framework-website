@@ -23,7 +23,9 @@
         <?php echo $this->escapeHtml($this->post->getBodytext());?>
         <br /><br />
         <a href="<?php echo $this->basepath(); ?>/blog/edit/<?php echo $this->post->getId(); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
+        <?php /***
         <a href="<?php echo $this->url('blog', ['action' => 'edit', 'id' => $this->post->getId()]); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
+        ***/ ?>
     </div>
 </div>
 

@@ -280,3 +280,13 @@ textarea.apiTextArea {
 .glyphicon-hidden {
   color: #B2B2B2;
 }
+
+.alert .glyphicon{
+    display:table-cell;
+}
+
+.alert div,
+.alert span{
+    padding-left: 5px;
+    display:table-cell;
+}

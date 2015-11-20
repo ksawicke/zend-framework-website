@@ -23,6 +23,9 @@ class PostForm extends Form
 //        ));
         $this->setHydrator(new ClassMethods(false));
         $this->setObject(new Post());
+//        echo '<pre>';
+//        var_dump(new Post());
+//        echo '</pre>';
         $this->add(array(
             'type' => 'hidden',
             'name' => 'id'
