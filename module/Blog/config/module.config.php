@@ -91,7 +91,17 @@ return array(
                                  'id' => '\d+'
                              )
                          )
-                     )
+                     ),
+                     'test' => array(
+                         'type' => 'segment',
+                         'options' => array(
+                             'route'    => '/test',
+                             'defaults' => array(
+                                 'controller' => 'Blog\Controller\Post',
+                                 'action'     => 'test'
+                             )
+                         )
+                     ),
                  )
 
             )

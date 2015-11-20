@@ -121,4 +121,20 @@
              'post' => $post
          ));
      }
+
+     public function testAction()
+     {
+         try {
+             $test = $this->postService->findTestDataset();
+         } catch (Exception $e) {
+             var_dump($e);
+             die();
+         }
+
+         echo "FOUND TEST DATASET:<br />";
+         echo '<pre>';
+         print_r($test);
+         echo '</pre>';
+         die(".............");
+     }
  }

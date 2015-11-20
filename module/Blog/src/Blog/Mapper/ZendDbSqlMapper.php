@@ -54,13 +54,13 @@ class ZendDbSqlMapper implements PostMapperInterface
         $this->authUserColumns = [
             'identity_id' => 'IDENTITY_ID',
             'user_id' => 'USER_ID',
-            'user_administrator' => 'USER_ADMINISTRATOR'
+            'user_administratorsss' => 'USER_ADMINISTRATOR'
         ];
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
-        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns, $this->authUserColumns));
     }
 
     /**
@@ -188,17 +188,19 @@ class ZendDbSqlMapper implements PostMapperInterface
 
         $currentResult = $result->current();
 
-        $resultIsArray = true;
-        if( is_array($currentResult) === false ) {
-            $resultIsArray = false;
-        }
+        return $currentResult;
 
-        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
-            $resultIsArray
-           ) {
-            return $this->hydrator->hydrate($currentResult, $this->postPrototype);
-        }
-
-        throw new \InvalidArgumentException("Error getting pte_authorized_users.");
+//        $resultIsArray = true;
+//        if( is_array($currentResult) === false ) {
+//            $resultIsArray = false;
+//        }
+//
+//        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
+//            $resultIsArray
+//           ) {
+//            return $this->hydrator->hydrate($currentResult, $this->postPrototype);
+//        }
+//
+//        throw new \InvalidArgumentException("Error getting pte_authorized_users.");
      }
 }
