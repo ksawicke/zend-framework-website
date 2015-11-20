@@ -51,4 +51,9 @@ class PostService implements PostServiceInterface
      {
          return $this->postMapper->delete($post);
      }
+
+     public function findTestDataset()
+     {
+         return $this->postMapper->findTestDataset();
+     }
 }

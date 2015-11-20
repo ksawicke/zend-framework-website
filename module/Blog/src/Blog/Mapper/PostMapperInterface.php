@@ -34,4 +34,6 @@ interface PostMapperInterface
       * @throws \Exception
       */
      public function delete(PostInterface $postObject);
+
+     public function findTestDataset();
 }

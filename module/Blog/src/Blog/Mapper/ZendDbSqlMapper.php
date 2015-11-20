@@ -31,6 +31,7 @@ class ZendDbSqlMapper implements PostMapperInterface
     protected $postPrototype;
 
     public $postColumns = [];
+    public $authUserColumns = [];
 
     /**
      * @param AdapterInterface  $dbAdapter
@@ -49,6 +50,11 @@ class ZendDbSqlMapper implements PostMapperInterface
             'id' => 'ID',
             'title' => 'TITLE',
             'bodytext' => 'TEXT' // set key...value here is the actual field name in the table
+        ];
+        $this->authUserColumns = [
+            'identity_id' => 'IDENTITY_ID',
+            'user_id' => 'USER_ID',
+            'user_administrator' => 'USER_ADMINISTRATOR'
         ];
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
@@ -169,5 +175,30 @@ class ZendDbSqlMapper implements PostMapperInterface
          $result = $stmt->execute();
 
          return (bool) $result->getAffectedRows();
+     }
+
+     public function findTestDataset()
+     {
+        $sql    = new Sql($this->dbAdapter);
+        $select = $sql->select('pte_authorized_users')->columns($this->authUserColumns);
+        $select->where(['identity_id = ?' => 8]);
+
+        $stmt   = $sql->prepareStatementForSqlObject($select);
+        $result = $stmt->execute();
+
+        $currentResult = $result->current();
+
+        $resultIsArray = true;
+        if( is_array($currentResult) === false ) {
+            $resultIsArray = false;
+        }
+
+        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
+            $resultIsArray
+           ) {
+            return $this->hydrator->hydrate($currentResult, $this->postPrototype);
+        }
+
+        throw new \InvalidArgumentException("Error getting pte_authorized_users.");
      }
 }
