@@ -31,7 +31,7 @@ class PostForm extends Form
 //                'autofocus' => 'true'
             ]
         ]);
-        $this->add(array(
+        $this->add([
             'name' => 'bodytext',
             'type' => 'textarea',
             'options' => [
@@ -45,7 +45,7 @@ class PostForm extends Form
                 'data-role' => 'none',
                 'style' => 'background-color: #F7F3D9;'
             ]
-        ));
+        ]);
         $this->add([
             'type' => 'submit',
             'name' => 'submit',
