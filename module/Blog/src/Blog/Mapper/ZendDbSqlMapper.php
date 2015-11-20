@@ -11,6 +11,7 @@ use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
 use Zend\Stdlib\Hydrator\HydratorInterface;
+use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
 class ZendDbSqlMapper implements PostMapperInterface
 {
@@ -29,7 +30,7 @@ class ZendDbSqlMapper implements PostMapperInterface
      */
     protected $postPrototype;
 
-    public $postsColumns = [];
+    public $postColumns = [];
 
     /**
      * @param AdapterInterface  $dbAdapter
@@ -49,21 +50,11 @@ class ZendDbSqlMapper implements PostMapperInterface
             'title' => 'TITLE',
             'bodytext' => 'TEXT' // set key...value here is the actual field name in the table
         ];
-    }
-
-    /**
-     * Translate back the alias keys to the real fieldnames.
-     *
-     * @param  $postObject
-     * @return $postData
-     */
-    private function translatePostObject($postObject)
-    {
-         foreach($this->postColumns as $key => $val) {
-             $postData[strtolower($val)] = $this->hydrator->extract($postObject)[$key];
-         }
-
-         return $postData;
+        // Now tell the Hydrator to array_flip the keys on save.
+        // Advantage: This allows us to refer to easier to understand field names on the
+        // front end, but let the application deal with the real names on the back end
+        // as in when doing an update.
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns));
     }
 
     /**
@@ -76,7 +67,7 @@ class ZendDbSqlMapper implements PostMapperInterface
     {
         $sql    = new Sql($this->dbAdapter);
         $select = $sql->select('posts')->columns($this->postColumns);
-        $select->where(array('id = ?' => $id));
+        $select->where(['id = ?' => $id]);
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
@@ -127,15 +118,15 @@ class ZendDbSqlMapper implements PostMapperInterface
       */
      public function save(PostInterface $postObject)
      {
-         $postData = $this->translatePostObject($postObject);
+         $postData = $this->hydrator->extract($postObject);
 
-         unset($postData['id']); // Neither Insert nor Update needs the ID in the array
+         unset($postData['ID']); // Neither Insert nor Update needs the ID in the array
 
          if ($postObject->getId()) {
              // ID present, it's an Update
              $action = new Update('posts');
              $action->set($postData);
-             $action->where(array('id = ?' => $postObject->getId()));
+             $action->where(['id = ?' => $postObject->getId()]);
          } else {
              // ID NOT present, it's an Insert
              $action = new Insert('posts');
@@ -170,11 +161,11 @@ class ZendDbSqlMapper implements PostMapperInterface
      public function delete(PostInterface $postObject)
      {
          $action = new Delete('posts');
-         $action->where(array('id = ?' => $postObject->getId()));
+         $action->where(['id = ?' => $postObject->getId()]);
 
          $sql    = new Sql($this->dbAdapter);
          $stmt   = $sql->prepareStatementForSqlObject($action);
 
-         return (bool)$result->getAffectedRows();
+         return (bool) $result->getAffectedRows();
      }
 }

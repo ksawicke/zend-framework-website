@@ -14,18 +14,8 @@ class PostForm extends Form
     {
         parent::__construct($name, $options);
 
-//        $this->add(array(
-//            'name' => 'post-fieldset',
-//            'type' => 'Blog\Form\PostFieldset',
-//            'options' => array(
-//                'use_as_base_fieldset' => true
-//            )
-//        ));
         $this->setHydrator(new ClassMethods(false));
         $this->setObject(new Post());
-//        echo '<pre>';
-//        var_dump(new Post());
-//        echo '</pre>';
         $this->add(array(
             'type' => 'hidden',
             'name' => 'id'
