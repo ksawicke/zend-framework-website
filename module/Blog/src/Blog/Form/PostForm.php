@@ -16,41 +16,44 @@ class PostForm extends Form
 
         $this->setHydrator(new ClassMethods(false));
         $this->setObject(new Post());
-        $this->add(array(
+        $this->add([
             'type' => 'hidden',
             'name' => 'id'
-        ));
-        $this->add(array(
+        ]);
+        $this->add([
             'name' => 'title',
             'type' => 'text',
-            'options' => array(
+            'options' => [
                 'label' => 'Post Title'
-            )
-        ));
+            ],
+            'attributes' => [
+                'style' => 'background-color: #F7F3D9;'
+//                'autofocus' => 'true'
+            ]
+        ]);
         $this->add(array(
             'name' => 'bodytext',
             'type' => 'textarea',
-            'options' => array(
+            'options' => [
                 'label' => 'Text'
-            ),
+            ],
             'attributes' => [
                 'rows' => '4',
                 'cols' => '70',
                 'wrap' => 'hard',
                 'maxlength' => '700',
-                'autofocus' => 'true',
                 'data-role' => 'none',
-                'style' => 'background-color: #bbb;'
+                'style' => 'background-color: #F7F3D9;'
             ]
         ));
-        $this->add(array(
+        $this->add([
             'type' => 'submit',
             'name' => 'submit',
-            'attributes' => array(
+            'attributes' => [
                 'value' => 'Insert new Post',
                 'class' => 'btn btn-form-primary'
-            )
-        ));
+            ]
+        ]);
     }
 
 }

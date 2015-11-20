@@ -290,3 +290,20 @@ textarea.apiTextArea {
     padding-left: 5px;
     display:table-cell;
 }
+
+.table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #DBD46B;
+}
+.table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #DBD46B;
+}
+.table-bordered {
+  border: 1px solid #DBD46B;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #F7F3D9;
+}
