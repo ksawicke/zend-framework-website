@@ -14,6 +14,9 @@ echo $this->form()->openTag($form);
 $title = $form->get('title');
 $bodytext = $form->get('bodytext');
 
+$title->setValue(trim($title->getValue())); // trim the value and set it
+$bodytext->setValue(trim($bodytext->getValue())); // trim the value and set it
+
 ?>
 
 <div class="row rowMinHeight">

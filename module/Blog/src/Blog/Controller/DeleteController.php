@@ -32,7 +32,11 @@
              $del = $request->getPost('delete_confirmation', 'no');
 
              if ($del === 'yes') {
-                 $this->postService->deletePost($post);
+                 try {
+                    $this->postService->deletePost($post);
+                 } catch (Exception $e) {
+                    die('Error: ' . $e->getMessage());
+                 }
              }
 
              return $this->redirect()->toRoute('blog');

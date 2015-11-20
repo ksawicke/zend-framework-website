@@ -21,15 +21,15 @@ class PostForm extends Form
             'name' => 'id'
         ));
         $this->add(array(
-            'type' => 'text',
             'name' => 'title',
+            'type' => 'text',
             'options' => array(
                 'label' => 'Post Title'
             )
         ));
         $this->add(array(
-            'type' => 'textarea',
             'name' => 'bodytext',
+            'type' => 'textarea',
             'options' => array(
                 'label' => 'Text'
             ),

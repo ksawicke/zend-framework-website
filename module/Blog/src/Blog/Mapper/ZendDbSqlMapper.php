@@ -166,6 +166,8 @@ class ZendDbSqlMapper implements PostMapperInterface
          $sql    = new Sql($this->dbAdapter);
          $stmt   = $sql->prepareStatementForSqlObject($action);
 
+         $result = $stmt->execute();
+
          return (bool) $result->getAffectedRows();
      }
 }
