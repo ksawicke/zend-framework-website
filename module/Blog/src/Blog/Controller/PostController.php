@@ -7,7 +7,7 @@
  use Zend\Mvc\Controller\AbstractActionController;
  use Zend\View\Model\ViewModel;
 
- class WriteController extends AbstractActionController
+ class PostController extends AbstractActionController
  {
      protected $postService;
 
@@ -19,6 +19,28 @@
      ) {
          $this->postService = $postService;
          $this->postForm    = $postForm;
+     }
+
+     public function indexAction()
+     {
+        return new ViewModel(array(
+            'posts' => $this->postService->findAllPosts()
+        ));
+     }
+
+     public function viewAction()
+     {
+        $id = $this->params()->fromRoute('id');
+
+        try {
+            $post = $this->postService->findPost($id);
+        } catch (\InvalidArgumentException $ex) {
+            return $this->redirect()->toRoute('blog');
+        }
+
+        return new ViewModel(array(
+            'post' => $post
+        ));
      }
 
      public function addAction()
@@ -68,6 +90,35 @@
 
          return new ViewModel(array(
              'form' => $this->postForm
+         ));
+     }
+
+     public function deleteAction()
+     {
+         try {
+             $post = $this->postService->findPost($this->params('id'));
+         } catch (\InvalidArgumentException $e) {
+             return $this->redirect()->toRoute('blog');
+         }
+
+         $request = $this->getRequest();
+
+         if ($request->isPost()) {
+             $del = $request->getPost('delete_confirmation', 'no');
+
+             if ($del === 'yes') {
+                 try {
+                    $this->postService->deletePost($post);
+                 } catch (Exception $e) {
+                    die('Error: ' . $e->getMessage());
+                 }
+             }
+
+             return $this->redirect()->toRoute('blog');
+         }
+
+         return new ViewModel(array(
+             'post' => $post
          ));
      }
  }

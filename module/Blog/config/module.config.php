@@ -14,9 +14,10 @@ return array(
      ),
     'controllers' => array(
         'factories' => array(
-            'Blog\Controller\List' => 'Blog\Factory\ListControllerFactory',
-            'Blog\Controller\Write'  => 'Blog\Factory\WriteControllerFactory',
-            'Blog\Controller\Delete' => 'Blog\Factory\DeleteControllerFactory'
+            'Blog\Controller\Post' => 'Blog\Factory\PostControllerFactory'
+//            'Blog\Controller\List' => 'Blog\Factory\ListControllerFactory',
+//            'Blog\Controller\Write'  => 'Blog\Factory\WriteControllerFactory',
+//            'Blog\Controller\Delete' => 'Blog\Factory\DeleteControllerFactory'
         )
     ),
     'router' => array(
@@ -26,7 +27,7 @@ return array(
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        'controller' => 'Blog\Controller\List',
+                        'controller' => 'Blog\Controller\Post',
                         'action'     => 'index',
                     ),
                 ),
@@ -36,7 +37,7 @@ return array(
                  'options' => array(
                      'route'    => '/blog',
                      'defaults' => array(
-                         'controller' => 'Blog\Controller\List',
+                         'controller' => 'Blog\Controller\Post',
                          'action'     => 'index',
                      ),
                  ),
@@ -47,7 +48,7 @@ return array(
                          'options' => array(
                              'route'    => '/view/:id',
                              'defaults' => array(
-                                 'controller' => 'Blog\Controller\List',
+                                 'controller' => 'Blog\Controller\Post',
                                  'action' => 'view'
                              ),
                              'constraints' => array(
@@ -60,7 +61,7 @@ return array(
                          'options' => array(
                              'route'    => '/edit/:id',
                              'defaults' => array(
-                                 'controller' => 'Blog\Controller\Write',
+                                 'controller' => 'Blog\Controller\Post',
                                  'action'     => 'edit'
                              ),
                              'constraints' => array(
@@ -73,7 +74,7 @@ return array(
                          'options' => array(
                              'route'    => '/add',
                              'defaults' => array(
-                                 'controller' => 'Blog\Controller\Write',
+                                 'controller' => 'Blog\Controller\Post',
                                  'action'     => 'add'
                              )
                          )
@@ -83,7 +84,7 @@ return array(
                          'options' => array(
                              'route'    => '/delete/:id',
                              'defaults' => array(
-                                 'controller' => 'Blog\Controller\Delete',
+                                 'controller' => 'Blog\Controller\Post',
                                  'action'     => 'delete'
                              ),
                              'constraints' => array(
