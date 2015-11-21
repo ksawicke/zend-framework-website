@@ -10,6 +10,7 @@ use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
+use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
@@ -52,14 +53,15 @@ class ZendDbSqlMapper implements PostMapperInterface
             'bodytext' => 'TEXT' // set key...value here is the actual field name in the table
         ];
         $this->authUserColumns = [
-            'identity_id' => 'IDENTITY_ID',
-            'user_id' => 'USER_ID',
-            'user_administratorsss' => 'USER_ADMINISTRATOR'
+            'id' => 'IDENTITY_ID',
+            'userid' => 'USER_ID',
+            'admin' => 'USER_ADMINISTRATOR'
         ];
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
+        // Can pass in multiple arrays here.
         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns, $this->authUserColumns));
     }
 
@@ -177,30 +179,29 @@ class ZendDbSqlMapper implements PostMapperInterface
          return (bool) $result->getAffectedRows();
      }
 
+     /**
+      * Return an array of rows from a query.
+      *
+      * @return [[Type]] [[Description]]
+      */
      public function findTestDataset()
      {
         $sql    = new Sql($this->dbAdapter);
         $select = $sql->select('pte_authorized_users')->columns($this->authUserColumns);
-        $select->where(['identity_id = ?' => 8]);
+        //$select->where(['identity_id = ?' => 8]);
+        $select->where(['identity_id' => [4,5,6,7,8,9]]);
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
 
-        $currentResult = $result->current();
+        $resultSet = new ResultSet;
+        $resultSet->initialize($result);
 
-        return $currentResult;
+        $returnRows = [];
+        foreach ($resultSet as $row) {
+            $returnRows[] = (array) $row;
+        }
 
-//        $resultIsArray = true;
-//        if( is_array($currentResult) === false ) {
-//            $resultIsArray = false;
-//        }
-//
-//        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
-//            $resultIsArray
-//           ) {
-//            return $this->hydrator->hydrate($currentResult, $this->postPrototype);
-//        }
-//
-//        throw new \InvalidArgumentException("Error getting pte_authorized_users.");
+        return $returnRows;
      }
 }
