@@ -147,9 +147,25 @@
              die();
          }
 
-         echo "FOUND TEST DATASET:<br />";
+         echo "FOUND TEST 2 DATASET:<br />";
          echo '<pre>';
          print_r($test2);
+         echo '</pre>';
+         die(".............");
+     }
+
+     public function test3Action()
+     {
+         try {
+             $test3 = $this->postService->getEmailRecipientData();
+         } catch (Exception $e) {
+             var_dump($e);
+             die();
+         }
+
+         echo "FOUND TEST 3 DATASET:<br />";
+         echo '<pre>';
+         print_r($test3);
          echo '</pre>';
          die(".............");
      }

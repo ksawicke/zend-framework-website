@@ -34,6 +34,7 @@ class ZendDbSqlMapper implements PostMapperInterface
     public $postColumns = [];
     public $authUserColumns = [];
     public $docTypeColumns = [];
+    public $emailRecipientColumns = [];
 
     /**
      * @param AdapterInterface  $dbAdapter
@@ -64,6 +65,14 @@ class ZendDbSqlMapper implements PostMapperInterface
             'description' => 'DESCRIPTION',
             'create_user' => 'CREATE_USER'
         ];
+        $this->emailRecipientColumns = [
+            'employee_number' => 'SPDEN',
+            'initial_email_sent_on' => 'SPDDATSNTE',
+            'first_reminder_sent_on' => 'SPD1STNTCE',
+            'second_reminder_sent_on' => 'SPD2NDNTCE',
+            'link_clicked_on' => 'SPDDATCNFE'
+        ];
+
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
@@ -226,7 +235,7 @@ class ZendDbSqlMapper implements PostMapperInterface
       */
      public function findAllDocumentTypes($type = null)
      {
-        $sql    = new Sql($this->dbAdapter);
+         $sql    = new Sql($this->dbAdapter);
 
          $select =
              $sql->select('spdbkdtyp')
@@ -254,4 +263,61 @@ class ZendDbSqlMapper implements PostMapperInterface
 
         return $returnRows;
      }
+
+    public function getEmailRecipientData()
+    {
+//        $sql = "SELECT
+//                    c.spder AS employer_number,
+//                    c.spden AS employee_number,
+//                    c.spddatsnte AS initial_email_sent_on,
+//                    c.spd1stntce AS first_reminder_sent_on,
+//                    c.spd2ndntce AS second_reminder_sent_on,
+//                    c.spddatcnfe AS link_clicked_on,
+//                    p.prcknm as employee_name,
+//                    p.preml1 as employee_email_address
+//                    FROM cupspdctl c
+//                    JOIN prpms p ON p.pren = c.spden
+//                    WHERE SPDDOCCODE = '" . $document_code . "'";
+//        if($employee_number!=NULL)
+//        {
+//            $sql .= " AND c.spden LIKE '%" . $employee_number . "%'";
+//        }
+//
+//        if($override) {
+//            $sql .= " AND c.spden in(";
+//            foreach($emailOverrideEmployeeIds as $key => $eid) {
+//                $sql .= "'" . str_pad(trim($eid), 9, ' ', STR_PAD_LEFT) . "',";
+//            }
+//            $sql = substr($sql, 0, -1);
+//            $sql .= ")";
+//        }
+
+         $sql    = new Sql($this->dbAdapter);
+
+         $select =
+             $sql->select('cupspdctl')
+                 ->columns($this->emailRecipientColumns)
+//                 ->order("DESCRIPTION ASC, DOCUMENT_ID ASC")
+                 ->limit(3);
+//                 ->offset(1); // ->limit(100)->offset(100)
+
+//        if(is_array($type)) {
+//            $select->where(['document_type' => $type]);
+//        } elseif(!is_null($type)) {
+//            $select->where(['document_type = ?' => $type]);
+//        }
+
+        $stmt   = $sql->prepareStatementForSqlObject($select);
+        $result = $stmt->execute();
+
+        $resultSet = new ResultSet;
+        $resultSet->initialize($result);
+
+        $returnRows = [];
+        foreach ($resultSet as $row) {
+            $returnRows[] = (array) $row;
+        }
+
+        return $returnRows;
+    }
 }

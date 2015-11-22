@@ -112,6 +112,16 @@ return array(
                              )
                          )
                      ),
+                     'test3' => array(
+                         'type' => 'segment',
+                         'options' => array(
+                             'route'    => '/test3',
+                             'defaults' => array(
+                                 'controller' => 'Blog\Controller\Post',
+                                 'action'     => 'test3'
+                             )
+                         )
+                     ),
                  )
 
             )

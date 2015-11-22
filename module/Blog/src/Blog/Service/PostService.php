@@ -61,4 +61,9 @@ class PostService implements PostServiceInterface
      {
          return $this->postMapper->findAllDocumentTypes($type);
      }
+
+     public function getEmailRecipientData()
+     {
+         return $this->postMapper->getEmailRecipientData();
+     }
 }
