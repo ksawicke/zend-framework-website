@@ -59,6 +59,7 @@ class ZendDbSqlMapper implements PostMapperInterface
             'admin' => 'USER_ADMINISTRATOR'
         ];
         $this->docTypeColumns = [
+            'document_id' => 'DOCUMENT_ID',
             'document_type' => 'DOCUMENT_TYPE',
             'description' => 'DESCRIPTION',
             'create_user' => 'CREATE_USER'
@@ -193,9 +194,11 @@ class ZendDbSqlMapper implements PostMapperInterface
      public function findTestDataset()
      {
         $sql    = new Sql($this->dbAdapter);
-        $select = $sql->select('pte_authorized_users')->columns($this->authUserColumns);
-        //$select->where(['identity_id = ?' => 8]); // sinlge record
-        $select->where(['identity_id' => [4,5,6,7,8,9]]); // WHERE identity_id IN_ARRAY(4,5,6,7,8,9)
+        $select =
+            $sql->select('pte_authorized_users')
+                ->columns($this->authUserColumns)
+                //$select->where(['identity_id = ?' => 8]); // sinlge record
+                ->where(['identity_id' => [4,5,6,7,8,9]]); // WHERE identity_id IN_ARRAY(4,5,6,7,8,9)
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
@@ -224,7 +227,14 @@ class ZendDbSqlMapper implements PostMapperInterface
      public function findAllDocumentTypes($type = null)
      {
         $sql    = new Sql($this->dbAdapter);
-        $select = $sql->select('spdbkdtyp')->columns($this->docTypeColumns)->limit(3)->offset(1); // ->limit(100)->offset(100)
+
+         $select =
+             $sql->select('spdbkdtyp')
+                 ->columns($this->docTypeColumns)
+                 ->order("DESCRIPTION ASC, DOCUMENT_ID ASC")
+                 ->limit(3)
+                 ->offset(1); // ->limit(100)->offset(100)
+
         if(is_array($type)) {
             $select->where(['document_type' => $type]);
         } elseif(!is_null($type)) {
