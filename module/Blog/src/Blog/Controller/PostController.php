@@ -137,4 +137,20 @@
          echo '</pre>';
          die(".............");
      }
+
+     public function test2Action()
+     {
+         try {
+             $test2 = $this->postService->findAllDocumentTypes(['MDV', 'SAR', 'SBC', 'DBP', 'STD', 'ELD']);
+         } catch (Exception $e) {
+             var_dump($e);
+             die();
+         }
+
+         echo "FOUND TEST DATASET:<br />";
+         echo '<pre>';
+         print_r($test2);
+         echo '</pre>';
+         die(".............");
+     }
  }

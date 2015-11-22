@@ -36,4 +36,6 @@ interface PostMapperInterface
      public function delete(PostInterface $postObject);
 
      public function findTestDataset();
+
+     public function findAllDocumentTypes($type = null);
 }

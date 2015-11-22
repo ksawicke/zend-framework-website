@@ -33,6 +33,7 @@ class ZendDbSqlMapper implements PostMapperInterface
 
     public $postColumns = [];
     public $authUserColumns = [];
+    public $docTypeColumns = [];
 
     /**
      * @param AdapterInterface  $dbAdapter
@@ -56,6 +57,11 @@ class ZendDbSqlMapper implements PostMapperInterface
             'id' => 'IDENTITY_ID',
             'userid' => 'USER_ID',
             'admin' => 'USER_ADMINISTRATOR'
+        ];
+        $this->docTypeColumns = [
+            'document_type' => 'DOCUMENT_TYPE',
+            'description' => 'DESCRIPTION',
+            'create_user' => 'CREATE_USER'
         ];
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
@@ -188,8 +194,42 @@ class ZendDbSqlMapper implements PostMapperInterface
      {
         $sql    = new Sql($this->dbAdapter);
         $select = $sql->select('pte_authorized_users')->columns($this->authUserColumns);
-        //$select->where(['identity_id = ?' => 8]);
-        $select->where(['identity_id' => [4,5,6,7,8,9]]);
+        //$select->where(['identity_id = ?' => 8]); // sinlge record
+        $select->where(['identity_id' => [4,5,6,7,8,9]]); // WHERE identity_id IN_ARRAY(4,5,6,7,8,9)
+
+        $stmt   = $sql->prepareStatementForSqlObject($select);
+        $result = $stmt->execute();
+
+        $resultSet = new ResultSet;
+        $resultSet->initialize($result);
+
+        $returnRows = [];
+        foreach ($resultSet as $row) {
+            $returnRows[] = (array) $row;
+        }
+
+        return $returnRows;
+     }
+
+     /**
+      * Grab data, even by an array of matching values, with offsets! Woo hoo!
+      * Even though DB2 does not natively support LIMIT and OFFSET like
+      * MySQL, we can get similar results using the object oriented chaining
+      * of ->limit(x)->offset(y) !
+      * Probably use this for pagination
+      *
+      * @param  [[Type]] [$type = null] [[Description]]
+      * @return [[Type]] [[Description]]
+      */
+     public function findAllDocumentTypes($type = null)
+     {
+        $sql    = new Sql($this->dbAdapter);
+        $select = $sql->select('spdbkdtyp')->columns($this->docTypeColumns)->limit(3)->offset(1); // ->limit(100)->offset(100)
+        if(is_array($type)) {
+            $select->where(['document_type' => $type]);
+        } elseif(!is_null($type)) {
+            $select->where(['document_type = ?' => $type]);
+        }
 
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();

@@ -56,4 +56,9 @@ class PostService implements PostServiceInterface
      {
          return $this->postMapper->findTestDataset();
      }
+
+     public function findAllDocumentTypes($type = null)
+     {
+         return $this->postMapper->findAllDocumentTypes($type);
+     }
 }
