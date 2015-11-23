@@ -1,12 +1,8 @@
 <?php
 
-namespace Blog\Mapper;
+namespace Simpler\Model;
 
-use Blog\Model\PostInterface;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
-//use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
@@ -14,8 +10,11 @@ use Zend\Db\Sql\Update;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
+use Zend\Stdlib\Hydrator\ClassMethods;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\FactoryInterface;
 
-class ZendDbSqlMapper implements PostMapperInterface
+class PostModel extends \Application\Model\ApplicationModel implements FactoryInterface
 {
     /**
      * @var \Zend\Db\Adapter\AdapterInterface
@@ -25,7 +24,7 @@ class ZendDbSqlMapper implements PostMapperInterface
     /**
      * @var \Zend\Stdlib\Hydrator\HydratorInterface
      */
-    protected $hydrator;
+//    protected $hydrator;
 
     /**
      * @var \Blog\Model\PostInterface
@@ -43,21 +42,28 @@ class ZendDbSqlMapper implements PostMapperInterface
      * @param PostInterface    $postPrototype
      */
     public function __construct(
-        AdapterInterface $dbAdapter,
-        HydratorInterface $hydrator,
-        PostInterface $postPrototype
+//        AdapterInterface $dbAdapter,
+//        HydratorInterface $hydrator
+//        PostInterface $postPrototype
     ) {
-        $this->dbAdapter      = $dbAdapter;
-        $this->hydrator       = $hydrator;
-        $this->postPrototype  = $postPrototype;
+        parent::__construct();
 
-        echo '<pre>dbAdapter';
-        print_r($this->dbAdapter);
-        echo '</pre>';
+//        $this->dbAdapter      = $dbAdapter;
+//        $this->hydrator       = $hydrator;
+//        $this->postPrototype  = $postPrototype;
+
+//        $this->hydrator = new ClassMethods(false);
+
+//        echo '<pre>dbAdapter';
+//        print_r($this->dbAdapter);
+//        echo '</pre>';
 
         echo '<pre>hydrator';
         print_r($this->hydrator);
         echo '</pre>';
+
+
+        die("YO!!");
 
         echo '<pre>postPrototype';
         print_r($this->postPrototype);

@@ -3,21 +3,15 @@
 return [
 //     'db'              => [ /** Db Config */ ],
      'service_manager' => [
-//         'invokables' => [
-//            'Blog\Service\PostServiceInterface' => 'Blog\Service\PostService'
-//         ],
          'factories' => [
-             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\ZendDbSqlMapperFactory',
-             'Blog\Service\PostServiceInterface' => 'Blog\Factory\PostServiceFactory',
              'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
          ]
      ],
     'controllers' => [
+        'invokables' => [
+            'Simpler\Controller\Blah' => 'Simpler\Controller\BlahController'
+        ],
         'factories' => [
-            'Blog\Controller\Post' => 'Blog\Factory\PostControllerFactory'
-//            'Blog\Controller\List' => 'Blog\Factory\ListControllerFactory',
-//            'Blog\Controller\Write'  => 'Blog\Factory\WriteControllerFactory',
-//            'Blog\Controller\Delete' => 'Blog\Factory\DeleteControllerFactory'
         ]
     ],
     'router' => [
@@ -27,17 +21,17 @@ return [
                 'options' => [
                     'route'    => '/',
                     'defaults' => [
-                        'controller' => 'Blog\Controller\Post',
+                        'controller' => 'Simpler\Controller\Blah',
                         'action'     => 'index',
                     ],
                 ],
             ],
-            'blog' => [
+            'simpler' => [
                 'type' => 'literal',
                  'options' => [
-                     'route'    => '/blog',
+                     'route'    => '/simpler',
                      'defaults' => [
-                         'controller' => 'Blog\Controller\Post',
+                         'controller' => 'Simpler\Controller\Blah',
                          'action'     => 'index',
                      ],
                  ],
@@ -48,7 +42,7 @@ return [
                          'options' => [
                              'route'    => '/view/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action' => 'view'
                              ],
                              'constraints' => [
@@ -61,7 +55,7 @@ return [
                          'options' => [
                              'route'    => '/edit/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'edit'
                              ],
                              'constraints' => [
@@ -74,7 +68,7 @@ return [
                          'options' => [
                              'route'    => '/add',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'add'
                              ]
                          ]
@@ -84,7 +78,7 @@ return [
                          'options' => [
                              'route'    => '/delete/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'delete'
                              ],
                              'constraints' => [
@@ -97,7 +91,7 @@ return [
                          'options' => [
                              'route'    => '/test',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'test'
                              ]
                          ]
@@ -107,7 +101,7 @@ return [
                          'options' => [
                              'route'    => '/test2',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'test2'
                              ]
                          ]
@@ -117,7 +111,7 @@ return [
                          'options' => [
                              'route'    => '/test3',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Simpler\Controller\Blah',
                                  'action'     => 'test3'
                              ]
                          ]

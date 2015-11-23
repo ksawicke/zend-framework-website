@@ -1,21 +1,25 @@
 <?php
 
-namespace Blog\Mapper;
+namespace Simpler\Mapper;
 
-use Blog\Model\PostInterface;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\HydratingResultSet;
+//use Simpler\Model\PostInterface;
+//use Zend\Db\Adapter\AdapterInterface;
+//use Zend\Db\Adapter\Driver\ResultInterface;
 //use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Stdlib\Hydrator\HydratorInterface;
-use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
-class ZendDbSqlMapper implements PostMapperInterface
+//use Zend\Db\ResultSet\HydratingResultSet;
+//use Zend\Db\Sql\Delete;
+//use Zend\Db\Sql\Insert;
+//use Zend\Db\Sql\Sql;
+//use Zend\Db\Sql\Update;
+//use Zend\Db\ResultSet\ResultSet;
+//use Zend\Stdlib\Hydrator\HydratorInterface;
+//use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
+//use Zend\Stdlib\Hydrator\ClassMethods;
+//use Zend\ServiceManager\ServiceLocatorInterface;
+//use Zend\ServiceManager\FactoryInterface;
+
+class PostModel extends Model implements FactoryInterface
 {
     /**
      * @var \Zend\Db\Adapter\AdapterInterface
@@ -39,29 +43,35 @@ class ZendDbSqlMapper implements PostMapperInterface
 
     /**
      * @param AdapterInterface  $dbAdapter
-     * @param HydratorInterface $hydrator
-     * @param PostInterface    $postPrototype
-     */
+//     * @param HydratorInterface $hydrator
+//     * @param PostInterface    $postPrototype
+//     */
     public function __construct(
-        AdapterInterface $dbAdapter,
-        HydratorInterface $hydrator,
-        PostInterface $postPrototype
+//        AdapterInterface $dbAdapter,
+//        HydratorInterface $hydrator
+//        PostInterface $postPrototype
     ) {
-        $this->dbAdapter      = $dbAdapter;
-        $this->hydrator       = $hydrator;
-        $this->postPrototype  = $postPrototype;
 
-        echo '<pre>dbAdapter';
-        print_r($this->dbAdapter);
-        echo '</pre>';
+
+//        $this->dbAdapter      = $dbAdapter;
+//        $this->hydrator       = $hydrator;
+//        $this->postPrototype  = $postPrototype;
+
+        $this->hydrator = new ClassMethods(false);
+
+//        echo '<pre>dbAdapter';
+//        print_r($this->dbAdapter);
+//        echo '</pre>';
 
         echo '<pre>hydrator';
         print_r($this->hydrator);
         echo '</pre>';
 
-        echo '<pre>postPrototype';
-        print_r($this->postPrototype);
-        echo '</pre>';
+        die("YO!!");
+
+//        echo '<pre>postPrototype';
+//        print_r($this->postPrototype);
+//        echo '</pre>';
 
         die(".......");
 
@@ -96,6 +106,17 @@ class ZendDbSqlMapper implements PostMapperInterface
         // Can pass in multiple arrays here.
         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns, $this->authUserColumns));
     }
+
+//    public function createService(ServiceLocatorInterface $serviceLocator)
+//    {
+//        die("LDFKJ");
+//        $hydrator = new ClassMethods(false);
+//        return new ZendDbSqlMapper(
+//            $serviceLocator->get('Zend\Db\Adapter\Adapter'),
+//            $hydrator,
+//            new Post()
+//        );
+//    }
 
     /**
     * @param int|string $ID
