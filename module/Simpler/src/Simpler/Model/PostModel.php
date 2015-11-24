@@ -2,29 +2,88 @@
 
 namespace Simpler\Model;
 
-//use Zend\Db\ResultSet\HydratingResultSet;
-//use Zend\Db\Sql\Delete;
-//use Zend\Db\Sql\Insert;
-//use Zend\Db\Sql\Sql;
-//use Zend\Db\Sql\Update;
-//use Zend\Db\ResultSet\ResultSet;
-//use Zend\Stdlib\Hydrator\HydratorInterface;
-//use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
-//use Zend\Stdlib\Hydrator\ClassMethods;
-//use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\Db\ResultSet\HydratingResultSet;
+use Zend\Db\Sql\Delete;
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Update;
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Stdlib\Hydrator\HydratorInterface;
+use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
+use Zend\Stdlib\Hydrator\ClassMethods;
+//use Zend\Db\Adapter\AdapterInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 //use Zend\ServiceManager\FactoryInterface;
 
-class PostModel extends \Application\Model\ApplicationModel
+class PostModel // extends AbstractAdapterAware // extends \Application\Model\ApplicationModel
 {
-    /**
-     * @var \Zend\Db\Adapter\AdapterInterface
-     */
-    protected $dbAdapter;
-
     /**
      * @var \Zend\Stdlib\Hydrator\HydratorInterface
      */
 //    protected $hydrator;
+
+    /**
+     * @var int
+     */
+    protected $id;
+
+    /**
+     * @var string
+     */
+    protected $title;
+
+    /**
+     * @var string
+     */
+    protected $bodytext;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+    * @param int $id
+    */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+    * @param string $title
+    */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public function getBodytext()
+    {
+        return $this->bodytext;
+    }
+
+    /**
+    * @param string $bodytext
+    */
+    public function setBodytext($bodytext)
+    {
+        $this->bodytext = $bodytext;
+    }
 
     /**
      * @var \Blog\Model\PostInterface
@@ -42,38 +101,64 @@ class PostModel extends \Application\Model\ApplicationModel
      * @param PostInterface    $postPrototype
      */
     public function __construct(
-//        AdapterInterface $dbAdapter,
+        $dbAdapter
 //        HydratorInterface $hydrator
 //        PostInterface $postPrototype
     ) {
-        parent::__construct();
+//        parent::__construct();
+        $this->dbAdapter        = $dbAdapter;
+//        var_dump([1=>'asdfaasdfasdf', 2=>'dfasf']);
+//        exit();
+        $this->hydrator         = new ClassMethods(false);
+
+//        error_log("", 0);
+//        error_log("Why do they call it rush hour when nothing moves?", 0);
+//
+//        error_log("", 0);
+//        error_log("A day without sunshine is like, you know, night.", 0);
+//
+//        error_log("", 0);
+//        error_log("Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", 0);
+//
+//        error_log("", 0);
+//        error_log("I always wanted to be somebody, but now I realize I should have been more specific.", 0);
+//
+
+
+//        var_dump($this->hydrator);exit();
 
 //        $this->dbAdapter      = $dbAdapter;
 //        $this->hydrator       = $hydrator;
 //        $this->postPrototype  = $postPrototype;
 
+//        var_dump($this->postPrototype);exit();
 //        $this->hydrator = new ClassMethods(false);
 
-        echo '<pre>hydrator';
-        print_r($this->hydrator);
-        echo '</pre>';
-
-        echo '<pre>dbAdapter';
-        print_r($this->dbAdapter);
-        echo '</pre>';
-
-        die("YO!!");
-
-        echo '<pre>postPrototype';
-        print_r($this->postPrototype);
-        echo '</pre>';
-
-        die(".......");
+//        echo '<pre>hydrator';
+//        print_r($this->hydrator);
+//        echo '</pre>';
+//
+//        echo '<pre>db';
+//        print_r($this->db);
+//        echo '</pre>';
+//
+//        die("YO!!");
+//
+//        echo '<pre>postPrototype';
+//        print_r($this->postPrototype);
+//        echo '</pre>';
+//
+//        die(".......");
 
         $this->postColumns = [
             'id' => 'ID',
             'title' => 'TITLE',
             'bodytext' => 'TEXT' // set key...value here is the actual field name in the table
+        ];
+        $this->postPrototype = (object) [ // Simpler\Model\Post // instanceOf Simpler\Model\Post
+            'ID' => $this->getId(),
+            'TITLE' => $this->getTitle(),
+            'TEXT' => $this->getBodytext()
         ];
         $this->authUserColumns = [
             'id' => 'IDENTITY_ID',
@@ -110,6 +195,11 @@ class PostModel extends \Application\Model\ApplicationModel
     */
     public function find($id)
     {
+//        return array(['1' => 'asdfasdfasdf']);
+//        var_dump($this->hydrator);
+//        var_dump($this->dbAdapter);
+//        exit();
+
         $sql    = new Sql($this->dbAdapter);
         $select = $sql->select('posts')->columns($this->postColumns);
         $select->where(['id = ?' => $id]);
@@ -124,8 +214,13 @@ class PostModel extends \Application\Model\ApplicationModel
             $resultIsArray = false;
         }
 
-        if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
-            $resultIsArray
+//        echo '<pre>';
+//        print_r($this->postPrototype);
+//        echo '</pre>';
+//        exit();
+
+        if ($result->isQueryResult() && $result->getAffectedRows() &&
+            $resultIsArray // $result instanceof ResultInterface &&
            ) {
             return $this->hydrator->hydrate($currentResult, $this->postPrototype);
         }

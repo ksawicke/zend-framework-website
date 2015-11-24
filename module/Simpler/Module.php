@@ -2,13 +2,23 @@
 
 namespace Simpler;
 
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
+//use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+//use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
-class Module implements
-    AutoloaderProviderInterface,
-    ConfigProviderInterface
+use Zend\Mvc\ModuleRouteListener;
+use Zend\Mvc\MvcEvent;
+
+class Module
+//    implements AutoloaderProviderInterface,
+//    ConfigProviderInterface
 {
+    public function onBootstrap(MvcEvent $e)
+    {
+        $eventManager        = $e->getApplication()->getEventManager();
+        $moduleRouteListener = new ModuleRouteListener();
+        $moduleRouteListener->attach($eventManager);
+    }
+
     /**
      * Return an array for passing to Zend\Loader\AutoloaderFactory.
      *
@@ -36,4 +46,16 @@ class Module implements
         //var_dump(include __DIR__ . '/config/module.config.php');die("..");
         return include __DIR__ . '/config/module.config.php';
     }
+
+//    public function getServiceConfig() {
+//        return array(
+//            'factories' => array(
+//                'Application\Model\ApplicationModel' => function($sm) {
+//                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+//                    $model = new ApplicationModel($dbAdapter);
+//                    return $model;
+//                },
+//            ),
+//        );
+//    }
 }

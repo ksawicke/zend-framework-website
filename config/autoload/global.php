@@ -28,9 +28,9 @@ return [
         ],
         'platform_options' => ['quote_identifiers' => false]
      ],
-     'service_manager' => [
-         'factories' => [
-             'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
-         ],
-     ],
+//     'service_manager' => [
+//         'factories' => [
+//             'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
+//         ],
+//     ],
  ];
