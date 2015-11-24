@@ -1,0 +1,34 @@
+<h3>View POSTS</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>TITLE</th>
+            <th>TEXT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($this->posts as $post) { ?>
+            <tr>
+                <td>
+                    <a href="blog/view/<?php echo $post->getId(); ?>">
+                        View
+                    </a>&nbsp;&nbsp;&nbsp;
+                    <a href="blog/edit/<?php echo $post->getId(); ?>">
+                        Edit
+                    </a>&nbsp;&nbsp;&nbsp;
+                    <a href="<?php echo $this->url('blog/delete', array('id' => $post->getId()), true); ?>">
+                        Delete
+                    </a>
+                </td>
+                <td><?php echo $post->getTitle(); ?></td>
+                <td><?php echo $post->getBodytext(); ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+
+<a href="<?php echo $this->url('blog/add', array(), true); ?>">
+    <button type="button" class="btn btn-form-primary">Add a record to POSTS</button>
+</a>

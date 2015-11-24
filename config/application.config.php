@@ -11,8 +11,9 @@ return [
     'modules' => [
         'Application',
 //        'Album',
-        'Blog',
-        'Simpler'
+//        'Blog',
+//        'Simpler',
+        'Post'
 //        'Joinexample'
     ],
 
