@@ -2,19 +2,19 @@
 
 namespace Simpler\Model;
 
-use Zend\Db\ResultSet\HydratingResultSet;
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Stdlib\Hydrator\HydratorInterface;
-use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
-use Zend\Stdlib\Hydrator\ClassMethods;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\FactoryInterface;
+//use Zend\Db\ResultSet\HydratingResultSet;
+//use Zend\Db\Sql\Delete;
+//use Zend\Db\Sql\Insert;
+//use Zend\Db\Sql\Sql;
+//use Zend\Db\Sql\Update;
+//use Zend\Db\ResultSet\ResultSet;
+//use Zend\Stdlib\Hydrator\HydratorInterface;
+//use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
+//use Zend\Stdlib\Hydrator\ClassMethods;
+//use Zend\ServiceManager\ServiceLocatorInterface;
+//use Zend\ServiceManager\FactoryInterface;
 
-class PostModel extends \Application\Model\ApplicationModel implements FactoryInterface
+class PostModel extends \Application\Model\ApplicationModel
 {
     /**
      * @var \Zend\Db\Adapter\AdapterInterface
@@ -54,14 +54,13 @@ class PostModel extends \Application\Model\ApplicationModel implements FactoryIn
 
 //        $this->hydrator = new ClassMethods(false);
 
-//        echo '<pre>dbAdapter';
-//        print_r($this->dbAdapter);
-//        echo '</pre>';
-
         echo '<pre>hydrator';
         print_r($this->hydrator);
         echo '</pre>';
 
+        echo '<pre>dbAdapter';
+        print_r($this->dbAdapter);
+        echo '</pre>';
 
         die("YO!!");
 

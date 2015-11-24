@@ -12,11 +12,14 @@ use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 use Zend\Stdlib\Hydrator\ClassMethods;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
-class ApplicationModel implements FactoryInterface
+// http://stackoverflow.com/questions/12770966/service-locator-in-zend-framework-2
+class ApplicationModel implements ServiceLocatorAwareInterface
 {
+    protected $serviceLocator;
     protected $dbAdapter;
     protected $hydrator;
 
@@ -27,9 +30,18 @@ class ApplicationModel implements FactoryInterface
      */
     public function __construct() {
         $this->hydrator         = new ClassMethods(false);
+        $this->serviceLocator   = $this->serviceLocator()->get('\Zend\Db\Adapter\Adapter');
+        var_dump($this->serviceLocator);exit();
+        $this->dbAdapter        = $this->serviceLocator()->get('Zend\Db\Adapter\Adapter'); //$serviceLocator->get('Zend\Db\Adapter\Adapter');
     }
 
-    public function createService(ServiceLocatorInterface $serviceLocator)
-    {
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator) {
+        $this->serviceLocator = $serviceLocator;
+        return $this;
     }
+
+    public function getServiceLocator() {
+        return $this->serviceLocator;
+    }
+
 }

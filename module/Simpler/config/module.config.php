@@ -9,7 +9,8 @@ return [
      ],
     'controllers' => [
         'invokables' => [
-            'Simpler\Controller\Blah' => 'Simpler\Controller\BlahController'
+            'Simpler\Controller\Blah' => 'Simpler\Controller\BlahController',
+//            'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
         ],
         'factories' => [
         ]
