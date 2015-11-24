@@ -55,10 +55,11 @@ class BlahController extends AbstractActionController
     public function indexAction()
     {
         $data = $this->postModel->find(51);
+//        die("E");
 
-//        var_dump($data);
+        var_dump($data);
 
-//        die("sdf");
+        die("sdf");
 //        $this->getServiceLocator()->get('\\Simpler\\Model\PostModel')->find(51);
 //        echo '<pre>';
 //        print_r($this);

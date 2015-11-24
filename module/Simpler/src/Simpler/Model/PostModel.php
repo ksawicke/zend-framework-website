@@ -25,65 +25,17 @@ class PostModel // extends AbstractAdapterAware // extends \Application\Model\Ap
     /**
      * @var int
      */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $title;
-
-    /**
-     * @var string
-     */
-    protected $bodytext;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-    * @param int $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-    * @param string $title
-    */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public function getBodytext()
-    {
-        return $this->bodytext;
-    }
-
-    /**
-    * @param string $bodytext
-    */
-    public function setBodytext($bodytext)
-    {
-        $this->bodytext = $bodytext;
-    }
+//    protected $id;
+//
+//    /**
+//     * @var string
+//     */
+//    protected $title;
+//
+//    /**
+//     * @var string
+//     */
+//    protected $bodytext;
 
     /**
      * @var \Blog\Model\PostInterface
@@ -156,9 +108,9 @@ class PostModel // extends AbstractAdapterAware // extends \Application\Model\Ap
             'bodytext' => 'TEXT' // set key...value here is the actual field name in the table
         ];
         $this->postPrototype = (object) [ // Simpler\Model\Post // instanceOf Simpler\Model\Post
-            'ID' => $this->getId(),
-            'TITLE' => $this->getTitle(),
-            'TEXT' => $this->getBodytext()
+            'id' => null,
+            'title' => null,
+            'bodytext' => null
         ];
         $this->authUserColumns = [
             'id' => 'IDENTITY_ID',
@@ -188,6 +140,54 @@ class PostModel // extends AbstractAdapterAware // extends \Application\Model\Ap
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getId()
+    {
+        return $this->postPrototype->id;
+    }
+
+    /**
+    * @param int $id
+    */
+    public function setId($id)
+    {
+        $this->postPrototype->id = $id;
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public function getTitle()
+    {
+        return $this->postPrototype->title;
+    }
+
+    /**
+    * @param string $title
+    */
+    public function setTitle($title)
+    {
+        $this->postPrototype->title = $title;
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public function getBodytext()
+    {
+        return $this->postPrototype->bodytext;
+    }
+
+    /**
+    * @param string $bodytext
+    */
+    public function setBodytext($bodytext)
+    {
+        $this->postPrototype->bodytext = $bodytext;
+    }
+
+    /**
     * @param int|string $ID
     *
     * @return PostInterface
@@ -208,6 +208,45 @@ class PostModel // extends AbstractAdapterAware // extends \Application\Model\Ap
         $result = $stmt->execute();
 
         $currentResult = $result->current();
+
+//        echo '<pre>currentResult ';
+//        print_r($currentResult);
+//        echo '</pre>';
+
+        $this->setId($currentResult['ID']);
+        $this->setTitle($currentResult['TITLE']);
+        $this->setBodytext($currentResult['BODYTEXT']);
+
+//        echo '<pre>postPrototype ';
+//        print_r($this);
+//        echo '</pre>';
+//        exit();
+
+//        currentResult Array
+//        (
+//            [ID] => 56
+//            [TITLE] => dsfdsfadfa
+//            [BODYTEXT] => fsdfdsaffsadffdsafadsfsadf
+//        )
+//
+//        postPrototype Blog\Model\Post Object
+//        (
+//            [id:protected] =>
+//            [title:protected] =>
+//            [bodytext:protected] =>
+//        )
+
+        /**
+        postPrototype Blog\Model\Post Object
+        (
+            [id:protected] =>
+            [title:protected] =>
+            [bodytext:protected] =>
+        )
+        **/
+
+//        exit();
+
 
         $resultIsArray = true;
         if( is_array($currentResult) === false ) {

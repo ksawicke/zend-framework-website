@@ -51,19 +51,19 @@ class ZendDbSqlMapper implements PostMapperInterface
         $this->hydrator       = $hydrator;
         $this->postPrototype  = $postPrototype;
 
-        echo '<pre>dbAdapter';
-        print_r($this->dbAdapter);
-        echo '</pre>';
-
-        echo '<pre>hydrator';
-        print_r($this->hydrator);
-        echo '</pre>';
-
-        echo '<pre>postPrototype';
-        print_r($this->postPrototype);
-        echo '</pre>';
-
-        die(".......");
+//        echo '<pre>dbAdapter';
+//        print_r($this->dbAdapter);
+//        echo '</pre>';
+//
+//        echo '<pre>hydrator';
+//        print_r($this->hydrator);
+//        echo '</pre>';
+//
+//        echo '<pre>postPrototype';
+//        print_r($this->postPrototype);
+//        echo '</pre>';
+//
+//        die(".......");
 
         $this->postColumns = [
             'id' => 'ID',
@@ -122,6 +122,14 @@ class ZendDbSqlMapper implements PostMapperInterface
         if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
             $resultIsArray
            ) {
+            echo '<pre>currentResult ';
+            print_r($currentResult);
+            echo '</pre>';
+
+            echo '<pre>postPrototype ';
+            print_r($this->postPrototype);
+            echo '</pre>';
+
             return $this->hydrator->hydrate($currentResult, $this->postPrototype);
         }
 
