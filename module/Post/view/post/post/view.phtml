@@ -1,4 +1,4 @@
-<h3>View Post ID <?php echo $this->post->getId(); ?></h3>
+<h3>View Post ID <?php echo $post->id; ?></h3>
 
 <div class="row rowMinHeight">
     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
@@ -8,7 +8,7 @@
         <strong>Title</strong>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
-        <?php echo $this->escapeHtml($this->post->getTitle());?>
+        <?php echo $this->escapeHtml($post->title);?>
     </div>
 </div>
 
@@ -20,13 +20,13 @@
         <strong>Text</strong>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-6">
-        <?php echo $this->escapeHtml($this->post->getBodytext());?>
+        <?php echo $this->escapeHtml($post->bodytext);?>
         <br /><br />
-        <a href="<?php echo $this->basepath(); ?>/blog/edit/<?php echo $this->post->getId(); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
+        <a href="<?php echo $this->basepath(); ?>/post/edit/<?php echo $post->id; ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
         <?php /***
         <a href="<?php echo $this->url('blog', ['action' => 'edit', 'id' => $this->post->getId()]); ?>"><button type="button" class="btn btn-form-primary">Edit</button></a><br />
         ***/ ?>
     </div>
 </div>
 
-<a href="<?php echo $this->url('blog'); ?>"><button type="button" class="btn btn-form-primary">View Posts</button></a>
+<a href="<?php echo $this->url('post'); ?>"><button type="button" class="btn btn-form-primary">View Posts</button></a>

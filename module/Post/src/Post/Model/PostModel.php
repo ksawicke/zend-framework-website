@@ -27,8 +27,6 @@ class PostModel
 
     /**
      * @param AdapterInterface  $dbAdapter
-     * @param HydratorInterface $hydrator
-     * @param PostInterface    $postPrototype
      */
     public function __construct(
         $dbAdapter
@@ -70,6 +68,18 @@ class PostModel
         // as in when doing an update.
         // Can pass in multiple arrays here.
         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->postColumns, $this->authUserColumns));
+
+//        error_log("", 0);
+//        error_log("If you look at this log too long, it starts to talk back to you.", 0);
+//
+//        error_log("", 0);
+//        error_log("No really. A moose once bit my sister.", 0);
+//
+//        error_log("", 0);
+//        error_log("Thee four five nine who done fling flung.", 0);
+//
+//        error_log("", 0);
+//        error_log("Is this thing on?.", 0);
     }
 
     /**
@@ -137,10 +147,6 @@ class PostModel
 
         $currentResult = $result->current();
 
-        $this->setId($currentResult['ID']);
-        $this->setTitle($currentResult['TITLE']);
-        $this->setBodytext($currentResult['BODYTEXT']);
-
         $resultIsArray = true;
         if( is_array($currentResult) === false ) {
             $resultIsArray = false;
@@ -149,6 +155,9 @@ class PostModel
         if ($result->isQueryResult() && $result->getAffectedRows() &&
             $resultIsArray // $result instanceof ResultInterface &&
            ) {
+            $this->setId($currentResult['ID']);
+            $this->setTitle($currentResult['TITLE']);
+            $this->setBodytext($currentResult['BODYTEXT']);
             return $this->hydrator->hydrate($currentResult, $this->postPrototype);
         }
 
@@ -171,7 +180,10 @@ class PostModel
         $stmt   = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
 
-        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+//        var_dump($result);exit();
+
+        //$result instanceof ResultInterface &&
+        if ($result->isQueryResult()) {
             $resultSet = new HydratingResultSet($this->hydrator, $this->postPrototype);
 
             return $resultSet->initialize($result);
