@@ -1,21 +1,21 @@
 <?php
 
-namespace Blog\Form;
+namespace Request\Form;
 
 use Zend\Form\Form;
 use Zend\Form\Element;
-use Blog\Model\Post;
+use Request\Model\Request;
 use Zend\Form\Fieldset;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
-class PostForm extends Form
+class RequestForm extends Form
 {
     public function __construct($name = null, $options = array())
     {
         parent::__construct($name, $options);
 
         $this->setHydrator(new ClassMethods(false));
-        $this->setObject(new Post());
+        $this->setObject(new Request());
         $this->add([
             'type' => 'hidden',
             'name' => 'id'
@@ -24,7 +24,7 @@ class PostForm extends Form
             'name' => 'title',
             'type' => 'text',
             'options' => [
-                'label' => 'Post Title'
+                'label' => 'Request Title'
             ],
             'attributes' => [
                 'style' => 'background-color: #F7F3D9;'

@@ -1,14 +1,14 @@
 <?php
 
-namespace Blog\Factory;
+namespace Request\Factory;
 
-use Blog\Mapper\ZendDbSqlMapper;
-use Blog\Model\Post;
+use Request\Mapper\RequestMapper;
+use Request\Model\Request;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
-class ZendDbSqlMapperFactory implements FactoryInterface
+class RequestMapperFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -20,10 +20,10 @@ class ZendDbSqlMapperFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $hydrator = new ClassMethods(false);
-        return new ZendDbSqlMapper(
+        return new RequestMapper(
             $serviceLocator->get('Zend\Db\Adapter\Adapter'),
             $hydrator,
-            new Post()
+            new Request()
         );
     }
 }

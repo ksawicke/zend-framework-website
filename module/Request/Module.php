@@ -1,6 +1,6 @@
 <?php
 
-namespace Blog;
+namespace Request;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
