@@ -25,10 +25,10 @@ class PostController extends AbstractActionController
 
     public function viewAction()
     {
-        $id = $this->params()->fromRoute('id');
+//        $id = $this->params()->fromRoute('id');
 
         try {
-            $post = $this->postModel->find(51);
+            $post = $this->postModel->find($this->params('id'));
 //            echo '<pre>';
 //            print_r($post);
 //            echo '</pre>';
@@ -43,13 +43,13 @@ class PostController extends AbstractActionController
     }
 
     public function editAction()
-     {
-         $request = $this->getRequest();
-         $post    = $this->postModel->findPost($this->params('id'));
+    {
+        $request = $this->getRequest();
+        $post    = $this->postModel->find($this->params('id'));
 
-         $this->postForm->bind($post);
+        $this->postForm->bind($post);
 
-         if ($request->isPost()) {
+        if ($request->isPost()) {
              $this->postForm->setData($request->getPost());
 
              if ($this->postForm->isValid()) {
@@ -72,6 +72,11 @@ class PostController extends AbstractActionController
     public function setPostModel(PostModel $model)
     {
         $this->postModel = $model;
+    }
+
+    public function setPostForm(FormInterface $postForm)
+    {
+        $this->postForm = $postForm;
     }
 
  }

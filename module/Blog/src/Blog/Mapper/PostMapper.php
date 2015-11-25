@@ -122,13 +122,13 @@ class ZendDbSqlMapper implements PostMapperInterface
         if ($result instanceof ResultInterface && $result->isQueryResult() && $result->getAffectedRows() &&
             $resultIsArray
            ) {
-            echo '<pre>currentResult ';
-            print_r($currentResult);
-            echo '</pre>';
-
-            echo '<pre>postPrototype ';
-            print_r($this->postPrototype);
-            echo '</pre>';
+//            echo '<pre>currentResult ';
+//            print_r($currentResult);
+//            echo '</pre>';
+//
+//            echo '<pre>postPrototype ';
+//            print_r($this->postPrototype);
+//            echo '</pre>';
 
             return $this->hydrator->hydrate($currentResult, $this->postPrototype);
         }

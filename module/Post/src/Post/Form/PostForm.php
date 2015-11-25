@@ -1,10 +1,11 @@
 <?php
 
-namespace Blog\Form;
+namespace Post\Form;
 
 use Zend\Form\Form;
 use Zend\Form\Element;
-use Blog\Model\Post;
+//use Post\Model\PostModel;
+use Post\Factory\PostModelFactory;
 use Zend\Form\Fieldset;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
@@ -15,7 +16,7 @@ class PostForm extends Form
         parent::__construct($name, $options);
 
         $this->setHydrator(new ClassMethods(false));
-        $this->setObject(new Post());
+        $this->setObject(new PostModelFactory());
         $this->add([
             'type' => 'hidden',
             'name' => 'id'

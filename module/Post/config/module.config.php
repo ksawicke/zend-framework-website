@@ -17,6 +17,9 @@ return [
 //                return new \Simpler\Model\PostModel($sm, $dbAdapter);
 //            }
          ],
+         'invokables' => [
+             'post-form' => 'Post\Form\PostForm'
+         ],
 //         'abstract_factories' => [
 //            'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
 //            'Zend\Log\LoggerAbstractServiceFactory',

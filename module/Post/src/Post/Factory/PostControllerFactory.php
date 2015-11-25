@@ -14,6 +14,9 @@ class PostControllerFactory implements FactoryInterface
         $model = $serviceManager->get('post-model');
         $controller->setPostModel($model);
 
+        $postForm = $serviceManager->get('post-form');
+        $controller->setPostForm($postForm);
+
         return $controller;
     }
 }
