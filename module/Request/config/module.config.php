@@ -7,7 +7,7 @@ return [
 //            'Blog\Service\PostServiceInterface' => 'Blog\Service\PostService'
 //         ],
          'factories' => [
-             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\PostMapperFactory',
+             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\ZendDbSqlMapperFactory',
              'Blog\Service\PostServiceInterface' => 'Blog\Factory\PostServiceFactory',
              'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
          ]

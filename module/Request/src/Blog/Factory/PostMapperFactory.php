@@ -8,7 +8,7 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
-class PostMapperFactory implements FactoryInterface
+class ZendDbSqlMapperFactory implements FactoryInterface
 {
     /**
      * Create service
