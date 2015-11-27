@@ -14,16 +14,16 @@ return [
     ],
     'router' => [
         'routes' => [
-//            'home' => [
-//                'type' => 'Zend\Mvc\Router\Http\Literal',
-//                'options' => [
-//                    'route'    => '/',
-//                    'defaults' => [
-//                        'controller' => 'Request\Controller\Request',
-//                        'action'     => 'create',
-//                    ],
-//                ],
-//            ],
+            'home' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action'     => 'create',
+                    ],
+                ],
+            ],
             'request' => [
                 'type' => 'literal',
                  'options' => [

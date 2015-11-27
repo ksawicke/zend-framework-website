@@ -13,25 +13,22 @@
 
      protected $requestForm;
 
+     public $employeeId;
+
      public function __construct(
          RequestServiceInterface $requestService,
          FormInterface $requestForm
      ) {
          $this->requestService = $requestService;
          $this->requestForm    = $requestForm;
+
+         $this->employeeId = '49499';
      }
 
      public function createAction()
      {
-         $data = $this->requestService->findTimeOffBalances('49499');
-
-         echo '<pre>DATA TEST:';
-         print_r($data);
-         echo '</pre>';
-         die("@@@@");
-
-//        return new ViewModel(array(
-//            'posts' => $this->requestService->findAllRequests()
-//        ));
+        return new ViewModel(array(
+            'employeeData' => $this->requestService->findTimeOffBalances($this->employeeId)
+        ));
      }
  }

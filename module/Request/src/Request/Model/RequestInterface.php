@@ -29,4 +29,14 @@ interface RequestInterface
     public function getDriverSickBalance();
 
     public function getDriverSickTaken();
+
+    public function getManagerEmployeeId();
+
+    public function getManagerFirstName();
+
+    public function getManagerMiddleName();
+
+    public function getManagerLastName();
+
+    public function getSupervisorEmail();
 }

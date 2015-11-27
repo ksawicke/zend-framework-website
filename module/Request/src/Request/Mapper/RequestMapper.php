@@ -44,11 +44,11 @@ class RequestMapper implements RequestMapperInterface
     public function __construct(
         AdapterInterface $dbAdapter,
         HydratorInterface $hydrator,
-        RequestInterface $postPrototype
+        RequestInterface $requestPrototype
     ) {
         $this->dbAdapter      = $dbAdapter;
         $this->hydrator       = $hydrator;
-        $this->requestPrototype  = $postPrototype;
+        $this->requestPrototype  = $requestPrototype;
 
         // 'alias' => 'FIELDNAME'
         $this->employeeColumns = [
@@ -88,13 +88,16 @@ class RequestMapper implements RequestMapperInterface
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
         // Can pass in multiple arrays here.
-        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy(
+            $this->employeeColumns,
+            $this->employeeSupervisorColumns,
+            $this->supervisorAddonColumns
+        ));
     }
 
     public function findTimeOffBalances($employeeId = null)
     {
         $sql    = new Sql($this->dbAdapter);
-
         $select =
             $sql->select(['employee' => 'PRPMS'])
                 ->columns($this->employeeColumns)

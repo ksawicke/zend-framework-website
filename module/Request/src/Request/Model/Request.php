@@ -69,6 +69,16 @@ class Request implements RequestInterface
      */
     protected $driverSickTaken;
 
+    protected $managerEmployeeId;
+
+    protected $managerFirstName;
+
+    protected $managerMiddleName;
+
+    protected $managerLastName;
+
+    protected $supervisorEmail;
+
     /**
      * {@inheritDoc}
      */
@@ -275,5 +285,55 @@ class Request implements RequestInterface
     public function setDriverSickTaken($driverSickTaken)
     {
         $this->driverSickTaken = $driverSickTaken;
+    }
+
+    public function getManagerEmployeeId()
+    {
+        return $this->managerEmployeeId;
+    }
+
+    public function setManagerEmployeeId($managerEmployeeId)
+    {
+        $this->managerEmployeeId = $managerEmployeeId;
+    }
+
+    public function getManagerFirstName()
+    {
+        return $this->managerFirstName;
+    }
+
+    public function setManagerFirstName($managerFirstName)
+    {
+        $this->managerFirstName = $managerFirstName;
+    }
+
+    public function getManagerMiddleName()
+    {
+        return $this->managerMiddleName;
+    }
+
+    public function setManagerMiddleName($managerMiddleName)
+    {
+        $this->managerMiddleName = $managerMiddleName;
+    }
+
+    public function getManagerLastName()
+    {
+        return $this->managerLastName;
+    }
+
+    public function setManagerLastName($managerLastName)
+    {
+        $this->managerLastName = $managerLastName;
+    }
+
+    public function getSupervisorEmail()
+    {
+        return $this->supervisorEmail;
+    }
+
+    public function setSupervisorEmail($supervisorEmail)
+    {
+        $this->supervisorEmail = $supervisorEmail;
     }
 }
