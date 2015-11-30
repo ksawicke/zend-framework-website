@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Form;
 
 use Zend\Form\Form;
@@ -10,6 +9,7 @@ use Zend\Stdlib\Hydrator\ClassMethods;
 
 class RequestForm extends Form
 {
+
     public function __construct($name = null, $options = array())
     {
         parent::__construct($name, $options);
@@ -28,8 +28,9 @@ class RequestForm extends Form
             ],
             'attributes' => [
                 'style' => 'background-color: #F7F3D9;'
-//                'autofocus' => 'true'
             ]
+            // 'autofocus' => 'true'
+
         ]);
         $this->add([
             'name' => 'bodytext',
@@ -55,5 +56,4 @@ class RequestForm extends Form
             ]
         ]);
     }
-
 }

@@ -1,95 +1,113 @@
 <?php
-
 namespace Request\Model;
 
 class Request implements RequestInterface
 {
+
     /**
+     *
      * @var int
      */
     protected $employeeId;
 
     /**
+     *
      * @var string
      */
     protected $grandfatheredBalance;
 
     /**
+     *
      * @var string
      */
     protected $grandfatheredTaken;
 
     /**
+     *
      * @var string
      */
     protected $ptoBalance;
 
     /**
+     *
      * @var string
      */
     protected $ptoTaken;
 
     /**
+     *
      * @var string
      */
     protected $floatBalance;
 
     /**
+     *
      * @var string
      */
     protected $floatTaken;
 
     /**
+     *
      * @var string
      */
     protected $sickBalance;
 
     /**
+     *
      * @var string
      */
     protected $sickTaken;
 
     /**
+     *
      * @var string
      */
     protected $companyMandatedBalance;
 
     /**
+     *
      * @var string
      */
     protected $companyMandatedTaken;
 
     /**
+     *
      * @var string
      */
     protected $driverSickBalance;
 
     /**
+     *
      * @var string
      */
     protected $driverSickTaken;
 
     /**
+     *
      * @var string
      */
     protected $managerEmployeeId;
 
     /**
+     *
      * @var string
      */
     protected $managerFirstName;
 
     /**
+     *
      * @var string
      */
     protected $managerMiddleName;
 
     /**
+     *
      * @var string
      */
     protected $managerLastName;
 
     /**
+     *
      * @var string
      */
     protected $managerEmail;
@@ -103,6 +121,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $employeeId
      */
     public function setEmployeeId($employeeId)
@@ -119,6 +138,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $grandfatheredBalance
      */
     public function setGrandfatheredBalance($grandfatheredBalance)
@@ -135,6 +155,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $grandfatheredTaken
      */
     public function setGrandfatheredTaken($grandfatheredTaken)
@@ -151,6 +172,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $ptoBalance
      */
     public function setPtoBalance($ptoBalance)
@@ -167,6 +189,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $ptoTaken
      */
     public function setPtoTaken($ptoTaken)
@@ -183,6 +206,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $floatBalance
      */
     public function setFloatBalance($floatBalance)
@@ -199,6 +223,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $floatTaken
      */
     public function setFloatTaken($floatTaken)
@@ -215,6 +240,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $sickBalance
      */
     public function setSickBalance($sickBalance)
@@ -231,6 +257,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $sickTaken
      */
     public function setSickTaken($sickTaken)
@@ -247,6 +274,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $companyMandatedBalance
      */
     public function setCompanyMandatedBalance($companyMandatedBalance)
@@ -263,6 +291,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $companyMandatedTaken
      */
     public function setCompanyMandatedTaken($companyMandatedTaken)
@@ -279,6 +308,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $driverSickBalance
      */
     public function setDriverSickBalance($driverSickBalance)
@@ -295,6 +325,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $driverSickTaken
      */
     public function setDriverSickTaken($driverSickTaken)

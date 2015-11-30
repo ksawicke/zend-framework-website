@@ -1,34 +1,32 @@
 <?php
+namespace Request\Controller;
 
- namespace Request\Controller;
+use Request\Service\RequestServiceInterface;
+use Zend\Form\FormInterface;
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\ViewModel;
 
- use Request\Service\RequestServiceInterface;
- use Zend\Form\FormInterface;
- use Zend\Mvc\Controller\AbstractActionController;
- use Zend\View\Model\ViewModel;
+class RequestController extends AbstractActionController
+{
 
- class RequestController extends AbstractActionController
- {
-     protected $requestService;
+    protected $requestService;
 
-     protected $requestForm;
+    protected $requestForm;
 
-     public $employeeId;
+    public $employeeId;
 
-     public function __construct(
-         RequestServiceInterface $requestService,
-         FormInterface $requestForm
-     ) {
-         $this->requestService = $requestService;
-         $this->requestForm    = $requestForm;
+    public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
+    {
+        $this->requestService = $requestService;
+        $this->requestForm = $requestForm;
 
-         $this->employeeId = '49499';
-     }
+        $this->employeeId = '49499';
+    }
 
-     public function createAction()
-     {
+    public function createAction()
+    {
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalances($this->employeeId)
         ));
-     }
- }
+    }
+}

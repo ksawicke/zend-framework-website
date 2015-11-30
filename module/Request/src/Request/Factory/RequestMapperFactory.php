@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Factory;
 
 use Request\Mapper\RequestMapper;
@@ -10,6 +9,7 @@ use Zend\Stdlib\Hydrator\ClassMethods;
 
 class RequestMapperFactory implements FactoryInterface
 {
+
     /**
      * Create service
      *
@@ -20,10 +20,6 @@ class RequestMapperFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $hydrator = new ClassMethods(false);
-        return new RequestMapper(
-            $serviceLocator->get('Zend\Db\Adapter\Adapter'),
-            $hydrator,
-            new Request()
-        );
+        return new RequestMapper($serviceLocator->get('Zend\Db\Adapter\Adapter'), $hydrator, new Request());
     }
 }

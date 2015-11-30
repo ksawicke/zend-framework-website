@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Mapper;
 
 use Request\Model\RequestInterface;
@@ -16,39 +15,44 @@ use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
 class RequestMapper implements RequestMapperInterface
 {
+
     /**
+     *
      * @var \Zend\Db\Adapter\AdapterInterface
      */
     protected $dbAdapter;
 
     /**
+     *
      * @var \Zend\Stdlib\Hydrator\HydratorInterface
      */
     protected $hydrator;
 
     /**
+     *
      * @var \Request\Model\RequestInterface
      */
     protected $requestPrototype;
 
     public $requestColumns = [];
+
     public $authUserColumns = [];
+
     public $docTypeColumns = [];
+
     public $emailRecipientColumns = [];
 
     /**
-     * @param AdapterInterface  $dbAdapter
+     *
+     * @param AdapterInterface $dbAdapter
      * @param HydratorInterface $hydrator
-     * @param PostInterface    $postPrototype
+     * @param PostInterface $postPrototype
      */
-    public function __construct(
-        AdapterInterface $dbAdapter,
-        HydratorInterface $hydrator,
-        RequestInterface $requestPrototype
-    ) {
-        $this->dbAdapter      = $dbAdapter;
-        $this->hydrator       = $hydrator;
-        $this->requestPrototype  = $requestPrototype;
+    public function __construct(AdapterInterface $dbAdapter, HydratorInterface $hydrator, RequestInterface $requestPrototype)
+    {
+        $this->dbAdapter = $dbAdapter;
+        $this->hydrator = $hydrator;
+        $this->requestPrototype = $requestPrototype;
 
         // 'alias' => 'FIELDNAME'
         $this->employeeColumns = [
@@ -88,24 +92,26 @@ class RequestMapper implements RequestMapperInterface
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
         // Can pass in multiple arrays here.
-        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy(
-            $this->employeeColumns,
-            $this->employeeSupervisorColumns,
-            $this->supervisorAddonColumns
-        ));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->employeeSupervisorColumns, $this->supervisorAddonColumns));
     }
 
     public function findTimeOffBalances($employeeId = null)
     {
-        $sql    = new Sql($this->dbAdapter);
-        $select =
-            $sql->select(['employee' => 'PRPMS'])
-                ->columns($this->employeeColumns)
-                ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
-                ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-                ->where(['trim(employee.PREN)' => trim($employeeId)]);
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select([
+            'employee' => 'PRPMS'
+        ])
+            ->columns($this->employeeColumns)
+            ->join([
+            'manager' => 'PRPSP'
+        ], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
+            ->join([
+            'manager_addons' => 'PRPMS'
+        ], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where([
+            'trim(employee.PREN)' => trim($employeeId)
+        ]);
 
         return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
     }
-
 }

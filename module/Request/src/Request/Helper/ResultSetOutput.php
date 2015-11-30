@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Helper;
 
 use Zend\Db\Sql\Sql;
@@ -11,13 +10,12 @@ class ResultSetOutput
 
     public static function getResultObject($sql, $select)
     {
-        $stmt   = $sql->prepareStatementForSqlObject($select);
+        $stmt = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
 
-        $resultSet = new ResultSet;
+        $resultSet = new ResultSet();
         $resultSet->initialize($result);
 
         return $resultSet->current();
     }
-
 }

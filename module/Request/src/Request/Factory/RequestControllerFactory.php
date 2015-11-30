@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Factory;
 
 use Request\Controller\RequestController;
@@ -8,6 +7,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 
 class RequestControllerFactory implements FactoryInterface
 {
+
     /**
      * Create service
      *
@@ -18,8 +18,8 @@ class RequestControllerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $realServiceLocator = $serviceLocator->getServiceLocator();
-        $requestService     = $realServiceLocator->get('Request\Service\RequestServiceInterface');
-        $requestInsertForm  = $realServiceLocator->get('FormElementManager')->get('Request\Form\RequestForm');
+        $requestService = $realServiceLocator->get('Request\Service\RequestServiceInterface');
+        $requestInsertForm = $realServiceLocator->get('FormElementManager')->get('Request\Form\RequestForm');
 
         return new RequestController($requestService, $requestInsertForm);
     }

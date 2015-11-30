@@ -1,9 +1,9 @@
 <?php
-
 namespace Request\Model;
 
 interface RequestInterface
 {
+
     public function getEmployeeId();
 
     public function getGrandfatheredBalance();
