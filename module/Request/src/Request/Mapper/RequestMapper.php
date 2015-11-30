@@ -98,19 +98,11 @@ class RequestMapper implements RequestMapperInterface
     public function findTimeOffBalances($employeeId = null)
     {
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select([
-            'employee' => 'PRPMS'
-        ])
+        $select = $sql->select(['employee' => 'PRPMS'])
             ->columns($this->employeeColumns)
-            ->join([
-            'manager' => 'PRPSP'
-        ], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
-            ->join([
-            'manager_addons' => 'PRPMS'
-        ], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where([
-            'trim(employee.PREN)' => trim($employeeId)
-        ]);
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
         return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
     }
