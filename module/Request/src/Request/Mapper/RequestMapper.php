@@ -52,35 +52,35 @@ class RequestMapper implements RequestMapperInterface
 
         // 'alias' => 'FIELDNAME'
         $this->employeeColumns = [
-            'employeeId' => 'PREN',
-            'employeeFirstName' => 'PRFNM',
-            'employeeMiddleName' => 'PRMNM',
-            'employeeLastName' => 'PRLNM',
-            'employeePosition' => 'PRPOS',
-            'employeeEmail' => 'PREML1',
-            'employeeHireDate' => 'PRDOHE',
-            'employeeTitle' => 'PRTITL',
-            'grandfatheredBalance' => 'PRAC5E',
-            'grandfatheredTaken' => 'PRAC5T',
-            'ptoBalance' => 'PRVAC',
-            'ptoTaken' => 'PRVAT',
-            'floatBalance' => 'PRSHA',
-            'floatTaken' => 'PRSHT',
-            'sickBalance' => 'PRSDA',
-            'sickTaken' => 'PRSDT',
-            'companyMandatedBalance' => 'PRAC4E',
-            'companyMandatedTaken' => 'PRAC4T',
-            'driverSickBalance' => 'PRAC6E',
-            'driverSickTaken' => 'PRAC6T'
+            'EMPLOYEE_ID' => 'PREN',
+            'EMPLOYEE_FIRST_NAME' => 'PRFNM',
+            'EMPLOYEE_MIDDLE_NAME' => 'PRMNM',
+            'EMPLOYEE_LAST_NAME' => 'PRLNM',
+            'EMPLOYEE_POSITION' => 'PRPOS',
+            'EMPLOYEE_EMAIL' => 'PREML1',
+            'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
+            'EMPLOYEE_TITLE' => 'PRTITL',
+            'GRANDFATHERED_BALANCE' => 'PRAC5E',
+            'GRANDFATHERED_TAKEN' => 'PRAC5T',
+            'PTO_BALANCE' => 'PRVAC',
+            'PTO_TAKEN' => 'PRVAT',
+            'FLOAT_BALANCE' => 'PRSHA',
+            'FLOAT_TAKEN' => 'PRSHT',
+            'SICK_BALANCE' => 'PRSDA',
+            'SICK_TAKEN' => 'PRSDT',
+            'COMPANY_MANDATED_BALANCE' => 'PRAC4E',
+            'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
+            'DRIVER_SICK_BALANCE' => 'PRAC6E',
+            'DRIVER_SICK_TAKEN' => 'PRAC6T'
         ];
         $this->employeeSupervisorColumns = [
-            'managerEmployeeId' => 'SPSPEN',
-            'managerFirstName' => 'SPSPFNM',
-            'managerMiddleName' => 'SPSPMI',
-            'managerLastName' => 'SPSPLNM'
+            'MANAGER_EMPLOYEE_ID' => 'SPSPEN',
+            'MANAGER_FIRST_NAME' => 'SPSPFNM',
+            'MANAGER_MIDDLE_NAME' => 'SPSPMI',
+            'MANAGER_LAST_NAME' => 'SPSPLNM'
         ];
         $this->supervisorAddonColumns = [
-            'supervisorEmail' => 'PREML1'
+            'SUPERVISOR_EMAIL' => 'PREML1'
         ];
 
         // Now tell the Hydrator to array_flip the keys on save.
@@ -105,13 +105,7 @@ class RequestMapper implements RequestMapperInterface
                 ->join(['z' => 'PRPMS'], 'z.PREN = supervisor.SPSPEN', $this->supervisorAddonColumns)
                 ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
-        $stmt   = $sql->prepareStatementForSqlObject($select);
-        $result = $stmt->execute();
-
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
-        return $resultSet->current();
+        return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
     }
 
 }

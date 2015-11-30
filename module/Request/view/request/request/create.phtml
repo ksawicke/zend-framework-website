@@ -1,4 +1,4 @@
-<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->EMPLOYEEFIRSTNAME); ?> <?php echo ucwords($employeeData->EMPLOYEELASTNAME); ?></strong><br />
+<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->EMPLOYEE_FIRST_NAME); ?> <?php echo ucwords($employeeData->EMPLOYEE_LAST_NAME); ?></strong><br />
 <br />
 
 <style>
@@ -20,9 +20,9 @@
     <tbody>
         <tr>
             <td><strong>Available</strong></td>
-            <td><?php echo number_format(($employeeData->PTOBALANCE - $employeeData->PTOTAKEN), 2); ?></td>
-            <td><?php echo number_format(($employeeData->FLOATBALANCE - $employeeData->FLOATTAKEN), 2); ?></td>
-            <td><?php echo number_format(($employeeData->SICKBALANCE - $employeeData->SICKTAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->PTO_BALANCE - $employeeData->PTO_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->FLOAT_BALANCE - $employeeData->FLOAT_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->SICK_BALANCE - $employeeData->SICK_TAKEN), 2); ?></td>
         </tr>
         <tr>
             <td><strong>Pending</strong></td>
@@ -32,9 +32,9 @@
         </tr>
         <tr>
             <td><strong>Remaining</strong></td>
-            <td><?php echo number_format(($employeeData->PTOBALANCE - $employeeData->PTOTAKEN), 2); ?></td>
-            <td><?php echo number_format(($employeeData->FLOATBALANCE - $employeeData->FLOATTAKEN), 2); ?></td>
-            <td><?php echo number_format(($employeeData->SICKBALANCE - $employeeData->SICKTAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->PTO_BALANCE - $employeeData->PTO_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->FLOAT_BALANCE - $employeeData->FLOAT_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->SICK_BALANCE - $employeeData->SICK_TAKEN), 2); ?></td>
         </tr>
         <tr>
             <td><strong>Requested</strong></td>
