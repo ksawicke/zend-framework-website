@@ -1,43 +1,60 @@
 <?php
 
+// Please read:
+// http://zend-framework-community.634137.n4.nabble.com/Fundamental-question-Why-isn-t-the-service-manager-super-global-td4659184.html
+// &
+// http://framework.zend.com/manual/current/en/tutorials/tutorial.dbadapter.html
+
 return [
 //     'db'              => [ /** Db Config */ ],
      'service_manager' => [
-//         'invokables' => [
-//            'Blog\Service\PostServiceInterface' => 'Blog\Service\PostService'
-//         ],
          'factories' => [
-             'Blog\Mapper\PostMapperInterface'   => 'Blog\Factory\PostMapperFactory',
-             'Blog\Service\PostServiceInterface' => 'Blog\Factory\PostServiceFactory',
-             'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
-         ]
-     ],
+             'post-model' => 'Post\Factory\PostModelFactory',
+             'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory'
+//             'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
+//             'Simpler\Model\PostModel' => function($sm) {
+//                $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+//                return new \Simpler\Model\PostModel($sm, $dbAdapter);
+//            }
+         ],
+         'invokables' => [
+             'post-form' => 'Post\Form\PostForm'
+         ],
+//         'abstract_factories' => [
+//            'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
+//            'Zend\Log\LoggerAbstractServiceFactory',
+//         ],
+//         'aliases' => [
+//            'translator' => 'MvcTranslator',
+//         ]
+    ],
+//    'translator' => [
+//        'locale' => 'en_US',
+//        'translation_file_patterns' => [
+//            [
+//                'type'     => 'gettext',
+//                'base_dir' => __DIR__ . '/../language',
+//                'pattern'  => '%s.mo',
+//            ],
+//        ],
+//    ],
     'controllers' => [
+        'invokables' => [
+//            'Simpler\Controller\Blah' => 'Simpler\Controller\BlahController',
+//            'Zend\Db\Adapter\Adapter'           => 'Zend\Db\Adapter\AdapterServiceFactory'
+        ],
         'factories' => [
-            'Blog\Controller\Post' => 'Blog\Factory\PostControllerFactory'
-//            'Blog\Controller\List' => 'Blog\Factory\ListControllerFactory',
-//            'Blog\Controller\Write'  => 'Blog\Factory\WriteControllerFactory',
-//            'Blog\Controller\Delete' => 'Blog\Factory\DeleteControllerFactory'
+            'Post\Controller\Post' => 'Post\Factory\PostControllerFactory'
         ]
     ],
     'router' => [
         'routes' => [
-            'home' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => [
-                    'route'    => '/',
-                    'defaults' => [
-                        'controller' => 'Blog\Controller\Post',
-                        'action'     => 'index',
-                    ],
-                ],
-            ],
-            'blog' => [
+            'post' => [
                 'type' => 'literal',
                  'options' => [
-                     'route'    => '/blog',
+                     'route'    => '/post',
                      'defaults' => [
-                         'controller' => 'Blog\Controller\Post',
+                         'controller' => 'Post\Controller\Post',
                          'action'     => 'index',
                      ],
                  ],
@@ -48,7 +65,7 @@ return [
                          'options' => [
                              'route'    => '/view/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action' => 'view'
                              ],
                              'constraints' => [
@@ -61,7 +78,7 @@ return [
                          'options' => [
                              'route'    => '/edit/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'edit'
                              ],
                              'constraints' => [
@@ -74,7 +91,7 @@ return [
                          'options' => [
                              'route'    => '/add',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'add'
                              ]
                          ]
@@ -84,7 +101,7 @@ return [
                          'options' => [
                              'route'    => '/delete/:id',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'delete'
                              ],
                              'constraints' => [
@@ -97,7 +114,7 @@ return [
                          'options' => [
                              'route'    => '/test',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'test'
                              ]
                          ]
@@ -107,7 +124,7 @@ return [
                          'options' => [
                              'route'    => '/test2',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'test2'
                              ]
                          ]
@@ -117,11 +134,11 @@ return [
                          'options' => [
                              'route'    => '/test3',
                              'defaults' => [
-                                 'controller' => 'Blog\Controller\Post',
+                                 'controller' => 'Post\Controller\Post',
                                  'action'     => 'test3'
                              ]
                          ]
-                     ],
+                     ]
                  ]
 
             ]

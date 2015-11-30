@@ -1,0 +1,53 @@
+<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->EMPLOYEE_FIRST_NAME); ?> <?php echo ucwords($employeeData->EMPLOYEE_LAST_NAME); ?></strong><br />
+<br />
+
+<style>
+    th, td {
+        border: 1px solid #000;
+        padding: 5px;
+    }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:150px;"></th>
+            <th style="width:150px;">PTO</th>
+            <th style="width:150px;">Float</th>
+            <th style="width:150px;">Sick</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Available</strong></td>
+            <td><?php echo number_format(($employeeData->PTO_BALANCE - $employeeData->PTO_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->FLOAT_BALANCE - $employeeData->FLOAT_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->SICK_BALANCE - $employeeData->SICK_TAKEN), 2); ?></td>
+        </tr>
+        <tr>
+            <td><strong>Pending</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong>Remaining</strong></td>
+            <td><?php echo number_format(($employeeData->PTO_BALANCE - $employeeData->PTO_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->FLOAT_BALANCE - $employeeData->FLOAT_TAKEN), 2); ?></td>
+            <td><?php echo number_format(($employeeData->SICK_BALANCE - $employeeData->SICK_TAKEN), 2); ?></td>
+        </tr>
+        <tr>
+            <td><strong>Requested</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<br />
+<br />
+
+<pre>
+<?php print_r($employeeData); ?>
+</pre>

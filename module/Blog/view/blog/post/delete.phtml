@@ -1,0 +1,13 @@
+<div class="alert alert-warning" role="alert">
+    <div class="glyphicon glyphicon-exclamation-sign"></div>
+    <div>
+        Are you sure you want to delete
+        '<?php echo $this->escapeHtml($this->post->getTitle()); ?>' by
+        '<?php echo $this->escapeHtml($this->post->getBodytext()); ?>'?
+    </div>
+</div>
+
+<form action="<?php echo $this->url('blog/delete', array(), true) ?>" method="post">
+    <input type="submit" class="btn btn-form-primary" name="delete_confirmation" value="yes">
+    <input type="submit" class="btn btn-form-primary" name="delete_confirmation" value="no">
+</form>

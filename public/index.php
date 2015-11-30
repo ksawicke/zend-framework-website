@@ -1,4 +1,7 @@
 <?php
+
+error_reporting(E_ALL);
+
 /**
  * This makes our life easier when dealing with paths. Everything is relative
  * to the application root now.
@@ -10,7 +13,7 @@ $currentPath = getcwd();
 
 if (trim($currentSystem) == 'swift') {
     switch ($currentPath) {
-        case '/www/zendsvr6/htdocs/pto':
+        case '/www/zendsvr6/htdocs/timeoff':
             define('ENVIRONMENT', 'production');
             break;
         default:
