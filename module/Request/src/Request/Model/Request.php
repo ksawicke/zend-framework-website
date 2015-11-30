@@ -69,15 +69,30 @@ class Request implements RequestInterface
      */
     protected $driverSickTaken;
 
+    /**
+     * @var string
+     */
     protected $managerEmployeeId;
 
+    /**
+     * @var string
+     */
     protected $managerFirstName;
 
+    /**
+     * @var string
+     */
     protected $managerMiddleName;
 
+    /**
+     * @var string
+     */
     protected $managerLastName;
 
-    protected $supervisorEmail;
+    /**
+     * @var string
+     */
+    protected $managerEmail;
 
     /**
      * {@inheritDoc}
@@ -327,13 +342,13 @@ class Request implements RequestInterface
         $this->managerLastName = $managerLastName;
     }
 
-    public function getSupervisorEmail()
+    public function getManagerEmail()
     {
-        return $this->supervisorEmail;
+        return $this->managerEmail;
     }
 
-    public function setSupervisorEmail($supervisorEmail)
+    public function setManagerEmail($managerEmail)
     {
-        $this->supervisorEmail = $supervisorEmail;
+        $this->managerEmail = $managerEmail;
     }
 }

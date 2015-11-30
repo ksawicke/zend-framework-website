@@ -80,7 +80,7 @@ class RequestMapper implements RequestMapperInterface
             'MANAGER_LAST_NAME' => 'SPSPLNM'
         ];
         $this->supervisorAddonColumns = [
-            'SUPERVISOR_EMAIL' => 'PREML1'
+            'MANAGER_EMAIL' => 'PREML1'
         ];
 
         // Now tell the Hydrator to array_flip the keys on save.
@@ -101,8 +101,8 @@ class RequestMapper implements RequestMapperInterface
         $select =
             $sql->select(['employee' => 'PRPMS'])
                 ->columns($this->employeeColumns)
-                ->join(['supervisor' => 'PRPSP'], 'employee.PREN = supervisor.SPEN', $this->employeeSupervisorColumns)
-                ->join(['z' => 'PRPMS'], 'z.PREN = supervisor.SPSPEN', $this->supervisorAddonColumns)
+                ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
+                ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
                 ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
         return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);

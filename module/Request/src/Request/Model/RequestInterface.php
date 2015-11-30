@@ -38,5 +38,5 @@ interface RequestInterface
 
     public function getManagerLastName();
 
-    public function getSupervisorEmail();
+    public function getManagerEmail();
 }
