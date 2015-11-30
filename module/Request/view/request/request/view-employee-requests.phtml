@@ -1,3 +1,7 @@
-<pre>
-<?php print_r($managerDirectReportsData); ?>
-</pre>
+Here is a list of employees:<br /><br />
+
+<?php
+foreach($managerDirectReportsData as $counter => $directReport) {
+    echo "EMPLOYEE ID: " . $directReport->EMPLOYEE_ID . "<br />";
+}
+?>

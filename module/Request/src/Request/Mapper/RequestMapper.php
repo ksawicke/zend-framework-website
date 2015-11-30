@@ -104,11 +104,16 @@ class RequestMapper implements RequestMapperInterface
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
-        return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
+        return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
 
     public function findDirectReports($managerEmployeeId = null)
     {
-        return [1 => 'asadfsdaf', 2 => 'asdfdsafsdffsasf', 3 => 'asdfdsafadsfdsafdsafads'];
+        // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', 'D'))"])
+            ->columns(['EMPLOYEE_ID']);
+
+        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
 }

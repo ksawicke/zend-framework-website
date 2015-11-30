@@ -8,7 +8,7 @@ use Zend\Db\ResultSet\ResultSet;
 class ResultSetOutput
 {
 
-    public static function getResultObject($sql, $select)
+    public static function getResultRecord($sql, $select)
     {
         $stmt = $sql->prepareStatementForSqlObject($select);
         $result = $stmt->execute();
@@ -17,5 +17,21 @@ class ResultSetOutput
         $resultSet->initialize($result);
 
         return $resultSet->current();
+    }
+
+    public static function getResultArray($sql, $select)
+    {
+        $stmt = $sql->prepareStatementForSqlObject($select);
+        $result = $stmt->execute();
+
+        $resultSet = new ResultSet();
+        $resultSet->initialize($result);
+
+        $array = [];
+        foreach($resultSet as $row) {
+            $array[] = $row;
+        }
+
+        return $array;
     }
 }
