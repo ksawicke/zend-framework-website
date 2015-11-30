@@ -23,7 +23,7 @@ return [
                     ]
                 ]
             ],
-            'request' => [
+            'create' => [
                 'type' => 'literal',
                 'options' => [
                     'route' => '/request',
@@ -34,8 +34,19 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
+            ],
+            'viewEmployeeRequests' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/view-employee-requests',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'viewEmployeeRequests'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
             ]
-
         ]
     ],
     'view_manager' => [

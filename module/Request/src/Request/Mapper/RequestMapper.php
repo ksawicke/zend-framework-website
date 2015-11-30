@@ -106,4 +106,9 @@ class RequestMapper implements RequestMapperInterface
 
         return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
     }
+
+    public function findDirectReports($managerEmployeeId = null)
+    {
+        return [1 => 'asadfsdaf', 2 => 'asdfdsafsdffsasf', 3 => 'asdfdsafadsfdsafdsafads'];
+    }
 }

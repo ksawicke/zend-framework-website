@@ -27,4 +27,9 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffBalances($employeeId);
     }
+
+    public function findDirectReports($managerEmployeeId)
+    {
+        return $this->requestMapper->findDirectReports($managerEmployeeId);
+    }
 }
