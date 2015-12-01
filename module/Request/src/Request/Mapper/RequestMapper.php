@@ -64,17 +64,17 @@ class RequestMapper implements RequestMapperInterface
             'EMPLOYEE_EMAIL' => 'PREML1',
             'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
             'EMPLOYEE_TITLE' => 'PRTITL',
-            'GRANDFATHERED_BALANCE' => 'PRAC5E',
+            'GRANDFATHERED_EARNED' => 'PRAC5E',
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
-            'PTO_BALANCE' => 'PRVAC',
+            'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
-            'FLOAT_BALANCE' => 'PRSHA',
+            'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
-            'SICK_BALANCE' => 'PRSDA',
+            'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
-            'COMPANY_MANDATED_BALANCE' => 'PRAC4E',
+            'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
-            'DRIVER_SICK_BALANCE' => 'PRAC6E',
+            'DRIVER_SICK_EARNED' => 'PRAC6E',
             'DRIVER_SICK_TAKEN' => 'PRAC6T'
         ];
         $this->employeeSupervisorColumns = [
