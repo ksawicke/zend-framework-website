@@ -22,7 +22,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeId = '49499';
+        $this->employeeId = '348370';
         $this->managerId = '229589';
     }
 
@@ -35,7 +35,8 @@ class RequestController extends AbstractActionController
         //         exit();
 
         return new ViewModel(array(
-            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeId)
+            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeId),
+            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeId)
         ));
     }
 

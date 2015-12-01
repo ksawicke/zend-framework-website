@@ -8,5 +8,7 @@ interface RequestServiceInterface
 {
     public function findTimeOffBalancesByEmployee($employeeId);
 
+    public function findTimeOffApprovedRequestsByEmployee($employeeId);
+
     public function findTimeOffBalancesByManager($managerEmployeeId);
 }

@@ -1,4 +1,4 @@
-<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->EMPLOYEE_FIRST_NAME); ?> <?php echo ucwords($employeeData->EMPLOYEE_LAST_NAME); ?></strong>
+<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong>
 <br />
 <br />
 
@@ -49,6 +49,12 @@ th, td {
 <br />
 <br />
 
+EMPLOYEE DATA:
 <pre>
 <?php print_r($employeeData); ?>
+</pre>
+
+APPROVED TIME OFF REQUEST DATA FOR THIS EMPLOYEE:
+<pre>
+<?php print_r($approvedRequestData); ?>
 </pre>
