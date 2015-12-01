@@ -5,7 +5,7 @@ use Request\Model\RequestInterface;
 
 interface RequestMapperInterface
 {
-    public function findTimeOffBalances($employeeId = null);
+    public function findTimeOffBalancesByEmployee($employeeId = null);
 
-    public function findDirectReports($managerEmployeeId = null);
+    public function findTimeOffBalancesByManager($managerEmployeeId = null);
 }

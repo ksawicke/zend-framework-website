@@ -23,13 +23,13 @@ class RequestService implements RequestServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function findTimeOffBalances($employeeId)
+    public function findTimeOffBalancesByEmployee($employeeId)
     {
-        return $this->requestMapper->findTimeOffBalances($employeeId);
+        return $this->requestMapper->findTimeOffBalancesByEmployee($employeeId);
     }
 
-    public function findDirectReports($managerEmployeeId)
+    public function findTimeOffBalancesByManager($managerEmployeeId)
     {
-        return $this->requestMapper->findDirectReports($managerEmployeeId);
+        return $this->requestMapper->findTimeOffBalancesByManager($managerEmployeeId);
     }
 }

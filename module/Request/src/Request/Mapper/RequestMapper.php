@@ -95,7 +95,7 @@ class RequestMapper implements RequestMapperInterface
         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->employeeSupervisorColumns, $this->supervisorAddonColumns));
     }
 
-    public function findTimeOffBalances($employeeId = null)
+    public function findTimeOffBalancesByEmployee($employeeId = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
@@ -107,12 +107,13 @@ class RequestMapper implements RequestMapperInterface
         return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
 
-    public function findDirectReports($managerEmployeeId = null)
+    public function findTimeOffBalancesByManager($managerEmployeeId = null)
     {
         // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', 'D'))"])
-            ->columns(['EMPLOYEE_ID']);
+        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', ''))"])
+            ->columns(['EMPLOYEE_ID'])
+            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns);
 
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }

@@ -28,15 +28,23 @@ class RequestController extends AbstractActionController
 
     public function createAction()
     {
+        // One method to grab a service....
+        // Not using this but leaving as a reference for maybe later.
+        //         $service = $this->getServiceLocator()->get('Request\Service\RequestServiceInterface');
+        //         var_dump($service->findTimeOffBalances($this->employeeId));
+        //         exit();
+
         return new ViewModel(array(
-            'employeeData' => $this->requestService->findTimeOffBalances($this->employeeId)
+            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeId)
         ));
     }
 
     public function viewEmployeeRequestsAction()
     {
+        $managerDirectReportsData = $this->requestService->findTimeOffBalancesByManager($this->managerId);
+
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findDirectReports($this->managerId)
+            'managerDirectReportsData' => $managerDirectReportsData
         ));
     }
 }

@@ -6,7 +6,7 @@ use Request\Model\RequestInterface;
 
 interface RequestServiceInterface
 {
-    public function findTimeOffBalances($employeeId);
+    public function findTimeOffBalancesByEmployee($employeeId);
 
-    public function findDirectReports($managerEmployeeId);
+    public function findTimeOffBalancesByManager($managerEmployeeId);
 }
