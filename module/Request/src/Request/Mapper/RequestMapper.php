@@ -243,6 +243,12 @@ class RequestMapper implements RequestMapperInterface
             ->columns(['EMPLOYEE_ID'])
             ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+
+        foreach($employeeData as $counter => $employee) {
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+        }
+
+        return $employeeData;
     }
 }
