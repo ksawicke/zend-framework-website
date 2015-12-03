@@ -84,6 +84,12 @@ class RequestMapper implements RequestMapperInterface
             'DRIVER_SICK_EARNED' => 'PRAC6E',
             'DRIVER_SICK_TAKEN' => 'PRAC6T'
         ];
+        $this->employeeCalendarColumns = [
+            'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
+            'REQUEST_FIRST_NAME' => 'PRFNM',
+            'REQUEST_MIDDLE_INITIAL' => 'PRMNM',
+            'REQUEST_LAST_NAME' => 'PRLNM'
+        ];
 //         $this->employeeSupervisorColumns = [
 //             'MANAGER_EMPLOYEE_NUMBER' => 'SPSPEN',
 //             'MANAGER_FIRST_NAME' => 'SPSPFNM',
@@ -98,117 +104,127 @@ class RequestMapper implements RequestMapperInterface
             'MANAGER_LAST_NAME' => 'PRLNM',
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
-        $this->approvedTimeOffColumns = [
-            'WEEK_ENDING_DATE' => 'AAWEND',
-            'WEEK_END_YR' => 'AAWEYR',
-            'WEEK_END_MO' => 'AAWEMO',
-            'WEEK_END_DA' => 'AAWEDA',
-
-            'WEEK_1_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
-            'WEEK_1_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
-            'WEEK_1_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
-            'WEEK_1_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
-            'WEEK_1_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
-            'WEEK_1_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
-
-            'WEEK_1_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
-            'WEEK_1_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
-            'WEEK_1_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
-            'WEEK_1_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
-            'WEEK_1_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
-            'WEEK_1_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
-
-            'WEEK_1_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
-            'WEEK_1_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
-            'WEEK_1_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
-            'WEEK_1_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
-            'WEEK_1_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
-            'WEEK_1_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
-
-            'WEEK_1_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
-            'WEEK_1_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
-            'WEEK_1_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
-            'WEEK_1_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
-            'WEEK_1_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
-            'WEEK_1_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
-
-            'WEEK_1_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
-            'WEEK_1_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
-            'WEEK_1_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
-            'WEEK_1_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
-            'WEEK_1_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
-            'WEEK_1_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
-
-            'WEEK_1_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
-            'WEEK_1_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
-            'WEEK_1_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
-            'WEEK_1_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
-            'WEEK_1_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
-            'WEEK_1_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
-
-            'WEEK_1_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
-            'WEEK_1_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
-            'WEEK_1_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
-            'WEEK_1_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
-            'WEEK_1_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
-            'WEEK_1_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
-
-            'WEEK_2_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
-            'WEEK_2_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
-            'WEEK_2_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
-            'WEEK_2_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
-            'WEEK_2_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
-            'WEEK_2_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
-
-            'WEEK_2_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
-            'WEEK_2_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
-            'WEEK_2_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
-            'WEEK_2_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
-            'WEEK_2_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
-            'WEEK_2_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
-
-            'WEEK_2_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
-            'WEEK_2_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
-            'WEEK_2_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
-            'WEEK_2_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
-            'WEEK_2_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
-            'WEEK_2_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
-
-            'WEEK_2_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
-            'WEEK_2_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
-            'WEEK_2_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
-            'WEEK_2_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
-            'WEEK_2_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
-            'WEEK_2_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
-
-            'WEEK_2_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
-            'WEEK_2_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
-            'WEEK_2_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
-            'WEEK_2_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
-            'WEEK_2_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
-            'WEEK_2_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
-
-            'WEEK_2_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
-            'WEEK_2_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
-            'WEEK_2_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
-            'WEEK_2_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
-            'WEEK_2_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
-            'WEEK_2_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
-
-            'WEEK_2_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
-            'WEEK_2_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
-            'WEEK_2_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
-            'WEEK_2_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
-            'WEEK_2_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
-            'WEEK_2_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
+        $this->timeoffRequestColumns = [
+            'REQUEST_ID' => 'REQUEST_ID'
         ];
+        $this->timeoffRequestEntryColumns = [
+            'REQUEST_DATE' => 'REQUEST_DATE',
+            'REQUESTED_HOURS' => 'REQUESTED_HOURS'
+        ];
+        $this->timeoffRequestCodeColumns = [
+            'REQUEST_TYPE' => 'DESCRIPTION'
+        ];
+//         $this->approvedTimeOffColumns = [
+//             'WEEK_ENDING_DATE' => 'AAWEND',
+//             'WEEK_END_YR' => 'AAWEYR',
+//             'WEEK_END_MO' => 'AAWEMO',
+//             'WEEK_END_DA' => 'AAWEDA',
+
+//             'WEEK_1_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
+//             'WEEK_1_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
+//             'WEEK_1_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
+//             'WEEK_1_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
+//             'WEEK_1_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
+//             'WEEK_1_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
+
+//             'WEEK_1_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
+//             'WEEK_1_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
+//             'WEEK_1_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
+//             'WEEK_1_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
+//             'WEEK_1_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
+//             'WEEK_1_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
+
+//             'WEEK_1_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
+//             'WEEK_1_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
+//             'WEEK_1_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
+//             'WEEK_1_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
+//             'WEEK_1_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
+//             'WEEK_1_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
+
+//             'WEEK_1_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
+//             'WEEK_1_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
+//             'WEEK_1_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
+//             'WEEK_1_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
+//             'WEEK_1_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
+//             'WEEK_1_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
+
+//             'WEEK_1_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
+//             'WEEK_1_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
+//             'WEEK_1_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
+//             'WEEK_1_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
+//             'WEEK_1_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
+//             'WEEK_1_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
+
+//             'WEEK_1_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
+//             'WEEK_1_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
+//             'WEEK_1_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
+//             'WEEK_1_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
+//             'WEEK_1_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
+//             'WEEK_1_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
+
+//             'WEEK_1_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
+//             'WEEK_1_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
+//             'WEEK_1_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
+//             'WEEK_1_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
+//             'WEEK_1_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
+//             'WEEK_1_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
+
+//             'WEEK_2_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
+//             'WEEK_2_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
+//             'WEEK_2_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
+//             'WEEK_2_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
+//             'WEEK_2_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
+//             'WEEK_2_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
+
+//             'WEEK_2_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
+//             'WEEK_2_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
+//             'WEEK_2_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
+//             'WEEK_2_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
+//             'WEEK_2_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
+//             'WEEK_2_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
+
+//             'WEEK_2_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
+//             'WEEK_2_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
+//             'WEEK_2_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
+//             'WEEK_2_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
+//             'WEEK_2_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
+//             'WEEK_2_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
+
+//             'WEEK_2_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
+//             'WEEK_2_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
+//             'WEEK_2_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
+//             'WEEK_2_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
+//             'WEEK_2_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
+//             'WEEK_2_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
+
+//             'WEEK_2_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
+//             'WEEK_2_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
+//             'WEEK_2_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
+//             'WEEK_2_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
+//             'WEEK_2_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
+//             'WEEK_2_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
+
+//             'WEEK_2_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
+//             'WEEK_2_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
+//             'WEEK_2_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
+//             'WEEK_2_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
+//             'WEEK_2_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
+//             'WEEK_2_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
+
+//             'WEEK_2_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
+//             'WEEK_2_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
+//             'WEEK_2_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
+//             'WEEK_2_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
+//             'WEEK_2_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
+//             'WEEK_2_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
+//         ];
 
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
         // Can pass in multiple arrays here.
-        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->supervisorAddonColumns));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->employeeCalendarColumns, $this->supervisorAddonColumns, $this->timeoffRequestColumns));
         // $this->employeeSupervisorColumns
     }
 
@@ -226,13 +242,60 @@ class RequestMapper implements RequestMapperInterface
 
     public function findTimeOffApprovedRequestsByEmployee($employeeId = null)
     {
-        // SELECT * FROM PAPAA WHERE AACLK# = '   348370'
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select(['approvedtime' => 'PAPAA'])
-            ->columns($this->approvedTimeOffColumns)
-            ->where(['trim(approvedtime.AACLK#)' => trim($employeeId)]);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeId), 'request.REQUEST_STATUS' => 'A']);
+        
+            //timeoffRequestCodeColumns
 
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+    }
+    
+    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $month = 'current')
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', ['EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_ID' => 'REQUEST_ID'])
+//             ->join(['manager' => 'PRPSP'], 'manager.SPEN = request.EMPLOYEE_NUMBER', [])
+//             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+//             ->join(['employee' => 'PRPMS'], 'employee.PREN = request.EMPLOYEE_NUMBER', $this->employeeCalendarColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['request.REQUEST_STATUS' => 'A']); // 'entry.REQUEST_DATE' => '2015-12-14', 
+    
+        /**
+         * Select time off data for Mary Jackson for December 2015
+         * 
+         *
+            
+            SELECT
+            	entry.REQUEST_DATE AS REQUEST_DATE,
+            	get_employee_common_name(employee.PRER, employee.PREN) as EMPLOYEENAME,
+            	entry.REQUESTED_HOURS AS REQUESTED_HOURS,
+            	requestcode.DESCRIPTION AS REQUEST_TYPE
+            FROM TIMEOFF_REQUEST_ENTRIES entry
+            INNER JOIN TIMEOFF_REQUESTS request
+            	ON request.REQUEST_ID = entry.REQUEST_ID
+            INNER JOIN TIMEOFF_REQUEST_CODES requestcode
+            	ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+            INNER JOIN PRPMS employee
+            	ON trim(PREN) = request.EMPLOYEE_NUMBER
+            WHERE request.REQUEST_STATUS = 'A'
+            AND trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '229589' )
+            AND MONTH(entry.REQUEST_DATE) = '12'
+            AND YEAR(entry.REQUEST_DATE) = '2015'
+            ORDER BY REQUEST_DATE ASC, EMPLOYEENAME ASC;;
+            
+         */    
+            
+        $calendarData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+            
+        return $calendarData;
     }
 
     public function findTimeOffBalancesByManager($managerEmployeeId = null)
@@ -245,9 +308,9 @@ class RequestMapper implements RequestMapperInterface
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
-        foreach($employeeData as $counter => $employee) {
-            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
-        }
+//         foreach($employeeData as $counter => $employee) {
+//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+//         }
 
         return $employeeData;
     }

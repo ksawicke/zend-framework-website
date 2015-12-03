@@ -13,17 +13,17 @@ class RequestController extends AbstractActionController
 
     protected $requestForm;
 
-    public $employeeId;
+    public $employeeNumber;
 
-    public $managerId;
+    public $managerNumber;
 
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
     {
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeId = '348370';
-        $this->managerId = '229589';
+        $this->employeeNumber = '348370';
+        $this->managerNumber = '229589';
     }
 
     public function createAction()
@@ -35,14 +35,15 @@ class RequestController extends AbstractActionController
         //         exit();
 
         return new ViewModel(array(
-            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeId),
-            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeId)
+            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
+            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
+            'calendarData' => $this->requestService->findTimeOffCalendarByManager($this->managerNumber, 'current')
         ));
     }
 
     public function viewEmployeeRequestsAction()
     {
-        $managerDirectReportsData = $this->requestService->findTimeOffBalancesByManager($this->managerId);
+        $managerDirectReportsData = $this->requestService->findTimeOffBalancesByManager($this->managerNumber);
 
         return new ViewModel(array(
             'managerDirectReportsData' => $managerDirectReportsData

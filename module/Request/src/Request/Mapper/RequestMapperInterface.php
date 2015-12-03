@@ -5,9 +5,11 @@ use Request\Model\RequestInterface;
 
 interface RequestMapperInterface
 {
-    public function findTimeOffBalancesByEmployee($employeeId = null);
+    public function findTimeOffBalancesByEmployee($employeeNumber = null);
 
-    public function findTimeOffApprovedRequestsByEmployee($employeeId = null);
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null);
 
-    public function findTimeOffBalancesByManager($managerEmployeeId = null);
+    public function findTimeOffBalancesByManager($managerEmployeeNumber = null);
+    
+    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $month = 'current');
 }
