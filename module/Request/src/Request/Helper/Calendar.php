@@ -54,22 +54,14 @@ class Calendar
             $calendar .= '<div class="day-number">' . $list_day . '</div>';
             
             /**
-             * QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !! IF MATCHES FOUND, PRINT THEM !! *
+             * Add data to a cell
              */
             foreach($calendarData as $key => $cal) {
                 $date = \DateTime::createFromFormat("Y-m-d", $cal['REQUEST_DATE']);
-                $calendar .=
-                    (($list_day==$date->format('j')) ?
-                     $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . ' ' . $cal['REQUESTED_HOURS'] . ' ' . $cal['REQUEST_TYPE'] :
-                     '');
+                if($list_day==$date->format('j')) {
+                    $calendar .= '<p>' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . '<br />' . $cal['REQUESTED_HOURS'] . ' ' . $cal['REQUEST_TYPE'] . '</p>';
+                }
             }
-//             if($list_day == 11) {
-//                 $calendar .= '<p>Joe Schmoe 8.00 PTO</p>';
-//             }
-//             if($list_day == 12) {
-//                 $calendar .= '<p>Joe Schmoe 8.00 PTO</p>';
-//                 $calendar .= '<p>Walter Doe 8.00 PTO</p>';
-//             }
             
             $calendar .= '</td>';
             if ($running_day == 6) {
