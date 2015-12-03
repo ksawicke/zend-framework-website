@@ -1,14 +1,12 @@
 <?php
-
 namespace Request;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
-class Module implements
-    AutoloaderProviderInterface,
-    ConfigProviderInterface
+class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
+
     /**
      * Return an array for passing to Zend\Loader\AutoloaderFactory.
      *
@@ -20,7 +18,7 @@ class Module implements
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     // Autoload all classes from namespace 'Blog' from '/module/Blog/src/Blog'
-                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__
                 )
             )
         );
@@ -33,7 +31,7 @@ class Module implements
      */
     public function getConfig()
     {
-        //var_dump(include __DIR__ . '/config/module.config.php');die("..");
+        // var_dump(include __DIR__ . '/config/module.config.php');die("..");
         return include __DIR__ . '/config/module.config.php';
     }
 }

@@ -6,5 +6,11 @@ use Request\Model\RequestInterface;
 
 interface RequestServiceInterface
 {
-    public function findTimeOffBalances($employeeId);
+    public function findTimeOffBalancesByEmployee($employeeId);
+
+    public function findTimeOffApprovedRequestsByEmployee($employeeId);
+
+    public function findTimeOffBalancesByManager($managerEmployeeId);
+    
+    public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
 }

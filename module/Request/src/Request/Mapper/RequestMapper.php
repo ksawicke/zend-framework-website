@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Mapper;
 
 use Request\Model\RequestInterface;
@@ -16,96 +15,306 @@ use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
 class RequestMapper implements RequestMapperInterface
 {
+
     /**
+     *
      * @var \Zend\Db\Adapter\AdapterInterface
      */
     protected $dbAdapter;
 
     /**
+     *
      * @var \Zend\Stdlib\Hydrator\HydratorInterface
      */
     protected $hydrator;
 
     /**
+     *
      * @var \Request\Model\RequestInterface
      */
     protected $requestPrototype;
 
     public $requestColumns = [];
+
     public $authUserColumns = [];
+
     public $docTypeColumns = [];
+
     public $emailRecipientColumns = [];
 
+    public $approvedTimeOffColumns = [];
+
     /**
-     * @param AdapterInterface  $dbAdapter
+     *
+     * @param AdapterInterface $dbAdapter
      * @param HydratorInterface $hydrator
-     * @param PostInterface    $postPrototype
+     * @param PostInterface $postPrototype
      */
-    public function __construct(
-        AdapterInterface $dbAdapter,
-        HydratorInterface $hydrator,
-        RequestInterface $requestPrototype
-    ) {
-        $this->dbAdapter      = $dbAdapter;
-        $this->hydrator       = $hydrator;
-        $this->requestPrototype  = $requestPrototype;
+    public function __construct(AdapterInterface $dbAdapter, HydratorInterface $hydrator, RequestInterface $requestPrototype)
+    {
+        $this->dbAdapter = $dbAdapter;
+        $this->hydrator = $hydrator;
+        $this->requestPrototype = $requestPrototype;
 
         // 'alias' => 'FIELDNAME'
         $this->employeeColumns = [
-            'EMPLOYEE_ID' => 'PREN',
-            'EMPLOYEE_FIRST_NAME' => 'PRFNM',
-            'EMPLOYEE_MIDDLE_NAME' => 'PRMNM',
-            'EMPLOYEE_LAST_NAME' => 'PRLNM',
-            'EMPLOYEE_POSITION' => 'PRPOS',
-            'EMPLOYEE_EMAIL' => 'PREML1',
+            'EMPLOYER_NUMBER' => 'PRER',
+            'EMPLOYEE_NUMBER' => 'PREN',
+            'LEVEL_1' => 'PRL01',
+            'LEVEL_2' => 'PRL02',
+            'LEVEL_3' => 'PRL03',
+            'LEVEL_4' => 'PRL04',
+            'FIRST_NAME' => 'PRFNM',
+            'MIDDLE_INITIAL' => 'PRMNM',
+            'LAST_NAME' => 'PRLNM',
+            'POSITION' => 'PRPOS',
+            'EMAIL_ADDRESS' => 'PREML1',
             'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
-            'EMPLOYEE_TITLE' => 'PRTITL',
-            'GRANDFATHERED_BALANCE' => 'PRAC5E',
+            'POSITION_TITLE' => 'PRTITL',
+            'GRANDFATHERED_EARNED' => 'PRAC5E',
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
-            'PTO_BALANCE' => 'PRVAC',
+            'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
-            'FLOAT_BALANCE' => 'PRSHA',
+            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+            'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
-            'SICK_BALANCE' => 'PRSDA',
+            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+            'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
-            'COMPANY_MANDATED_BALANCE' => 'PRAC4E',
+            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
+            'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
-            'DRIVER_SICK_BALANCE' => 'PRAC6E',
-            'DRIVER_SICK_TAKEN' => 'PRAC6T'
+            'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E - employee.PRAC4T', // Need to manually add the table alias on 2nd field
+            'DRIVER_SICK_EARNED' => 'PRAC6E',
+            'DRIVER_SICK_TAKEN' => 'PRAC6T',
+            'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
         ];
-        $this->employeeSupervisorColumns = [
-            'MANAGER_EMPLOYEE_ID' => 'SPSPEN',
-            'MANAGER_FIRST_NAME' => 'SPSPFNM',
-            'MANAGER_MIDDLE_NAME' => 'SPSPMI',
-            'MANAGER_LAST_NAME' => 'SPSPLNM'
+        $this->employeeCalendarColumns = [
+            'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
+            'REQUEST_FIRST_NAME' => 'PRFNM',
+            'REQUEST_MIDDLE_INITIAL' => 'PRMNM',
+            'REQUEST_LAST_NAME' => 'PRLNM'
         ];
+//         $this->employeeSupervisorColumns = [
+//             'MANAGER_EMPLOYEE_NUMBER' => 'SPSPEN',
+//             'MANAGER_FIRST_NAME' => 'SPSPFNM',
+//             'MANAGER_MIDDLE_INITIAL' => 'SPSPMI',
+//             'MANAGER_LAST_NAME' => 'SPSPLNM'
+//         ];
         $this->supervisorAddonColumns = [
-            'MANAGER_EMAIL' => 'PREML1'
+            'MANAGER_EMPLOYER_NUMBER' => 'PRER',
+            'MANAGER_EMPLOYEE_NUMBER' => 'PREN',
+            'MANAGER_FIRST_NAME' => 'PRFNM',
+            'MANAGER_MIDDLE_INITIAL' => 'PRMNM',
+            'MANAGER_LAST_NAME' => 'PRLNM',
+            'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
+        $this->timeoffRequestColumns = [
+            'REQUEST_ID' => 'REQUEST_ID'
+        ];
+        $this->timeoffRequestEntryColumns = [
+            'REQUEST_DATE' => 'REQUEST_DATE',
+            'REQUESTED_HOURS' => 'REQUESTED_HOURS'
+        ];
+        $this->timeoffRequestCodeColumns = [
+            'REQUEST_TYPE' => 'DESCRIPTION'
+        ];
+//         $this->approvedTimeOffColumns = [
+//             'WEEK_ENDING_DATE' => 'AAWEND',
+//             'WEEK_END_YR' => 'AAWEYR',
+//             'WEEK_END_MO' => 'AAWEMO',
+//             'WEEK_END_DA' => 'AAWEDA',
+
+//             'WEEK_1_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
+//             'WEEK_1_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
+//             'WEEK_1_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
+//             'WEEK_1_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
+//             'WEEK_1_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
+//             'WEEK_1_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
+
+//             'WEEK_1_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
+//             'WEEK_1_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
+//             'WEEK_1_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
+//             'WEEK_1_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
+//             'WEEK_1_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
+//             'WEEK_1_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
+
+//             'WEEK_1_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
+//             'WEEK_1_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
+//             'WEEK_1_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
+//             'WEEK_1_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
+//             'WEEK_1_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
+//             'WEEK_1_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
+
+//             'WEEK_1_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
+//             'WEEK_1_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
+//             'WEEK_1_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
+//             'WEEK_1_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
+//             'WEEK_1_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
+//             'WEEK_1_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
+
+//             'WEEK_1_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
+//             'WEEK_1_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
+//             'WEEK_1_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
+//             'WEEK_1_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
+//             'WEEK_1_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
+//             'WEEK_1_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
+
+//             'WEEK_1_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
+//             'WEEK_1_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
+//             'WEEK_1_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
+//             'WEEK_1_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
+//             'WEEK_1_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
+//             'WEEK_1_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
+
+//             'WEEK_1_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
+//             'WEEK_1_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
+//             'WEEK_1_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
+//             'WEEK_1_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
+//             'WEEK_1_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
+//             'WEEK_1_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
+
+//             'WEEK_2_DAY_1_DAY_OF_WEEK' => 'AAWK1DA1',
+//             'WEEK_2_DAY_1_ABSENT_DATE_1' => 'AAWK1DT1',
+//             'WEEK_2_DAY_1_ABSENT_HOURS_1' => 'AAWK1HR1A',
+//             'WEEK_2_DAY_1_ABSENT_REASON_1' => 'AAWK1RC1A',
+//             'WEEK_2_DAY_1_ABSENT_HOURS_2' => 'AAWK1HR1B',
+//             'WEEK_2_DAY_1_ABSENT_REASON_2' => 'AAWK1RC1B',
+
+//             'WEEK_2_DAY_2_DAY_OF_WEEK' => 'AAWK1DA2',
+//             'WEEK_2_DAY_2_ABSENT_DATE_1' => 'AAWK1DT2',
+//             'WEEK_2_DAY_2_ABSENT_HOURS_1' => 'AAWK1HR2A',
+//             'WEEK_2_DAY_2_ABSENT_REASON_1' => 'AAWK1RC2A',
+//             'WEEK_2_DAY_2_ABSENT_HOURS_2' => 'AAWK1HR2B',
+//             'WEEK_2_DAY_2_ABSENT_REASON_2' => 'AAWK1RC2B',
+
+//             'WEEK_2_DAY_3_DAY_OF_WEEK' => 'AAWK1DA3',
+//             'WEEK_2_DAY_3_ABSENT_DATE_1' => 'AAWK1DT3',
+//             'WEEK_2_DAY_3_ABSENT_HOURS_1' => 'AAWK1HR3A',
+//             'WEEK_2_DAY_3_ABSENT_REASON_1' => 'AAWK1RC3A',
+//             'WEEK_2_DAY_3_ABSENT_HOURS_2' => 'AAWK1HR3B',
+//             'WEEK_2_DAY_3_ABSENT_REASON_2' => 'AAWK1RC3B',
+
+//             'WEEK_2_DAY_4_DAY_OF_WEEK' => 'AAWK1DA4',
+//             'WEEK_2_DAY_4_ABSENT_DATE_1' => 'AAWK1DT4',
+//             'WEEK_2_DAY_4_ABSENT_HOURS_1' => 'AAWK1HR4A',
+//             'WEEK_2_DAY_4_ABSENT_REASON_1' => 'AAWK1RC4A',
+//             'WEEK_2_DAY_4_ABSENT_HOURS_2' => 'AAWK1HR4B',
+//             'WEEK_2_DAY_4_ABSENT_REASON_2' => 'AAWK1RC4B',
+
+//             'WEEK_2_DAY_5_DAY_OF_WEEK' => 'AAWK1DA5',
+//             'WEEK_2_DAY_5_ABSENT_DATE_1' => 'AAWK1DT5',
+//             'WEEK_2_DAY_5_ABSENT_HOURS_1' => 'AAWK1HR5A',
+//             'WEEK_2_DAY_5_ABSENT_REASON_1' => 'AAWK1RC5A',
+//             'WEEK_2_DAY_5_ABSENT_HOURS_2' => 'AAWK1HR5B',
+//             'WEEK_2_DAY_5_ABSENT_REASON_2' => 'AAWK1RC5B',
+
+//             'WEEK_2_DAY_6_DAY_OF_WEEK' => 'AAWK1DA6',
+//             'WEEK_2_DAY_6_ABSENT_DATE_1' => 'AAWK1DT6',
+//             'WEEK_2_DAY_6_ABSENT_HOURS_1' => 'AAWK1HR6A',
+//             'WEEK_2_DAY_6_ABSENT_REASON_1' => 'AAWK1RC6A',
+//             'WEEK_2_DAY_6_ABSENT_HOURS_2' => 'AAWK1HR6B',
+//             'WEEK_2_DAY_6_ABSENT_REASON_2' => 'AAWK1RC6B',
+
+//             'WEEK_2_DAY_7_DAY_OF_WEEK' => 'AAWK1DA7',
+//             'WEEK_2_DAY_7_ABSENT_DATE_1' => 'AAWK1DT7',
+//             'WEEK_2_DAY_7_ABSENT_HOURS_1' => 'AAWK1HR7A',
+//             'WEEK_2_DAY_7_ABSENT_REASON_1' => 'AAWK1RC7A',
+//             'WEEK_2_DAY_7_ABSENT_HOURS_2' => 'AAWK1HR7B',
+//             'WEEK_2_DAY_7_ABSENT_REASON_2' => 'AAWK1RC7B',
+//         ];
 
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
         // Can pass in multiple arrays here.
-        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy(
-            $this->employeeColumns,
-            $this->employeeSupervisorColumns,
-            $this->supervisorAddonColumns
-        ));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->employeeCalendarColumns, $this->supervisorAddonColumns, $this->timeoffRequestColumns));
+        // $this->employeeSupervisorColumns
     }
 
-    public function findTimeOffBalances($employeeId = null)
+    public function findTimeOffBalancesByEmployee($employeeId = null)
     {
-        $sql    = new Sql($this->dbAdapter);
-        $select =
-            $sql->select(['employee' => 'PRPMS'])
-                ->columns($this->employeeColumns)
-                ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', $this->employeeSupervisorColumns)
-                ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-                ->where(['trim(employee.PREN)' => trim($employeeId)]);
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['employee' => 'PRPMS'])
+            ->columns($this->employeeColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
-        return \Request\Helper\ResultSetOutput::getResultObject($sql, $select);
+        return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
 
+    public function findTimeOffApprovedRequestsByEmployee($employeeId = null)
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeId), 'request.REQUEST_STATUS' => 'A']);
+
+        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+    }
+    
+    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null)
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', [])
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', ['REQUEST_TYPE' => 'DESCRIPTION'])
+            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EID' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
+            ->where(['request.REQUEST_STATUS' => 'A',
+                     "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
+                     "entry.REQUEST_DATE BETWEEN '2015-12-01' AND '2015-12-31'"
+                    ])
+            ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
+            
+        /**
+         * Select time off data for Mary Jackson for December 2015
+         * 
+         *
+            
+            SELECT
+            	entry.REQUEST_DATE AS REQUEST_DATE,
+            	get_employee_common_name(employee.PRER, employee.PREN) as EMPLOYEENAME,
+            	entry.REQUESTED_HOURS AS REQUESTED_HOURS,
+            	requestcode.DESCRIPTION AS REQUEST_TYPE
+            FROM TIMEOFF_REQUEST_ENTRIES entry
+            INNER JOIN TIMEOFF_REQUESTS request
+            	ON request.REQUEST_ID = entry.REQUEST_ID
+            INNER JOIN TIMEOFF_REQUEST_CODES requestcode
+            	ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+            INNER JOIN PRPMS employee
+            	ON trim(PREN) = request.EMPLOYEE_NUMBER
+            WHERE request.REQUEST_STATUS = 'A'
+            AND trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '229589' )
+            AND MONTH(entry.REQUEST_DATE) = '12'
+            AND YEAR(entry.REQUEST_DATE) = '2015'
+            ORDER BY REQUEST_DATE ASC, EMPLOYEENAME ASC;;
+            
+         */    
+            
+        $calendarData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+            
+        return $calendarData;
+    }
+
+    public function findTimeOffBalancesByManager($managerEmployeeId = null)
+    {
+        // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', ''))"])
+            ->columns(['EMPLOYEE_ID'])
+            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns);
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+
+        foreach($employeeData as $counter => $employee) {
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+        }
+
+        return $employeeData;
+    }
 }

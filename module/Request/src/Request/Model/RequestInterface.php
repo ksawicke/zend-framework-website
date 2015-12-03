@@ -1,32 +1,32 @@
 <?php
-
 namespace Request\Model;
 
 interface RequestInterface
 {
+
     public function getEmployeeId();
 
-    public function getGrandfatheredBalance();
+    public function getGrandfatheredEarned();
 
     public function getGrandfatheredTaken();
 
-    public function getPtoBalance();
+    public function getPtoEarned();
 
     public function getPtoTaken();
 
-    public function getFloatBalance();
+    public function getFloatEarned();
 
     public function getFloatTaken();
 
-    public function getSickBalance();
+    public function getSickEarned();
 
     public function getSickTaken();
 
-    public function getCompanyMandatedBalance();
+    public function getCompanyMandatedEarned();
 
     public function getCompanyMandatedTaken();
 
-    public function getDriverSickBalance();
+    public function getDriverSickEarned();
 
     public function getDriverSickTaken();
 

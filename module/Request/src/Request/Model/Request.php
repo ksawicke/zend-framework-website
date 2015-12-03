@@ -1,95 +1,113 @@
 <?php
-
 namespace Request\Model;
 
 class Request implements RequestInterface
 {
+
     /**
+     *
      * @var int
      */
     protected $employeeId;
 
     /**
+     *
      * @var string
      */
-    protected $grandfatheredBalance;
+    protected $grandfatheredEarned;
 
     /**
+     *
      * @var string
      */
     protected $grandfatheredTaken;
 
     /**
+     *
      * @var string
      */
-    protected $ptoBalance;
+    protected $ptoEarned;
 
     /**
+     *
      * @var string
      */
     protected $ptoTaken;
 
     /**
+     *
      * @var string
      */
-    protected $floatBalance;
+    protected $floatEarned;
 
     /**
+     *
      * @var string
      */
     protected $floatTaken;
 
     /**
+     *
      * @var string
      */
-    protected $sickBalance;
+    protected $sickEarned;
 
     /**
+     *
      * @var string
      */
     protected $sickTaken;
 
     /**
+     *
      * @var string
      */
-    protected $companyMandatedBalance;
+    protected $companyMandatedEarned;
 
     /**
+     *
      * @var string
      */
     protected $companyMandatedTaken;
 
     /**
+     *
      * @var string
      */
-    protected $driverSickBalance;
+    protected $driverSickEarned;
 
     /**
+     *
      * @var string
      */
     protected $driverSickTaken;
 
     /**
+     *
      * @var string
      */
     protected $managerEmployeeId;
 
     /**
+     *
      * @var string
      */
     protected $managerFirstName;
 
     /**
+     *
      * @var string
      */
     protected $managerMiddleName;
 
     /**
+     *
      * @var string
      */
     protected $managerLastName;
 
     /**
+     *
      * @var string
      */
     protected $managerEmail;
@@ -103,6 +121,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $employeeId
      */
     public function setEmployeeId($employeeId)
@@ -113,17 +132,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getGrandfatheredBalance()
+    public function getGrandfatheredEarned()
     {
-        return $this->grandfatheredBalance;
+        return $this->grandfatheredEarned;
     }
 
     /**
-     * @param int $grandfatheredBalance
+     *
+     * @param int $grandfatheredEarned
      */
-    public function setGrandfatheredBalance($grandfatheredBalance)
+    public function setGrandfatheredEarned($grandfatheredEarned)
     {
-        $this->grandfatheredBalance = $grandfatheredBalance;
+        $this->grandfatheredEarned = $grandfatheredEarned;
     }
 
     /**
@@ -135,6 +155,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $grandfatheredTaken
      */
     public function setGrandfatheredTaken($grandfatheredTaken)
@@ -145,17 +166,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getPtoBalance()
+    public function getPtoEarned()
     {
-        return $this->ptoBalance;
+        return $this->ptoEarned;
     }
 
     /**
-     * @param int $ptoBalance
+     *
+     * @param int $ptoEarned
      */
-    public function setPtoBalance($ptoBalance)
+    public function setPtoEarned($ptoEarned)
     {
-        $this->ptoBalance = $ptoBalance;
+        $this->ptoEarned = $ptoEarned;
     }
 
     /**
@@ -167,6 +189,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $ptoTaken
      */
     public function setPtoTaken($ptoTaken)
@@ -177,17 +200,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getFloatBalance()
+    public function getFloatEarned()
     {
-        return $this->floatBalance;
+        return $this->floatEarned;
     }
 
     /**
-     * @param int $floatBalance
+     *
+     * @param int $floatEarned
      */
-    public function setFloatBalance($floatBalance)
+    public function setFloatEarned($floatEarned)
     {
-        $this->floatBalance = $floatBalance;
+        $this->floatEarned = $floatEarned;
     }
 
     /**
@@ -199,6 +223,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $floatTaken
      */
     public function setFloatTaken($floatTaken)
@@ -209,17 +234,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getSickBalance()
+    public function getSickEarned()
     {
-        return $this->sickBalance;
+        return $this->sickEarned;
     }
 
     /**
-     * @param int $sickBalance
+     *
+     * @param int $sickEarned
      */
-    public function setSickBalance($sickBalance)
+    public function setSickEarned($sickEarned)
     {
-        $this->sickBalance = $sickBalance;
+        $this->sickEarned = $sickEarned;
     }
 
     /**
@@ -231,6 +257,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $sickTaken
      */
     public function setSickTaken($sickTaken)
@@ -241,17 +268,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getCompanyMandatedBalance()
+    public function getCompanyMandatedEarned()
     {
-        return $this->companyMandatedBalance;
+        return $this->companyMandatedEarned;
     }
 
     /**
-     * @param int $companyMandatedBalance
+     *
+     * @param int $companyMandatedEarned
      */
-    public function setCompanyMandatedBalance($companyMandatedBalance)
+    public function setCompanyMandatedEarned($companyMandatedEarned)
     {
-        $this->companyMandatedBalance = $companyMandatedBalance;
+        $this->companyMandatedEarned = $companyMandatedEarned;
     }
 
     /**
@@ -263,6 +291,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $companyMandatedTaken
      */
     public function setCompanyMandatedTaken($companyMandatedTaken)
@@ -273,17 +302,18 @@ class Request implements RequestInterface
     /**
      * {@inheritDoc}
      */
-    public function getDriverSickBalance()
+    public function getDriverSickEarned()
     {
-        return $this->driverSickBalance;
+        return $this->driverSickEarned;
     }
 
     /**
-     * @param int $driverSickBalance
+     *
+     * @param int $driverSickEarned
      */
-    public function setDriverSickBalance($driverSickBalance)
+    public function setDriverSickEarned($driverSickEarned)
     {
-        $this->driverSickBalance = $driverSickBalance;
+        $this->driverSickEarned = $driverSickEarned;
     }
 
     /**
@@ -295,6 +325,7 @@ class Request implements RequestInterface
     }
 
     /**
+     *
      * @param int $driverSickTaken
      */
     public function setDriverSickTaken($driverSickTaken)

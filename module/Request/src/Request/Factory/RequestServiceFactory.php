@@ -1,5 +1,4 @@
 <?php
-
 namespace Request\Factory;
 
 use Request\Service\RequestService;
@@ -8,6 +7,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 
 class RequestServiceFactory implements FactoryInterface
 {
+
     /**
      * Create service
      *
