@@ -21,9 +21,9 @@ th, td {
 	<tbody>
 		<tr>
 			<td><strong>Available</strong></td>
-			<td><?php echo number_format(($employeeData->PTO_EARNED - $employeeData->PTO_TAKEN), 2); ?></td>
-			<td><?php echo number_format(($employeeData->FLOAT_EARNED - $employeeData->FLOAT_TAKEN), 2); ?></td>
-			<td><?php echo number_format(($employeeData->SICK_EARNED - $employeeData->SICK_TAKEN), 2); ?></td>
+			<td><?php echo number_format($employeeData->PTO_AVAILABLE, 2); ?></td>
+			<td><?php echo number_format($employeeData->FLOAT_AVAILABLE, 2); ?></td>
+			<td><?php echo number_format($employeeData->SICK_AVAILABLE, 2); ?></td>
 		</tr>
 		<tr>
 			<td><strong>Pending</strong></td>
@@ -33,9 +33,9 @@ th, td {
 		</tr>
 		<tr>
 			<td><strong>Remaining</strong></td>
-			<td><?php echo number_format(($employeeData->PTO_EARNED - $employeeData->PTO_TAKEN), 2); ?></td>
-			<td><?php echo number_format(($employeeData->FLOAT_EARNED - $employeeData->FLOAT_TAKEN), 2); ?></td>
-			<td><?php echo number_format(($employeeData->SICK_EARNED - $employeeData->SICK_TAKEN), 2); ?></td>
+			<td><?php echo number_format($employeeData->PTO_AVAILABLE, 2); ?></td>
+			<td><?php echo number_format($employeeData->FLOAT_AVAILABLE, 2); ?></td>
+			<td><?php echo number_format($employeeData->SICK_AVAILABLE, 2); ?></td>
 		</tr>
 		<tr>
 			<td><strong>Requested</strong></td>

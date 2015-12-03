@@ -22,7 +22,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '348370';
+        $this->employeeNumber = '49499';
         $this->managerNumber = '229589';
     }
 
@@ -42,17 +42,13 @@ class RequestController extends AbstractActionController
 
     public function viewEmployeeRequestsAction()
     {
-        $managerDirectReportsData = $this->requestService->findTimeOffBalancesByManager($this->managerNumber);
-
         return new ViewModel(array(
-            'managerDirectReportsData' => $managerDirectReportsData
+            'managerDirectReportsData' => $this->requestService->findTimeOffBalancesByManager($this->managerNumber)
         ));
     }
     
     public function viewMyTeamCalendarAction()
     {
-        $calendarData = $this->requestService->findTimeOffBalancesByManager($this->managerNumber);
-        
         return new ViewModel(array(
             'calendarData' => $this->requestService->findTimeOffCalendarByManager($this->managerNumber, 'current')
         ));

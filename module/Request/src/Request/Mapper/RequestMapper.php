@@ -75,14 +75,19 @@ class RequestMapper implements RequestMapperInterface
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
             'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
+            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
             'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
+            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
             'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
+            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
             'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
+            'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E - employee.PRAC4T', // Need to manually add the table alias on 2nd field
             'DRIVER_SICK_EARNED' => 'PRAC6E',
-            'DRIVER_SICK_TAKEN' => 'PRAC6T'
+            'DRIVER_SICK_TAKEN' => 'PRAC6T',
+            'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
         ];
         $this->employeeCalendarColumns = [
             'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
@@ -248,8 +253,6 @@ class RequestMapper implements RequestMapperInterface
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
             ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeId), 'request.REQUEST_STATUS' => 'A']);
-        
-            //timeoffRequestCodeColumns
 
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
@@ -261,32 +264,12 @@ class RequestMapper implements RequestMapperInterface
             ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', [])
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', ['REQUEST_TYPE' => 'DESCRIPTION'])
-            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
+            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EID' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
             ->where(['request.REQUEST_STATUS' => 'A',
                      "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
                      "entry.REQUEST_DATE BETWEEN '2014-05-01' AND '2016-12-31'"
                     ])
             ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
-//             ->group('entry.REQUEST_DATE'); 
-    
-//         $query = "SELECT
-//             	entry.REQUEST_DATE AS REQUEST_DATE,
-//             	get_employee_common_name(employee.PRER, employee.PREN) as EMPLOYEENAME,
-//             	entry.REQUESTED_HOURS AS REQUESTED_HOURS,
-//             	requestcode.DESCRIPTION AS REQUEST_TYPE
-//             FROM TIMEOFF_REQUEST_ENTRIES entry
-//             INNER JOIN TIMEOFF_REQUESTS request
-//             	ON request.REQUEST_ID = entry.REQUEST_ID
-//             INNER JOIN TIMEOFF_REQUEST_CODES requestcode
-//             	ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
-//             INNER JOIN PRPMS employee
-//             	ON trim(PREN) = request.EMPLOYEE_NUMBER
-//             WHERE request.REQUEST_STATUS = 'A'
-//             AND trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '229589' )
-//             AND MONTH(entry.REQUEST_DATE) = '12'
-//             AND YEAR(entry.REQUEST_DATE) = '2015'
-//             ORDER BY REQUEST_DATE ASC, EMPLOYEENAME ASC";
-//         $select = $sql->query($query);
             
         /**
          * Select time off data for Mary Jackson for December 2015
@@ -328,9 +311,9 @@ class RequestMapper implements RequestMapperInterface
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
-//         foreach($employeeData as $counter => $employee) {
-//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
-//         }
+        foreach($employeeData as $counter => $employee) {
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+        }
 
         return $employeeData;
     }
