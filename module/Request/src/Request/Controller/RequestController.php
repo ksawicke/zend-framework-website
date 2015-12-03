@@ -49,8 +49,11 @@ class RequestController extends AbstractActionController
     
     public function viewMyTeamCalendarAction()
     {
+        $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, '2015-12-01', '2015-12-31');
+        
         return new ViewModel(array(
-            'calendarData' => $this->requestService->findTimeOffCalendarByManager($this->managerNumber, 'current')
+            'calendarData' => $calendarData,
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
         ));
     }
 }

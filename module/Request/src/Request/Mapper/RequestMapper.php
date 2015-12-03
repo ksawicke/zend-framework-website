@@ -257,7 +257,7 @@ class RequestMapper implements RequestMapperInterface
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
     
-    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $month = 'current')
+    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
@@ -267,7 +267,7 @@ class RequestMapper implements RequestMapperInterface
             ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EID' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
             ->where(['request.REQUEST_STATUS' => 'A',
                      "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
-                     "entry.REQUEST_DATE BETWEEN '2014-05-01' AND '2016-12-31'"
+                     "entry.REQUEST_DATE BETWEEN '2015-12-01' AND '2015-12-31'"
                     ])
             ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
             

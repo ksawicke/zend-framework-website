@@ -38,8 +38,8 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->findTimeOffBalancesByManager($managerEmployeeNumber);
     }
     
-    public function findTimeOffCalendarByManager($managerEmployeeNumber, $month)
+    public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate)
     {
-        return $this->requestMapper->findTimeOffCalendarByManager($managerEmployeeNumber, $month);
+        return $this->requestMapper->findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     }
 }
