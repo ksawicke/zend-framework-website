@@ -258,16 +258,36 @@ class RequestMapper implements RequestMapperInterface
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
-            ->columns($this->timeoffRequestEntryColumns)
-            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', ['EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_ID' => 'REQUEST_ID'])
-//             ->join(['manager' => 'PRPSP'], 'manager.SPEN = request.EMPLOYEE_NUMBER', [])
-//             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-//             ->join(['employee' => 'PRPMS'], 'employee.PREN = request.EMPLOYEE_NUMBER', $this->employeeCalendarColumns)
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-            ->where(['request.REQUEST_STATUS' => 'A']); // 'entry.REQUEST_DATE' => '2015-12-14', 
+            ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', [])
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', ['REQUEST_TYPE' => 'DESCRIPTION'])
+            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
+            ->where(['request.REQUEST_STATUS' => 'A',
+                     "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
+                     "entry.REQUEST_DATE BETWEEN '2014-05-01' AND '2016-12-31'"
+                    ])
+            ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
+//             ->group('entry.REQUEST_DATE'); 
     
+//         $query = "SELECT
+//             	entry.REQUEST_DATE AS REQUEST_DATE,
+//             	get_employee_common_name(employee.PRER, employee.PREN) as EMPLOYEENAME,
+//             	entry.REQUESTED_HOURS AS REQUESTED_HOURS,
+//             	requestcode.DESCRIPTION AS REQUEST_TYPE
+//             FROM TIMEOFF_REQUEST_ENTRIES entry
+//             INNER JOIN TIMEOFF_REQUESTS request
+//             	ON request.REQUEST_ID = entry.REQUEST_ID
+//             INNER JOIN TIMEOFF_REQUEST_CODES requestcode
+//             	ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+//             INNER JOIN PRPMS employee
+//             	ON trim(PREN) = request.EMPLOYEE_NUMBER
+//             WHERE request.REQUEST_STATUS = 'A'
+//             AND trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '229589' )
+//             AND MONTH(entry.REQUEST_DATE) = '12'
+//             AND YEAR(entry.REQUEST_DATE) = '2015'
+//             ORDER BY REQUEST_DATE ASC, EMPLOYEENAME ASC";
+//         $select = $sql->query($query);
+            
         /**
          * Select time off data for Mary Jackson for December 2015
          * 

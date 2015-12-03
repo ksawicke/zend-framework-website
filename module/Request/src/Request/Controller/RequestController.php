@@ -36,8 +36,7 @@ class RequestController extends AbstractActionController
 
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
-            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
-            'calendarData' => $this->requestService->findTimeOffCalendarByManager($this->managerNumber, 'current')
+            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber)
         ));
     }
 
@@ -47,6 +46,15 @@ class RequestController extends AbstractActionController
 
         return new ViewModel(array(
             'managerDirectReportsData' => $managerDirectReportsData
+        ));
+    }
+    
+    public function viewMyTeamCalendarAction()
+    {
+        $calendarData = $this->requestService->findTimeOffBalancesByManager($this->managerNumber);
+        
+        return new ViewModel(array(
+            'calendarData' => $this->requestService->findTimeOffCalendarByManager($this->managerNumber, 'current')
         ));
     }
 }

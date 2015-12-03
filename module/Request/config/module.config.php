@@ -46,7 +46,19 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
-            ]
+            ],
+            'viewMyTeamCalendar' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/view-my-team-calendar',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'viewMyTeamCalendar'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
         ]
     ],
     'view_manager' => [
