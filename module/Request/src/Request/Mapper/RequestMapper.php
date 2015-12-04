@@ -73,21 +73,30 @@ class RequestMapper implements RequestMapperInterface
             'POSITION_TITLE' => 'PRTITL',
             'GRANDFATHERED_EARNED' => 'PRAC5E',
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
+            'GRANDFATHERED_AVAILABLE' => 'PRAC5E - employee.PRAC5T - pendingrequests.REQGFV',
             'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
-            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT - pendingrequests.REQPTO', // Need to manually add the table alias on 2nd field
             'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
-            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT - pendingrequests.REQFLOAT', // Need to manually add the table alias on 2nd field
             'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
-            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
+            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT - pendingrequests.REQSICK',
             'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
             'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E - employee.PRAC4T', // Need to manually add the table alias on 2nd field
             'DRIVER_SICK_EARNED' => 'PRAC6E',
             'DRIVER_SICK_TAKEN' => 'PRAC6T',
             'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
+        ];
+        $this->pendingRequestColumns = [
+            'GRANDFATHERED_PENDING' => 'REQGFV',
+            'PTO_PENDING' => 'REQPTO',
+            'FLOAT_PENDING' => 'REQFLOAT',
+            'SICK_PENDING' => 'REQSICK',
+            'TOM_PENDING' => 'REQTOM',
+            'VAC_PENDING' => 'REQVAC'            
         ];
         $this->employeeCalendarColumns = [
             'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
@@ -240,8 +249,11 @@ class RequestMapper implements RequestMapperInterface
             ->columns($this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns)
             ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
+        // select * from papreq where reqclk# = '101639';;
+            
         return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
 
