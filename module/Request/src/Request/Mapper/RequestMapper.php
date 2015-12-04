@@ -349,7 +349,8 @@ class RequestMapper implements RequestMapperInterface
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', ''))"])
             ->columns(['EMPLOYEE_ID'])
-            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns);
+            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns)
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
