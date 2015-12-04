@@ -242,6 +242,14 @@ class RequestMapper implements RequestMapperInterface
         // $this->employeeSupervisorColumns
     }
 
+    /**
+     * Find time off balances by Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByEmployee()
+     */
+    // TODO: sawik 12/04/15 Change the join to join on the actual employee id,
+    // hardcoded here.
     public function findTimeOffBalancesByEmployee($employeeId = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -257,6 +265,12 @@ class RequestMapper implements RequestMapperInterface
         return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
 
+    /**
+     * Find time off approved requests by Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
+     */
     public function findTimeOffApprovedRequestsByEmployee($employeeId = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -269,6 +283,12 @@ class RequestMapper implements RequestMapperInterface
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
     
+    /**
+     * Find time off calendar data by Manager Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffCalendarByManager()
+     */
     public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -313,6 +333,12 @@ class RequestMapper implements RequestMapperInterface
         return $calendarData;
     }
 
+    /**
+     * Find Time off balances by Manager Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByManager()
+     */
     public function findTimeOffBalancesByManager($managerEmployeeId = null)
     {
         // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
