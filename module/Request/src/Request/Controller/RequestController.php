@@ -22,7 +22,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '49499';
+        $this->employeeNumber = '348370';
         $this->managerNumber = '229589';
     }
 

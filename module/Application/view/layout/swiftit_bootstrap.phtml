@@ -51,7 +51,7 @@
           </button>
           <div class="visible-lg">
               <div class="swift-header-item">
-                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/blog"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
+                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
               </div>
               <div class="swift-header-item swift-site-name">
                 SWIFT IT Template<?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
@@ -59,7 +59,7 @@
           </div>
           <div class="visible-xs visible-sm visible-md">
               <div class="swift-header-item-sm">
-                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/blog'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
+                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/request/create'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
               </div>
               <div class="swift-header-item swift-site-name-sm">
                 SWIFT IT Template
@@ -68,11 +68,11 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="<?php echo $this->basepath(); ?>/request/create">Home</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Page Links <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="<?php echo $this->basepath(); ?>/request">Request Time Off</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/create">Request Time Off</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-employee-requests">View Manager Employee Requests</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-team-calendar">View My Team Calendar</a></li>
               </ul>

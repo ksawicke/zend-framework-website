@@ -35,6 +35,18 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+            'create2' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/create',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'create'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
             'viewEmployeeRequests' => [
                 'type' => 'literal',
                 'options' => [
