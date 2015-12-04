@@ -359,8 +359,8 @@ table.calendar {
 }
 
 tr.calendar-row {
-	height:145px;
-	min-height:145px;
+	height:200px;
+	min-height:200px;
 }
 
 body > div.container > div > table > tbody > tr > div {
