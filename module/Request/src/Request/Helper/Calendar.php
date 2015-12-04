@@ -29,7 +29,7 @@ class Calendar
             'Friday',
             'Saturday'
         ];
-        $calendar .= '<tr class="calendar-row"><td class="calendar-day-head">' . implode('</td><td class="calendar-day-head">', $headings) . '</td></tr>';
+        $calendar .= '<tr class="calendar-row calendar-header-adjust"><td class="calendar-day-head">' . implode('</td><td class="calendar-day-head">', $headings) . '</td></tr>';
         
         /* days and weeks vars now ... */
         $running_day = date('w', mktime(0, 0, 0, $month, 1, $year));
@@ -56,12 +56,14 @@ class Calendar
             /**
              * Add data to a cell
              */
+            $calendar .= '<p>';
             foreach($calendarData as $key => $cal) {
                 $date = \DateTime::createFromFormat("Y-m-d", $cal['REQUEST_DATE']);
                 if($list_day==$date->format('j')) {
-                    $calendar .= '<p>' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . '<br />' . $cal['REQUESTED_HOURS'] . ' ' . $cal['REQUEST_TYPE'] . '</p>';
+                    $calendar .= '' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . '<br />' . $cal['REQUESTED_HOURS'] . ' ' . $cal['REQUEST_TYPE'] . '<br /><br />';
                 }
             }
+            $calendar .= '</p>';
             
             $calendar .= '</td>';
             if ($running_day == 6) {
