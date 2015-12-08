@@ -440,3 +440,31 @@ td.calendar-day, td.calendar-day-np {
 	border-bottom: 1px solid #999;
 	border-right: 1px solid #999;
 }
+
+/**
+ * Color schemes for time off
+ *
+ * 'red' => '#c0362c',
+ * 'orange' => '#ff8642',
+ * 'copper' => '#816c5b',
+ * 'green' => '#668d3c',
+ * 'darkTurquoise' => '#0097ac',
+ * 'lightTurquoise' => '#96c2f4'
+ *
+ * @see http://www.creativecolorschemes.com/resources/free-color-schemes/beach-color-scheme.shtml
+ **/
+.timeOffPTO {
+	background-color: #ff8642;
+}
+.timeOffFloat {
+	background-color: #0097ac;
+}
+.timeOffSick {
+	background-color: #668d3c;
+}
+.timeOffGrandfathered {
+	background-color: #816c5b;
+}
+.timeOffMandated {
+	background-color: #c0362c;
+}
