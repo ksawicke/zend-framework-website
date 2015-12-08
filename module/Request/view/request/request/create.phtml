@@ -2,10 +2,101 @@
 <br />
 <br />
 
+<div class="timeOffCategoryLeft timeOffPTO">
+	&nbsp;<br />
+	&nbsp;
+</div>
+<div class="timeOffCategory">
+	PTO<br />
+	38.66 hr
+</div>
+
+<div class="timeOffCategoryLeft timeOffFloat">
+	&nbsp;<br />
+	&nbsp;
+</div>
+<div class="timeOffCategory">
+	Float<br />
+	8.00 hr
+</div>
+
+<div class="timeOffCategoryLeft timeOffSick">
+	&nbsp;<br />
+	&nbsp;
+</div>
+<div class="timeOffCategory">
+	Sick<br />
+	0.00 hr
+</div>
+
+<br /><br />
+
+<br style="clear:both;" />
+
+<div style="width:33%;padding-right:10px;float:left;text-align:center;">
+	<strong>November 2015</strong><br /><br />
+	<?php echo $previousMonthCalendarHtml; ?>
+</div>
+<div style="width:33%;padding-right:10px;float:left;text-align:center;">
+	<strong>December 2015</strong><br /><br />
+	<?php echo $thisMonthCalendarHtml; ?>
+</div>
+<div style="width:33%;float:left;text-align:center;">
+	<strong>January 2016</strong><br /><br />
+	<?php echo $nextMonthCalendarHtml; ?>
+</div>
+
+
+
+
+
+<!-- br style="clear:both;" /><br style="clear:both;" />
+
+<div class="timeOffCategory" data-category="pto">
+	PTO<br />
+	38.66 hr
+</div>
+<div class="timeOffCategory" data-category="float">
+	Float<br />
+	8.00 hr
+</div>
+<div class="timeOffCategory" data-category="sick">
+	Sick<br />
+	0.00 hr
+</div-->
+
+<br /><br/ >
+
 <style>
 th, td {
 	border: 1px solid #000;
 	padding: 5px;
+}
+
+tr.calendar-header-adjust {
+	height:20px;
+}
+
+td.calendar-day {
+	min-height: 20px !important;
+	font-size: 11px;
+	position: relative;
+}
+
+* html div.calendar-day {
+	height: 20px;
+}
+
+td.calendar-day:hover {
+	
+}
+
+td.calendar-day-np {
+	min-height: 20px;
+}
+
+* html div.calendar-day-np {
+	height: 20px;
 }
 </style>
 

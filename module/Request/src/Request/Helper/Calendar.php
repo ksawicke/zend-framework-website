@@ -151,4 +151,148 @@ class Calendar
         
         return $data;
     }
+    
+    /**
+     * 
+     * @param unknown $calendarHeader
+     */
+    public static function setCalendarHeader($calendarHeader)
+    {
+        self::$calendarHeader = $calendarHeader;
+    }
+    
+    /**
+     * 
+     * @param unknown $calendarHeadings
+     */
+    public static function setCalendarHeadings($calendarHeadings)
+    {
+        self::$calendarHeadings = $calendarHeadings;
+    }
+    
+    /**
+     * 
+     * @param unknown $beginCalendarColumnHeaders
+     */
+    public static function setBeginCalendarColumnHeaders($beginCalendarColumnHeaders)
+    {
+        self::$beginCalendarColumnHeaders = $beginCalendarColumnHeaders;
+    }
+    
+    /**
+     * 
+     * @param unknown $insertAfterCalendarHeading
+     */
+    public static function setInsertAfterCalendarHeading($insertAfterCalendarHeading)
+    {
+        self::$insertAfterCalendarHeading = $insertAfterCalendarHeading;
+    }
+    
+    /**
+     * 
+     * @param unknown $endCalendarColumnHeaders
+     */
+    public static function setEndCalendarColumnHeaders($endCalendarColumnHeaders)
+    {
+        self::$endCalendarColumnHeaders = $endCalendarColumnHeaders;
+    }
+    
+    /**
+     * 
+     * @param unknown $beginCalendarRow
+     */
+    public static function setBeginCalendarRow($beginCalendarRow)
+    {
+        self::$beginCalendarRow = $beginCalendarRow;
+    }
+    
+    /**
+     * 
+     * @param unknown $blankCalendarDay
+     */
+    public static function setBlankCalendarDay($blankCalendarDay)
+    {
+        self::$blankCalendarDay = $blankCalendarDay;
+    }
+    
+    /**
+     * 
+     * @param unknown $beginWeekOne
+     */
+    public static function setBeginWeekOne($beginWeekOne)
+    {
+        self::$beginWeekOne = $beginWeekOne;
+    }
+    
+    /**
+     * 
+     * @param unknown $beginDayCell
+     */
+    public static function setBeginDayCell($beginDayCell)
+    {
+        self::$beginDayCell = $beginDayCell;
+    }
+    
+    /**
+     * 
+     * @param unknown $beginDay
+     */
+    public static function setBeginDay($beginDay)
+    {
+        self::$beginDay = $beginDay;
+    }
+    
+    /**
+     * 
+     * @param unknown $endDay
+     */
+    public static function setEndDay($endDay)
+    {
+        self::$endDay = $endDay;
+    }
+    
+    /**
+     * 
+     * @param unknown $beforeDayData
+     */
+    public static function setBeforeDayData($beforeDayData)
+    {
+        self::$beforeDayData = $beforeDayData;
+    }
+    
+    /**
+     * 
+     * @param unknown $afterDayData
+     */
+    public static function setAfterDayData($afterDayData)
+    {
+        self::$afterDayData = $afterDayData;
+    }
+    
+    /**
+     * 
+     * @param unknown $closeCell
+     */
+    public static function setCloseCell($closeCell)
+    {
+        self::$closeCell = $closeCell;
+    }
+    
+    /**
+     * 
+     * @param unknown $closeRow
+     */
+    public static function setCloseRow($closeRow)
+    {
+        self::$closeRow = $closeRow;
+    }
+    
+    /**
+     * 
+     * @param unknown $closeCalendar
+     */
+    public static function setCloseCalendar($closeCalendar)
+    {
+        self::$closeCalendar = $closeCalendar;
+    }
 }
