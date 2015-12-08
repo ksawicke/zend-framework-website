@@ -499,3 +499,19 @@ td.calendar-day, td.calendar-day-np {
 .hours {
 	font-size:150%;
 }
+
+.glyphicon-timeOffPTO:before {
+    content:"\25cf";
+    font-size: 2em;
+    color: #ff8642;
+}
+.glyphicon-timeOffFloat:before {
+    content:"\25cf";
+    font-size: 2em;
+    color: #0097ac;
+}
+.glyphicon-timeOffSick:before {
+    content:"\25cf";
+    font-size: 2em;
+    color: #668d3c;
+}

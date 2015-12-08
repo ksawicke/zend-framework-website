@@ -4,7 +4,10 @@
  */
 var timeoffHandler = new function()
 {
-    var selectedTimeoffCategory = null;
+    var selectedTimeoffCategory = null,
+    	selectedDates = [],
+    	selectedDateCategories = [],
+    	selectedDateHours = [];
 
     /**
      * Initializes binding
@@ -24,7 +27,34 @@ var timeoffHandler = new function()
         	});
         	
         	$(".calendar-day").click(function() {
-        		console.log("YOU CLICKED ME");
+        		var index = selectedDates.indexOf($(this).attr("data-date"));
+        		if (index != -1) {
+        			selectedDates.splice(index, 1);
+        			selectedDateCategories.splice(index, 1);
+        			selectedDateHours.splice(index, 1);
+        			$(this).toggleClass(selectedTimeoffCategory);
+        			$(this).children("div").toggleClass(selectedTimeoffCategory);
+        		} else {
+        			selectedDates.push($(this).attr("data-date"));
+        			selectedDateCategories.push(selectedTimeoffCategory);
+        			selectedDateHours.push('8.00');
+        			$(this).toggleClass(selectedTimeoffCategory);
+        			$(this).children("div").toggleClass(selectedTimeoffCategory);
+        		}
+        		
+        		datesSelectedHtml = '';
+        		$.each(selectedDates, function(key, date) {
+        			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />';
+        			// <span class="glyphicon glyphicon-timeOffPTO"></span>&nbsp;&nbsp;&nbsp;&nbsp;02/02/2016&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />
+        		});
+        		if(selectedDates.length==0) {
+        			datesSelectedHtml = '<i>No dates are currently selected.</i>';
+        		}
+        		$("#datesSelected").html(datesSelectedHtml);
+        		
+        		console.log(selectedDates);
+        		console.log(selectedDateCategories);
+        		console.log(selectedDateHours);
         	});
         });
     }

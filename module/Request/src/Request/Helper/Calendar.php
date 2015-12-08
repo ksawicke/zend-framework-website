@@ -27,7 +27,7 @@ class Calendar
     
     public static $beginWeekOne = '<tr class="calendar-row">';
     
-    public static $beginDayCell = '<td class="calendar-day">';
+    public static $beginDayCell = '<td class="calendar-day" data-category="" data-date="&date&">';
     
     public static $beginDay = '<div class="day-number">';
     
@@ -80,7 +80,9 @@ class Calendar
         
         /* keep going with days.... */
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
-            $calendar .= self::$beginDayCell;
+            // &date&
+            $beginDayCell = str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" . str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell);
+            $calendar .= $beginDayCell;
             /* add in the day number */
             $calendar .= self::$beginDay . $list_day . self::$endDay;
             
