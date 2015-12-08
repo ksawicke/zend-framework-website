@@ -22,7 +22,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '366099';
+        $this->employeeNumber = '49499';
         $this->managerNumber = '229589';
     }
 
@@ -41,9 +41,9 @@ class RequestController extends AbstractActionController
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
             'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
-            'previousMonthCalendarHtml' => \Request\Helper\Calendar::drawCalendar('11', '2015', []),
-            'thisMonthCalendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
-            'nextMonthCalendarHtml' => \Request\Helper\Calendar::drawCalendar('1', '2016', [])
+            'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
+            'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
+            'calendar3Html' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
         ));
     }
 

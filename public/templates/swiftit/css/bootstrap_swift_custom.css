@@ -478,21 +478,24 @@ td.calendar-day, td.calendar-day-np {
 }
 **/
 .timeOffPTO {
-	background-color: #ff8642;
+	background-color: #ff8642 !important;
 }
 .timeOffFloat {
-	background-color: #0097ac;
+	background-color: #0097ac !important;
 }
 .timeOffSick {
-	background-color: #668d3c;
+	background-color: #668d3c !important;
 }
 .timeOffGrandfathered {
-	background-color: #816c5b;
+	background-color: #816c5b !important;
 }
 .timeOffMandated {
-	background-color: #c0362c;
+	background-color: #c0362c !important;
 }
 
 .selected {
 	font-weight: bold;
+}
+.hours {
+	font-size:150%;
 }
