@@ -346,16 +346,18 @@ class RequestMapper implements RequestMapperInterface
     public function findTimeOffBalancesByManager($managerEmployeeId = null)
     {
         // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
+        // trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )
+        // SELECT trim(SPEN) as EMPLOYEE_ID FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589';;
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', ''))"])
-            ->columns(['EMPLOYEE_ID'])
-            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns)
+        $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589')"]) // (care_get_manager_employees('002', '   229589', ''))
+            ->columns(['EMPLOYEE_NUMBER'])
+            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = data.EMPLOYEE_NUMBER', $this->employeeColumns)
             ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         foreach($employeeData as $counter => $employee) {
-            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
         }
 
         return $employeeData;
