@@ -50,9 +50,25 @@ class RequestController extends AbstractActionController
     
     public function apiAction()
     {
+        \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
+        \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
+        \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
+        
         $result = new JsonModel([
-            'some_parameter' => 'some value',
             'success' => true,
+            'calendars' => [
+                1 => [ 'header' => 'December 2015',
+                       'data' => \Request\Helper\Calendar::drawCalendar('12', '2015', [])
+                     ],
+                2 => [ 'header' => 'January 2016',
+                       'data' => \Request\Helper\Calendar::drawCalendar('1', '2016', [])
+                     ],
+                3 => [ 'header' => 'February 2016',
+                       'data' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
+                     ]
+            ],
+            'openHeader' => '<strong>',
+            'closeHeader' => '</strong><br /><br />'
         ]);
         
         return $result;
