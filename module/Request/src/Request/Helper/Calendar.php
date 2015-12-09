@@ -25,6 +25,8 @@ class Calendar
     
     public static $blankCalendarDay = '<td class="calendar-day-np"> </td>';
     
+    public static $blankCalendarRow = '<tr class="calendar-row"><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td></tr>';
+    
     public static $beginWeekOne = '<tr class="calendar-row">';
     
     public static $beginDayCell = '<td class="calendar-day" data-category="" data-date="&date&">';
@@ -67,10 +69,12 @@ class Calendar
         $days_in_month = date('t', mktime(0, 0, 0, $month, 1, $year));
         $days_in_this_week = 1;
         $day_counter = 0;
+        $row_counter = 0;
         $dates_array = [];
         
         /* row for week one */
         $calendar .= self::$beginWeekOne;
+        $row_counter++;
         
         /* print "blank" days until the first of the current week */
         for ($x = 0; $x < $running_day; $x ++) {
@@ -96,6 +100,7 @@ class Calendar
                 $calendar .= self::$closeRow;
                 if (($day_counter + 1) != $days_in_month) {
                     $calendar .= self::$beginCalendarRow;
+                    $row_counter++;
                 }
                 $running_day = - 1;
                 $days_in_this_week = 0;
@@ -110,6 +115,15 @@ class Calendar
         
         /* final row */
         $calendar .= self::$closeRow;
+        
+        /* make sure we have a 6th row */
+        if($row_counter == 5) {
+            $calendar .= self::$beginCalendarRow;
+            for($x = 1; $x <= 7; $x++) {
+                $calendar .= self::$blankCalendarDay;
+            }
+            $calendar .= self::$closeRow;
+        }
         
         /* end the table */
         $calendar .= self::$closeCalendar;
