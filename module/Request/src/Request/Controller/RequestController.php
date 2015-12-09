@@ -67,6 +67,8 @@ class RequestController extends AbstractActionController
                        'data' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
                      ]
             ],
+            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
+            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
             'openHeader' => '<strong>',
             'closeHeader' => '</strong><br /><br />'
         ]);

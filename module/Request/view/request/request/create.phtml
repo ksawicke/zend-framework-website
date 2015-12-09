@@ -8,7 +8,7 @@
 </div>
 <div class="timeOffCategory" data-category="timeOffPTO">
 	PTO<br />
-	<span class="hours"><?php echo number_format($employeeData->PTO_AVAILABLE, 2); ?> hr</span>
+	<span class="hours" id="employeePTOHours"></span>
 </div>
 
 <div class="timeOffCategoryLeft timeOffFloat">
@@ -16,7 +16,7 @@
 </div>
 <div class="timeOffCategory" data-category="timeOffFloat">
 	Float<br />
-	<span class="hours"><?php echo number_format($employeeData->FLOAT_AVAILABLE, 2); ?> hr</span>
+	<span class="hours" id="employeeFloatHours"></span>
 </div>
 
 <div class="timeOffCategoryLeft timeOffSick">
@@ -25,7 +25,7 @@
 </div>
 <div class="timeOffCategory" data-category="timeOffSick">
 	Sick<br />
-	<span class="hours"><?php echo number_format($employeeData->SICK_AVAILABLE, 2); ?> hr</span>
+	<span class="hours"  id="employeeSickHours"></span>
 </div>
 
 <br /><br /><br />

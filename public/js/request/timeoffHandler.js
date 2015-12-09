@@ -5,6 +5,10 @@
 var timeoffHandler = new function()
 {
     var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+    	employeePTORemaining = 0,
+    	employeeFloatRemaining = 0,
+    	employeeSickRemaining = 0,
+    	defaultHours = 8,
     	selectedTimeoffCategory = null,
     	selectedDates = [],
     	selectedDateCategories = [],
@@ -32,12 +36,16 @@ var timeoffHandler = new function()
         			selectedDateHours.splice(index, 1);
         			$(this).toggleClass(selectedTimeoffCategory);
         			$(this).children("div").toggleClass(selectedTimeoffCategory);
+        			
+        			timeoffHandler.subtractTime(selectedTimeoffCategory, defaultHours);
         		} else {
         			selectedDates.push($(this).attr("data-date"));
         			selectedDateCategories.push(selectedTimeoffCategory);
         			selectedDateHours.push('8.00');
         			$(this).toggleClass(selectedTimeoffCategory);
         			$(this).children("div").toggleClass(selectedTimeoffCategory);
+        			
+        			timeoffHandler.addTime(selectedTimeoffCategory, defaultHours);
         		}
         		
         		datesSelectedHtml = '';
@@ -112,7 +120,7 @@ var timeoffHandler = new function()
     
     this.loadCalendars = function() {
     	$.ajax({
-          url: 'http://swift:10080/sawik/timeoff/public/request/api',
+          url: timeOffLoadCalendarUrl,
           type: 'POST',
           data: {
         	  color: 'blue'
@@ -128,6 +136,10 @@ var timeoffHandler = new function()
         		    json.closeHeader +
         		    thisCalendarHtml.data);
         	});
+        	
+        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
+        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
+        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
             return;
         })
         .error( function() {
@@ -135,7 +147,75 @@ var timeoffHandler = new function()
             return;
         });
     }
+    
+    this.setEmployeePTORemaining = function(ptoRemaining) {
+    	employeePTORemaining = ptoRemaining;
+    	timeoffHandler.printEmployeePTORemaining();
+    }
+    
+    this.setEmployeeFloatRemaining = function(floatRemaining) {
+    	employeeFloatRemaining = floatRemaining;
+    	timeoffHandler.printEmployeeFloatRemaining();
+    }
+    
+    this.setEmployeeSickRemaining = function(sickRemaining) {
+    	employeeSickRemaining = sickRemaining;
+    	timeoffHandler.printEmployeeSickRemaining();
+    }
+    
+    this.printEmployeePTORemaining = function() {
+    	$("#employeePTOHours").html(employeePTORemaining + " hr");
+    }
+    
+    this.printEmployeeFloatRemaining = function() {
+    	$("#employeeFloatHours").html(employeeFloatRemaining + " hr");
+    }
+    
+    this.printEmployeeSickRemaining = function() {
+    	$("#employeeSickHours").html(employeeSickRemaining + " hr");
+    }    
+    
+    this.addTime = function(selectedTimeoffCategory, defaultHours) {
+    	switch(selectedTimeoffCategory) {
+	    	case 'timeOffPTO':
+	    		employeePTORemaining -= defaultHours;
+	    		employeePTORemaining = employeePTORemaining.toFixed(2);
+	    		timeoffHandler.printEmployeePTORemaining();
+	    		break;
+	    		
+	    	case 'timeOffFloat':
+	    		employeeFloatRemaining -= defaultHours;
+	    		employeeFloatRemaining = employeeFloatRemaining.toFixed(2);
+	    		timeoffHandler.printEmployeeFloatRemaining();
+	    		break;
+	    		
+	    	case 'timeOffSick':
+	    		employeeSickRemaining -= defaultHours;
+	    		employeeSickRemaining = employeeSickRemaining.toFixed(2);
+	    		timeoffHandler.printEmployeeSickRemaining();
+	    		break;
+    	}
+    }
+    
+    this.subtractTime = function(selectedTimeoffCategory, defaultHours) {
+    	switch(selectedTimeoffCategory) {
+	    	case 'timeOffPTO':
+	    		employeePTORemaining += defaultHours;
+	    		timeoffHandler.printEmployeePTORemaining();
+	    		break;
+	    		
+	    	case 'timeOffFloat':
+	    		employeeFloatRemaining += defaultHours;
+	    		timeoffHandler.printEmployeeFloatRemaining();
+	    		break;
+	    		
+	    	case 'timeOffSick':
+	    		employeeSickRemaining += defaultHours;
+	    		timeoffHandler.printEmployeeSickRemaining();
+	    		break;
+		}
+    }
 };
 
-// Init the class
+// Initialize the class
 timeoffHandler.initialize();
