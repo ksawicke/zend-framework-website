@@ -453,6 +453,37 @@ td.calendar-day, td.calendar-day-np {
  *
  * @see http://www.creativecolorschemes.com/resources/free-color-schemes/beach-color-scheme.shtml
  **/
+th, td {
+	border: 1px solid #000;
+	padding: 5px;
+}
+
+tr.calendar-header-adjust {
+	height:20px;
+}
+
+td.calendar-day {
+	min-height: 20px !important;
+	font-size: 11px;
+	position: relative;
+}
+
+* html div.calendar-day {
+	height: 20px;
+}
+
+td.calendar-day:hover {
+	
+}
+
+td.calendar-day-np {
+	min-height: 20px;
+}
+
+* html div.calendar-day-np {
+	height: 20px;
+}
+
 .timeOffCategoryLeft {
 	text-align:center;
 	width:50px;

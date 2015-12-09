@@ -19,6 +19,10 @@ var timeoffHandler = new function()
      */
     this.initialize = function() {
         $(document).ready(function() {
+        	$(document).on('click', '.calendarNavigation', function() {
+        		timeoffHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+        	});
+        	
         	$(".timeOffCategory").click(function() {
         		timeoffHandler.resetTimeoffCategory();
         		timeoffHandler.setTimeoffCategory($(this));
@@ -107,23 +111,33 @@ var timeoffHandler = new function()
         });
     }
 
+    /**
+     * Resets the remaining sick time for selected employee.
+     */
     this.resetTimeoffCategory = function() {
     	$(".timeOffCategory").removeClass("selected");
     	$(".timeOffCategoryLeft").html('&nbsp;<br />&nbsp;');
     }
     
+    /**
+     * Sets the currently selected time off category.
+     */
     this.setTimeoffCategory = function(object) {
     	selectedTimeoffCategory = object.attr("data-category");
     	object.addClass("selected");
     	$("." + object.attr("data-category")).html('<span class="glyphicon glyphicon-ok" aria-hidden=true></span><br />&nbsp;');
     }
     
+    /**
+     * Loads calendars via ajax and displays them on the page.
+     */
     this.loadCalendars = function() {
     	$.ajax({
           url: timeOffLoadCalendarUrl,
           type: 'POST',
           data: {
-        	  color: 'blue'
+        	  startMonth: '12',
+        	  startYear: '2015'
           },
           dataType: 'json'
     	})
@@ -132,7 +146,7 @@ var timeoffHandler = new function()
         	$.each(json.calendars, function(index, thisCalendarHtml) {
         		$("#calendar" + index + "Html").html(
         			json.openHeader +
-        		    thisCalendarHtml.header +
+        			( (index==1) ? json.prevButton : '' ) + thisCalendarHtml.header + ( (index==3) ? json.nextButton : '' ) +
         		    json.closeHeader +
         		    thisCalendarHtml.data);
         	});
@@ -148,55 +162,107 @@ var timeoffHandler = new function()
         });
     }
     
+    this.loadNewCalendars = function(startMonth, startYear) {
+    	$.ajax({
+          url: timeOffLoadCalendarUrl,
+          type: 'POST',
+          data: {
+        	  startMonth: startMonth,
+        	  startYear: startYear
+          },
+          dataType: 'json'
+    	})
+        .success( function(json) {
+        	var calendarHtml = '';
+        	$.each(json.calendars, function(index, thisCalendarHtml) {
+        		$("#calendar" + index + "Html").html(
+        			json.openHeader +
+        			( (index==1) ? json.prevButton : '' ) + thisCalendarHtml.header + ( (index==3) ? json.nextButton : '' ) +
+        		    json.closeHeader +
+        		    thisCalendarHtml.data);
+        	});
+        	
+//        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
+//        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
+//        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
+            return;
+        })
+        .error( function() {
+            console.log( 'There was some error.' );
+            return;
+        });
+    }
+    
+    /**
+     * Prints the remaining PTO time for selected employee.
+     */
     this.setEmployeePTORemaining = function(ptoRemaining) {
     	employeePTORemaining = ptoRemaining;
     	timeoffHandler.printEmployeePTORemaining();
     }
     
+    /**
+     * Sets the remaining Float time for selected employee.
+     */
     this.setEmployeeFloatRemaining = function(floatRemaining) {
     	employeeFloatRemaining = floatRemaining;
     	timeoffHandler.printEmployeeFloatRemaining();
     }
     
+    /**
+     * Sets the remaining sick time for selected employee.
+     */
     this.setEmployeeSickRemaining = function(sickRemaining) {
     	employeeSickRemaining = sickRemaining;
     	timeoffHandler.printEmployeeSickRemaining();
     }
     
+    /**
+     * Prints the remaining PTO time for selected employee.
+     */
     this.printEmployeePTORemaining = function() {
-    	$("#employeePTOHours").html(employeePTORemaining + " hr");
+    	$("#employeePTOHours").html(timeoffHandler.roundToTwo(employeePTORemaining) + " hr");
     }
     
+    /**
+     * Prints the remaining Float time for selected employee.
+     */
     this.printEmployeeFloatRemaining = function() {
-    	$("#employeeFloatHours").html(employeeFloatRemaining + " hr");
+    	$("#employeeFloatHours").html(timeoffHandler.roundToTwo(employeeFloatRemaining) + " hr");
     }
     
+    /**
+     * Prints the remaining Sick time for selected employee.
+     */
     this.printEmployeeSickRemaining = function() {
-    	$("#employeeSickHours").html(employeeSickRemaining + " hr");
+    	$("#employeeSickHours").html(timeoffHandler.roundToTwo(employeeSickRemaining) + " hr");
     }    
     
+    /**
+     * Adds employee defaultHours from the current Category of time remaining.
+     */
     this.addTime = function(selectedTimeoffCategory, defaultHours) {
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
 	    		employeePTORemaining -= defaultHours;
-	    		employeePTORemaining = employeePTORemaining.toFixed(2);
 	    		timeoffHandler.printEmployeePTORemaining();
 	    		break;
 	    		
 	    	case 'timeOffFloat':
 	    		employeeFloatRemaining -= defaultHours;
-	    		employeeFloatRemaining = employeeFloatRemaining.toFixed(2);
 	    		timeoffHandler.printEmployeeFloatRemaining();
 	    		break;
 	    		
 	    	case 'timeOffSick':
 	    		employeeSickRemaining -= defaultHours;
-	    		employeeSickRemaining = employeeSickRemaining.toFixed(2);
 	    		timeoffHandler.printEmployeeSickRemaining();
 	    		break;
     	}
     }
     
+    /**
+     * Subtracts employee defaultHours from the current Category of time remaining.
+     */
     this.subtractTime = function(selectedTimeoffCategory, defaultHours) {
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
@@ -214,6 +280,13 @@ var timeoffHandler = new function()
 	    		timeoffHandler.printEmployeeSickRemaining();
 	    		break;
 		}
+    }
+    
+    /**
+     * Rounds a number to two decimal places.
+     */
+    this.roundToTwo = function(num) {    
+        return +(Math.round(num + "e+2")  + "e-2");
     }
 };
 

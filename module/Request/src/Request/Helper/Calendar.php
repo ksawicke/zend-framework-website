@@ -117,13 +117,13 @@ class Calendar
         $calendar .= self::$closeRow;
         
         /* make sure we have a 6th row */
-        if($row_counter == 5) {
-            $calendar .= self::$beginCalendarRow;
-            for($x = 1; $x <= 7; $x++) {
-                $calendar .= self::$blankCalendarDay;
-            }
-            $calendar .= self::$closeRow;
-        }
+//         if($row_counter < 5) {
+//             $calendar .= self::$beginCalendarRow;
+//             for($x = 1; $x <= 7; $x++) {
+//                 $calendar .= self::$blankCalendarDay;
+//             }
+//             $calendar .= self::$closeRow;
+//         }
         
         /* end the table */
         $calendar .= self::$closeCalendar;
