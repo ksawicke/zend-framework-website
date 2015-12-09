@@ -19,19 +19,31 @@ var timeoffHandler = new function()
      */
     this.initialize = function() {
         $(document).ready(function() {
+        	/**
+        	 * Handle clicking previous or next buttons on calendars
+        	 */
         	$(document).on('click', '.calendarNavigation', function() {
         		timeoffHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
         	});
         	
-        	$(".timeOffCategory").click(function() {
+        	/**
+        	 * Handle clicking category
+        	 */
+        	$(".selectTimeOffCategory").click(function() {
         		timeoffHandler.resetTimeoffCategory();
         		timeoffHandler.setTimeoffCategory($(this));
         	});
         	
-        	$(document).on('hover', '.calendar-day', function() {
-        		console.log("hovered");
-        	});
+        	/**
+        	 * Handle hovering a calendar date
+        	 */
+//        	$(document).on('hover', '.calendar-day', function() {
+//        		console.log("hovered");
+//        	});
         	
+        	/**
+        	 * Handle clicking a calendar date
+        	 */
         	$(document).on('click', '.calendar-day', function() {
         		var index = selectedDates.indexOf($(this).attr("data-date"));
         		if (index != -1) {
@@ -115,7 +127,7 @@ var timeoffHandler = new function()
      * Resets the remaining sick time for selected employee.
      */
     this.resetTimeoffCategory = function() {
-    	$(".timeOffCategory").removeClass("selected");
+    	$(".selectTimeOffCategory").removeClass("selected");
     	$(".timeOffCategoryLeft").html('&nbsp;<br />&nbsp;');
     }
     
