@@ -5,6 +5,7 @@ use Request\Service\RequestServiceInterface;
 use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 
 class RequestController extends AbstractActionController
 {
@@ -45,6 +46,16 @@ class RequestController extends AbstractActionController
             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
             'calendar3Html' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
         ));
+    }
+    
+    public function apiAction()
+    {
+        $result = new JsonModel([
+            'some_parameter' => 'some value',
+            'success' => true,
+        ]);
+        
+        return $result;
     }
 
     public function viewEmployeeRequestsAction()

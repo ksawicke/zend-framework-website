@@ -71,6 +71,18 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+            'api' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/api',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'api'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ]
         ]
     ],
     'view_manager' => [
