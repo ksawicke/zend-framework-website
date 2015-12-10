@@ -57,52 +57,59 @@ class RequestController extends AbstractActionController
     {
         $request = $this->getRequest();
         
-        if ($request->isPost()) {            
-            $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
-            $prev = date("Y-m-d", strtotime("-3 month", $time));
-            $current = date("Y-m-d", strtotime("+0 month", $time));
-            $one = date("Y-m-d", strtotime("+1 month", $time));
-            $two = date("Y-m-d", strtotime("+2 month", $time));
-            $three = date("Y-m-d", strtotime("+3 month", $time));
-            $threeMonthsBack = new \DateTime($prev);
-            $currentMonth = new \DateTime($current);
-            $oneMonthOut = new \DateTime($one);
-            $twoMonthsOut = new \DateTime($two);
-            $threeMonthsOut = new \DateTime($three);
-            
-            \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
-            \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
-            \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
-            
-            $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
-            //$employeeData['FLOAT_REMAINING'] = "71.33";
-            
-            $result = new JsonModel([
-                'success' => true,
-                'calendars' => [
-                    1 => [ 'header' => $currentMonth->format('M') . ' ' . $currentMonth->format('Y'),
-                        'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, [])
-                    ],
-                    2 => [ 'header' => $oneMonthOut->format('M') . ' ' . $oneMonthOut->format('Y'),
-                        'data' => \Request\Helper\Calendar::drawCalendar($oneMonthOut->format('m'), $oneMonthOut->format('Y'), [])
-                    ],
-                    3 => [ 'header' => $twoMonthsOut->format('M') . ' ' . $twoMonthsOut->format('Y'),
-                        'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
-                    ]
-                ],
-                'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-                'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
-                'employeeData' => $employeeData,
-                'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
-                'openHeader' => '<strong>',
-                'closeHeader' => '</strong><br /><br />'
-            ]);
-            // glyphicon glyphicon-chevron-right
+        if ($request->isPost()) {
+            switch($request->getPost()->action) {
+                case 'submitTimeoffRequest':
+                    $result = new JsonModel([
+                        'success' => true
+                    ]);
+                    break;
+                    
+                case 'loadCalendar':
+                    //submitTimeoffRequest
+                    $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
+                    $prev = date("Y-m-d", strtotime("-3 month", $time));
+                    $current = date("Y-m-d", strtotime("+0 month", $time));
+                    $one = date("Y-m-d", strtotime("+1 month", $time));
+                    $two = date("Y-m-d", strtotime("+2 month", $time));
+                    $three = date("Y-m-d", strtotime("+3 month", $time));
+                    $threeMonthsBack = new \DateTime($prev);
+                    $currentMonth = new \DateTime($current);
+                    $oneMonthOut = new \DateTime($one);
+                    $twoMonthsOut = new \DateTime($two);
+                    $threeMonthsOut = new \DateTime($three);
+                    
+                    \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
+                    \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
+                    \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
+                    
+                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
+                    //$employeeData['FLOAT_REMAINING'] = "71.33";
+                    
+                    $result = new JsonModel([
+                        'success' => true,
+                        'calendars' => [
+                            1 => [ 'header' => $currentMonth->format('M') . ' ' . $currentMonth->format('Y'),
+                                'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, [])
+                            ],
+                            2 => [ 'header' => $oneMonthOut->format('M') . ' ' . $oneMonthOut->format('Y'),
+                                'data' => \Request\Helper\Calendar::drawCalendar($oneMonthOut->format('m'), $oneMonthOut->format('Y'), [])
+                            ],
+                            3 => [ 'header' => $twoMonthsOut->format('M') . ' ' . $twoMonthsOut->format('Y'),
+                                'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
+                            ]
+                        ],
+                        'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
+                        'employeeData' => $employeeData,
+                        'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
+                        'openHeader' => '<strong>',
+                        'closeHeader' => '</strong><br /><br />'
+                    ]);
+                    break;
+            }
             
             return $result;
-            
-//             echo $date->format('m') . '<br />';
-//             echo $date->format('Y') . '<br />';
         }
     }
 
@@ -119,7 +126,7 @@ class RequestController extends AbstractActionController
         
         return new ViewModel(array(
             'calendarData' => $calendarData,
-            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('4', '2015', $calendarData)
         ));
     }
 }
