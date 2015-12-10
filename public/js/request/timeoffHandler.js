@@ -247,9 +247,9 @@ var timeoffHandler = new function()
             type: 'POST',
             data: {
               action: 'submitTimeoffRequest',
-          	  blah: '[]',
-          	  bloh: '[]',
-          	  blee: '[]'
+              selectedDates: selectedDates,
+              selectedDateCategories: selectedDateCategories,
+              selectedDateHours: selectedDateHours
             },
             dataType: 'json'
       	})

@@ -17,6 +17,12 @@ class RequestController extends AbstractActionController
     public $employeeNumber;
 
     public $managerNumber;
+    
+    protected static $typesToCodes = [
+        'timeOffPTO' => 'P',
+        'timeOffFloat' => 'K',
+        'timeOffSick' => 'S'
+    ];
 
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
     {
@@ -60,8 +66,24 @@ class RequestController extends AbstractActionController
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'submitTimeoffRequest':
+                    $requestData = [];
+                    foreach($request->getPost()->selectedDates as $key => $date) {
+                        $date = \DateTime::createFromFormat('m/d/Y', $date);
+                        $requestData[] = [
+                            'date' => $date->format('Y-m-d'),
+                            'type' => self::$typesToCodes[$request->getPost()->selectedDateCategories[$key]],
+                            'hours' => (int) $request->getPost()->selectedDateHours[$key]
+                        ];
+                    }
+                    
+                    $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData);
+                    
                     $result = new JsonModel([
-                        'success' => true
+                        'success' => true,
+                        'selectedDates' => $request->getPost()->selectedDates,
+                        'selectedDateCategories' => $request->getPost()->selectedDateCategories,
+                        'selectedDateHours' => $request->getPost()->selectedDateHours,
+                        'records' => $records
                     ]);
                     break;
                     

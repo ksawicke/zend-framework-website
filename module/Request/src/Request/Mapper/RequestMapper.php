@@ -362,4 +362,31 @@ class RequestMapper implements RequestMapperInterface
 
         return $employeeData;
     }
+    
+    public function submitRequestForApproval($employeeNumber, $requestData)
+    {
+        foreach($requestData as $key => $request) {
+            $action = new Insert('posts');
+            $action->values([
+                'EMPLOYEE_NUMBER' => '',
+                'REQUEST_STATUS' => '',
+                'CREATE_USER' => ''
+            ]);
+            $sql    = new Sql($this->dbAdapter);
+            $stmt   = $sql->prepareStatementForSqlObject($action);
+            try {
+                $result = $stmt->execute();
+            
+            } catch (Exception $e) {
+                throw new \Exception("Can't execute statement: " . $e->getMessage());
+            }
+            
+            $requestId = $result->getGeneratedValue();
+        }
+        echo "REQUEST FOR " . $employeeNumber . "<br />";
+        echo '<pre>';
+        print_r($requestData);
+        echo '</pre>';
+        die("@@");
+    }
 }
