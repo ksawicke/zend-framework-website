@@ -74,6 +74,9 @@ class RequestController extends AbstractActionController
             \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
             \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
             
+            $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
+            //$employeeData['FLOAT_REMAINING'] = "71.33";
+            
             $result = new JsonModel([
                 'success' => true,
                 'calendars' => [
@@ -89,7 +92,7 @@ class RequestController extends AbstractActionController
                 ],
                 'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                 'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
-                'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
+                'employeeData' => $employeeData,
                 'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
                 'openHeader' => '<strong>',
                 'closeHeader' => '</strong><br /><br />'

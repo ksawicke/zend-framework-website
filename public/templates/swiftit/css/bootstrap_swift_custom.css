@@ -524,6 +524,15 @@ td.calendar-day-np {
 	background-color: #c0362c !important;
 }
 
+/** Split background color
+.splitPTOFloat {
+	background: -webkit-linear-gradient(left, #ff8642 50%, #0097ac 50%);
+    background: -moz-linear-gradient(left, #ff8642 50%, #0097ac 50%);
+    background: -ms-linear-gradient(left, #ff8642 50%, #0097ac 50%);
+    background: linear-gradient(left, #ff8642 50%, #0097ac 50%;
+}
+**/
+
 .selected {
 	font-weight: bold;
 }
@@ -547,6 +556,8 @@ td.calendar-day-np {
     color: #668d3c;
 }
 
-.calendarNavigation {
+.calendarNavigation,
+.cursorHand,
+td.calendar-day {
 	cursor: pointer;
 }

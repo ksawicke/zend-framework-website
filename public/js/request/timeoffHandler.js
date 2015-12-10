@@ -35,48 +35,43 @@ var timeoffHandler = new function()
         	});
         	
         	/**
-        	 * Handle hovering a calendar date
-        	 */
-//        	$(document).on('hover', '.calendar-day', function() {
-//        		console.log("hovered");
-//        	});
-        	
-        	/**
         	 * Handle clicking a calendar date
         	 */
         	$(document).on('click', '.calendar-day', function() {
-        		var index = selectedDates.indexOf($(this).attr("data-date"));
-        		if (index != -1) {
-        			selectedDates.splice(index, 1);
-        			selectedDateCategories.splice(index, 1);
-        			selectedDateHours.splice(index, 1);
-        			$(this).toggleClass(selectedTimeoffCategory);
-        			$(this).children("div").toggleClass(selectedTimeoffCategory);
-        			
-        			timeoffHandler.subtractTime(selectedTimeoffCategory, defaultHours);
-        		} else {
-        			selectedDates.push($(this).attr("data-date"));
-        			selectedDateCategories.push(selectedTimeoffCategory);
-        			selectedDateHours.push('8.00');
-        			$(this).toggleClass(selectedTimeoffCategory);
-        			$(this).children("div").toggleClass(selectedTimeoffCategory);
-        			
-        			timeoffHandler.addTime(selectedTimeoffCategory, defaultHours);
+        		if(selectedTimeoffCategory != null) {
+        			var index = selectedDates.indexOf($(this).attr("data-date"));
+            		if (index != -1) {
+            			selectedDates.splice(index, 1);
+            			selectedDateCategories.splice(index, 1);
+            			selectedDateHours.splice(index, 1);
+            			$(this).toggleClass(selectedTimeoffCategory);
+            			$(this).children("div").toggleClass(selectedTimeoffCategory);
+            			
+            			timeoffHandler.subtractTime(selectedTimeoffCategory, defaultHours);
+            		} else {
+            			selectedDates.push($(this).attr("data-date"));
+            			selectedDateCategories.push(selectedTimeoffCategory);
+            			selectedDateHours.push('8.00');
+            			$(this).toggleClass(selectedTimeoffCategory);
+            			$(this).children("div").toggleClass(selectedTimeoffCategory);
+            			
+            			timeoffHandler.addTime(selectedTimeoffCategory, defaultHours);
+            		}
+            		
+            		datesSelectedHtml = '';
+            		$.each(selectedDates, function(key, date) {
+            			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />';
+            			// <span class="glyphicon glyphicon-timeOffPTO"></span>&nbsp;&nbsp;&nbsp;&nbsp;02/02/2016&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />
+            		});
+            		if(selectedDates.length==0) {
+            			datesSelectedHtml = '<i>No dates are currently selected.</i>';
+            		}
+            		$("#datesSelected").html(datesSelectedHtml);
+            		
+//            		console.log(selectedDates);
+//            		console.log(selectedDateCategories);
+//            		console.log(selectedDateHours);
         		}
-        		
-        		datesSelectedHtml = '';
-        		$.each(selectedDates, function(key, date) {
-        			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />';
-        			// <span class="glyphicon glyphicon-timeOffPTO"></span>&nbsp;&nbsp;&nbsp;&nbsp;02/02/2016&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />
-        		});
-        		if(selectedDates.length==0) {
-        			datesSelectedHtml = '<i>No dates are currently selected.</i>';
-        		}
-        		$("#datesSelected").html(datesSelectedHtml);
-        		
-//        		console.log(selectedDates);
-//        		console.log(selectedDateCategories);
-//        		console.log(selectedDateHours);
         	});
         	
 //        	$(".calendar-day").hover(function() {
@@ -120,9 +115,29 @@ var timeoffHandler = new function()
         	**/
         	
         	timeoffHandler.loadCalendars();
+        	timeoffHandler.checkLocalStorage();
         });
     }
 
+    this.checkLocalStorage = function() {
+    	if(typeof(Storage) !== "undefined") {
+    	    // Code for localStorage/sessionStorage.
+    		console.log("local storage support enabled");
+    		var testObject = { 'one': 1, 'two': 2, 'three': 3 };
+
+    		// Put the object into storage
+    		localStorage.setItem('testObject', JSON.stringify(testObject));
+
+    		// Retrieve the object from storage
+    		var retrievedObject = localStorage.getItem('testObject');
+
+    		console.log('retrievedObject: ', JSON.parse(retrievedObject));
+    	} else {
+    	    // Sorry! No Web Storage support..
+    		console.log("NO local storage support enabled");
+    	}
+    }
+    
     /**
      * Resets the remaining sick time for selected employee.
      */
@@ -135,21 +150,29 @@ var timeoffHandler = new function()
      * Sets the currently selected time off category.
      */
     this.setTimeoffCategory = function(object) {
-    	selectedTimeoffCategory = object.attr("data-category");
-    	object.addClass("selected");
-    	$("." + object.attr("data-category")).html('<span class="glyphicon glyphicon-ok" aria-hidden=true></span><br />&nbsp;');
+//    	console.log(selectedTimeoffCategory + " : " + object.attr("data-category"));
+    	if(selectedTimeoffCategory==object.attr("data-category")) {
+    		selectedTimeoffCategory = null;
+    	} else {
+	    	selectedTimeoffCategory = object.attr("data-category");
+	    	object.next('div').addClass("selected");
+	    	object.addClass("selected");
+//	    	$("." + object.attr("data-category")).html('<span class="glyphicon glyphicon-ok" aria-hidden=true></span><br />&nbsp;');
+    	}
     }
     
     /**
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadCalendars = function() {
+    	var month = (new Date()).getMonth() + 1;
+    	var year = (new Date()).getFullYear();
     	$.ajax({
           url: timeOffLoadCalendarUrl,
           type: 'POST',
           data: {
-        	  startMonth: '12',
-        	  startYear: '2015'
+        	  startMonth: month,
+        	  startYear: year
           },
           dataType: 'json'
     	})
