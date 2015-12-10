@@ -546,3 +546,7 @@ td.calendar-day-np {
     font-size: 2em;
     color: #668d3c;
 }
+
+.calendarNavigation {
+	cursor: pointer;
+}

@@ -5,7 +5,7 @@ class Calendar
 {
     public static $calendarHeader = '<table cellpadding="0" cellspacing="0" class="calendar">';
     
-    public static $calendarHeadings = [
+    public static $calendarColumns = [
         'Sunday',
         'Monday',
         'Tuesday',
@@ -23,7 +23,7 @@ class Calendar
     
     public static $beginCalendarRow = '<tr class="calendar-row">';
     
-    public static $blankCalendarDay = '<td class="calendar-day-np"> </td>';
+    public static $blankCalendarDay = '<td class="calendar-day-np"> <p>&nbsp;</p> </td>';
     
     public static $blankCalendarRow = '<tr class="calendar-row"><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td><td class="calendar-day-np"> </td></tr>';
     
@@ -48,10 +48,10 @@ class Calendar
     /**
      * Draws a calendar.
      *
-     * @param unknown $month            
-     * @param unknown $year            
+     * @param unknown $month
+     * @param unknown $year
      * @return string
-     * 
+     *
      * @author David Walsh
      * @see https://davidwlsh.name/php-calendar
      * @modified Kevin Sawicke
@@ -59,10 +59,10 @@ class Calendar
     public static function drawCalendar($month, $year, $calendarData)
     {
         /* draw table */
-        $calendar = self::$calendarHeader;
+        $calendar = self::drawCalendarHeader();
         
         /* table headings */
-        $calendar .= self::$beginCalendarColumnHeaders . implode(self::$insertAfterCalendarHeading, self::$calendarHeadings) . self::$endCalendarColumnHeaders;
+        $calendar .= self::drawCalendarColumns();
         
         /* days and weeks vars now ... */
         $running_day = date('w', mktime(0, 0, 0, $month, 1, $year));
@@ -73,42 +73,21 @@ class Calendar
         $dates_array = [];
         
         /* row for week one */
-        $calendar .= self::$beginWeekOne;
+        $calendar .= self::drawBeginningWeekOne();
         $row_counter++;
         
         /* print "blank" days until the first of the current week */
-        for ($x = 0; $x < $running_day; $x ++) {
-            $calendar .= self::$blankCalendarDay;
-            $days_in_this_week ++;
-        }
+        $data = self::getBlankCalendarDaysBeforeFirstOfCurrentWeek($running_day, $days_in_this_week);
+        $calendar .= $data['calendar'];
+        $days_in_this_week = $data['days_in_this_week'];
         
         /* keep going with days.... */
-        for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
-            // &date&
-            $beginDayCell = str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" . str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell);
-            $calendar .= $beginDayCell;
-            /* add in the day number */
-            $calendar .= self::$beginDay . $list_day . self::$endDay;
-            
-            /**
-             * Add data to a cell
-             */
-            $calendar .= self::addDataToCalendarDay($list_day, $calendarData);
-                        
-            $calendar .= self::$closeCell;
-            if ($running_day == 6) {
-                $calendar .= self::$closeRow;
-                if (($day_counter + 1) != $days_in_month) {
-                    $calendar .= self::$beginCalendarRow;
-                    $row_counter++;
-                }
-                $running_day = - 1;
-                $days_in_this_week = 0;
-            }
-            $days_in_this_week ++;
-            $running_day ++;
-            $day_counter ++;
-        }
+        $data = self::drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData);
+        $calendar .= $data['calendar'];
+        $days_in_this_week = $data['days_in_this_week'];
+        $running_day = $data['running_day'];
+        $day_counter = $data['day_counter'];
+        $row_counter = $data['row_counter'];
         
         /* finish the rest of the days in the week */
         $calendar .= self::finishDaysInWeek($days_in_this_week);
@@ -117,13 +96,13 @@ class Calendar
         $calendar .= self::$closeRow;
         
         /* make sure we have a 6th row */
-//         if($row_counter < 5) {
-//             $calendar .= self::$beginCalendarRow;
-//             for($x = 1; $x <= 7; $x++) {
-//                 $calendar .= self::$blankCalendarDay;
-//             }
-//             $calendar .= self::$closeRow;
-//         }
+        if($row_counter == 5) {
+            $calendar .= self::$beginCalendarRow;
+            for($x = 1; $x <= 7; $x++) {
+                $calendar .= self::$blankCalendarDay;
+            }
+            $calendar .= self::$closeRow;
+        }
         
         /* end the table */
         $calendar .= self::$closeCalendar;
@@ -169,6 +148,92 @@ class Calendar
     }
     
     /**
+     * Draws the header row for the calendar.
+     * 
+     * @return string|unknown
+     */
+    public static function drawCalendarHeader()
+    {
+        return self::$calendarHeader;
+    }
+    
+    /**
+     * Draws the columns for the calendar.
+     */
+    public static function drawCalendarColumns()
+    {
+        return self::$beginCalendarColumnHeaders . implode(self::$insertAfterCalendarHeading, self::$calendarColumns) . self::$endCalendarColumnHeaders;
+    }
+    
+    /**
+     * Draws the beginning of week one.
+     */
+    public static function drawBeginningWeekOne()
+    {
+        return self::$beginWeekOne;
+    }
+    
+    /**
+     * Draws days on the calendar.
+     * 
+     * @param unknown $month
+     * @param unknown $year
+     * @param unknown $days_in_month
+     * @param unknown $running_day
+     * @param unknown $days_in_this_week
+     * @param unknown $day_counter
+     * @param unknown $row_counter
+     * @param unknown $calendarData
+     */
+    public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData)
+    {
+        $calendarTemp = '';
+        for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
+            $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+                str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell) . self::$beginDay . $list_day . self::$endDay .
+                self::addDataToCalendarDay($list_day, $calendarData);
+    
+                $calendarTemp .= self::$closeCell;
+                if ($running_day == 6) {
+                    $calendarTemp .= self::$closeRow;
+                    $row_counter++;
+                    if (($day_counter + 1) != $days_in_month) {
+                        $calendarTemp .= self::$beginCalendarRow;
+                    }
+                    $running_day = - 1;
+                    $days_in_this_week = 0;
+                }
+                $days_in_this_week ++;
+                $running_day ++;
+                $day_counter ++;
+        }
+    
+        $data = ['calendar' => $calendarTemp,
+            'days_in_this_week' => $days_in_this_week,
+            'running_day' => $running_day,
+            'day_counter' => $day_counter,
+            'row_counter' => $row_counter
+        ];
+        return $data;
+    }
+    
+    /**
+     * Gets the blank days before the first day of the week.
+     * 
+     * @param unknown $running_day
+     * @param unknown $days_in_this_week
+     */
+    public static function getBlankCalendarDaysBeforeFirstOfCurrentWeek($running_day, $days_in_this_week)
+    {
+        $data = ['calendar' => '', 'days_in_this_week' => $days_in_this_week];
+        for ($x = 0; $x < $running_day; $x ++) {
+            $data['calendar'] .= self::$blankCalendarDay;
+            $data['days_in_this_week'] ++;
+        }
+        return $data;
+    }
+    
+    /**
      * 
      * @param unknown $calendarHeader
      */
@@ -179,11 +244,11 @@ class Calendar
     
     /**
      * 
-     * @param unknown $calendarHeadings
+     * @param unknown $calendarColumns
      */
-    public static function setCalendarHeadings($calendarHeadings)
+    public static function setCalendarHeadings($calendarColumns)
     {
-        self::$calendarHeadings = $calendarHeadings;
+        self::$calendarColumns = $calendarColumns;
     }
     
     /**
