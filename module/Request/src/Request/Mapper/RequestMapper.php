@@ -273,6 +273,17 @@ class RequestMapper implements RequestMapperInterface
             ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
         // select * from papreq where reqclk# = '101639';;
+        /**
+         * This will get sum of all requests submitted for approval in the timeoff_request_entries
+         * table by employee id
+         * 
+         * select sum(entry.requested_hours) as pending_pto_local from timeoff_request_entries entry where
+                entry.request_id in (
+                    select request.request_id from timeoff_requests request where
+                        request.employee_number = '49499' AND
+                	    request.request_status = 'P'
+                );;
+         */
             
         return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
     }
