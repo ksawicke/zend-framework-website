@@ -270,6 +270,39 @@ class RequestMapper implements RequestMapperInterface
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns)
+            ->join(['pendingpto' => "(
+            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeId . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'P'
+                		)
+                )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
+            ->join(['pendingfloat' => "(
+            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeId . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'K'
+                		)
+                )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
+            ->join(['pendingsick' => "(
+            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeId . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'S'
+                		)
+                )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
             ->where(['trim(employee.PREN)' => trim($employeeId)]);
 
         // select * from papreq where reqclk# = '101639';;
@@ -284,8 +317,33 @@ class RequestMapper implements RequestMapperInterface
                 	    request.request_status = 'P'
                 );;
          */
-            
-        return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        $result = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        
+        /** Because we create a temp table for the pending approval amounts, we need
+         *  to account for the fact that no result does not yield an integer.
+         *  So we'll do the final calc here.
+         */
+        if(empty($result['PTO_PENDING_APPROVAL'])) {
+            $result['PTO_PENDING_APPROVAL'] = number_format(0, 2);
+        }
+        if(empty($result['FLOAT_PENDING_APPROVAL'])) {
+            $result['FLOAT_PENDING_APPROVAL'] = number_format(0, 2);
+        }
+        if(empty($result['SICK_PENDING_APPROVAL'])) {
+            $result['SICK_PENDING_APPROVAL'] = number_format(0, 2);
+        }
+        
+        /** Do final calc **/
+        $result['PTO_AVAILABLE'] = $result['PTO_REMAINING'] - $result['PTO_PENDING_APPROVAL'];
+        $result['FLOAT_AVAILABLE'] = $result['FLOAT_REMAINING'] - $result['FLOAT_PENDING_APPROVAL'];
+        $result['SICK_AVAILABLE'] = $result['SICK_REMAINING'] - $result['SICK_PENDING_APPROVAL'];
+        
+        echo '<pre>';
+        print_r($result);
+        echo '</pre>';
+        die("@@@");
+        
+        return $result;
     }
 
     /**

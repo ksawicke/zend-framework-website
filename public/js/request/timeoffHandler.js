@@ -231,9 +231,9 @@ var timeoffHandler = new function()
         		    thisCalendarHtml.data);
         	});
         	
-        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
-        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
-        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
+        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
+        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
+        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
             return;
         })
         .error( function() {
