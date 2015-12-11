@@ -338,10 +338,10 @@ class RequestMapper implements RequestMapperInterface
         $result['FLOAT_AVAILABLE'] = $result['FLOAT_REMAINING'] - $result['FLOAT_PENDING_APPROVAL'];
         $result['SICK_AVAILABLE'] = $result['SICK_REMAINING'] - $result['SICK_PENDING_APPROVAL'];
         
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        die("@@@");
+//         echo '<pre>';
+//         print_r($result);
+//         echo '</pre>';
+//         die("@@@");
         
         return $result;
     }
