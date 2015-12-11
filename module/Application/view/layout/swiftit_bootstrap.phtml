@@ -87,6 +87,22 @@
 
     <div class="container">
       <div class="well well-sm">
+      
+      	  <?php
+      	  /** Out put any flash messages **/
+      	  $children = $this->viewModel()->getCurrent()->getChildren();
+      	  $ourView  = $children[0];
+      	  
+      	  if (isset($ourView->flashMessages) && count($ourView->flashMessages)) {
+      	      foreach($ourView->flashMessages as $alertType => $messages) {
+      	         if(!empty($messages)) {
+      	         ?>
+      	         <div class="alert alert-<?php echo $alertType; ?>" role="alert"><span class="glyphicon glyphicon-ok" aria-hidden="true" style="display:inline-block;"></span>&nbsp;&nbsp;<?php foreach($messages as $mk => $message) { echo $message . '<br />'; } ?></div>
+      	         <?php
+      	         }
+      	      }
+      	  } ?>
+      	  
           <?php echo $this->content; ?>
 
           <br />

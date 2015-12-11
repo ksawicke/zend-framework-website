@@ -32,6 +32,11 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffApprovedRequestsByEmployee($employeeNumber);
     }
+    
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber)
+    {
+        return $this->requestMapper->findTimeOffPendingRequestsByEmployee($employeeNumber);
+    }
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber)
     {

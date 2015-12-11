@@ -47,6 +47,18 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+            'success' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/submitted-for-approval',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'submittedForApproval'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
             'viewEmployeeRequests' => [
                 'type' => 'literal',
                 'options' => [

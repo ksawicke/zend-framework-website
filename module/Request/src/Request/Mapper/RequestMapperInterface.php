@@ -8,6 +8,8 @@ interface RequestMapperInterface
     public function findTimeOffBalancesByEmployee($employeeNumber = null);
 
     public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null);
+    
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null);
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber = null);
     

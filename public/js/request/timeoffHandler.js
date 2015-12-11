@@ -6,6 +6,7 @@ var timeoffHandler = new function()
 {
     var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
     	timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+    	timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
     	employeePTORemaining = 0,
     	employeeFloatRemaining = 0,
     	employeeSickRemaining = 0,
@@ -111,9 +112,9 @@ var timeoffHandler = new function()
             			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>';
             		$("#datesSelected").html(datesSelectedHtml);
             		
-            		console.log("selectedDates", selectedDates);
-            		console.log("selectedDateCategories", selectedDateCategories);
-            		console.log("selectedDateHours", selectedDateHours);
+//            		console.log("selectedDates", selectedDates);
+//            		console.log("selectedDateCategories", selectedDateCategories);
+//            		console.log("selectedDateHours", selectedDateHours);
         		}
         	});
         	
@@ -254,7 +255,11 @@ var timeoffHandler = new function()
             dataType: 'json'
       	})
         .success( function(json) {
-      		console.log( 'yo' );
+      		if(json.success==true) {
+      			window.location.href = timeOffSubmitTimeOffSuccessUrl;
+      		} else {
+      			alert(json.message);
+      		}
             return;
         })
         .error( function() {

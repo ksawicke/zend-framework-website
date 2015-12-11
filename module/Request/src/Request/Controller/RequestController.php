@@ -76,15 +76,19 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     
-                    $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData);
+                    $requestReturnData = $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData);
+                    if($requestReturnData['request_id']!=null) {
+                        $result = new JsonModel([
+                            'success' => true,
+                            'request_id' => $requestReturnData['request_id']
+                        ]);
+                    } else {
+                        $result = new JsonModel([
+                            'success' => false,
+                            'message' => 'There was an error submitting your request. Please try again.'
+                        ]);
+                    }
                     
-                    $result = new JsonModel([
-                        'success' => true,
-                        'selectedDates' => $request->getPost()->selectedDates,
-                        'selectedDateCategories' => $request->getPost()->selectedDateCategories,
-                        'selectedDateHours' => $request->getPost()->selectedDateHours,
-                        'records' => $records
-                    ]);
                     break;
                     
                 case 'loadCalendar':
@@ -150,5 +154,18 @@ class RequestController extends AbstractActionController
             'calendarData' => $calendarData,
             'calendarHtml' => \Request\Helper\Calendar::drawCalendar('4', '2015', $calendarData)
         ));
+    }
+    
+    public function submittedForApprovalAction()
+    {
+        $this->flashMessenger()->addSuccessMessage('Saved!');
+        
+        return new ViewModel([
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+                             ]);
     }
 }

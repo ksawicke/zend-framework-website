@@ -43,6 +43,14 @@ class RequestMapper implements RequestMapperInterface
     public $emailRecipientColumns = [];
 
     public $approvedTimeOffColumns = [];
+    
+    public static $requestStatuses = [
+        'draft' => 'D',
+        'approved' => 'A',
+        'cancelled' => 'C',
+        'pendingApproval' => 'P',
+        'beingReviewed' => 'R'
+    ];
 
     /**
      *
@@ -275,15 +283,27 @@ class RequestMapper implements RequestMapperInterface
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
      */
-    public function findTimeOffApprovedRequestsByEmployee($employeeId = null)
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
             ->columns($this->timeoffRequestEntryColumns)
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeId), 'request.REQUEST_STATUS' => 'A']);
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'A']);
 
+        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+    }
+    
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null)
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+        ->columns($this->timeoffRequestEntryColumns)
+        ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+        ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+        ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P']);
+    
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
     
@@ -358,6 +378,7 @@ class RequestMapper implements RequestMapperInterface
 
         foreach($employeeData as $counter => $employee) {
             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
+            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER);
         }
 
         return $employeeData;
@@ -365,12 +386,14 @@ class RequestMapper implements RequestMapperInterface
     
     public function submitRequestForApproval($employeeNumber, $requestData)
     {
+        $requestReturnData = ['request_id' => null];
         foreach($requestData as $key => $request) {
-            $action = new Insert('posts');
+            /** Insert record into TIMEOFF_REQUESTS **/
+            $action = new Insert('timeoff_requests');
             $action->values([
-                'EMPLOYEE_NUMBER' => '',
-                'REQUEST_STATUS' => '',
-                'CREATE_USER' => ''
+                'EMPLOYEE_NUMBER' => $employeeNumber,
+                'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
+                'CREATE_USER' => $employeeNumber
             ]);
             $sql    = new Sql($this->dbAdapter);
             $stmt   = $sql->prepareStatementForSqlObject($action);
@@ -382,11 +405,28 @@ class RequestMapper implements RequestMapperInterface
             }
             
             $requestId = $result->getGeneratedValue();
+            
+            /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES **/
+            foreach($requestData as $key => $request) {
+                $action = new Insert('timeoff_request_entries');
+                $action->values([
+                    'REQUEST_ID' => $requestId,
+                    'REQUEST_DATE' => $request['date'],
+                    'REQUESTED_HOURS' => $request['hours'],
+                    'REQUEST_CODE' => $request['type']
+                ]);
+                $sql    = new Sql($this->dbAdapter);
+                $stmt   = $sql->prepareStatementForSqlObject($action);
+                try {
+                    $result = $stmt->execute();
+                
+                } catch (Exception $e) {
+                    throw new \Exception("Can't execute statement: " . $e->getMessage());
+                }   
+            }
         }
-        echo "REQUEST FOR " . $employeeNumber . "<br />";
-        echo '<pre>';
-        print_r($requestData);
-        echo '</pre>';
-        die("@@");
+        $requestReturnData['request_id'] = $requestId;
+        
+        return $requestReturnData;
     }
 }
