@@ -319,15 +319,8 @@ var timeoffHandler = new function()
         		    thisCalendarHtml.data);
         	});
         	
-        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
-        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
-        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
         	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeoffHandler.highlightDates();
-        	
-//        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
-//        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
-//        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
             return;
         })
         .error( function() {
@@ -447,12 +440,19 @@ var timeoffHandler = new function()
     this.highlightDates = function() {
     	$.each($(".calendar-day"), function(index, blah) {
     		// Check: is $(this).attr("data-date") in array selectedDates ?
+    		indexSelectedFound = selectedDates.lastIndexOf($(this).attr("data-date"));
     		indexApprovedFound = selectedDatesApproved.lastIndexOf($(this).attr("data-date"));
     		indexPendingApprovalFound = selectedDatesPendingApproval.lastIndexOf($(this).attr("data-date"));
     		
-    		console.log("approved check for " + $(this).attr("data-date") + ": " + indexApprovedFound);
-    		console.log("pending  check for " + $(this).attr("data-date") + ": " + indexPendingApprovalFound);
+    		//console.log("approved check for " + $(this).attr("data-date") + ": " + indexApprovedFound);
+    		//console.log("pending  check for " + $(this).attr("data-date") + ": " + indexPendingApprovalFound);
     		
+    		if(indexSelectedFound > -1) {
+    			// Highlight the date.
+    			thisClass = selectedDateCategories[indexSelectedFound];
+    			$(this).toggleClass(thisClass);
+    			$(this).children("div").toggleClass(thisClass);
+    		}
     		if(indexApprovedFound > -1) {
     			// Highlight the date.
     			thisClass = selectedDateCategoriesApproved[indexApprovedFound];
