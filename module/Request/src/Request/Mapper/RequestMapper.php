@@ -81,34 +81,34 @@ class RequestMapper implements RequestMapperInterface
             'POSITION_TITLE' => 'PRTITL',
             'GRANDFATHERED_EARNED' => 'PRAC5E',
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
-            'GRANDFATHERED_AVAILABLE' => 'PRAC5E - employee.PRAC5T',
-            'GRANDFATHERED_REMAINING' => 'PRAC5E - employee.PRAC5T - pendingrequests.REQGFV',
+//             'GRANDFATHERED_AVAILABLE' => 'PRAC5E - employee.PRAC5T',
+//             'GRANDFATHERED_REMAINING' => 'PRAC5E - employee.PRAC5T - pendingrequests.REQGFV',
             'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
-            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
-            'PTO_REMAINING' => 'PRVAC - employee.PRVAT - pendingrequests.REQPTO',
+//             'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+//             'PTO_REMAINING' => 'PRVAC - employee.PRVAT - pendingrequests.REQPTO',
             'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
-            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
-            'FLOAT_REMAINING' => 'PRSHA - employee.PRSHT - pendingrequests.REQFLOAT',
+//             'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+//             'FLOAT_REMAINING' => 'PRSHA - employee.PRSHT - pendingrequests.REQFLOAT',
             'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
-            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
-            'SICK_REMAINING' => 'PRSDA - employee.PRSDT - pendingrequests.REQSICK',
+//             'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
+//             'SICK_REMAINING' => 'PRSDA - employee.PRSDT - pendingrequests.REQSICK',
             'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
-            'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E', // - employee.PRAC4T Need to manually add the table alias on 2nd field
+//             'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E', // - employee.PRAC4T Need to manually add the table alias on 2nd field
             'DRIVER_SICK_EARNED' => 'PRAC6E',
             'DRIVER_SICK_TAKEN' => 'PRAC6T',
-            'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
+//             'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
         ];
         $this->pendingRequestColumns = [
-            'GRANDFATHERED_PENDING' => 'REQGFV',
+//             'GRANDFATHERED_PENDING' => 'REQGFV',
             'PTO_PENDING' => 'REQPTO',
             'FLOAT_PENDING' => 'REQFLOAT',
             'SICK_PENDING' => 'REQSICK',
-            'TOM_PENDING' => 'REQTOM',
-            'VAC_PENDING' => 'REQVAC'            
+//             'TOM_PENDING' => 'REQTOM',
+//             'VAC_PENDING' => 'REQVAC'            
         ];
         $this->employeeCalendarColumns = [
             'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
@@ -262,48 +262,48 @@ class RequestMapper implements RequestMapperInterface
      */
     // TODO: sawik 12/04/15 Change the join to join on the actual employee id,
     // hardcoded here.
-    public function findTimeOffBalancesByEmployee($employeeId = null)
+    public function findTimeOffBalancesByEmployee($employeeNumber = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
             ->columns($this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns)
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
             ->join(['pendingpto' => "(
-            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
             	inner join timeoff_requests request ON request.request_id = entry.request_id
             	where
                 		entry.request_id in (
                     		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeId . "' AND
+                        		request.employee_number = '" . $employeeNumber . "' AND
                 	    		request.request_status = 'P' AND
             	    		entry.request_code = 'P'
                 		)
-                )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
+                )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
             ->join(['pendingfloat' => "(
-            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
             	inner join timeoff_requests request ON request.request_id = entry.request_id
             	where
                 		entry.request_id in (
                     		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeId . "' AND
+                        		request.employee_number = '" . $employeeNumber . "' AND
                 	    		request.request_status = 'P' AND
             	    		entry.request_code = 'K'
                 		)
-                )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
+                )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
             ->join(['pendingsick' => "(
-            	select '" . $employeeId . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
             	inner join timeoff_requests request ON request.request_id = entry.request_id
             	where
                 		entry.request_id in (
                     		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeId . "' AND
+                        		request.employee_number = '" . $employeeNumber . "' AND
                 	    		request.request_status = 'P' AND
             	    		entry.request_code = 'S'
                 		)
-                )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeId . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
-            ->where(['trim(employee.PREN)' => trim($employeeId)]);
+                )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
+            ->where(['trim(employee.PREN)' => trim($employeeNumber)]);
 
         // select * from papreq where reqclk# = '101639';;
         /**
@@ -319,24 +319,25 @@ class RequestMapper implements RequestMapperInterface
          */
         $result = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
         
+        $result['PTO_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING']);
+        $result['FLOAT_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING']);
+        $result['SICK_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING']);
+        $result['PTO_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING_APPROVAL']);
+        $result['FLOAT_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING_APPROVAL']);
+        $result['SICK_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING_APPROVAL']);
+        
         /** Because we create a temp table for the pending approval amounts, we need
          *  to account for the fact that no result does not yield an integer.
          *  So we'll do the final calc here.
          */
-        if(empty($result['PTO_PENDING_APPROVAL'])) {
-            $result['PTO_PENDING_APPROVAL'] = number_format(0, 2);
-        }
-        if(empty($result['FLOAT_PENDING_APPROVAL'])) {
-            $result['FLOAT_PENDING_APPROVAL'] = number_format(0, 2);
-        }
-        if(empty($result['SICK_PENDING_APPROVAL'])) {
-            $result['SICK_PENDING_APPROVAL'] = number_format(0, 2);
-        }
+//         $result['PTO_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING_APPROVAL']);
+//         $result['FLOAT_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING_APPROVAL']);
+//         $result['SICK_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING_APPROVAL']);
         
-        /** Do final calc **/
-        $result['PTO_AVAILABLE'] = $result['PTO_REMAINING'] - $result['PTO_PENDING_APPROVAL'];
-        $result['FLOAT_AVAILABLE'] = $result['FLOAT_REMAINING'] - $result['FLOAT_PENDING_APPROVAL'];
-        $result['SICK_AVAILABLE'] = $result['SICK_REMAINING'] - $result['SICK_PENDING_APPROVAL'];
+//         /** Do final calc **/
+        $result['PTO_AVAILABLE'] = number_format(($result['PTO_EARNED'] - $result['PTO_TAKEN'] - $result['PTO_PENDING'] - $result['PTO_PENDING_APPROVAL']), 2);
+        $result['FLOAT_AVAILABLE'] = number_format(($result['FLOAT_EARNED'] - $result['FLOAT_TAKEN'] - $result['FLOAT_PENDING'] - $result['FLOAT_PENDING_APPROVAL']), 2);
+        $result['SICK_AVAILABLE'] = number_format(($result['SICK_EARNED'] - $result['SICK_TAKEN'] - $result['SICK_PENDING'] - $result['SICK_PENDING_APPROVAL']), 2);
         
 //         echo '<pre>';
 //         print_r($result);
@@ -456,42 +457,41 @@ class RequestMapper implements RequestMapperInterface
     public function submitRequestForApproval($employeeNumber, $requestData)
     {
         $requestReturnData = ['request_id' => null];
+        
+        /** Insert record into TIMEOFF_REQUESTS **/
+        $action = new Insert('timeoff_requests');
+        $action->values([
+            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
+            'CREATE_USER' => $employeeNumber
+        ]);
+        $sql    = new Sql($this->dbAdapter);
+        $stmt   = $sql->prepareStatementForSqlObject($action);
+        try {
+            $result = $stmt->execute();
+        
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
+        
+        $requestId = $result->getGeneratedValue();
+        
+        /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES **/
         foreach($requestData as $key => $request) {
-            /** Insert record into TIMEOFF_REQUESTS **/
-            $action = new Insert('timeoff_requests');
+            $action = new Insert('timeoff_request_entries');
             $action->values([
-                'EMPLOYEE_NUMBER' => $employeeNumber,
-                'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
-                'CREATE_USER' => $employeeNumber
+                'REQUEST_ID' => $requestId,
+                'REQUEST_DATE' => $request['date'],
+                'REQUESTED_HOURS' => $request['hours'],
+                'REQUEST_CODE' => $request['type']
             ]);
             $sql    = new Sql($this->dbAdapter);
             $stmt   = $sql->prepareStatementForSqlObject($action);
             try {
                 $result = $stmt->execute();
-            
+        
             } catch (Exception $e) {
                 throw new \Exception("Can't execute statement: " . $e->getMessage());
-            }
-            
-            $requestId = $result->getGeneratedValue();
-            
-            /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES **/
-            foreach($requestData as $key => $request) {
-                $action = new Insert('timeoff_request_entries');
-                $action->values([
-                    'REQUEST_ID' => $requestId,
-                    'REQUEST_DATE' => $request['date'],
-                    'REQUESTED_HOURS' => $request['hours'],
-                    'REQUEST_CODE' => $request['type']
-                ]);
-                $sql    = new Sql($this->dbAdapter);
-                $stmt   = $sql->prepareStatementForSqlObject($action);
-                try {
-                    $result = $stmt->execute();
-                
-                } catch (Exception $e) {
-                    throw new \Exception("Can't execute statement: " . $e->getMessage());
-                }   
             }
         }
         $requestReturnData['request_id'] = $requestId;

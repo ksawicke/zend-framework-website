@@ -15,9 +15,9 @@ var timeoffHandler = new function()
     	totalSickRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
-    	selectedDates = [],
-    	selectedDateCategories = [],
-    	selectedDateHours = [];
+    	selectedDates = ['12/21/2015', '12/22/2015', '12/23/2015', '12/28/2015', '12/29/2015', '12/30/2015'],
+    	selectedDateCategories = ['timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO'],
+    	selectedDateHours = ['8.00', '8.00', '8.00', '8.00', '8.00', '8.00'];
 
     /**
      * Initializes binding
@@ -234,6 +234,22 @@ var timeoffHandler = new function()
         	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
         	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
         	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
+        	
+        	// Color the calendar dates already requested off
+//        	selectedDates = ['12/22/2015'],
+//        	selectedDateCategories = ['timeOffPTO'],
+//        	selectedDateHours = ['8.00']
+        	
+        	$.each($(".calendar-day"), function(index, blah) {
+        		if($(this).attr("data-date")=='12/21/2015') {
+        			$(this).toggleClass('timeOffPTO');
+        			$(this).children("div").toggleClass('timeOffPTO');
+        		}
+        	});
+        	
+        	$.each(selectedDates, function(index, blah) {
+        		console.log(selectedDates[index]);
+        	});
             return;
         })
         .error( function() {
