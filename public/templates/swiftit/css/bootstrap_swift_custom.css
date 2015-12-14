@@ -561,3 +561,9 @@ td.calendar-day-np {
 td.calendar-day {
 	cursor: pointer;
 }
+
+.pendingApproval {
+	filter:alpha(opacity=60); /* IE */
+	-moz-opacity:0.6; /* Mozilla */
+	opacity: 0.6; /* CSS3 */
+}

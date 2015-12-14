@@ -15,9 +15,18 @@ var timeoffHandler = new function()
     	totalSickRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
-    	selectedDates = ['12/21/2015', '12/22/2015', '12/23/2015', '12/28/2015', '12/29/2015', '12/30/2015'],
-    	selectedDateCategories = ['timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO', 'timeOffPTO'],
-    	selectedDateHours = ['8.00', '8.00', '8.00', '8.00', '8.00', '8.00'];
+    	/** Dates selected for this request **/
+    	selectedDates = [],
+    	selectedDateCategories = [],
+    	selectedDateHours = [],
+    	/** Dates selected for approved requests **/
+    	selectedDatesApproved = [],
+    	selectedDateCategoriesApproved = [],
+    	selectedDateHoursApproved = [],
+    	/** Dates selected for pending approval requests **/
+    	selectedDatesPendingApproval = [],
+    	selectedDateCategoriesPendingApproval = [],
+    	selectedDateHoursPendingApproval = [];
 
     /**
      * Initializes binding
@@ -234,22 +243,27 @@ var timeoffHandler = new function()
         	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
         	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
         	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
-        	
+        	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+        	timeoffHandler.highlightDates();
         	// Color the calendar dates already requested off
 //        	selectedDates = ['12/22/2015'],
 //        	selectedDateCategories = ['timeOffPTO'],
 //        	selectedDateHours = ['8.00']
         	
-        	$.each($(".calendar-day"), function(index, blah) {
-        		if($(this).attr("data-date")=='12/21/2015') {
-        			$(this).toggleClass('timeOffPTO');
-        			$(this).children("div").toggleClass('timeOffPTO');
-        		}
-        	});
+//        	$.each($(".calendar-day"), function(index, blah) {
+//        		// Check: is $(this).attr("data-date") in array selectedDates ?
+//        		indexFound = selectedDates.lastIndexOf($(this).attr("data-date"));
+//        		if(indexFound > -1) {
+//        			// Highlight the date.
+//        			thisClass = selectedDateCategories[indexFound];
+//        			$(this).toggleClass(thisClass);
+//        			$(this).children("div").toggleClass(thisClass);
+//        		}
+//        	});
         	
-        	$.each(selectedDates, function(index, blah) {
-        		console.log(selectedDates[index]);
-        	});
+//        	$.each(selectedDates, function(index, blah) {
+//        		console.log(selectedDates[index]);
+//        	});
             return;
         })
         .error( function() {
@@ -304,6 +318,12 @@ var timeoffHandler = new function()
         		    json.closeHeader +
         		    thisCalendarHtml.data);
         	});
+        	
+        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
+        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
+        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
+        	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+        	timeoffHandler.highlightDates();
         	
 //        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
 //        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
@@ -403,6 +423,50 @@ var timeoffHandler = new function()
 	    		timeoffHandler.printEmployeeSickRemaining();
 	    		break;
 		}
+    }
+    
+    this.setSelectedDates = function(approvedRequests, pendingRequests) {
+    	selectedDatesApproved = [];
+    	selectedDateCategoriesApproved = [];
+    	selectedDateHoursApproved = [];
+    	selectedDatesPendingApproval = [];
+    	selectedDateCategoriesPendingApproval = [];
+    	selectedDateHoursPendingApproval = [];
+    	for(key in approvedRequests) {
+    		selectedDatesApproved.push(approvedRequests[key].REQUEST_DATE);
+    		selectedDateCategoriesApproved.push(approvedRequests[key].REQUEST_TYPE);
+    		selectedDateHoursApproved.push(approvedRequests[key].REQUESTED_HOURS);
+    	}
+    	for(key in pendingRequests) {
+    		selectedDatesPendingApproval.push(pendingRequests[key].REQUEST_DATE);
+    		selectedDateCategoriesPendingApproval.push(pendingRequests[key].REQUEST_TYPE);
+    		selectedDateHoursPendingApproval.push(pendingRequests[key].REQUESTED_HOURS);
+    	}
+    }
+    
+    this.highlightDates = function() {
+    	$.each($(".calendar-day"), function(index, blah) {
+    		// Check: is $(this).attr("data-date") in array selectedDates ?
+    		indexApprovedFound = selectedDatesApproved.lastIndexOf($(this).attr("data-date"));
+    		indexPendingApprovalFound = selectedDatesPendingApproval.lastIndexOf($(this).attr("data-date"));
+    		
+    		console.log("approved check for " + $(this).attr("data-date") + ": " + indexApprovedFound);
+    		console.log("pending  check for " + $(this).attr("data-date") + ": " + indexPendingApprovalFound);
+    		
+    		if(indexApprovedFound > -1) {
+    			// Highlight the date.
+    			thisClass = selectedDateCategoriesApproved[indexApprovedFound];
+    			$(this).toggleClass(thisClass);
+    			$(this).children("div").toggleClass(thisClass);
+    		}
+    		if(indexPendingApprovalFound > -1) {
+    			// Highlight the date.
+    			thisClass = selectedDateCategoriesPendingApproval[indexPendingApprovalFound] + " pendingApproval";
+    			$(this).toggleClass(thisClass);
+    			$(this).children("div").toggleClass(thisClass);
+    			//pendingApproval
+    		}
+    	});
     }
     
     /**

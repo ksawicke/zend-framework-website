@@ -111,6 +111,26 @@ class RequestController extends AbstractActionController
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
+                    $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber);
+                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber);
+                    
+                    $approvedRequestJson = [];
+                    $pendingRequestJson = [];
+                    
+                    foreach($approvedRequestData as $key => $approvedRequest) {
+                        $approvedRequestJson[] = [
+                            'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
+                            'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
+                            'REQUEST_TYPE' => 'timeOffPTO'
+                        ];
+                    }
+                    foreach($pendingRequestData as $key => $pendingRequest) {
+                        $pendingRequestJson[] = [
+                            'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
+                            'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
+                            'REQUEST_TYPE' => 'timeOffPTO'
+                        ];
+                    }
                     
                     $result = new JsonModel([
                         'success' => true,
@@ -128,7 +148,10 @@ class RequestController extends AbstractActionController
                         'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                         'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
                         'employeeData' => $employeeData,
-                        'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
+                        'approvedRequestData' => $approvedRequestData,
+                        'approvedRequestJson' => $approvedRequestJson,
+                        'pendingRequestData' => $pendingRequestData,
+                        'pendingRequestJson' => $pendingRequestJson,
                         'openHeader' => '<strong>',
                         'closeHeader' => '</strong><br /><br />'
                     ]);
