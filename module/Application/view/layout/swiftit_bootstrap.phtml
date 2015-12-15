@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
 
-    <title>SWIFT IT Template</title>
+    <title>Time Off</title>
 
     <?php
 
@@ -33,12 +33,23 @@
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/ckeditor.js'))
         ->appendFile($this->basePath('templates/swiftit/js/dropzone.js'))
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'));
+      
+      // 12/15/2015 sawik - Hackish? Doing a conditional to load js based on page.
+      // will update with better solution if poss
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/create') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar') !== false) {
+        $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
+      }
+      
       echo $this->headScript();
     ?>
   </head>
 
   <body>
-
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
@@ -51,28 +62,29 @@
           </button>
           <div class="visible-lg">
               <div class="swift-header-item">
-                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/blog"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
+                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
               </div>
               <div class="swift-header-item swift-site-name">
-                SWIFT IT Template<?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
+                Time Off&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">
+                <?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
               </div>
           </div>
           <div class="visible-xs visible-sm visible-md">
               <div class="swift-header-item-sm">
-                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/blog'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
+                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/request/create'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
               </div>
               <div class="swift-header-item swift-site-name-sm">
-                SWIFT IT Template
+                Time Off&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">
               </div>
           </div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="<?php echo $this->basepath(); ?>/request/create">Home</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Page Links <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="<?php echo $this->basepath(); ?>/request">Request Time Off</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/create">Request Time Off</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-employee-requests">View Manager Employee Requests</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-team-calendar">View My Team Calendar</a></li>
               </ul>
@@ -84,6 +96,22 @@
 
     <div class="container">
       <div class="well well-sm">
+      
+      	  <?php
+      	  /** Out put any flash messages **/
+      	  $children = $this->viewModel()->getCurrent()->getChildren();
+      	  $ourView  = $children[0];
+      	  
+      	  if (isset($ourView->flashMessages) && count($ourView->flashMessages)) {
+      	      foreach($ourView->flashMessages as $alertType => $messages) {
+      	         if(!empty($messages)) {
+      	         ?>
+      	         <div class="alert alert-<?php echo $alertType; ?>" role="alert"><span class="glyphicon glyphicon-ok" aria-hidden="true" style="display:inline-block;"></span>&nbsp;&nbsp;<?php foreach($messages as $mk => $message) { echo $message . '<br />'; } ?></div>
+      	         <?php
+      	         }
+      	      }
+      	  } ?>
+      	  
           <?php echo $this->content; ?>
 
           <br />

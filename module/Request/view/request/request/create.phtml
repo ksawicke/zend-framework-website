@@ -1,60 +1,72 @@
 <strong>Employee Time Off Hours for <?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong>
 <br />
 <br />
-
-<style>
-th, td {
-	border: 1px solid #000;
-	padding: 5px;
-}
-</style>
-
-<table>
-	<thead>
-		<tr>
-			<th style="width: 150px;"></th>
-			<th style="width: 150px;">PTO</th>
-			<th style="width: 150px;">Float</th>
-			<th style="width: 150px;">Sick</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td><strong>Available</strong></td>
-			<td><?php echo number_format($employeeData->PTO_AVAILABLE, 2); ?></td>
-			<td><?php echo number_format($employeeData->FLOAT_AVAILABLE, 2); ?></td>
-			<td><?php echo number_format($employeeData->SICK_AVAILABLE, 2); ?></td>
-		</tr>
-		<tr>
-			<td><strong>Pending</strong></td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td><strong>Remaining</strong></td>
-			<td><?php echo number_format($employeeData->PTO_AVAILABLE, 2); ?></td>
-			<td><?php echo number_format($employeeData->FLOAT_AVAILABLE, 2); ?></td>
-			<td><?php echo number_format($employeeData->SICK_AVAILABLE, 2); ?></td>
-		</tr>
-		<tr>
-			<td><strong>Requested</strong></td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-	</tbody>
-</table>
-
-<br />
 <br />
 
-EMPLOYEE DATA:
-<pre>
-<?php print_r($employeeData); ?>
-</pre>
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffPTO">
+	PTO<br />
+	<span class="hours" id="employeePTOHours"></span>
+</div>
 
-APPROVED TIME OFF REQUEST DATA FOR THIS EMPLOYEE:
-<pre>
-<?php print_r($approvedRequestData); ?>
-</pre>
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffFloat cursorHand" data-category="timeOffFloat">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffFloat">
+	Float<br />
+	<span class="hours" id="employeeFloatHours"></span>
+</div>
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffSick cursorHand" data-category="timeOffSick">
+	&nbsp;<br />
+	&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffSick">
+	Sick<br />
+	<span class="hours"  id="employeeSickHours"></span>
+</div>
+
+<br /><br /><br />
+
+<br style="clear:both;" />
+
+<div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
+	<?php /***<strong>December 2015</strong><br /><br />
+	<?php echo $calendar1Html; **/ ?>
+</div>
+<div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar2Html">
+	<?php /***<strong>January 2016</strong><br /><br />
+	<?php echo $calendar2Html; ?> **/ ?>
+</div>
+<div style="width:33%;float:left;text-align:center;" id="calendar3Html">
+	<?php /***<strong>February 2016</strong><br /><br />
+	<?php echo $calendar3Html; ?> **/ ?>
+</div>
+
+<br style="clear:both;" />
+<br style="clear:both;" />
+
+<div id="datesSelected"><i>No dates are currently selected.</i></div>
+
+<!-- br style="clear:both;" /><br style="clear:both;" />
+
+<div class="timeOffCategory" data-category="pto">
+	PTO<br />
+	38.66 hr
+</div>
+<div class="timeOffCategory" data-category="float">
+	Float<br />
+	8.00 hr
+</div>
+<div class="timeOffCategory" data-category="sick">
+	Sick<br />
+	0.00 hr
+</div-->
+
+<br /><br/ >
+
+<br style="clear:both;" />
+<br style="clear:both;" />
+<br style="clear:both;" />

@@ -35,6 +35,30 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+            'create2' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/create',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'create'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
+            'success' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/submitted-for-approval',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'submittedForApproval'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
             'viewEmployeeRequests' => [
                 'type' => 'literal',
                 'options' => [
@@ -59,6 +83,18 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+            'api' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/api',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'api'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ]
         ]
     ],
     'view_manager' => [

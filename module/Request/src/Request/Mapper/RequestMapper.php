@@ -43,6 +43,14 @@ class RequestMapper implements RequestMapperInterface
     public $emailRecipientColumns = [];
 
     public $approvedTimeOffColumns = [];
+    
+    public static $requestStatuses = [
+        'draft' => 'D',
+        'approved' => 'A',
+        'cancelled' => 'C',
+        'pendingApproval' => 'P',
+        'beingReviewed' => 'R'
+    ];
 
     /**
      *
@@ -73,21 +81,34 @@ class RequestMapper implements RequestMapperInterface
             'POSITION_TITLE' => 'PRTITL',
             'GRANDFATHERED_EARNED' => 'PRAC5E',
             'GRANDFATHERED_TAKEN' => 'PRAC5T',
+//             'GRANDFATHERED_AVAILABLE' => 'PRAC5E - employee.PRAC5T',
+//             'GRANDFATHERED_REMAINING' => 'PRAC5E - employee.PRAC5T - pendingrequests.REQGFV',
             'PTO_EARNED' => 'PRVAC',
             'PTO_TAKEN' => 'PRVAT',
-            'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+//             'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+//             'PTO_REMAINING' => 'PRVAC - employee.PRVAT - pendingrequests.REQPTO',
             'FLOAT_EARNED' => 'PRSHA',
             'FLOAT_TAKEN' => 'PRSHT',
-            'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+//             'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+//             'FLOAT_REMAINING' => 'PRSHA - employee.PRSHT - pendingrequests.REQFLOAT',
             'SICK_EARNED' => 'PRSDA',
             'SICK_TAKEN' => 'PRSDT',
-            'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
+//             'SICK_AVAILABLE' => 'PRSDA - employee.PRSDT',
+//             'SICK_REMAINING' => 'PRSDA - employee.PRSDT - pendingrequests.REQSICK',
             'COMPANY_MANDATED_EARNED' => 'PRAC4E',
             'COMPANY_MANDATED_TAKEN' => 'PRAC4T',
-            'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E - employee.PRAC4T', // Need to manually add the table alias on 2nd field
+//             'COMPANY_MANDATED_AVAILABLE' => 'PRAC4E', // - employee.PRAC4T Need to manually add the table alias on 2nd field
             'DRIVER_SICK_EARNED' => 'PRAC6E',
             'DRIVER_SICK_TAKEN' => 'PRAC6T',
-            'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
+//             'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
+        ];
+        $this->pendingRequestColumns = [
+//             'GRANDFATHERED_PENDING' => 'REQGFV',
+            'PTO_PENDING' => 'REQPTO',
+            'FLOAT_PENDING' => 'REQFLOAT',
+            'SICK_PENDING' => 'REQSICK',
+//             'TOM_PENDING' => 'REQTOM',
+//             'VAC_PENDING' => 'REQVAC'            
         ];
         $this->employeeCalendarColumns = [
             'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
@@ -110,7 +131,8 @@ class RequestMapper implements RequestMapperInterface
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
         $this->timeoffRequestColumns = [
-            'REQUEST_ID' => 'REQUEST_ID'
+            'REQUEST_ID' => 'REQUEST_ID',
+            'REQUEST_REASON' => 'REQUEST_REASON'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -233,30 +255,193 @@ class RequestMapper implements RequestMapperInterface
         // $this->employeeSupervisorColumns
     }
 
-    public function findTimeOffBalancesByEmployee($employeeId = null)
+    /**
+     * Find time off balances by Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByEmployee()
+     */
+    // TODO: sawik 12/04/15 Change the join to join on the actual employee id,
+    // hardcoded here.
+    public function findTimeOffBalancesByEmployee($employeeNumber = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
             ->columns($this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where(['trim(employee.PREN)' => trim($employeeId)]);
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
+            ->join(['pendingpto' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'P'
+                		)
+                )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
+            ->join(['pendingfloat' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'K'
+                		)
+                )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
+            ->join(['pendingsick' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'S'
+                		)
+                )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
+            ->where(['trim(employee.PREN)' => trim($employeeNumber)]);
 
-        return \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        // select * from papreq where reqclk# = '101639';;
+        /**
+         * This will get sum of all requests submitted for approval in the timeoff_request_entries
+         * table by employee id
+         * 
+         * select sum(entry.requested_hours) as pending_pto_local from timeoff_request_entries entry where
+                entry.request_id in (
+                    select request.request_id from timeoff_requests request where
+                        request.employee_number = '49499' AND
+                	    request.request_status = 'P'
+                );;
+         */
+        $result = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        
+        $result['PTO_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING']);
+        $result['FLOAT_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING']);
+        $result['SICK_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING']);
+        $result['PTO_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING_APPROVAL']);
+        $result['FLOAT_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING_APPROVAL']);
+        $result['SICK_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING_APPROVAL']);
+        
+        /** Because we create a temp table for the pending approval amounts, we need
+         *  to account for the fact that no result does not yield an integer.
+         *  So we'll do the final calc here.
+         */
+//         $result['PTO_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['PTO_PENDING_APPROVAL']);
+//         $result['FLOAT_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['FLOAT_PENDING_APPROVAL']);
+//         $result['SICK_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($result['SICK_PENDING_APPROVAL']);
+        
+//         /** Do final calc **/
+        $result['PTO_AVAILABLE'] = number_format(($result['PTO_EARNED'] - $result['PTO_TAKEN'] - $result['PTO_PENDING'] - $result['PTO_PENDING_APPROVAL']), 2);
+        $result['FLOAT_AVAILABLE'] = number_format(($result['FLOAT_EARNED'] - $result['FLOAT_TAKEN'] - $result['FLOAT_PENDING'] - $result['FLOAT_PENDING_APPROVAL']), 2);
+        $result['SICK_AVAILABLE'] = number_format(($result['SICK_EARNED'] - $result['SICK_TAKEN'] - $result['SICK_PENDING'] - $result['SICK_PENDING_APPROVAL']), 2);
+        
+//         echo '<pre>';
+//         print_r($result);
+//         echo '</pre>';
+//         die("@@@");
+        
+        return $result;
     }
 
-    public function findTimeOffApprovedRequestsByEmployee($employeeId = null)
+    /**
+     * Find time off approved requests by Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
+     */
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
             ->columns($this->timeoffRequestEntryColumns)
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeId), 'request.REQUEST_STATUS' => 'A']);
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'A']);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
+        $return = [];
+        switch($returnType) {
+            case 'datesOnly':
+            default:
+                $return = $result;
+                break;
+        
+            case 'managerQueue':
+                $return = [];
+        
+                foreach($result as $key => $data) {
+                    if(!array_key_exists($data['REQUEST_ID'], $return)) {
+                        $return[$data['REQUEST_ID']] = [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                                                         'DETAILS' => [],
+                                                         'TOTALS' => [ 'PTO' => number_format(0.00, 2), 'Float' => number_format(0.00, 2), 'Sick' => number_format(0.00, 2) ]
+                                                       ];
+                    }
+                    $return[$data['REQUEST_ID']]['DETAILS'][] = [
+                        'REQUEST_DATE' => $data['REQUEST_DATE'],
+                        'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+                        'REQUEST_TYPE' => $data['REQUEST_TYPE']
+                    ];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                }
+                break;
+        }
+            
+        return $return;
     }
     
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P']);
+    
+        $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        switch($returnType) {
+            case 'datesOnly':
+            default:
+                $return = $result;
+                break;
+                
+            case 'managerQueue':
+                $return = [];
+                
+                foreach($result as $key => $data) {
+                    if(!array_key_exists($data['REQUEST_ID'], $return)) {
+                        $return[$data['REQUEST_ID']] = [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                                                         'DETAILS' => [],
+                                                         'TOTALS' => [ 'PTO' => number_format(0.00, 2), 'Float' => number_format(0.00, 2), 'Sick' => number_format(0.00, 2) ]
+                                                       ];
+                    }
+                    $return[$data['REQUEST_ID']]['DETAILS'][] = [
+                        'REQUEST_DATE' => $data['REQUEST_DATE'],
+                        'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+                        'REQUEST_TYPE' => $data['REQUEST_TYPE']
+                    ];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                }
+                break;
+        }
+        
+        return $return;
+    }
+    
+    /**
+     * Find time off calendar data by Manager Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffCalendarByManager()
+     */
     public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -301,20 +486,100 @@ class RequestMapper implements RequestMapperInterface
         return $calendarData;
     }
 
+    /**
+     * Find Time off balances by Manager Employee Number lookup.
+     * 
+     * {@inheritDoc}
+     * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByManager()
+     */
     public function findTimeOffBalancesByManager($managerEmployeeId = null)
     {
         // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
+        // trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )
+        // SELECT trim(SPEN) as EMPLOYEE_ID FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589';;
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select(["data" => "table (care_get_manager_employees('002', '   229589', ''))"])
-            ->columns(['EMPLOYEE_ID'])
-            ->join(['employee' => 'PRPMS'], 'employee.PREN = data.EMPLOYEE_ID', $this->employeeColumns);
+        $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589')"]) // (care_get_manager_employees('002', '   229589', ''))
+            ->columns(['EMPLOYEE_NUMBER'])
+            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = data.EMPLOYEE_NUMBER', $this->employeeColumns)
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         foreach($employeeData as $counter => $employee) {
-            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_ID);
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
+            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
+//             foreach($approved as $key => $data) {
+//                 $employeeData['APPROVED_TIME_OFF'][$approved['REQUEST_ID']][] = [
+//                     'REQUEST_DATE' => $approved['REQUEST_DATE'],
+//                     'REQUESTED_HOURS' => $approved['REQUESTED_HOURS'],
+//                     'REQUEST_REASON' => $approved['REQUEST_REASON'],
+//                     'REQUEST_TYPE' => $approved['REQUEST_TYPE']
+//                 ];
+//             }
+//             foreach($pending as $key => $data) {
+//                 $employeeData['PENDING_APPROVAL_TIME_OFF'][$pending['REQUEST_ID']][] = [
+//                     'REQUEST_DATE' => $pending['REQUEST_DATE'],
+//                     'REQUESTED_HOURS' => $pending['REQUESTED_HOURS'],
+//                     'REQUEST_REASON' => $pending['REQUEST_REASON'],
+//                     'REQUEST_TYPE' => $pending['REQUEST_TYPE']
+//                 ];
+//             }
+//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
+//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER);
         }
+        
+        // SAVE 12/15/2015
+//         foreach($employeeData as $counter => $employee) {
+//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
+//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
+//         }
 
         return $employeeData;
+    }
+    
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null)
+    {
+        $requestReturnData = ['request_id' => null];
+        
+        /** Insert record into TIMEOFF_REQUESTS **/
+        $action = new Insert('timeoff_requests');
+        $action->values([
+            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
+            'CREATE_USER' => $employeeNumber,
+            'REQUEST_REASON' => $requestReason
+        ]);
+        $sql    = new Sql($this->dbAdapter);
+        $stmt   = $sql->prepareStatementForSqlObject($action);
+        try {
+            $result = $stmt->execute();
+        
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
+        
+        $requestId = $result->getGeneratedValue();
+        
+        /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES **/
+        foreach($requestData as $key => $request) {
+            $action = new Insert('timeoff_request_entries');
+            $action->values([
+                'REQUEST_ID' => $requestId,
+                'REQUEST_DATE' => $request['date'],
+                'REQUESTED_HOURS' => $request['hours'],
+                'REQUEST_CODE' => $request['type']
+            ]);
+            $sql    = new Sql($this->dbAdapter);
+            $stmt   = $sql->prepareStatementForSqlObject($action);
+            try {
+                $result = $stmt->execute();
+        
+            } catch (Exception $e) {
+                throw new \Exception("Can't execute statement: " . $e->getMessage());
+            }
+        }
+        $requestReturnData['request_id'] = $requestId;
+        
+        return $requestReturnData;
     }
 }
