@@ -131,7 +131,8 @@ class RequestMapper implements RequestMapperInterface
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
         $this->timeoffRequestColumns = [
-            'REQUEST_ID' => 'REQUEST_ID'
+            'REQUEST_ID' => 'REQUEST_ID',
+            'REQUEST_REASON' => 'REQUEST_REASON'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -353,7 +354,7 @@ class RequestMapper implements RequestMapperInterface
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
      */
-    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null)
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
@@ -362,19 +363,77 @@ class RequestMapper implements RequestMapperInterface
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
             ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'A']);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
+        $return = [];
+        switch($returnType) {
+            case 'datesOnly':
+            default:
+                $return = $result;
+                break;
+        
+            case 'managerQueue':
+                $return = [];
+        
+                foreach($result as $key => $data) {
+                    if(!array_key_exists($data['REQUEST_ID'], $return)) {
+                        $return[$data['REQUEST_ID']] = [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                                                         'DETAILS' => [],
+                                                         'TOTALS' => [ 'PTO' => number_format(0.00, 2), 'Float' => number_format(0.00, 2), 'Sick' => number_format(0.00, 2) ]
+                                                       ];
+                    }
+                    $return[$data['REQUEST_ID']]['DETAILS'][] = [
+                        'REQUEST_DATE' => $data['REQUEST_DATE'],
+                        'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+                        'REQUEST_TYPE' => $data['REQUEST_TYPE']
+                    ];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                }
+                break;
+        }
+            
+        return $return;
     }
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null)
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
-        ->columns($this->timeoffRequestEntryColumns)
-        ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
-        ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-        ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P']);
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P']);
     
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        switch($returnType) {
+            case 'datesOnly':
+            default:
+                $return = $result;
+                break;
+                
+            case 'managerQueue':
+                $return = [];
+                
+                foreach($result as $key => $data) {
+                    if(!array_key_exists($data['REQUEST_ID'], $return)) {
+                        $return[$data['REQUEST_ID']] = [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                                                         'DETAILS' => [],
+                                                         'TOTALS' => [ 'PTO' => number_format(0.00, 2), 'Float' => number_format(0.00, 2), 'Sick' => number_format(0.00, 2) ]
+                                                       ];
+                    }
+                    $return[$data['REQUEST_ID']]['DETAILS'][] = [
+                        'REQUEST_DATE' => $data['REQUEST_DATE'],
+                        'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+                        'REQUEST_TYPE' => $data['REQUEST_TYPE']
+                    ];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                }
+                break;
+        }
+        
+        return $return;
     }
     
     /**
@@ -447,14 +506,38 @@ class RequestMapper implements RequestMapperInterface
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         foreach($employeeData as $counter => $employee) {
-            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
-            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER);
+            $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
+            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
+//             foreach($approved as $key => $data) {
+//                 $employeeData['APPROVED_TIME_OFF'][$approved['REQUEST_ID']][] = [
+//                     'REQUEST_DATE' => $approved['REQUEST_DATE'],
+//                     'REQUESTED_HOURS' => $approved['REQUESTED_HOURS'],
+//                     'REQUEST_REASON' => $approved['REQUEST_REASON'],
+//                     'REQUEST_TYPE' => $approved['REQUEST_TYPE']
+//                 ];
+//             }
+//             foreach($pending as $key => $data) {
+//                 $employeeData['PENDING_APPROVAL_TIME_OFF'][$pending['REQUEST_ID']][] = [
+//                     'REQUEST_DATE' => $pending['REQUEST_DATE'],
+//                     'REQUESTED_HOURS' => $pending['REQUESTED_HOURS'],
+//                     'REQUEST_REASON' => $pending['REQUEST_REASON'],
+//                     'REQUEST_TYPE' => $pending['REQUEST_TYPE']
+//                 ];
+//             }
+//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
+//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER);
         }
+        
+        // SAVE 12/15/2015
+//         foreach($employeeData as $counter => $employee) {
+//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
+//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
+//         }
 
         return $employeeData;
     }
     
-    public function submitRequestForApproval($employeeNumber, $requestData)
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null)
     {
         $requestReturnData = ['request_id' => null];
         
@@ -463,7 +546,8 @@ class RequestMapper implements RequestMapperInterface
         $action->values([
             'EMPLOYEE_NUMBER' => $employeeNumber,
             'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
-            'CREATE_USER' => $employeeNumber
+            'CREATE_USER' => $employeeNumber,
+            'REQUEST_REASON' => $requestReason
         ]);
         $sql    = new Sql($this->dbAdapter);
         $stmt   = $sql->prepareStatementForSqlObject($action);

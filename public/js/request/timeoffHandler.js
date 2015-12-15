@@ -15,6 +15,7 @@ var timeoffHandler = new function()
     	totalSickRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
+    	requestReason = '',
     	/** Dates selected for this request **/
     	selectedDates = [],
     	selectedDateCategories = [],
@@ -57,6 +58,8 @@ var timeoffHandler = new function()
         	});
         	
         	$(document).on('click', '.submitTimeOffRequest', function() {
+        		requestReason = $("#requestReason").val();
+//        		console.log(requestReason);
         		timeoffHandler.submitTimeOffRequest();
         	});
         	
@@ -87,7 +90,6 @@ var timeoffHandler = new function()
             		datesSelectedHtml = '';
             		$.each(selectedDates, function(key, date) {
             			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled"><br style="clear:both;" />';
-            			// <span class="glyphicon glyphicon-timeOffPTO"></span>&nbsp;&nbsp;&nbsp;&nbsp;02/02/2016&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />
             		});
             		if(selectedDates.length==0) {
             			datesSelectedHtml = '<i>No dates are currently selected.</i>';
@@ -117,55 +119,11 @@ var timeoffHandler = new function()
             			'<span class="glyphicon glyphicon-timeOffPTO"></span> ' + totalPTORequested + '<br />' +
             			'<span class="glyphicon glyphicon-timeOffFloat"></span> ' + totalFloatRequested + '<br />' +
             			'<span class="glyphicon glyphicon-timeOffSick"></span> ' + totalSickRequested + '<br /><br />' +
-            			'<textarea cols="40" rows="4" placeholder="Reason for request..."></textarea><br /><br />' +
+            			'<textarea cols="40" rows="4" placeholder="Reason for request..." id="requestReason"></textarea><br /><br />' +
             			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>';
             		$("#datesSelected").html(datesSelectedHtml);
-            		
-//            		console.log("selectedDates", selectedDates);
-//            		console.log("selectedDateCategories", selectedDateCategories);
-//            		console.log("selectedDateHours", selectedDateHours);
         		}
         	});
-        	
-//        	$(".calendar-day").hover(function() {
-//        		if(selectedTimeoffCategory!==null) {
-//        			$(this).toggleClass(selectedTimeoffCategory);
-//        			$(this).children("div").toggleClass(selectedTimeoffCategory);
-//        		}
-//        	});
-        	
-        	/*******
-        	$(".calendar-day").click(function() {
-        		var index = selectedDates.indexOf($(this).attr("data-date"));
-        		if (index != -1) {
-        			selectedDates.splice(index, 1);
-        			selectedDateCategories.splice(index, 1);
-        			selectedDateHours.splice(index, 1);
-        			$(this).toggleClass(selectedTimeoffCategory);
-        			$(this).children("div").toggleClass(selectedTimeoffCategory);
-        		} else {
-        			selectedDates.push($(this).attr("data-date"));
-        			selectedDateCategories.push(selectedTimeoffCategory);
-        			selectedDateHours.push('8.00');
-        			$(this).toggleClass(selectedTimeoffCategory);
-        			$(this).children("div").toggleClass(selectedTimeoffCategory);
-        		}
-        		
-        		datesSelectedHtml = '';
-        		$.each(selectedDates, function(key, date) {
-        			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />';
-        			// <span class="glyphicon glyphicon-timeOffPTO"></span>&nbsp;&nbsp;&nbsp;&nbsp;02/02/2016&nbsp;&nbsp;&nbsp;&nbsp;<input id="blah" value="8.00" size="2"><br style="clear:both;" />
-        		});
-        		if(selectedDates.length==0) {
-        			datesSelectedHtml = '<i>No dates are currently selected.</i>';
-        		}
-        		$("#datesSelected").html(datesSelectedHtml);
-        		
-//        		console.log(selectedDates);
-//        		console.log(selectedDateCategories);
-//        		console.log(selectedDateHours);
-        	});
-        	**/
         	
         	timeoffHandler.loadCalendars();
         	timeoffHandler.checkLocalStorage();
@@ -203,14 +161,12 @@ var timeoffHandler = new function()
      * Sets the currently selected time off category.
      */
     this.setTimeoffCategory = function(object) {
-//    	console.log(selectedTimeoffCategory + " : " + object.attr("data-category"));
     	if(selectedTimeoffCategory==object.attr("data-category")) {
     		selectedTimeoffCategory = null;
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
 	    	object.next('div').addClass("selected");
 	    	object.addClass("selected");
-//	    	$("." + object.attr("data-category")).html('<span class="glyphicon glyphicon-ok" aria-hidden=true></span><br />&nbsp;');
     	}
     }
     
@@ -245,25 +201,6 @@ var timeoffHandler = new function()
         	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
         	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeoffHandler.highlightDates();
-        	// Color the calendar dates already requested off
-//        	selectedDates = ['12/22/2015'],
-//        	selectedDateCategories = ['timeOffPTO'],
-//        	selectedDateHours = ['8.00']
-        	
-//        	$.each($(".calendar-day"), function(index, blah) {
-//        		// Check: is $(this).attr("data-date") in array selectedDates ?
-//        		indexFound = selectedDates.lastIndexOf($(this).attr("data-date"));
-//        		if(indexFound > -1) {
-//        			// Highlight the date.
-//        			thisClass = selectedDateCategories[indexFound];
-//        			$(this).toggleClass(thisClass);
-//        			$(this).children("div").toggleClass(thisClass);
-//        		}
-//        	});
-        	
-//        	$.each(selectedDates, function(index, blah) {
-//        		console.log(selectedDates[index]);
-//        	});
             return;
         })
         .error( function() {
@@ -280,7 +217,8 @@ var timeoffHandler = new function()
               action: 'submitTimeoffRequest',
               selectedDates: selectedDates,
               selectedDateCategories: selectedDateCategories,
-              selectedDateHours: selectedDateHours
+              selectedDateHours: selectedDateHours,
+              requestReason: requestReason
             },
             dataType: 'json'
       	})
@@ -444,9 +382,6 @@ var timeoffHandler = new function()
     		indexApprovedFound = selectedDatesApproved.lastIndexOf($(this).attr("data-date"));
     		indexPendingApprovalFound = selectedDatesPendingApproval.lastIndexOf($(this).attr("data-date"));
     		
-    		//console.log("approved check for " + $(this).attr("data-date") + ": " + indexApprovedFound);
-    		//console.log("pending  check for " + $(this).attr("data-date") + ": " + indexPendingApprovalFound);
-    		
     		if(indexSelectedFound > -1) {
     			// Highlight the date.
     			thisClass = selectedDateCategories[indexSelectedFound];
@@ -464,7 +399,6 @@ var timeoffHandler = new function()
     			thisClass = selectedDateCategoriesPendingApproval[indexPendingApprovalFound] + " pendingApproval";
     			$(this).toggleClass(thisClass);
     			$(this).children("div").toggleClass(thisClass);
-    			//pendingApproval
     		}
     	});
     }

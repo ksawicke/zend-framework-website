@@ -7,11 +7,13 @@ interface RequestMapperInterface
 {
     public function findTimeOffBalancesByEmployee($employeeNumber = null);
 
-    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null);
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly");
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null);
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly");
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber = null);
     
     public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null);
+    
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null);
 }

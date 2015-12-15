@@ -23,7 +23,13 @@ class RequestController extends AbstractActionController
         'timeOffFloat' => 'K',
         'timeOffSick' => 'S'
     ];
-
+    
+    protected static $categoryToClass = [
+        'PTO' => 'timeOffPTO',
+        'Float' => 'timeOffFloat',
+        'Sick' => 'timeOffSick'
+    ];
+    
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
     {
         $this->requestService = $requestService;
@@ -47,7 +53,7 @@ class RequestController extends AbstractActionController
         
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
-            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber),
+            'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly'),
             'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
             'calendar3Html' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
@@ -76,7 +82,7 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     
-                    $requestReturnData = $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData);
+                    $requestReturnData = $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData, $request->getPost()->requestReason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -111,8 +117,8 @@ class RequestController extends AbstractActionController
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
-                    $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber);
-                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber);
+                    $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
+                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly');
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
@@ -121,14 +127,14 @@ class RequestController extends AbstractActionController
                         $approvedRequestJson[] = [
                             'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
                             'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => 'timeOffPTO'
+                            'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
                         ];
                     }
                     foreach($pendingRequestData as $key => $pendingRequest) {
                         $pendingRequestJson[] = [
                             'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
                             'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => 'timeOffPTO'
+                            'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
                         ];
                     }
                     

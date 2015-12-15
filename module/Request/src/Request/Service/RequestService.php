@@ -28,12 +28,12 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->findTimeOffBalancesByEmployee($employeeNumber);
     }
 
-    public function findTimeOffApprovedRequestsByEmployee($employeeNumber)
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType)
     {
         return $this->requestMapper->findTimeOffApprovedRequestsByEmployee($employeeNumber);
     }
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber)
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType)
     {
         return $this->requestMapper->findTimeOffPendingRequestsByEmployee($employeeNumber);
     }
@@ -48,8 +48,8 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     }
     
-    public function submitRequestForApproval($employeeNumber, $requestData)
+    public function submitRequestForApproval($employeeNumber, $requestData, $requestReason)
     {
-        return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData);
+        return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData, $requestReason);
     }
 }
