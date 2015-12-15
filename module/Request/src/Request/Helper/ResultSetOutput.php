@@ -21,8 +21,13 @@ class ResultSetOutput
 
     public static function getResultArray($sql, $select)
     {
-        $stmt = $sql->prepareStatementForSqlObject($select);
-        $result = $stmt->execute();
+        try {
+            $stmt = $sql->prepareStatementForSqlObject($select);
+        } catch(Exception $e) {
+            var_dump($e);
+        }
+//         var_dump($stmt);exit();
+            $result = $stmt->execute();
 
         $resultSet = new ResultSet();
         $resultSet->initialize($result);

@@ -14,6 +14,8 @@ interface RequestServiceInterface
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber);
     
+    public function findQueuesByManager($managerEmployeeNumber);
+    
     public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason);

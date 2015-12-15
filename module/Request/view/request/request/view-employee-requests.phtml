@@ -1,4 +1,31 @@
-Here are Mary Jackson's employees:
+<strong>Pending Approval</strong>
+
+<br /><br />
+
+<table style="width:100%;">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Approver queue</th>
+            <th>Transaction Status</th>
+            <th>Total Hours Requested</th>
+            <th>Request Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<?php foreach($managerDirectReportsData as $key => $request) { ?>
+        <tr>
+            <td><?php echo $request->EMPLOYEE_LAST_NAME; ?>, <?php echo $request->EMPLOYEE_FIRST_NAME; ?> <?php echo $request->EMPLOYEE_MIDDLE_NAME; ?></td>
+            <td><?php echo $request->MANAGER_LAST_NAME; ?>, <?php echo $request->MANAGER_FIRST_NAME; ?></td>
+            <td>Pending Approval</td>
+            <td><?php echo $request->REQUESTED_HOURS; ?></td>
+            <td><?php echo $request->REQUEST_REASON; ?></td>
+        </tr>
+        <?php } ?>
+    </tbody>
+</table>
+
+<br /><br />
 
 <pre>
     <?php print_r($managerDirectReportsData); ?>

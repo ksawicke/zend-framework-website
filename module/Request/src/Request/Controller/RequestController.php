@@ -203,7 +203,7 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findTimeOffBalancesByManager($this->managerNumber)
+            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerNumber)
         ));
     }
     

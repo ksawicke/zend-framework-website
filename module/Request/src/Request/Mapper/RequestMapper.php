@@ -9,6 +9,7 @@ use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
+use Zend\Db\Sql\Expression;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
@@ -494,47 +495,74 @@ class RequestMapper implements RequestMapperInterface
      */
     public function findTimeOffBalancesByManager($managerEmployeeId = null)
     {
-        // select EMPLOYEE_ID from table (care_get_manager_employees('002', '   229589', 'D')) as data;;
-        // trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )
-        // SELECT trim(SPEN) as EMPLOYEE_ID FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589';;
         $sql = new Sql($this->dbAdapter);
-        $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '229589')"]) // (care_get_manager_employees('002', '   229589', ''))
+        $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeId . "')"]) // (care_get_manager_employees('002', '   229589', ''))
             ->columns(['EMPLOYEE_NUMBER'])
             ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = data.EMPLOYEE_NUMBER', $this->employeeColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
+        $queueData = [ 'pendingApproval' => [],
+                       'approved' => [],
+                     ];
+        
         foreach($employeeData as $counter => $employee) {
             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
-//             foreach($approved as $key => $data) {
-//                 $employeeData['APPROVED_TIME_OFF'][$approved['REQUEST_ID']][] = [
-//                     'REQUEST_DATE' => $approved['REQUEST_DATE'],
-//                     'REQUESTED_HOURS' => $approved['REQUESTED_HOURS'],
-//                     'REQUEST_REASON' => $approved['REQUEST_REASON'],
-//                     'REQUEST_TYPE' => $approved['REQUEST_TYPE']
-//                 ];
-//             }
-//             foreach($pending as $key => $data) {
-//                 $employeeData['PENDING_APPROVAL_TIME_OFF'][$pending['REQUEST_ID']][] = [
-//                     'REQUEST_DATE' => $pending['REQUEST_DATE'],
-//                     'REQUESTED_HOURS' => $pending['REQUESTED_HOURS'],
-//                     'REQUEST_REASON' => $pending['REQUEST_REASON'],
-//                     'REQUEST_TYPE' => $pending['REQUEST_TYPE']
-//                 ];
-//             }
-//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER);
-//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER);
         }
-        
-        // SAVE 12/15/2015
-//         foreach($employeeData as $counter => $employee) {
-//             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
-//             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, 'managerQueue');
-//         }
 
         return $employeeData;
+    }
+    
+    public function findQueuesByManager($managerEmployeeNumber = null)
+    {
+//         $select = $this->dbAdapter->query("select
+        
+//    request.request_id, request.request_reason,
+        
+//    employee.PREN AS EMPLOYEE_NUMBER, trim(employee.PRLNM) || ', ' || trim(employee.PRFNM) || ' ' || trim(employee.PRMNM) AS EMPLOYEE_NAME, employee.PRTITL AS POSITION_TITLE,
+//    (select sum(requested_hours)
+//       FROM timeoff_request_entries entry
+//       WHERE entry.request_id = request.request_id) AS TOTAL_HOURS_REQUESTED
+        
+// FROM timeoff_requests request
+// INNER JOIN PRPMS employee ON trim(employee.PREN) = trim(request.employee_number)
+// WHERE request.REQUEST_STATUS = 'P'");
+//         return $select->execute();
+        
+        $sql = new Sql($this->dbAdapter);
+
+        $select = $sql->select(['request' => 'TIMEOFF_REQUESTS'])
+            ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUEST_REASON' => 'REQUEST_REASON', 'REQUEST_STATUS' => 'REQUEST_STATUS',
+                'requested_hours' => new Expression('(SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id)')                
+                ])
+            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER',
+                   ['EMPLOYEE_LAST_NAME' => 'PRLNM', 'EMPLOYEE_FIRST_NAME' => 'PRFNM', 'EMPLOYEE_MIDDLE_NAME' => 'PRMNM'
+                   ])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['request.REQUEST_STATUS' => 'P']);
+            
+        // 'TOTAL_HOURS_REQUESTED' => '(select sum(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id)'
+//         var_dump($select);exit();
+
+        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        //         select
+        
+        //         request.request_id, request.request_reason,
+        
+        //         employee.PREN AS EMPLOYEE_NUMBER, trim(employee.PRLNM) || ', ' || trim(employee.PRFNM) || ' ' || trim(employee.PRMNM) AS EMPLOYEE_NAME, employee.PRTITL AS POSITION_TITLE,
+        //         (select sum(requested_hours)
+        //             FROM timeoff_request_entries r
+        //             WHERE r.request_id = request.request_id) AS TOTAL_HOURS_REQUESTED
+        
+        //             FROM timeoff_requests request
+        //             INNER JOIN PRPMS employee ON trim(employee.PREN) = trim(request.employee_number)
+        //             WHERE request.REQUEST_STATUS = 'P';
+        /// END.
     }
     
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null)
