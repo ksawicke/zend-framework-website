@@ -33,17 +33,23 @@
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/ckeditor.js'))
         ->appendFile($this->basePath('templates/swiftit/js/dropzone.js'))
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'));
-      $this->headScript()
-//         ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
-        ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
-      echo $this->headScript();
       
-      //echo '/**' . $this->view->url() . '**/';
+      // 12/15/2015 sawik - Hackish? Doing a conditional to load js based on page.
+      // will update with better solution if poss
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/create') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar') !== false) {
+        $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
+      }
+      
+      echo $this->headScript();
     ?>
   </head>
 
   <body>
-
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
