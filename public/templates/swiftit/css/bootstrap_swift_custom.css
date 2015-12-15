@@ -567,3 +567,6 @@ td.calendar-day {
 	-moz-opacity:0.6; /* Mozilla */
 	opacity: 0.6; /* CSS3 */
 }
+.teamCalendarHeader {
+	font-size:150%;
+}

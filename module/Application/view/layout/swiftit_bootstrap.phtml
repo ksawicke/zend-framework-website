@@ -34,8 +34,11 @@
         ->appendFile($this->basePath('templates/swiftit/js/dropzone.js'))
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'));
       $this->headScript()
-        ->appendFile($this->basePath('js/request/timeoffHandler.js'));
+//         ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
+        ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
       echo $this->headScript();
+      
+      //echo '/**' . $this->view->url() . '**/';
     ?>
   </head>
 

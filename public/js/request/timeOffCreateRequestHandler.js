@@ -1,8 +1,8 @@
 /**
- * Javascript timeoffHandler 'class'
+ * Javascript timeOffCreateRequestHandler 'class'
  *
  */
-var timeoffHandler = new function()
+var timeOffCreateRequestHandler = new function()
 {
     var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
     	timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
@@ -38,15 +38,15 @@ var timeoffHandler = new function()
         	 * Handle clicking previous or next buttons on calendars
         	 */
         	$(document).on('click', '.calendarNavigation', function() {
-        		timeoffHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+        		timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
         	});
         	
         	/**
         	 * Handle clicking category
         	 */
         	$(".selectTimeOffCategory").click(function() {
-        		timeoffHandler.resetTimeoffCategory();
-        		timeoffHandler.setTimeoffCategory($(this));
+        		timeOffCreateRequestHandler.resetTimeoffCategory();
+        		timeOffCreateRequestHandler.setTimeoffCategory($(this));
         	});
         	
         	$(document).on('change', '.selectedDateHours', function() {
@@ -60,7 +60,7 @@ var timeoffHandler = new function()
         	$(document).on('click', '.submitTimeOffRequest', function() {
         		requestReason = $("#requestReason").val();
 //        		console.log(requestReason);
-        		timeoffHandler.submitTimeOffRequest();
+        		timeOffCreateRequestHandler.submitTimeOffRequest();
         	});
         	
         	/**
@@ -76,7 +76,7 @@ var timeoffHandler = new function()
             			$(this).toggleClass(selectedTimeoffCategory);
             			$(this).children("div").toggleClass(selectedTimeoffCategory);
             			
-            			timeoffHandler.subtractTime(selectedTimeoffCategory, defaultHours);
+            			timeOffCreateRequestHandler.subtractTime(selectedTimeoffCategory, defaultHours);
             		} else {
             			selectedDates.push($(this).attr("data-date"));
             			selectedDateCategories.push(selectedTimeoffCategory);
@@ -84,7 +84,7 @@ var timeoffHandler = new function()
             			$(this).toggleClass(selectedTimeoffCategory);
             			$(this).children("div").toggleClass(selectedTimeoffCategory);
             			
-            			timeoffHandler.addTime(selectedTimeoffCategory, defaultHours);
+            			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultHours);
             		}
             		
             		datesSelectedHtml = '';
@@ -125,8 +125,8 @@ var timeoffHandler = new function()
         		}
         	});
         	
-        	timeoffHandler.loadCalendars();
-        	timeoffHandler.checkLocalStorage();
+        	timeOffCreateRequestHandler.loadCalendars();
+        	timeOffCreateRequestHandler.checkLocalStorage();
         });
     }
 
@@ -196,11 +196,11 @@ var timeoffHandler = new function()
         		    thisCalendarHtml.data);
         	});
         	
-        	timeoffHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
-        	timeoffHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
-        	timeoffHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
-        	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
-        	timeoffHandler.highlightDates();
+        	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
+        	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+        	timeOffCreateRequestHandler.highlightDates();
             return;
         })
         .error( function() {
@@ -257,8 +257,8 @@ var timeoffHandler = new function()
         		    thisCalendarHtml.data);
         	});
         	
-        	timeoffHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
-        	timeoffHandler.highlightDates();
+        	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+        	timeOffCreateRequestHandler.highlightDates();
             return;
         })
         .error( function() {
@@ -272,7 +272,7 @@ var timeoffHandler = new function()
      */
     this.setEmployeePTORemaining = function(ptoRemaining) {
     	employeePTORemaining = ptoRemaining;
-    	timeoffHandler.printEmployeePTORemaining();
+    	timeOffCreateRequestHandler.printEmployeePTORemaining();
     }
     
     /**
@@ -280,7 +280,7 @@ var timeoffHandler = new function()
      */
     this.setEmployeeFloatRemaining = function(floatRemaining) {
     	employeeFloatRemaining = floatRemaining;
-    	timeoffHandler.printEmployeeFloatRemaining();
+    	timeOffCreateRequestHandler.printEmployeeFloatRemaining();
     }
     
     /**
@@ -288,28 +288,28 @@ var timeoffHandler = new function()
      */
     this.setEmployeeSickRemaining = function(sickRemaining) {
     	employeeSickRemaining = sickRemaining;
-    	timeoffHandler.printEmployeeSickRemaining();
+    	timeOffCreateRequestHandler.printEmployeeSickRemaining();
     }
     
     /**
      * Prints the remaining PTO time for selected employee.
      */
     this.printEmployeePTORemaining = function() {
-    	$("#employeePTOHours").html(timeoffHandler.roundToTwo(employeePTORemaining) + " hr");
+    	$("#employeePTOHours").html(timeOffCreateRequestHandler.roundToTwo(employeePTORemaining) + " hr");
     }
     
     /**
      * Prints the remaining Float time for selected employee.
      */
     this.printEmployeeFloatRemaining = function() {
-    	$("#employeeFloatHours").html(timeoffHandler.roundToTwo(employeeFloatRemaining) + " hr");
+    	$("#employeeFloatHours").html(timeOffCreateRequestHandler.roundToTwo(employeeFloatRemaining) + " hr");
     }
     
     /**
      * Prints the remaining Sick time for selected employee.
      */
     this.printEmployeeSickRemaining = function() {
-    	$("#employeeSickHours").html(timeoffHandler.roundToTwo(employeeSickRemaining) + " hr");
+    	$("#employeeSickHours").html(timeOffCreateRequestHandler.roundToTwo(employeeSickRemaining) + " hr");
     }    
     
     /**
@@ -319,17 +319,17 @@ var timeoffHandler = new function()
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
 	    		employeePTORemaining -= defaultHours;
-	    		timeoffHandler.printEmployeePTORemaining();
+	    		timeOffCreateRequestHandler.printEmployeePTORemaining();
 	    		break;
 	    		
 	    	case 'timeOffFloat':
 	    		employeeFloatRemaining -= defaultHours;
-	    		timeoffHandler.printEmployeeFloatRemaining();
+	    		timeOffCreateRequestHandler.printEmployeeFloatRemaining();
 	    		break;
 	    		
 	    	case 'timeOffSick':
 	    		employeeSickRemaining -= defaultHours;
-	    		timeoffHandler.printEmployeeSickRemaining();
+	    		timeOffCreateRequestHandler.printEmployeeSickRemaining();
 	    		break;
     	}
     }
@@ -341,17 +341,17 @@ var timeoffHandler = new function()
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
 	    		employeePTORemaining += defaultHours;
-	    		timeoffHandler.printEmployeePTORemaining();
+	    		timeOffCreateRequestHandler.printEmployeePTORemaining();
 	    		break;
 	    		
 	    	case 'timeOffFloat':
 	    		employeeFloatRemaining += defaultHours;
-	    		timeoffHandler.printEmployeeFloatRemaining();
+	    		timeOffCreateRequestHandler.printEmployeeFloatRemaining();
 	    		break;
 	    		
 	    	case 'timeOffSick':
 	    		employeeSickRemaining += defaultHours;
-	    		timeoffHandler.printEmployeeSickRemaining();
+	    		timeOffCreateRequestHandler.printEmployeeSickRemaining();
 	    		break;
 		}
     }
@@ -412,4 +412,4 @@ var timeoffHandler = new function()
 };
 
 // Initialize the class
-timeoffHandler.initialize();
+timeOffCreateRequestHandler.initialize();

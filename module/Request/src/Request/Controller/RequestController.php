@@ -97,6 +97,38 @@ class RequestController extends AbstractActionController
                     
                     break;
                     
+                case 'loadTeamCalendar':
+                    $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
+                    $endDate = date("Y-m-t", strtotime($startDate));
+                    
+                    $time = strtotime($startDate);
+                    $prev = date("Y-m-d", strtotime("-1 month", $time));
+                    $current = date("Y-m-d", strtotime("+0 month", $time));
+                    $one = date("Y-m-d", strtotime("+1 month", $time));
+                    $oneMonthBack = new \DateTime($prev);
+                    $currentMonth = new \DateTime($current);
+                    $oneMonthOut = new \DateTime($one);
+                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $startDate, $endDate);
+                    
+                    $result = new JsonModel([
+                        'success' => true,
+                        'calendars' => [
+                            1 => [ 'header' => '<span class="teamCalendarHeader">' . $currentMonth->format('M') . ' ' . $currentMonth->format('Y') . '</span>',
+                                'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, $calendarData)
+                            ]
+                        ],
+                        'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $oneMonthBack->format('m') . '" data-year="' . $oneMonthBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $oneMonthOut->format('m') . '" data-year="' . $oneMonthOut->format('Y') . '"> </span>',
+                        //'employeeData' => $employeeData,
+//                         'approvedRequestData' => $approvedRequestData,
+//                         'approvedRequestJson' => $approvedRequestJson,
+//                         'pendingRequestData' => $pendingRequestData,
+//                         'pendingRequestJson' => $pendingRequestJson,
+                        'openHeader' => '<strong>',
+                        'closeHeader' => '</strong><br /><br />'
+                    ]);
+                    break;
+                    
                 case 'loadCalendar':
                     //submitTimeoffRequest
                     $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
@@ -177,11 +209,11 @@ class RequestController extends AbstractActionController
     
     public function viewMyTeamCalendarAction()
     {
-        $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, '2015-12-01', '2015-12-31');
+//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, '2015-12-01', '2015-12-31');
         
         return new ViewModel(array(
-            'calendarData' => $calendarData,
-            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('4', '2015', $calendarData)
+//             'calendarData' => $calendarData,
+//             'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
         ));
     }
     
