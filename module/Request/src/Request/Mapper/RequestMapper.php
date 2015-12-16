@@ -133,7 +133,8 @@ class RequestMapper implements RequestMapperInterface
         ];
         $this->timeoffRequestColumns = [
             'REQUEST_ID' => 'REQUEST_ID',
-            'REQUEST_REASON' => 'REQUEST_REASON'
+            'REQUEST_REASON' => 'REQUEST_REASON',
+            'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -397,14 +398,53 @@ class RequestMapper implements RequestMapperInterface
         return $return;
     }
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly", $requestId = null)
     {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
             ->columns($this->timeoffRequestEntryColumns)
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P']);
+            ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
+            ->join(['pendingpto' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'P'
+                		)
+                )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
+                            ->join(['pendingfloat' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'K'
+                		)
+                )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
+                            ->join(['pendingsick' => "(
+            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
+            	inner join timeoff_requests request ON request.request_id = entry.request_id
+            	where
+                		entry.request_id in (
+                    		select request.request_id from timeoff_requests request where
+                        		request.employee_number = '" . $employeeNumber . "' AND
+                	    		request.request_status = 'P' AND
+            	    		entry.request_code = 'S'
+                		)
+                )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
+            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER', $this->employeeColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns);
+        if($requestId!=null) {
+            $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
+        }
     
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         switch($returnType) {
@@ -418,18 +458,112 @@ class RequestMapper implements RequestMapperInterface
                 
                 foreach($result as $key => $data) {
                     if(!array_key_exists($data['REQUEST_ID'], $return)) {
-                        $return[$data['REQUEST_ID']] = [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
-                                                         'DETAILS' => [],
-                                                         'TOTALS' => [ 'PTO' => number_format(0.00, 2), 'Float' => number_format(0.00, 2), 'Sick' => number_format(0.00, 2) ]
+                        $data['PTO_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($data['PTO_PENDING']);
+                        $data['FLOAT_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($data['FLOAT_PENDING']);
+                        $data['SICK_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($data['SICK_PENDING']);
+                        $data['PTO_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($data['PTO_PENDING_APPROVAL']);
+                        $data['FLOAT_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($data['FLOAT_PENDING_APPROVAL']);
+                        $data['SICK_PENDING_APPROVAL'] = \Request\Helper\Format::setStringDefaultToZero($data['SICK_PENDING_APPROVAL']);
+                        
+                        $data['PTO_AVAILABLE'] = number_format(($data['PTO_EARNED'] - $data['PTO_TAKEN'] - $data['PTO_PENDING'] - $data['PTO_PENDING_APPROVAL']), 2);
+                        $data['FLOAT_AVAILABLE'] = number_format(($data['FLOAT_EARNED'] - $data['FLOAT_TAKEN'] - $data['FLOAT_PENDING'] - $data['FLOAT_PENDING_APPROVAL']), 2);
+                        $data['SICK_AVAILABLE'] = number_format(($data['SICK_EARNED'] - $data['SICK_TAKEN'] - $data['SICK_PENDING'] - $data['SICK_PENDING_APPROVAL']), 2);
+                        
+                        $return[$data['REQUEST_ID']] =
+                            [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                              'CREATE_TIMESTAMP' => $data['CREATE_TIMESTAMP'],
+                              'DETAILS'        => [],
+                              'TOTALS'         => [ 'PTO' => number_format(0.00, 2),
+                                                    'Float' => number_format(0.00, 2),
+                                                    'Sick' => number_format(0.00, 2),
+                                                    'Grand' => number_format(0.00, 2)
+                                                  ],
+                              'FIRST_DATE_REQUESTED' => '',
+                              'LAST_DATE_REQUESTED' => '',
+                              'EMPLOYEE'       => [ 'EMPLOYEE_NUMBER' => $data['EMPLOYEE_NUMBER'],
+                                                    'FIRST_NAME' => $data['FIRST_NAME'],
+                                                    'MIDDLE_INITIAL' => $data['MIDDLE_INITIAL'],
+                                                    'LAST_NAME' => $data['LAST_NAME'],
+                                                    'POSITION' => $data['POSITION'],
+                                                    'POSITION_TITLE' => $data['POSITION_TITLE'],
+                                                    'EMAIL_ADDRESS' => $data['EMAIL_ADDRESS'],
+                                                    
+                                                    'BALANCES' => [
+                                                        'PTO' => [
+                                                            'PTO_EARNED' => $data['PTO_EARNED'],
+                                                            'PTO_TAKEN' => $data['PTO_TAKEN'],
+                                                            'PTO_PENDING' => $data['PTO_PENDING'],
+                                                            'PTO_PENDING_APPROVAL' => $data['PTO_PENDING_APPROVAL'],
+                                                            'PTO_AVAILABLE' => $data['PTO_AVAILABLE']
+                                                        ],
+                                                        'Float' => [
+                                                            'FLOAT_EARNED' => $data['FLOAT_EARNED'],
+                                                            'FLOAT_TAKEN' => $data['FLOAT_TAKEN'],
+                                                            'FLOAT_PENDING' => $data['FLOAT_PENDING'],
+                                                            'FLOAT_PENDING_APPROVAL' => $data['FLOAT_PENDING_APPROVAL'],
+                                                            'FLOAT_AVAILABLE' => $data['FLOAT_AVAILABLE']
+                                                        ],
+                                                        'Sick' => [
+                                                            'SICK_EARNED' => $data['SICK_EARNED'],
+                                                            'SICK_TAKEN' => $data['SICK_TAKEN'],
+                                                            'SICK_PENDING' => $data['SICK_PENDING'],
+                                                            'SICK_PENDING_APPROVAL' => $data['SICK_PENDING_APPROVAL'],
+                                                            'SICK_AVAILABLE' => $data['SICK_AVAILABLE']
+                                                        ]
+                                                    ]
+                                                             
+                                                                        /**
+                                                                         *  'MIDDLE_INITIAL' => 'PRMNM',
+                                                                            'LAST_NAME' => 'PRLNM',
+                                                                            'POSITION' => 'PRPOS',
+                                                                            'EMAIL_ADDRESS' => 'PREML1',
+                                                                            'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
+                                                                            'POSITION_TITLE' => 'PRTITL',
+                                                                            'GRANDFATHERED_EARNED' => 'PRAC5E',
+                                                                            'GRANDFATHERED_TAKEN' => 'PRAC5T',
+                                                                //             'GRANDFATHERED_AVAILABLE' => 'PRAC5E - employee.PRAC5T',
+                                                                //             'GRANDFATHERED_REMAINING' => 'PRAC5E - employee.PRAC5T - pendingrequests.REQGFV',
+                                                                            'PTO_EARNED' => 'PRVAC',
+                                                                            'PTO_TAKEN' => 'PRVAT',
+                                                                //             'PTO_AVAILABLE' => 'PRVAC - employee.PRVAT', // Need to manually add the table alias on 2nd field
+                                                                //             'PTO_REMAINING' => 'PRVAC - employee.PRVAT - pendingrequests.REQPTO',
+                                                                            'FLOAT_EARNED' => 'PRSHA',
+                                                                            'FLOAT_TAKEN' => 'PRSHT',
+                                                                //             'FLOAT_AVAILABLE' => 'PRSHA - employee.PRSHT', // Need to manually add the table alias on 2nd field
+                                                                //             'FLOAT_REMAINING' => 'PRSHA - employee.PRSHT - pendingrequests.REQFLOAT',
+                                                                            'SICK_EARNED' => 'PRSDA',
+                                                                            'SICK_TAKEN' => 'PRSDT',
+                                                                         */
+                                                                       ]
                                                        ];
                     }
+                    
                     $return[$data['REQUEST_ID']]['DETAILS'][] = [
                         'REQUEST_DATE' => $data['REQUEST_DATE'],
                         'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
                         'REQUEST_TYPE' => $data['REQUEST_TYPE']
                     ];
+                    
+                    if( $return[$data['REQUEST_ID']]['FIRST_DATE_REQUESTED']=='' ) {
+                        $return[$data['REQUEST_ID']]['FIRST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
+                    }
+                    $return[$data['REQUEST_ID']]['LAST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
+                    
                     $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$data['REQUEST_ID']]['TOTALS']['Grand'] += $data['REQUESTED_HOURS'];
                     $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                    $return[$data['REQUEST_ID']]['TOTALS']['Grand'] = number_format($return[$data['REQUEST_ID']]['TOTALS']['Grand'], 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['PTO']), 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Float']), 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Sick']), 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Grand'] =
+                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] +
+                                       $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] +
+                                       $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL']
+                                      ), 2);
                 }
                 break;
         }
@@ -450,10 +584,10 @@ class RequestMapper implements RequestMapperInterface
             ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', [])
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', ['REQUEST_TYPE' => 'DESCRIPTION'])
-            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EID' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
+            ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EMPLOYEE_NUMBER' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
             ->where(['request.REQUEST_STATUS' => 'A',
                      "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
-                     "entry.REQUEST_DATE BETWEEN '2015-12-01' AND '2015-12-31'"
+                     "entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'"
                     ])
             ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
             
@@ -511,7 +645,7 @@ class RequestMapper implements RequestMapperInterface
         
         foreach($employeeData as $counter => $employee) {
             $employeeData[$counter]['APPROVED_TIME_OFF'] = $this->findTimeOffApprovedRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
-            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue");
+            $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue", null);
         }
 
         return $employeeData;

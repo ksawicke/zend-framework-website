@@ -2,7 +2,7 @@
 
 <br />
 
-<table style="width:100%;">
+<table id="pendingApprovalQueue" class="display" style="width:100%;">
     <thead>
         <tr>
             <th>Employee</th>
@@ -10,6 +10,7 @@
             <th>Transaction Status</th>
             <th>Total Hours Requested</th>
             <th>Request Reason</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +21,7 @@
             <td>Pending Approval</td>
             <td><?php echo $request->REQUESTED_HOURS; ?></td>
             <td><?php echo $request->REQUEST_REASON; ?></td>
+            <td><a href="<?php echo $this->basePath('request/review-request/' . $request->REQUEST_ID); ?>"><button type="button" class="btn btn-form-primary btn-xs">View</button></a></td>
         </tr>
         <?php } ?>
     </tbody>

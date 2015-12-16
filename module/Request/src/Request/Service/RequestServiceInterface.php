@@ -10,7 +10,7 @@ interface RequestServiceInterface
 
     public function findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType);
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType);
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId);
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber);
     

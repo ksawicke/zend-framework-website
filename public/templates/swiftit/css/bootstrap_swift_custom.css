@@ -570,3 +570,7 @@ td.calendar-day {
 .teamCalendarHeader {
 	font-size:150%;
 }
+
+div.form-group > div {
+	margin-top:8px;
+}

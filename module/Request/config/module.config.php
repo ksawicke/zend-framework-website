@@ -94,6 +94,18 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
+            ],
+            'reviewRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/request/review-request/[:request_id]',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'reviewRequest'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
             ]
         ]
     ],

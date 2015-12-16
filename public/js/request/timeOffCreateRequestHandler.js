@@ -199,6 +199,7 @@ var timeOffCreateRequestHandler = new function()
         	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
+        	console.log('json.pendingRequestJson', json.pendingRequestJson);
         	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeOffCreateRequestHandler.highlightDates();
             return;
@@ -368,6 +369,7 @@ var timeOffCreateRequestHandler = new function()
     		selectedDateCategoriesApproved.push(approvedRequests[key].REQUEST_TYPE);
     		selectedDateHoursApproved.push(approvedRequests[key].REQUESTED_HOURS);
     	}
+    	console.log("pendingRequests", pendingRequests);
     	for(key in pendingRequests) {
     		selectedDatesPendingApproval.push(pendingRequests[key].REQUEST_DATE);
     		selectedDateCategoriesPendingApproval.push(pendingRequests[key].REQUEST_TYPE);

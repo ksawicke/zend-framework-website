@@ -150,7 +150,7 @@ class RequestController extends AbstractActionController
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
-                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly');
+                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
@@ -228,5 +228,22 @@ class RequestController extends AbstractActionController
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
                              ]);
+    }
+    
+    public function reviewRequestAction()
+    {
+        $requestId = $this->params()->fromRoute('request_id');
+        $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'managerQueue', $requestId);
+        $calendarFirstDate = \DateTime::createFromFormat('Y-m-d', trim($pendingRequestData[$requestId]['FIRST_DATE_REQUESTED']));
+        $calendarLastDate = \DateTime::createFromFormat('Y-m-d', $pendingRequestData[$requestId]['LAST_DATE_REQUESTED']);
+        
+        $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
+        $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
+        
+        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        return new ViewModel(array(
+            'requestId' => $requestId,
+            'pendingRequestData' => $pendingRequestData[$requestId]
+        ));
     }
 }
