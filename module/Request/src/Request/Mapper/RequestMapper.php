@@ -342,14 +342,19 @@ class RequestMapper implements RequestMapperInterface
         $result['FLOAT_AVAILABLE'] = number_format(($result['FLOAT_EARNED'] - $result['FLOAT_TAKEN'] - $result['FLOAT_PENDING'] - $result['FLOAT_PENDING_APPROVAL']), 2);
         $result['SICK_AVAILABLE'] = number_format(($result['SICK_EARNED'] - $result['SICK_TAKEN'] - $result['SICK_PENDING'] - $result['SICK_PENDING_APPROVAL']), 2);
         
+        $result['UNEXCUSED_ABSENCE_AVAILABLE'] = 0;
         $result['UNEXCUSED_ABSENCE_PENDING'] = 0;
         $result['UNEXCUSED_ABSENCE_PENDING_APPROVAL'] = 0;
+        $result['BEREAVEMENT_AVAILABLE'] = 0;
         $result['BEREAVEMENT_PENDING'] = 0;
         $result['BEREAVEMENT_PENDING_APPROVAL'] = 0;
+        $result['CIVIC_DUTY_AVAILABLE'] = 0;
         $result['CIVIC_DUTY_PENDING'] = 0;
         $result['CIVIC_DUTY_PENDING_APPROVAL'] = 0;
+        $result['GRANDFATHERED_AVAILABLE'] = 0;
         $result['GRANDFATHERED_PENDING'] = 0;
         $result['GRANDFATHERED_PENDING_APPROVAL'] = 0;
+        $result['APPROVED_NO_PAY_AVAILABLE'] = 0;
         $result['APPROVED_NO_PAY_PENDING'] = 0;
         $result['APPROVED_NO_PAY_PENDING_APPROVAL'] = 0;
         
