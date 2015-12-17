@@ -127,6 +127,8 @@ var timeOffCreateRequestHandler = new function()
         	
         	timeOffCreateRequestHandler.loadCalendars();
         	timeOffCreateRequestHandler.checkLocalStorage();
+        	
+        	$('.timeOffCalendarWrapper').hide();
         });
     }
 
@@ -163,10 +165,14 @@ var timeOffCreateRequestHandler = new function()
     this.setTimeoffCategory = function(object) {
     	if(selectedTimeoffCategory==object.attr("data-category")) {
     		selectedTimeoffCategory = null;
+    		$('#noCategorySelected').show();
+    		$('.timeOffCalendarWrapper').hide();
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
 	    	object.next('div').addClass("selected");
 	    	object.addClass("selected");
+	    	$('#noCategorySelected').hide();
+	    	$('.timeOffCalendarWrapper').show();
     	}
     }
     
