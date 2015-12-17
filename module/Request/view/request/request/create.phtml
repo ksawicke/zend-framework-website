@@ -20,12 +20,54 @@
 </div>
 
 <div class="selectTimeOffCategory timeOffCategoryLeft timeOffSick cursorHand" data-category="timeOffSick">
-	&nbsp;<br />
-	&nbsp;
+	&nbsp;<br />&nbsp;
 </div>
 <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffSick">
 	Sick<br />
-	<span class="hours"  id="employeeSickHours"></span>
+	<span class="hours" id="employeeSickHours"></span>
+</div>
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffUnexcusedAbsence cursorHand" data-category="timeOffUnexcusedAbsence">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffUnexcusedAbsence">
+	Unexcused<br />
+	<span class="hours" id="employeeUnexcusedAbsenceHours"></span>
+</div>
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffBereavement cursorHand" data-category="timeOffBereavement">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffBereavement">
+	Bereavement<br />
+	<span class="hours" id="employeeBereavementHours"></span>
+</div>
+
+<br style="clear:both;" />
+<br style="clear:both;" />
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffCivicDuty cursorHand" data-category="timeOffCivicDuty">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffCivicDuty">
+	Civic Duty<br />
+	<span class="hours" id="employeeCivicDutyHours"></span>
+</div>
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffGrandfathered cursorHand" data-category="timeOffGrandfathered">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffGrandfathered">
+	Grandfathered<br />
+	<span class="hours" id="employeeGrandfatheredHours"></span>
+</div>
+
+<div class="selectTimeOffCategory timeOffCategoryLeft timeOffApprovedNoPay cursorHand" data-category="timeOffApprovedNoPay">
+	&nbsp;<br />&nbsp;
+</div>
+<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffApprovedNoPay">
+	Approved No Pay<br />
+	<span class="hours" id="employeeApprovedNoPayHours"></span>
 </div>
 
 <br /><br /><br />
@@ -45,6 +87,8 @@
     	<?php /***<strong>February 2016</strong><br /><br />
     	<?php echo $calendar3Html; ?> **/ ?>
     </div>
+    <br style="clear:both;" />
+	<br style="clear:both;" />
 </div>
 <div id="noCategorySelected">
 	<div class="alert alert-danger" role="alert">
@@ -52,14 +96,12 @@
 	</div>
 </div>
 
-<br style="clear:both;" />
-<br style="clear:both;" />
-
-<div id="datesSelected">
-	<div class="alert alert-danger" role="alert">
+<div id="noDatesSelectedWarning">
+	<div class="alert alert-warning" role="alert">
 		<strong>No dates are currently selected.</strong>
 	</div>
 </div>
+<div id="datesSelectedDetails"></div>
 
 <!-- br style="clear:both;" /><br style="clear:both;" />
 

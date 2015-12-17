@@ -13,6 +13,11 @@ var timeOffCreateRequestHandler = new function()
     	totalPTORequested = 0,
     	totalFloatRequested = 0,
     	totalSickRequested = 0,
+    	totalUnexcusedAbsenceRequested = 0,
+    	totalBereavementRequested = 0,
+    	totalCivicDutyRequested = 0,
+    	totalGrandfatheredRequested = 0,
+    	totalApprovedNoPayRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
     	requestReason = '',
@@ -52,8 +57,8 @@ var timeOffCreateRequestHandler = new function()
         	$(document).on('change', '.selectedDateHours', function() {
         		var key = $(this).attr("data-key");
         		var value = $(this).val();
-        		console.log('selectedDateHours[' + key + ']: ' + selectedDateHours[key]);
-        		console.log('value: ' + value);
+//        		console.log('selectedDateHours[' + key + ']: ' + selectedDateHours[key]);
+//        		console.log('value: ' + value);
         		selectedDateHours[key] = value;
         	});
         	
@@ -87,17 +92,20 @@ var timeOffCreateRequestHandler = new function()
             			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultHours);
             		}
             		
-            		datesSelectedHtml = '';
+            		datesSelectedDetailsHtml = '<br /><strong>Adjust Hours:</strong>' +
+        			'<br style="clear:both;"/>';
             		$.each(selectedDates, function(key, date) {
-            			datesSelectedHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled"><br style="clear:both;" />';
+            			datesSelectedDetailsHtml += '<span class="glyphicon glyphicon-' + selectedDateCategories[key] + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled"><br style="clear:both;" />';
             		});
-            		if(selectedDates.length==0) {
-            			datesSelectedHtml = '<i>No dates are currently selected.</i>';
-            		}
             		
             		totalPTORequested = 0;
             		totalFloatRequested = 0;
             		totalSickRequested = 0;
+            		totalUnexcusedAbsenceRequested = 0;
+                	totalBereavementRequested = 0;
+                	totalCivicDutyRequested = 0;
+                	totalGrandfatheredRequested = 0;
+                	totalApprovedNoPayRequested = 0;
             		
             		$.each(selectedDateCategories, function(key, value) {
             			switch(selectedDateCategories[key]) {
@@ -112,16 +120,67 @@ var timeOffCreateRequestHandler = new function()
             				case 'timeOffSick':
             					totalSickRequested += parseInt(selectedDateHours[key], 10);
             					break;
+            					
+            				case 'timeOffUnexcusedAbsence':
+            					totalUnexcusedAbsenceRequested += parseInt(selectedDateHours[key], 10);
+            					break;
+            					
+            				case 'timeOffBereavement':
+            					totalBereavementRequested += parseInt(selectedDateHours[key], 10);
+            					break;
+            					
+            				case 'timeOffCivicDuty':
+            					totalCivicDutyRequested += parseInt(selectedDateHours[key], 10);
+            					break;
+            					
+            				case 'timeOffGrandfathered':
+            					totalGrandfatheredRequested += parseInt(selectedDateHours[key], 10);
+            					break;
+            					
+            				case 'timeOffApprovedNoPay':
+            					totalApprovedNoPayRequested += parseInt(selectedDateHours[key], 10);
+            					break;
             			}
             		});
             		
-            		datesSelectedHtml += '<br /><strong>Totals being requested:</strong><br />' +
-            			'<span class="glyphicon glyphicon-timeOffPTO"></span> ' + totalPTORequested + '<br />' +
-            			'<span class="glyphicon glyphicon-timeOffFloat"></span> ' + totalFloatRequested + '<br />' +
-            			'<span class="glyphicon glyphicon-timeOffSick"></span> ' + totalSickRequested + '<br /><br />' +
-            			'<textarea cols="40" rows="4" placeholder="Reason for request..." id="requestReason"></textarea><br /><br />' +
+//            		datesSelectedDetailsHtml += '<br /><strong>Totals being requested:</strong><br />' +
+//            			'<span class="glyphicon glyphicon-timeOffPTO"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalPTORequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffFloat"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalFloatRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffSick"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalSickRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffUnexcusedAbsence"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalUnexcusedAbsenceRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffBereavement"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalBereavementRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffCivicDuty"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalCivicDutyRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffGrandfathered"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalGrandfatheredRequested) + '<br />' +
+//            			'<span class="glyphicon glyphicon-timeOffApprovedNoPay"></span> ' + timeOffCreateRequestHandler.roundToTwo(totalApprovedNoPayRequested) + '<br />' +
+//            			'<textarea cols="40" rows="4" placeholder="Reason for request..." id="requestReason"></textarea><br /><br />' +
+//            			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>';
+            		
+            		datesSelectedDetailsHtml +=
+            			'<br /><strong>Totals being requested:</strong>' +
+            			'<br style="clear:both;"/>' +
+	            		'<br style="clear:both;"/>' +
+	            		'<span class="badge timeOffPTO">PTO: ' + timeOffCreateRequestHandler.roundToTwo(totalPTORequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffFloat">FLOAT: ' + timeOffCreateRequestHandler.roundToTwo(totalFloatRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffSick">SICK: ' + timeOffCreateRequestHandler.roundToTwo(totalSickRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffUnexcusedAbsence">UNEXCUSED ABSENCE: ' + timeOffCreateRequestHandler.roundToTwo(totalUnexcusedAbsenceRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffBereavement">BEREAVEMENT: ' + timeOffCreateRequestHandler.roundToTwo(totalBereavementRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffCivicDuty">CIVIC DUTY: ' + timeOffCreateRequestHandler.roundToTwo(totalCivicDutyRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffGrandfathered">GRANDFATHERED: ' + timeOffCreateRequestHandler.roundToTwo(totalGrandfatheredRequested) + '</span>&nbsp;&nbsp;' +
+	            		'<span class="badge timeOffApprovedNoPay">APPROVED NO PAY: ' + timeOffCreateRequestHandler.roundToTwo(totalApprovedNoPayRequested) + '</span>' +
+	            		'<br style="clear:both;"/>' +
+	            		'<br style="clear:both;"/>' +
+	            		'<textarea cols="40" rows="4" placeholder="Reason for request..." id="requestReason"></textarea><br /><br />' +
             			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>';
-            		$("#datesSelected").html(datesSelectedHtml);
+            		
+            		$("#datesSelectedDetails").html(datesSelectedDetailsHtml);
+            		
+            		if(selectedDates.length===0) {
+            			$('#datesSelectedDetails').hide();
+            			$('#noDatesSelectedWarning').show();
+            		} else {
+            			$('#datesSelectedDetails').show();
+            			$('#noDatesSelectedWarning').hide();
+            		}
         		}
         	});
         	
@@ -205,7 +264,12 @@ var timeOffCreateRequestHandler = new function()
         	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
-        	console.log('json.pendingRequestJson', json.pendingRequestJson);
+        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceRemaining(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeBereavementRemaining(json.employeeData.BEREAVEMENT_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeCivicDutyRemaining(json.employeeData.CIVIC_DUTY_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GRANDFATHERED_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayRemaining(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
+//        	console.log('json.pendingRequestJson', json.pendingRequestJson);
         	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeOffCreateRequestHandler.highlightDates();
             return;
@@ -298,6 +362,31 @@ var timeOffCreateRequestHandler = new function()
     	timeOffCreateRequestHandler.printEmployeeSickRemaining();
     }
     
+    this.setEmployeeUnexcusedAbsenceRemaining = function(unexcusedAbsenceRemaining) {
+    	employeeUnexcusedAbsenceRemaining = unexcusedAbsenceRemaining;
+    	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceRemaining();
+    }
+    
+    this.setEmployeeBereavementRemaining = function(bereavementRemaining) {
+    	employeeBereavementRemaining = bereavementRemaining;
+    	timeOffCreateRequestHandler.printEmployeeBereavementRemaining();
+    }
+    
+    this.setEmployeeCivicDutyRemaining = function(civicDutyRemaining) {
+    	employeeCivicDutyRemaining = civicDutyRemaining;
+    	timeOffCreateRequestHandler.printEmployeeCivicDutyRemaining();
+    }
+    
+    this.setEmployeeGrandfatheredRemaining = function(grandfatheredRemaining) {
+    	employeeGrandfatheredRemaining = grandfatheredRemaining;
+    	timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+    }
+    
+    this.setEmployeeApprovedNoPayRemaining = function(approvedNoPayRemaining) {
+    	employeeApprovedNoPayRemaining = approvedNoPayRemaining;
+    	timeOffCreateRequestHandler.printEmployeeApprovedNoPayRemaining();
+    }
+    
     /**
      * Prints the remaining PTO time for selected employee.
      */
@@ -318,6 +407,26 @@ var timeOffCreateRequestHandler = new function()
     this.printEmployeeSickRemaining = function() {
     	$("#employeeSickHours").html(timeOffCreateRequestHandler.roundToTwo(employeeSickRemaining) + " hr");
     }    
+    
+    this.printEmployeeUnexcusedAbsenceRemaining = function() {
+    	$("#employeeUnexcusedAbsenceHours").html(timeOffCreateRequestHandler.roundToTwo(employeeUnexcusedAbsenceRemaining) + " hr");
+    }
+    
+    this.printEmployeeBereavementRemaining = function() {
+    	$("#employeeBereavementHours").html(timeOffCreateRequestHandler.roundToTwo(employeeBereavementRemaining) + " hr");
+    }
+    
+    this.printEmployeeCivicDutyRemaining = function() {
+    	$("#employeeCivicDutyHours").html(timeOffCreateRequestHandler.roundToTwo(employeeCivicDutyRemaining) + " hr");
+    }
+    
+    this.printEmployeeGrandfatheredRemaining = function() {
+    	$("#employeeGrandfatheredHours").html(timeOffCreateRequestHandler.roundToTwo(employeeGrandfatheredRemaining) + " hr");
+    }
+    
+    this.printEmployeeApprovedNoPayRemaining = function() {
+    	$("#employeeApprovedNoPayHours").html(timeOffCreateRequestHandler.roundToTwo(employeeApprovedNoPayRemaining) + " hr");
+    }
     
     /**
      * Adds employee defaultHours from the current Category of time remaining.
@@ -375,7 +484,7 @@ var timeOffCreateRequestHandler = new function()
     		selectedDateCategoriesApproved.push(approvedRequests[key].REQUEST_TYPE);
     		selectedDateHoursApproved.push(approvedRequests[key].REQUESTED_HOURS);
     	}
-    	console.log("pendingRequests", pendingRequests);
+//    	console.log("pendingRequests", pendingRequests);
     	for(key in pendingRequests) {
     		selectedDatesPendingApproval.push(pendingRequests[key].REQUEST_DATE);
     		selectedDateCategoriesPendingApproval.push(pendingRequests[key].REQUEST_TYPE);

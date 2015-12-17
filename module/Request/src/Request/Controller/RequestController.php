@@ -21,13 +21,23 @@ class RequestController extends AbstractActionController
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
-        'timeOffSick' => 'S'
+        'timeOffSick' => 'S',
+        'timeOffUnexcusedAbsence' => 'X',
+        'timeOffBereavement' => 'B',
+        'timeOffCivicDuty' => 'J',
+        'timeOffGrandfathered' => 'R',
+        'timeOffApprovedNoPay' => 'A'
     ];
     
     protected static $categoryToClass = [
         'PTO' => 'timeOffPTO',
         'Float' => 'timeOffFloat',
-        'Sick' => 'timeOffSick'
+        'Sick' => 'timeOffSick',
+        'UnexcusedAbsence' => 'timeOffUnexcusedAbsence',
+        'Bereavement' => 'timeOffBereavement',
+        'CivicDuty' => 'timeOffCivicDuty',
+        'Grandfathered' => 'timeOffGrandfathered',
+        'ApprovedNoPay' => 'timeOffApprovedNoPay'
     ];
     
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
