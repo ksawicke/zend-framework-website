@@ -508,29 +508,32 @@ td.calendar-day-np {
 	display:inline-block;
 }
 **/
+/**
+https://www.colorschemer.com/schemes/viewscheme.php?id=10473
+**/
 .timeOffPTO {
-	background-color: #ff8642 !important;
+	background-color: #f57900 !important;
 }
 .timeOffFloat {
-	background-color: #0097ac !important;
+	background-color: #edd400 !important;
 }
 .timeOffSick {
-	background-color: #668d3c !important;
+	background-color: #73d216 !important;
 }
 .timeOffUnexcusedAbsence {
-	background-color: #777 !important;
+	background-color: #888a85 !important;
 }
 .timeOffBereavement {
-	background-color: green !important;
+	background-color: #729fcf !important;
 }
 .timeOffCivicDuty {
-	background-color: steelblue !important;
+	background-color: #75507b !important;
 }
 .timeOffGrandfathered {
-	background-color: #816c5b !important;
+	background-color: #c17d11 !important;
 }
 .timeOffApprovedNoPay {
-	background-color: #c0362c !important;
+	background-color: #cc0000 !important;
 }
 
 /** Split background color
@@ -552,42 +555,42 @@ td.calendar-day-np {
 .glyphicon-timeOffPTO:before {
     content:"\25cf";
     font-size: 2em;
-    color: #ff8642;
+    color: #f57900;
 }
 .glyphicon-timeOffFloat:before {
     content:"\25cf";
     font-size: 2em;
-    color: #0097ac;
+    color: #edd400;
 }
 .glyphicon-timeOffSick:before {
     content:"\25cf";
     font-size: 2em;
-    color: #668d3c;
+    color: #73d216;
 }
 .glyphicon-timeOffUnexcusedAbsence:before {
 	content:"\25cf";
     font-size: 2em;
-    color: #777;
+    color: #888a85;
 }
 .glyphicon-timeOffBereavement:before {
 	content:"\25cf";
     font-size: 2em;
-    color: green;
+    color: #729fcf;
 }
 .glyphicon-timeOffCivicDuty:before {
 	content:"\25cf";
     font-size: 2em;
-    color: steelblue;
+    color: #75507b;
 }
 .glyphicon-timeOffGrandfathered:before {
 	content:"\25cf";
     font-size: 2em;
-    color: #816c5b;
+    color: #c17d11;
 }
 .glyphicon-timeOffApprovedNoPay:before {
 	content:"\25cf";
     font-size: 2em;
-    color: #c0362c;
+    color: #cc0000;
 }
 
 .calendarNavigation,
