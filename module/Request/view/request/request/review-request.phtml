@@ -62,7 +62,7 @@
       <table id="pendingApprovalQueue" class="display" style="width:100%;">
         <thead>
             <tr>
-                <th>Catetory</th>
+                <th>Category</th>
                 <th>Earned</th>
                 <th>Taken</th>
                 <th>Pending</th>
@@ -94,6 +94,46 @@
                 <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING']; ?></th>
                 <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL']; ?></th>
                 <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Unexcused Absence</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Bereavement</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Civic Duty</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Grandfathered</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Approved Time Off With No Pay</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_POST_PENDING_APPROVAL']; ?></th>
       		</tr>
       	</tbody>
       </table>

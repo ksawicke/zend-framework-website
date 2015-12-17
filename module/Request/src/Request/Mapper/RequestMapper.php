@@ -545,39 +545,39 @@ class RequestMapper implements RequestMapperInterface
                                                             'SICK_AVAILABLE' => $data['SICK_AVAILABLE']
                                                         ],
                                                         'UnexcusedAbsence' => [
-                                                            'UNEXCUSED_ABSENCE_EARNED' => $data['UNEXCUSED_ABSENCE_EARNED'],
-                                                            'UNEXCUSED_ABSENCE_TAKEN' => $data['UNEXCUSED_ABSENCE_TAKEN'],
-                                                            'UNEXCUSED_ABSENCE_PENDING' => $data['UNEXCUSED_ABSENCE_PENDING'],
-                                                            'UNEXCUSED_ABSENCE_PENDING_APPROVAL' => $data['UNEXCUSED_ABSENCE_PENDING_APPROVAL'],
-                                                            'UNEXCUSED_ABSENCE_AVAILABLE' => $data['UNEXCUSED_ABSENCE_AVAILABLE']
+                                                            'UNEXCUSED_ABSENCE_EARNED' => number_format(0.00, 2), //$data['UNEXCUSED_ABSENCE_EARNED'],
+                                                            'UNEXCUSED_ABSENCE_TAKEN' => number_format(0.00, 2), //$data['UNEXCUSED_ABSENCE_TAKEN'],
+                                                            'UNEXCUSED_ABSENCE_PENDING' => number_format(0.00, 2), //$data['UNEXCUSED_ABSENCE_PENDING'],
+                                                            'UNEXCUSED_ABSENCE_PENDING_APPROVAL' => number_format(0.00, 2), //$data['UNEXCUSED_ABSENCE_PENDING_APPROVAL'],
+                                                            'UNEXCUSED_ABSENCE_AVAILABLE' => number_format(0.00, 2), //$data['UNEXCUSED_ABSENCE_AVAILABLE']
                                                         ],
                                                         'Bereavement' => [
-                                                            'BEREAVEMENT_EARNED' => $data['BEREAVEMENT_EARNED'],
-                                                            'BEREAVEMENT_TAKEN' => $data['BEREAVEMENT_TAKEN'],
-                                                            'BEREAVEMENT_PENDING' => $data['BEREAVEMENT_PENDING'],
-                                                            'BEREAVEMENT_PENDING_APPROVAL' => $data['BEREAVEMENT_PENDING_APPROVAL'],
-                                                            'BEREAVEMENT_AVAILABLE' => $data['BEREAVEMENT_AVAILABLE']
+                                                            'BEREAVEMENT_EARNED' => number_format(0.00, 2), //$data['BEREAVEMENT_EARNED'],
+                                                            'BEREAVEMENT_TAKEN' => number_format(0.00, 2), //$data['BEREAVEMENT_TAKEN'],
+                                                            'BEREAVEMENT_PENDING' => number_format(0.00, 2), //$data['BEREAVEMENT_PENDING'],
+                                                            'BEREAVEMENT_PENDING_APPROVAL' => number_format(0.00, 2), //$data['BEREAVEMENT_PENDING_APPROVAL'],
+                                                            'BEREAVEMENT_AVAILABLE' => number_format(0.00, 2), //$data['BEREAVEMENT_AVAILABLE']
                                                         ],
                                                         'CivicDuty' => [
-                                                            'CIVIC_DUTY_EARNED' => $data['CIVIC_DUTY_EARNED'],
-                                                            'CIVIC_DUTY_TAKEN' => $data['CIVIC_DUTY_TAKEN'],
-                                                            'CIVIC_DUTY_PENDING' => $data['CIVIC_DUTY_PENDING'],
-                                                            'CIVIC_DUTY_PENDING_APPROVAL' => $data['CIVIC_DUTY_PENDING_APPROVAL'],
-                                                            'CIVIC_DUTY_AVAILABLE' => $data['CIVIC_DUTY_AVAILABLE']
+                                                            'CIVIC_DUTY_EARNED' => number_format(0.00, 2), //$data['CIVIC_DUTY_EARNED'],
+                                                            'CIVIC_DUTY_TAKEN' => number_format(0.00, 2), //$data['CIVIC_DUTY_TAKEN'],
+                                                            'CIVIC_DUTY_PENDING' => number_format(0.00, 2), //$data['CIVIC_DUTY_PENDING'],
+                                                            'CIVIC_DUTY_PENDING_APPROVAL' => number_format(0.00, 2), //$data['CIVIC_DUTY_PENDING_APPROVAL'],
+                                                            'CIVIC_DUTY_AVAILABLE' => number_format(0.00, 2), //$data['CIVIC_DUTY_AVAILABLE']
                                                         ],
                                                         'Grandfathered' => [
-                                                            'GRANDFATHERED_EARNED' => $data['GRANDFATHERED_EARNED'],
-                                                            'GRANDFATHERED_TAKEN' => $data['GRANDFATHERED_TAKEN'],
-                                                            'GRANDFATHERED_PENDING' => $data['GRANDFATHERED_PENDING'],
-                                                            'GRANDFATHERED_PENDING_APPROVAL' => $data['GRANDFATHERED_PENDING_APPROVAL'],
-                                                            'GRANDFATHERED_AVAILABLE' => $data['GRANDFATHERED_AVAILABLE']
+                                                            'GRANDFATHERED_EARNED' => number_format(0.00, 2), //$data['GRANDFATHERED_EARNED'],
+                                                            'GRANDFATHERED_TAKEN' => number_format(0.00, 2), //$data['GRANDFATHERED_TAKEN'],
+                                                            'GRANDFATHERED_PENDING' => number_format(0.00, 2), //$data['GRANDFATHERED_PENDING'],
+                                                            'GRANDFATHERED_PENDING_APPROVAL' => number_format(0.00, 2), //$data['GRANDFATHERED_PENDING_APPROVAL'],
+                                                            'GRANDFATHERED_AVAILABLE' => number_format(0.00, 2), //$data['GRANDFATHERED_AVAILABLE']
                                                         ],
                                                         'ApprovedNoPay' => [
-                                                            'APPROVED_NO_PAY_EARNED' => $data['APPROVED_NO_PAY_EARNED'],
-                                                            'APPROVED_NO_PAY_TAKEN' => $data['APPROVED_NO_PAY_TAKEN'],
-                                                            'APPROVED_NO_PAY_PENDING' => $data['APPROVED_NO_PAY_PENDING'],
-                                                            'APPROVED_NO_PAY_PENDING_APPROVAL' => $data['APPROVED_NO_PAY_PENDING_APPROVAL'],
-                                                            'APPROVED_NO_PAY_AVAILABLE' => $data['APPROVED_NO_PAY_AVAILABLE']
+                                                            'APPROVED_NO_PAY_EARNED' => number_format(0.00, 2), //$data['APPROVED_NO_PAY_EARNED'],
+                                                            'APPROVED_NO_PAY_TAKEN' => number_format(0.00, 2), //$data['APPROVED_NO_PAY_TAKEN'],
+                                                            'APPROVED_NO_PAY_PENDING' => number_format(0.00, 2), //$data['APPROVED_NO_PAY_PENDING'],
+                                                            'APPROVED_NO_PAY_PENDING_APPROVAL' => number_format(0.00, 2), //$data['APPROVED_NO_PAY_PENDING_APPROVAL'],
+                                                            'APPROVED_NO_PAY_AVAILABLE' => number_format(0.00, 2), //$data['APPROVED_NO_PAY_AVAILABLE']
                                                         ]
                                                     ]
                                                              
@@ -628,6 +628,13 @@ class RequestMapper implements RequestMapperInterface
                         number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Float']), 2);
                     $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL'] =
                         number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Sick']), 2);
+                    
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    
                     $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Grand'] =
                         number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] +
                                        $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] +
