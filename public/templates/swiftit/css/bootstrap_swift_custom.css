@@ -536,6 +536,9 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 	background-color: #cc0000 !important;
 }
 
+/** CSS Stripes
+ * @see https://css-tricks.com/stripes-css/
+ */
 .timeOffPTOSelected {
 	background: repeating-linear-gradient(
 	  45deg,
