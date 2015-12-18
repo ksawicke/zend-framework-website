@@ -21,13 +21,23 @@ class RequestController extends AbstractActionController
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
-        'timeOffSick' => 'S'
+        'timeOffSick' => 'S',
+        'timeOffUnexcusedAbsence' => 'X',
+        'timeOffBereavement' => 'B',
+        'timeOffCivicDuty' => 'J',
+        'timeOffGrandfathered' => 'R',
+        'timeOffApprovedNoPay' => 'A'
     ];
     
     protected static $categoryToClass = [
         'PTO' => 'timeOffPTO',
         'Float' => 'timeOffFloat',
-        'Sick' => 'timeOffSick'
+        'Sick' => 'timeOffSick',
+        'UnexcusedAbsence' => 'timeOffUnexcusedAbsence',
+        'Bereavement' => 'timeOffBereavement',
+        'CivicDuty' => 'timeOffCivicDuty',
+        'Grandfathered' => 'timeOffGrandfathered',
+        'ApprovedNoPay' => 'timeOffApprovedNoPay'
     ];
     
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
@@ -35,7 +45,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '49499';
+        $this->employeeNumber = '296261';
         $this->managerNumber = '229589';
     }
 
@@ -149,11 +159,23 @@ class RequestController extends AbstractActionController
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
-                    $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
-                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly');
+                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "A");
+                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "P");
+//                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
+//                     $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
+                    
+//                     echo '<pre>approvedRequestData';
+//                     print_r($approvedRequestData);
+//                     echo '</pre>';
+                    
+//                     echo '<pre>pendingRequestData';
+//                     print_r($pendingRequestData);
+//                     echo '</pre>';
+                    
+//                     exit();
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
                         $approvedRequestJson[] = [
@@ -203,7 +225,7 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findTimeOffBalancesByManager($this->managerNumber)
+            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerNumber)
         ));
     }
     
@@ -228,5 +250,22 @@ class RequestController extends AbstractActionController
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
                              ]);
+    }
+    
+    public function reviewRequestAction()
+    {
+        $requestId = $this->params()->fromRoute('request_id');
+        $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'managerQueue', $requestId);
+        $calendarFirstDate = \DateTime::createFromFormat('Y-m-d', trim($pendingRequestData[$requestId]['FIRST_DATE_REQUESTED']));
+        $calendarLastDate = \DateTime::createFromFormat('Y-m-d', $pendingRequestData[$requestId]['LAST_DATE_REQUESTED']);
+        
+        $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
+        $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
+        
+        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        return new ViewModel(array(
+            'requestId' => $requestId,
+            'pendingRequestData' => $pendingRequestData[$requestId]
+        ));
     }
 }

@@ -1,0 +1,167 @@
+<h3>Approve Request <?php echo $requestId; ?></h3>
+
+<form class="form-horizontal">
+
+  <div class="form-group">
+    <label class="col-sm-3 control-label">Email</label>
+    <div class="col-sm-9">
+      <?php echo $pendingRequestData['EMPLOYEE']['FIRST_NAME']; ?>&nbsp;<?php echo $pendingRequestData['EMPLOYEE']['LAST_NAME']; ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Position</label>
+    <div class="col-sm-9">
+      <?php echo $pendingRequestData['EMPLOYEE']['POSITION_TITLE']; ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Total Hours Requested</label>
+    <div class="col-sm-9">
+      <?php echo $pendingRequestData['TOTALS']['Grand']; ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Reason</label>
+    <div class="col-sm-9">
+      <?php echo $pendingRequestData['REQUEST_REASON']; ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Time Off Requested</label>
+    <div class="col-sm-9">
+      <?php
+      foreach($pendingRequestData['DETAILS'] as $key => $requestDetail) {
+          $requestDate = \DateTime::createFromFormat('Y-m-d', trim($requestDetail['REQUEST_DATE']));
+          echo $requestDate->format('m/d/Y') . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $requestDetail['REQUESTED_HOURS'] . ' ' . $requestDetail['REQUEST_TYPE'] . '<br />';
+      }
+      ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Team Approved Requests<br />(Same Period)</label>
+    <div class="col-sm-9">
+      <?php
+      foreach($pendingRequestData['TEAM_CALENDAR'] as $key => $teamCalendarDetail) {
+          $requestDate = \DateTime::createFromFormat('Y-m-d', trim($teamCalendarDetail['REQUEST_DATE']));
+          echo $requestDate->format('m/d/Y') . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $teamCalendarDetail['REQUESTED_HOURS'] . ' ' .
+            $requestDetail['REQUEST_TYPE'] . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $teamCalendarDetail['FIRST_NAME'] . '&nbsp;' . $teamCalendarDetail['LAST_NAME'] . '<br />';
+      }
+      ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Message</label>
+    <div class="col-sm-9">
+      
+      <table id="pendingApprovalQueue" class="display" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Earned</th>
+                <th>Taken</th>
+                <th>Pending</th>
+                <th>Pending Approval</th>
+                <th>Post Pending<br />Approval</th>
+            </tr>
+        </thead>
+        <tbody>
+        	<tr>
+        		<th>PTO</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['PTO']['PTO_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['PTO']['PTO_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['PTO']['PTO_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['PTO']['PTO_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Float</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Float']['FLOAT_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Float']['FLOAT_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Sick</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Unexcused Absence</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Bereavement</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Civic Duty</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Grandfathered</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      		<tr>
+        		<th>Approved Time Off With No Pay</th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_EARNED']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_TAKEN']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_PENDING']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_PENDING_APPROVAL']; ?></th>
+                <th><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_POST_PENDING_APPROVAL']; ?></th>
+      		</tr>
+      	</tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Message</label>
+    <div class="col-sm-9">
+      <div class="alert alert-info" role="alert">
+      	Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
+      </div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Approval Actions</label>
+    <div class="col-sm-9">
+      <p>
+        <button type="button" class="btn btn-form-primary btn-lg" disabled="disabled">Approve</button>
+        <button type="button" class="btn btn-form-primary btn-lg" disabled="disabled">Deny</button>
+      </p>
+    </div>
+  </div>
+  
+</form>
+
+<?php /**
+<pre>
+	<?php print_r($pendingRequestData); ?>
+</pre>**/ ?>

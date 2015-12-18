@@ -1,54 +1,157 @@
-<strong>Employee Time Off Hours for <?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong>
+<h3>Create New Time Off Request</h3>
+
+<strong>For: <?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong>
 <br />
 <br />
-<br />
 
-<div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
-	&nbsp;<br />&nbsp;
-</div>
-<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffPTO">
-	PTO<br />
-	<span class="hours" id="employeePTOHours"></span>
-</div>
-
-<div class="selectTimeOffCategory timeOffCategoryLeft timeOffFloat cursorHand" data-category="timeOffFloat">
-	&nbsp;<br />&nbsp;
-</div>
-<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffFloat">
-	Float<br />
-	<span class="hours" id="employeeFloatHours"></span>
+<div class="row">
+    <div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
 </div>
 
-<div class="selectTimeOffCategory timeOffCategoryLeft timeOffSick cursorHand" data-category="timeOffSick">
-	&nbsp;<br />
-	&nbsp;
-</div>
-<div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffSick">
-	Sick<br />
-	<span class="hours"  id="employeeSickHours"></span>
+<div class="row">
+    <div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
+	<div class="col-md-3 categoryButton">
+		CATEGORY
+	</div>
 </div>
 
-<br /><br /><br />
+<hr />
+
+<div class="row">
+    <div class="col-md-3">
+		<div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffPTO">
+        	PTO<br />
+        	<span class="hours" id="employeePTOHours"></span>
+        </div>
+	</div>
+    <div class="col-md-3">
+		<div class="selectTimeOffCategory timeOffCategoryLeft timeOffFloat cursorHand" data-category="timeOffFloat">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffFloat">
+        	Float<br />
+        	<span class="hours" id="employeeFloatHours"></span>
+        </div>
+	</div>
+    <div class="col-md-3">
+        <div class="selectTimeOffCategory timeOffCategoryLeft timeOffSick cursorHand" data-category="timeOffSick">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffSick">
+        	Sick<br />
+        	<span class="hours" id="employeeSickHours"></span>
+        </div>
+	</div>
+    <div class="col-md-3">
+		<div class="selectTimeOffCategory timeOffCategoryLeft timeOffGrandfathered cursorHand" data-category="timeOffGrandfathered">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffGrandfathered">
+        	Grandfathered<br />
+        	<span class="hours" id="employeeGrandfatheredHours"></span>
+        </div>
+	</div>
+</div>
 
 <br style="clear:both;" />
 
-<div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
-	<?php /***<strong>December 2015</strong><br /><br />
-	<?php echo $calendar1Html; **/ ?>
+<div class="row">
+    <div class="col-md-3">
+    	<div class="selectTimeOffCategory timeOffCategoryLeft timeOffUnexcusedAbsence cursorHand" data-category="timeOffUnexcusedAbsence">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffUnexcusedAbsence">
+        	Unexcused<br />
+        	<span class="hours" id="employeeUnexcusedAbsenceHours"></span>
+        </div>
+    </div>
+	<div class="col-md-3">
+    	<div class="selectTimeOffCategory timeOffCategoryLeft timeOffBereavement cursorHand" data-category="timeOffBereavement">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffBereavement">
+        	Bereavement<br />
+        	<span class="hours" id="employeeBereavementHours"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+    	<div class="selectTimeOffCategory timeOffCategoryLeft timeOffCivicDuty cursorHand" data-category="timeOffCivicDuty">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffCivicDuty">
+        	Civic Duty<br />
+        	<span class="hours" id="employeeCivicDutyHours"></span>
+        </div>
+    </div>
+    <div class="col-md-3">
+    	<div class="selectTimeOffCategory timeOffCategoryLeft timeOffApprovedNoPay cursorHand" data-category="timeOffApprovedNoPay">
+        	&nbsp;<br />&nbsp;
+        </div>
+        <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffApprovedNoPay">
+        	Approved No Pay<br />
+        	<span class="hours" id="employeeApprovedNoPayHours"></span>
+        </div>
+    </div>
 </div>
-<div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar2Html">
-	<?php /***<strong>January 2016</strong><br /><br />
-	<?php echo $calendar2Html; ?> **/ ?>
-</div>
-<div style="width:33%;float:left;text-align:center;" id="calendar3Html">
-	<?php /***<strong>February 2016</strong><br /><br />
-	<?php echo $calendar3Html; ?> **/ ?>
-</div>
+
 
 <br style="clear:both;" />
 <br style="clear:both;" />
+<br style="clear:both;" />
 
-<div id="datesSelected"><i>No dates are currently selected.</i></div>
+<div class="timeOffCalendarWrapper">
+    <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
+    	<?php /***<strong>December 2015</strong><br /><br />
+    	<?php echo $calendar1Html; **/ ?>
+    </div>
+    <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar2Html">
+    	<?php /***<strong>January 2016</strong><br /><br />
+    	<?php echo $calendar2Html; ?> **/ ?>
+    </div>
+    <div style="width:33%;float:left;text-align:center;" id="calendar3Html">
+    	<?php /***<strong>February 2016</strong><br /><br />
+    	<?php echo $calendar3Html; ?> **/ ?>
+    </div>
+    <br style="clear:both;" />
+	<br style="clear:both;" />
+	<div id="calendarLegend">
+		
+	</div>
+</div>
+<div id="noCategorySelected">
+	<div class="alert alert-danger" role="alert">
+		<strong>You must select a category above before you select additional day(s) off.</strong>
+	</div>
+</div>
+
+<div id="noDatesSelectedWarning">
+	<div class="alert alert-warning" role="alert">
+		<strong>No dates are currently selected.</strong>
+	</div>
+</div>
+<div id="datesSelectedDetails"></div>
 
 <!-- br style="clear:both;" /><br style="clear:both;" />
 

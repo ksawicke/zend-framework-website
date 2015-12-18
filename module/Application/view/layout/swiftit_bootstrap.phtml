@@ -22,6 +22,7 @@
     <link href="<?php echo $this->basePath('templates/swiftit/css/custom_dropzone.css'); ?>" rel="stylesheet">
     <link href="<?php echo $this->basePath('templates/swiftit/css/navbar-fixed-top.css'); ?>" rel="stylesheet">
     <link href="<?php echo $this->basePath('templates/swiftit/css/parsley.css'); ?>" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.css"/>
 
     <?php
       $this->headScript()
@@ -44,9 +45,14 @@
         $this->headScript()
             ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
       }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-employee-requests') !== false) {
+          $this->headScript()
+          ->appendFile($this->basePath('js/request/timeOffQueueHandler.js'));
+      }
       
       echo $this->headScript();
     ?>
+    <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.js"></script>
   </head>
 
   <body>

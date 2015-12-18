@@ -1,5 +1,34 @@
-Here are Mary Jackson's employees:
+<h3>Pending Approval</h3>
 
-<pre>
-    <?php print_r($managerDirectReportsData); ?>
-</pre>
+<br />
+
+<table id="pendingApprovalQueue" class="display" style="width:100%;">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Approver queue</th>
+            <th>Transaction Status</th>
+            <th>Total Hours Requested</th>
+            <th>Request Reason</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<?php foreach($managerDirectReportsData as $key => $request) { ?>
+        <tr>
+            <td><?php echo $request->EMPLOYEE_LAST_NAME; ?>, <?php echo $request->EMPLOYEE_FIRST_NAME; ?> <?php echo $request->EMPLOYEE_MIDDLE_NAME; ?></td>
+            <td><?php echo $request->MANAGER_LAST_NAME; ?>, <?php echo $request->MANAGER_FIRST_NAME; ?></td>
+            <td>Pending Approval</td>
+            <td><?php echo $request->REQUESTED_HOURS; ?></td>
+            <td><?php echo $request->REQUEST_REASON; ?></td>
+            <td><a href="<?php echo $this->basePath('request/review-request/' . $request->REQUEST_ID); ?>"><button type="button" class="btn btn-form-primary btn-xs">View</button></a></td>
+        </tr>
+        <?php } ?>
+    </tbody>
+</table>
+
+<br /><br />
+
+<!-- pre>
+    <?php //print_r($managerDirectReportsData); ?>
+</pre-->

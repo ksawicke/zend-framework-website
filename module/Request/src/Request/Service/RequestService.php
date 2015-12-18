@@ -21,6 +21,16 @@ class RequestService implements RequestServiceInterface
     }
 
     /**
+     * 
+     * {@inheritDoc}
+     * @see \Request\Service\RequestServiceInterface::findTimeOffRequestsByEmployeeAndStatus()
+     */
+    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status)
+    {
+        return $this->requestMapper->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public function findTimeOffBalancesByEmployee($employeeNumber)
@@ -30,17 +40,22 @@ class RequestService implements RequestServiceInterface
 
     public function findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType)
     {
-        return $this->requestMapper->findTimeOffApprovedRequestsByEmployee($employeeNumber);
+        return $this->requestMapper->findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType);
     }
     
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType)
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId)
     {
-        return $this->requestMapper->findTimeOffPendingRequestsByEmployee($employeeNumber);
+        return $this->requestMapper->findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId);
     }
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber)
     {
         return $this->requestMapper->findTimeOffBalancesByManager($managerEmployeeNumber);
+    }
+    
+    public function findQueuesByManager($managerEmployeeNumber)
+    {
+        return $this->requestMapper->findQueuesByManager($managerEmployeeNumber);
     }
     
     public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate)
