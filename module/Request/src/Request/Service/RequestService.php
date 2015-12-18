@@ -21,6 +21,16 @@ class RequestService implements RequestServiceInterface
     }
 
     /**
+     * 
+     * {@inheritDoc}
+     * @see \Request\Service\RequestServiceInterface::findTimeOffRequestsByEmployeeAndStatus()
+     */
+    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status)
+    {
+        return $this->requestMapper->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public function findTimeOffBalancesByEmployee($employeeNumber)

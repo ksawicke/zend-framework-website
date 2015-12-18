@@ -45,7 +45,7 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '49499';
+        $this->employeeNumber = '296261';
         $this->managerNumber = '229589';
     }
 
@@ -159,11 +159,23 @@ class RequestController extends AbstractActionController
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
-                    $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
-                    $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
+                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "A");
+                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "P");
+//                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
+//                     $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
+                    
+//                     echo '<pre>approvedRequestData';
+//                     print_r($approvedRequestData);
+//                     echo '</pre>';
+                    
+//                     echo '<pre>pendingRequestData';
+//                     print_r($pendingRequestData);
+//                     echo '</pre>';
+                    
+//                     exit();
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
                         $approvedRequestJson[] = [

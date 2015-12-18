@@ -366,6 +366,21 @@ class RequestMapper implements RequestMapperInterface
         return $result;
     }
 
+    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A")
+    {
+        $sql = new Sql($this->dbAdapter);
+            $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns($this->timeoffRequestEntryColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+            ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => $status])
+            ->order(['entry.REQUEST_DATE ASC']);
+        
+        $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
+        return $return;
+    }
+    
     /**
      * Find time off approved requests by Employee Number lookup.
      * 
@@ -379,7 +394,8 @@ class RequestMapper implements RequestMapperInterface
             ->columns($this->timeoffRequestEntryColumns)
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'A']);
+            ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'A'])
+            ->order(['entry.REQUEST_DATE ASC']);
 
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         
@@ -465,7 +481,8 @@ class RequestMapper implements RequestMapperInterface
                 )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
             ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER', $this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns);
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->order(['entry.REQUEST_DATE ASC']);
         if($requestId!=null) {
             $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
         }
