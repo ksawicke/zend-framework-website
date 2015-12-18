@@ -511,6 +511,11 @@ td.calendar-day-np {
 /**
 https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 **/
+
+.btn-requestCategory {
+	padding: 0px;
+}
+
 .timeOffPTO {
 	background-color: #f57900 !important;
 }
@@ -534,6 +539,17 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 }
 .timeOffApprovedNoPay {
 	background-color: #cc0000 !important;
+}
+
+.rowWrapper {
+	margin:15px;
+}
+.categoryButtonWrapper {
+	width:90%;
+}
+.categoryButton {
+	padding:10px;
+	border: 1px solid #000;
 }
 
 /** CSS Stripes

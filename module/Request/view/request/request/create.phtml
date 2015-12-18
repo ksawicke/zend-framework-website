@@ -5,37 +5,184 @@
 <br />
 
 <div class="row">
-    <div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
+	<div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffPTO">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">PTO</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeePTOPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeePTOAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffFloat">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Float</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeFloatPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeFloatAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffSick">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Sick</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeSickPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeSickAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffGrandfathered">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Grandfathered</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeGrandfatheredPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeGrandfatheredAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
 </div>
+
+<br style="clear:both;" />
 
 <div class="row">
-    <div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
-	<div class="col-md-3 categoryButton">
-		CATEGORY
-	</div>
+	<div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffUnexcusedAbsence">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Unexcused</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeUnexcusedAbsencePendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeUnexcusedAbsenceAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffBereavement">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Bereavement</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeBereavementPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeBereavementAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffCivicDuty">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Civic Duty</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeCivicDutyPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeCivicDutyAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12">
+    	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffApprovedNoPay">
+			<table style="width:100%;">
+				<thead>
+					<tr>
+						<th colspan=2 style="text-align:center;border:0px;">Approved Without Pay</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align:right;font-size:10px;border:0px;">Pending</td>
+						<td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeApprovedNoPayPendingHours"></span></td>
+					</tr>
+					<tr>
+						<td style="text-align:right;font-size:14px;border:0px;">Available</td>
+						<td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeApprovedNoPayAvailableHours"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</button>
+    </div>
 </div>
 
-<hr />
+<br style="clear:both;" />
 
+<?php /*****
 <div class="row">
     <div class="col-md-3">
 		<div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
@@ -115,11 +262,8 @@
         </div>
     </div>
 </div>
+***/ ?>
 
-
-<br style="clear:both;" />
-<br style="clear:both;" />
-<br style="clear:both;" />
 
 <div class="timeOffCalendarWrapper">
     <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
@@ -147,7 +291,7 @@
 </div>
 
 <div id="noDatesSelectedWarning">
-	<div class="alert alert-warning" role="alert">
+	<div class="alert alert-danger" role="alert">
 		<strong>No dates are currently selected.</strong>
 	</div>
 </div>

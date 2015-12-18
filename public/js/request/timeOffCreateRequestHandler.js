@@ -50,7 +50,7 @@ var timeOffCreateRequestHandler = new function()
         	 * Handle clicking category
         	 */
         	$(".selectTimeOffCategory").click(function() {
-        		timeOffCreateRequestHandler.resetTimeoffCategory();
+        		timeOffCreateRequestHandler.resetTimeoffCategory($(this));
         		timeOffCreateRequestHandler.setTimeoffCategory($(this));
         	});
         	
@@ -216,9 +216,15 @@ var timeOffCreateRequestHandler = new function()
     /**
      * Resets the remaining sick time for selected employee.
      */
-    this.resetTimeoffCategory = function() {
-    	$(".selectTimeOffCategory").removeClass("categorySelected").prev('div').removeClass("categoryColorSelected");
-    	$(".timeOffCategoryLeft").html('&nbsp;<br />&nbsp;');
+    this.resetTimeoffCategory = function(object) {
+//    	console.log("OBJECT", object);
+    	$('.btn-requestCategory').removeClass("categorySelected");
+    	$('.btn-requestCategory').removeClass(selectedTimeoffCategory);
+//    	object.removeClass(object.attr("data-category"));
+//    	object.removeClass("categorySelected");
+//    	$(".selectTimeOffCategory").removeClass("categorySelected");
+//    	$(".selectTimeOffCategory").removeClass("categorySelected").prev('div').removeClass("categoryColorSelected");
+//    	$(".timeOffCategoryLeft").html('&nbsp;<br />&nbsp;');
     }
     
     /**
@@ -226,13 +232,18 @@ var timeOffCreateRequestHandler = new function()
      */
     this.setTimeoffCategory = function(object) {
     	if(selectedTimeoffCategory==object.attr("data-category")) {
+    		object.removeClass(object.attr("data-category"));
     		selectedTimeoffCategory = null;
+    		object.removeClass("categorySelected");
     		$('#noCategorySelected').show();
     		$('.timeOffCalendarWrapper').hide();
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
-	    	object.prev('div').addClass("categoryColorSelected");
+//	    	console.log("SELECT " + selectedTimeoffCategory);
+//	    	object.prev('div').addClass("categoryColorSelected");
 	    	object.addClass("categorySelected");
+	    	object.addClass(selectedTimeoffCategory);
+	    	console.log(selectedTimeoffCategory);
 	    	$('#noCategorySelected').hide();
 	    	$('.timeOffCalendarWrapper').show();
     	}
@@ -365,6 +376,11 @@ var timeOffCreateRequestHandler = new function()
     	timeOffCreateRequestHandler.printEmployeeSickRemaining();
     }
     
+    this.setEmployeeGrandfatheredRemaining = function(grandfatheredRemaining) {
+    	employeeGrandfatheredRemaining = grandfatheredRemaining;
+    	timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+    }
+    
     this.setEmployeeUnexcusedAbsenceRemaining = function(unexcusedAbsenceRemaining) {
     	employeeUnexcusedAbsenceRemaining = unexcusedAbsenceRemaining;
     	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceRemaining();
@@ -380,11 +396,6 @@ var timeOffCreateRequestHandler = new function()
     	timeOffCreateRequestHandler.printEmployeeCivicDutyRemaining();
     }
     
-    this.setEmployeeGrandfatheredRemaining = function(grandfatheredRemaining) {
-    	employeeGrandfatheredRemaining = grandfatheredRemaining;
-    	timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
-    }
-    
     this.setEmployeeApprovedNoPayRemaining = function(approvedNoPayRemaining) {
     	employeeApprovedNoPayRemaining = approvedNoPayRemaining;
     	timeOffCreateRequestHandler.printEmployeeApprovedNoPayRemaining();
@@ -394,45 +405,61 @@ var timeOffCreateRequestHandler = new function()
      * Prints the remaining PTO time for selected employee.
      */
     this.printEmployeePTORemaining = function() {
-    	$("#employeePTOHours").html(
-    		timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hr" +
-    		"<div class='pendingHours'>Includes<br />" +
-    		"120.00 hr pending approval</div>"
-    	);
+    	$("#employeePTOAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hr");
+    	$("#employeePTOPendingHours").html("100.00 hr");
+//    	$("#employeePTOAvailableHours").html(
+//    		timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hr" +
+//    		"<div class='pendingHours'>Includes<br />" +
+//    		"120.00 hr pending approval</div>"
+//    	);
     }
     
     /**
      * Prints the remaining Float time for selected employee.
      */
     this.printEmployeeFloatRemaining = function() {
-    	$("#employeeFloatHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hr");
+    	$("#employeeFloatAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hr");
+    	$("#employeeFloatPendingHours").html("100.00 hr");
+//    	$("#employeeFloatHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hr");
     }
     
     /**
      * Prints the remaining Sick time for selected employee.
      */
     this.printEmployeeSickRemaining = function() {
-    	$("#employeeSickHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hr");
+    	$("#employeeSickAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hr");
+    	$("#employeeSickPendingHours").html("100.00 hr");
+//    	$("#employeeSickHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hr");
     }    
     
+    this.printEmployeeGrandfatheredRemaining = function() {
+    	$("#employeeGrandfatheredAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hr");
+    	$("#employeeGrandfatheredPendingHours").html("100.00 hr");
+//    	$("#employeeGrandfatheredHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hr");
+    }
+    
     this.printEmployeeUnexcusedAbsenceRemaining = function() {
-    	$("#employeeUnexcusedAbsenceHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsenceRemaining) + " hr");
+    	$("#employeeUnexcusedAbsenceAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsenceRemaining) + " hr");
+    	$("#employeeUnexcusedAbsencePendingHours").html("100.00 hr");
+//    	$("#employeeUnexcusedAbsenceHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsenceRemaining) + " hr");
     }
     
     this.printEmployeeBereavementRemaining = function() {
-    	$("#employeeBereavementHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementRemaining) + " hr");
+    	$("#employeeBereavementAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementRemaining) + " hr");
+    	$("#employeeBereavementPendingHours").html("100.00 hr");
+//    	$("#employeeBereavementHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementRemaining) + " hr");
     }
     
     this.printEmployeeCivicDutyRemaining = function() {
-    	$("#employeeCivicDutyHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyRemaining) + " hr");
-    }
-    
-    this.printEmployeeGrandfatheredRemaining = function() {
-    	$("#employeeGrandfatheredHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hr");
+    	$("#employeeCivicDutyAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyRemaining) + " hr");
+    	$("#employeeCivicDutyPendingHours").html("100.00 hr");
+//    	$("#employeeCivicDutyHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyRemaining) + " hr");
     }
     
     this.printEmployeeApprovedNoPayRemaining = function() {
-    	$("#employeeApprovedNoPayHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayRemaining) + " hr");
+    	$("#employeeApprovedNoPayAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayRemaining) + " hr");
+    	$("#employeeApprovedNoPayPendingHours").html("100.00 hr");
+//    	$("#employeeApprovedNoPayHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayRemaining) + " hr");
     }
     
     /**
