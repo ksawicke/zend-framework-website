@@ -22,6 +22,7 @@ var timeOffCreateRequestHandler = new function()
     	selectedTimeoffCategory = null,
     	requestReason = '',
     	/** Dates selected for this request **/
+    	selectedDatesNew = [],
     	selectedDates = [],
     	selectedDateCategories = [],
     	selectedDateHours = [],
@@ -73,25 +74,93 @@ var timeOffCreateRequestHandler = new function()
         	 */
         	$(document).on('click', '.calendar-day', function() {
         		if(selectedTimeoffCategory != null) {
+        			var thisDate = $(this).attr("data-date");
+        			var thisCategory = selectedTimeoffCategory;
+        			var thisHours = '8.00';
+        			var obj = {date:$(this).attr("data-date"), hours:'8.00', category:selectedTimeoffCategory};
+        			var isSelected = false;
+        			var numba = '';
+        			
+        			for(var i = 0; i < selectedDatesNew.length; i++) {
+        				if(selectedDatesNew[i].date &&
+        				   selectedDatesNew[i].date===thisDate &&
+        				   selectedDatesNew[i].category &&
+        				   selectedDatesNew[i].category===thisCategory) {
+        					isSelected = true;
+        					numba = i;
+        					break;
+        	    		}
+        	    	}
+//        			console.log("selectedDatesNew", selectedDatesNew);
+//        			console.log("isSelected", isSelected);
+        			
+        			if(isSelected===false) {
+//        				console.log("ADD ME " + thisDate + " :: " + thisCategory);
+        				selectedDatesNew.push(obj);
+        			}
+        			else {
+//        				console.log("REMOVE ME " + thisDate + " :: " + thisCategory);
+        				selectedDatesNew.splice(numba, 1);
+        			}
+        			
+//        			for(var i = 0; i < selectedDatesNew.length; i++) {
+//        	    		if(selectedDatesNew[i].date===thisDate && selectedDatesNew[i].category===thisCategory) {
+//        	    			console.log("YES");
+//        	    		} else {
+//        	    			console.log("NO");
+//        	    		}
+//        	    	}
+        			
+//        			console.log(selectedDatesNew);
+        			
+//        			var isSelected = timeOffCreateRequestHandler.isSelected(thisDate, selectedTimeoffCategory);
+//        			console.log("isSelected", isSelected);
+//        			
+//        			
+//        			if(isSelected===false) {
+//        				console.log("ADD ME " + thisDate + " :: " + thisCategory);
+//        			}
+//        			else {
+//        				console.log("REMOVE ME " + thisDate + " :: " + thisCategory);
+//        			}
+//        			timeOffCreateRequestHandler.sortDatesSelected();
+        			selectedDatesNew.sort(function(a,b) {
+        				var dateA = new Date(a.date).getTime();
+        		        var dateB = new Date(b.date).getTime();
+        		        return dateA > dateB ? 1 : -1; 
+        			});
+        			console.log(selectedDatesNew);
+        			
+        			/************
+//        			console.log("Q", selectedDatesNew);
         			var index = selectedDates.indexOf($(this).attr("data-date"));
             		if (index != -1) {
             			selectedDates.splice(index, 1);
             			selectedDateCategories.splice(index, 1);
             			selectedDateHours.splice(index, 1);
             			$(this).toggleClass(selectedTimeoffCategory + "Selected");
-//            			$(this).children("div").toggleClass(selectedTimeoffCategory);
             			
             			timeOffCreateRequestHandler.subtractTime(selectedTimeoffCategory, defaultHours);
             		} else {
+            			var obj = {date:$(this).attr("data-date"), hours:'8.00', category:selectedTimeoffCategory};
+            			selectedDatesNew.push(obj);
+            			selectedDatesNew.sort(function(a,b) {
+            				var dateA = new Date(a.date).getTime();
+            		        var dateB = new Date(b.date).getTime();
+            		        return dateA > dateB ? 1 : -1; 
+            			});
+            			
+            			console.log(selectedDatesNew);
+            			
             			selectedDates.push($(this).attr("data-date"));
             			selectedDateCategories.push(selectedTimeoffCategory);
             			selectedDateHours.push('8.00');
             			$(this).toggleClass(selectedTimeoffCategory + "Selected");
-//            			$(this).children("div").toggleClass(selectedTimeoffCategory);
             			
             			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultHours);
             		}
-            		
+            		*****************/
+        			
             		datesSelectedDetailsHtml = '<br /><strong>Adjust Hours:</strong>' +
         			'<br style="clear:both;"/>';
             		$.each(selectedDates, function(key, date) {
@@ -547,9 +616,9 @@ var timeOffCreateRequestHandler = new function()
     		
     		if(indexSelectedFound > -1) {
     			// Highlight the date.
-    			thisClass = selectedDateCategories[indexSelectedFound];
+    			thisClass = selectedDateCategories[indexSelectedFound] + "Selected";
     			$(this).toggleClass(thisClass);
-    			$(this).children("div").toggleClass(thisClass);
+//    			$(this).children("div").toggleClass(thisClass);
     		}
     		if(indexApprovedFound > -1) {
     			// Highlight the date.
@@ -571,6 +640,24 @@ var timeOffCreateRequestHandler = new function()
      */
     this.setTwoDecimalPlaces = function(num) {
         return parseFloat(Math.round(num * 100) / 100).toFixed(2);
+    }
+    
+    this.isSelected = function(date, category) {
+    	for(var i = 0; i < selectedDatesNew.length; i++) {
+    		if(selectedDatesNew[i].date===thisDate && selectedDatesNew[i].category===thisCategory) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    this.sortDatesSelected = function() {
+    	selectedDatesNew.sort(function(a,b) {
+			var dateA = new Date(a.date).getTime();
+	        var dateB = new Date(b.date).getTime();
+	        return dateA > dateB ? 1 : -1; 
+		});
+		console.log(selectedDatesNew);
     }
 };
 
