@@ -4,6 +4,22 @@
 <br />
 <br />
 
+<div id="MyWizard" class="wizard">
+    <ul class="steps">
+        <li data-target="#step1" class="step1 active"><span class="badge badge-info">1</span>Select a Category<span class="chevron"></span></li>
+        <li data-target="#step2" class="step2"><span class="badge">2</span>Select date(s)<span class="chevron"></span></li>
+        <li data-target="#step3" class="step3 last"><span class="badge">3</span>Provide a Reason & Submit</li>
+    </ul>
+</div>
+
+<br />
+
+<div id="noCategorySelected" style="display:none;">
+	<div class="alert alert-danger" role="alert">
+		<strong>You must select a category below before you select additional day(s) off.</strong>
+	</div>
+</div>
+
 <div class="row">
 	<div class="col-md-3 col-sm-3 col-xs-12">
     	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory" data-category="timeOffPTO">
@@ -264,7 +280,6 @@
 </div>
 ***/ ?>
 
-
 <div class="timeOffCalendarWrapper">
     <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
     	<?php /***<strong>December 2015</strong><br /><br />
@@ -284,18 +299,21 @@
 		
 	</div>
 </div>
-<div id="noCategorySelected">
-	<div class="alert alert-danger" role="alert">
-		<strong>You must select a category above before you select additional day(s) off.</strong>
-	</div>
-</div>
 
-<div id="noDatesSelectedWarning">
+<div id="noDatesSelectedWarning" style="display:none;">
 	<div class="alert alert-danger" role="alert">
 		<strong>No dates are currently selected.</strong>
 	</div>
 </div>
 <div id="datesSelectedDetails"></div>
+
+<div id="MyWizard" class="wizard">
+    <ul class="steps">
+        <li data-target="#step1" class="step1 active"><span class="badge badge-info">1</span>Select a Category<span class="chevron"></span></li>
+        <li data-target="#step2" class="step2"><span class="badge">2</span>Select date(s)<span class="chevron"></span></li>
+        <li data-target="#step3" class="step3 last"><span class="badge">3</span>Provide a Reason & Submit</li>
+    </ul>
+</div>
 
 <!-- br style="clear:both;" /><br style="clear:both;" />
 

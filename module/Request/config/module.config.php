@@ -16,7 +16,7 @@ return [
             'home' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
-                    'route' => '/',
+                    'route' => '/request/create',
                     'defaults' => [
                         'controller' => 'Request\Controller\Request',
                         'action' => 'create'

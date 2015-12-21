@@ -173,16 +173,19 @@ var timeOffCreateRequestHandler = new function()
             			'<br style="clear:both;"/>' +
 	            		'<br style="clear:both;"/>' +
 	            		'<textarea cols="40" rows="4" id="requestReason"></textarea><br /><br />' +
-            			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>';
+            			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>' +
+            			'<br style="clear:both;" /><br style="clear:both;" />';
             		
             		$("#datesSelectedDetails").html(datesSelectedDetailsHtml);
             		
             		if(selectedDates.length===0) {
             			$('#datesSelectedDetails').hide();
-            			$('#noDatesSelectedWarning').show();
+            			timeOffCreateRequestHandler.setStep('2');
+//            			$('#noDatesSelectedWarning').show();
             		} else {
             			$('#datesSelectedDetails').show();
-            			$('#noDatesSelectedWarning').hide();
+            			timeOffCreateRequestHandler.setStep('3');
+//            			$('#noDatesSelectedWarning').hide();
             		}
         		}
         	});
@@ -235,7 +238,8 @@ var timeOffCreateRequestHandler = new function()
     		object.removeClass(object.attr("data-category"));
     		selectedTimeoffCategory = null;
     		object.removeClass("categorySelected");
-    		$('#noCategorySelected').show();
+    		//$('#noCategorySelected').show();
+    		timeOffCreateRequestHandler.setStep('1');
     		$('.timeOffCalendarWrapper').hide();
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
@@ -244,7 +248,8 @@ var timeOffCreateRequestHandler = new function()
 	    	object.addClass("categorySelected");
 	    	object.addClass(selectedTimeoffCategory);
 	    	console.log(selectedTimeoffCategory);
-	    	$('#noCategorySelected').hide();
+//	    	$('#noCategorySelected').hide();
+	    	timeOffCreateRequestHandler.setStep('2');
 	    	$('.timeOffCalendarWrapper').show();
     	}
     }
@@ -292,6 +297,13 @@ var timeOffCreateRequestHandler = new function()
             console.log( 'There was some error.' );
             return;
         });
+    }
+    
+    this.setStep = function(step) {
+    	$(".step1").removeClass("active");
+    	$(".step2").removeClass("active");
+    	$(".step3").removeClass("active");
+    	$(".step"+step).addClass("active");
     }
     
     this.submitTimeOffRequest = function() {
