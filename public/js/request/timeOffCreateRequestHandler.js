@@ -37,7 +37,17 @@ var timeOffCreateRequestHandler = new function()
     	/** Dates selected for pending approval requests **/
     	selectedDatesPendingApproval = [],
     	selectedDateCategoriesPendingApproval = [],
-    	selectedDateHoursPendingApproval = [];
+    	selectedDateHoursPendingApproval = [],
+    	categoryText = {
+    		'timeOffPTO': 'PTO',
+    		'timeOffFloat': 'Float',
+    		'timeOffSick': 'Sick',
+    		'timeOffGrandfathered': 'Grandfathered',
+    		'timeOffUnexcusedAbsence': 'Unexcused',
+    		'timeOffBereavement': 'Bereavement',
+    		'timeOffCivicDuty': 'Civic Duty',
+    		'timeOffApprovedNoPay': 'Approved No Pay'
+    	};
 
     /**
      * Initializes binding
@@ -143,7 +153,7 @@ var timeOffCreateRequestHandler = new function()
             		*****************/
         			
             		datesSelectedDetailsHtml = '<br /><strong>Adjust Hours:</strong>' +
-        			'<br style="clear:both;"/>';
+        			'<br style="clear:both;"/><br style="clear:both;"/>';
             		
             		totalPTORequested = 0;
             		totalFloatRequested = 0;
@@ -155,7 +165,8 @@ var timeOffCreateRequestHandler = new function()
                 	totalApprovedNoPayRequested = 0;
                 	
             		for(var key = 0; key < selectedDatesNew.length; key++) {
-            			datesSelectedDetailsHtml += '<span class="glyphicon glyphicon-' + selectedDatesNew[key].category + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled"><br style="clear:both;" />';
+//            			datesSelectedDetailsHtml += '<span class="glyphicon glyphicon-' + selectedDatesNew[key].category + '"></span>&nbsp;&nbsp;&nbsp;&nbsp;' + selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled"><br style="clear:both;" />';
+            			datesSelectedDetailsHtml += selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled">&nbsp;&nbsp;&nbsp;&nbsp;<span class="badge ' + selectedDatesNew[key].category + '">' + timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) + '</span><br style="clear:both;" />';
             			
             			switch(selectedDatesNew[key].category) {
 	        				case 'timeOffPTO':
@@ -193,20 +204,20 @@ var timeOffCreateRequestHandler = new function()
             		}
             		
             		datesSelectedDetailsHtml +=
-            			'<br /><strong>Totals being requested:</strong>' +
-            			'<br style="clear:both;"/>' +
+//            			'<br /><strong>Totals being requested:</strong>' +
+//            			'<br style="clear:both;"/>' +
+//	            		'<br style="clear:both;"/>' +
+//	            		'<span class="badge timeOffPTO">PTO: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalPTORequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffFloat">FLOAT: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalFloatRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffSick">SICK: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalSickRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffGrandfathered">GRANDFATHERED: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalGrandfatheredRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffUnexcusedAbsence">UNEXCUSED ABSENCE: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalUnexcusedAbsenceRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffBereavement">BEREAVEMENT: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalBereavementRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffCivicDuty">CIVIC DUTY: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalCivicDutyRequested) + '</span>&nbsp;&nbsp;' +
+//	            		'<span class="badge timeOffApprovedNoPay">APPROVED NO PAY: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalApprovedNoPayRequested) + '</span>' +
+//	            		'<br style="clear:both;"/>' +
 	            		'<br style="clear:both;"/>' +
-	            		'<span class="badge timeOffPTO">PTO: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalPTORequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffFloat">FLOAT: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalFloatRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffSick">SICK: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalSickRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffGrandfathered">GRANDFATHERED: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalGrandfatheredRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffUnexcusedAbsence">UNEXCUSED ABSENCE: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalUnexcusedAbsenceRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffBereavement">BEREAVEMENT: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalBereavementRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffCivicDuty">CIVIC DUTY: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalCivicDutyRequested) + '</span>&nbsp;&nbsp;' +
-	            		'<span class="badge timeOffApprovedNoPay">APPROVED NO PAY: ' + timeOffCreateRequestHandler.setTwoDecimalPlaces(totalApprovedNoPayRequested) + '</span>' +
-	            		'<br style="clear:both;"/>' +
-	            		'<br style="clear:both;"/>' +
-	            		'<strong>Totals being requested:</strong>' +
+	            		'<strong>Reason for request:</strong>' +
             			'<br style="clear:both;"/>' +
 	            		'<br style="clear:both;"/>' +
 	            		'<textarea cols="40" rows="4" id="requestReason"></textarea><br /><br />' +
@@ -232,6 +243,10 @@ var timeOffCreateRequestHandler = new function()
         	
         	$('.timeOffCalendarWrapper').hide();
         });
+    }
+    
+    this.getCategoryText = function(category) {
+    	return categoryText[category];
     }
 
     this.checkLocalStorage = function() {
