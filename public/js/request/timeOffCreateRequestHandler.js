@@ -349,9 +349,7 @@ var timeOffCreateRequestHandler = new function()
             type: 'POST',
             data: {
               action: 'submitTimeoffRequest',
-              selectedDates: selectedDates,
-              selectedDateCategories: selectedDateCategories,
-              selectedDateHours: selectedDateHours,
+              selectedDatesNew: selectedDatesNew,
               requestReason: requestReason
             },
             dataType: 'json'

@@ -83,12 +83,18 @@ class RequestController extends AbstractActionController
             switch($request->getPost()->action) {
                 case 'submitTimeoffRequest':
                     $requestData = [];
-                    foreach($request->getPost()->selectedDates as $key => $date) {
-                        $date = \DateTime::createFromFormat('m/d/Y', $date);
+                    
+//                     echo '<pre>';
+//                     print_r($request->getPost()->selectedDatesNew);
+//                     echo '</pre>';
+//                     exit();
+                    
+                    foreach($request->getPost()->selectedDatesNew as $key => $data) {
+                        $date = \DateTime::createFromFormat('m/d/Y', $request->getPost()->selectedDatesNew[$key]['date']);
                         $requestData[] = [
                             'date' => $date->format('Y-m-d'),
-                            'type' => self::$typesToCodes[$request->getPost()->selectedDateCategories[$key]],
-                            'hours' => (int) $request->getPost()->selectedDateHours[$key]
+                            'type' => self::$typesToCodes[$request->getPost()->selectedDatesNew[$key]['category']],
+                            'hours' => (int) $request->getPost()->selectedDatesNew[$key]['hours']
                         ];
                     }
                     
