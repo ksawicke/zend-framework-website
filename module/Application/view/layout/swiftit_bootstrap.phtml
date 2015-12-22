@@ -39,6 +39,7 @@
       // will update with better solution if poss
       if(strpos($_SERVER['REDIRECT_URL'], '/request/create') !== false) {
           $this->headScript()
+            ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
             ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'));
       }
       if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar') !== false) {

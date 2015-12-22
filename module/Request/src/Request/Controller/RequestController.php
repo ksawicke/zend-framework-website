@@ -14,9 +14,9 @@ class RequestController extends AbstractActionController
 
     protected $requestForm;
 
-    public $employeeNumber;
+    protected $employeeNumber;
 
-    public $managerNumber;
+    protected $managerNumber;
     
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
@@ -78,10 +78,13 @@ class RequestController extends AbstractActionController
     public function apiAction()
     {
         $request = $this->getRequest();
+        var_dump($request->getPost());exit();
         
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'submitTimeoffRequest':
+                    $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
+                    
                     $requestData = [];
                     
 //                     echo '<pre>';
@@ -98,7 +101,7 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     
-                    $requestReturnData = $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData, $request->getPost()->requestReason);
+                    $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -146,6 +149,8 @@ class RequestController extends AbstractActionController
                     break;
                     
                 case 'loadCalendar':
+                    $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
+                    
                     //submitTimeoffRequest
                     $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
                     $prev = date("Y-m-d", strtotime("-3 month", $time));
@@ -163,10 +168,10 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
                     \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
                     
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
+                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
-                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "A");
-                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "P");
+                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
+                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
 //                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
 //                     $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
@@ -214,6 +219,7 @@ class RequestController extends AbstractActionController
                         'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                         'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
                         'employeeData' => $employeeData,
+                        'employeeNumber' => $employeeNumber,
                         'approvedRequestData' => $approvedRequestData,
                         'approvedRequestJson' => $approvedRequestJson,
                         'pendingRequestData' => $pendingRequestData,
@@ -273,5 +279,10 @@ class RequestController extends AbstractActionController
             'requestId' => $requestId,
             'pendingRequestData' => $pendingRequestData[$requestId]
         ));
+    }
+    
+    protected function setEmployeeNumber($employeeNumber)
+    {
+        $this->employeeNumber = $employeeNumber;
     }
 }
