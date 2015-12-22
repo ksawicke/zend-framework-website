@@ -152,7 +152,7 @@ var timeOffCreateRequestHandler = new function()
             		}
             		*****************/
         			
-            		datesSelectedDetailsHtml = '<br /><strong>Adjust Hours:</strong>' +
+            		datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>' +
         			'<br style="clear:both;"/><br style="clear:both;"/>';
             		
             		totalPTORequested = 0;
@@ -275,6 +275,11 @@ var timeOffCreateRequestHandler = new function()
 //    	console.log("OBJECT", object);
     	$('.btn-requestCategory').removeClass("categorySelected");
     	$('.btn-requestCategory').removeClass(selectedTimeoffCategory);
+    	//categoryText
+    	for(category in categoryText) {
+    		$('.'+category+'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
+    		$('.buttonDisappear'+category.substr(7)).show();
+    	}
 //    	object.removeClass(object.attr("data-category"));
 //    	object.removeClass("categorySelected");
 //    	$(".selectTimeOffCategory").removeClass("categorySelected");
@@ -290,6 +295,7 @@ var timeOffCreateRequestHandler = new function()
     		object.removeClass(object.attr("data-category"));
     		selectedTimeoffCategory = null;
     		object.removeClass("categorySelected");
+    		$('.'+object.attr("data-category")+'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
     		//$('#noCategorySelected').show();
     		timeOffCreateRequestHandler.setStep('1');
     		$('.timeOffCalendarWrapper').hide();
@@ -299,9 +305,17 @@ var timeOffCreateRequestHandler = new function()
 //	    	object.prev('div').addClass("categoryColorSelected");
 	    	object.addClass("categorySelected");
 	    	object.addClass(selectedTimeoffCategory);
-	    	console.log(selectedTimeoffCategory);
+//	    	$('.buttonDisappearPTO').hide();
+	    	for(category in categoryText) {
+	    		if(selectedTimeoffCategory!=category) {
+//	    			console.log('.buttonDisappear'+category.substr(7));
+	    			$('.buttonDisappear'+category.substr(7)).hide();
+	    		}
+	    	}
+//	    	console.log(selectedTimeoffCategory);
 //	    	$('#noCategorySelected').hide();
 	    	timeOffCreateRequestHandler.setStep('2');
+	    	$('.'+selectedTimeoffCategory+'CloseIcon').addClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
 	    	$('.timeOffCalendarWrapper').show();
     	}
     }

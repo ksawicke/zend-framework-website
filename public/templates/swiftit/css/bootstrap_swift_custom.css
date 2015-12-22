@@ -871,3 +871,20 @@ span.badge {
 .step-content .active .btn-group .active {
     display: inline-block
 }
+
+/**
+ * Close button
+ **/
+
+.buttonAllowForIcon {
+    position: relative;
+}
+
+.categoryCloseIcon {
+    position: absolute;
+	color:#fff;
+	right:5px;
+	top:5px;
+    width:15px;
+    height:15px;
+}
