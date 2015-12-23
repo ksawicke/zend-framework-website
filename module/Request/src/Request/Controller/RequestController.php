@@ -78,10 +78,32 @@ class RequestController extends AbstractActionController
     public function apiAction()
     {
         $request = $this->getRequest();
-        var_dump($request->getPost());exit();
         
         if ($request->isPost()) {
             switch($request->getPost()->action) {
+                case 'getEmployeeList':
+                    //$request->getPost()->search
+                    
+                    /**
+                     * 366099  GUIDO FAECKE
+                       49499  JAMES GASIOR
+                       229589  MARY JACKSON
+                       366124  NEDRA MUNOZ
+                       229702  HEIDI CLARK
+                       348370  DENNIS WEGLARZ
+                       296261  RANDY SENA
+                     **/
+                    
+                    $result = new JsonModel([
+                        [ 'employeeNumber' => '366099', 'employeeName' => 'Faecke, Guido' ],
+                        [ 'employeeNumber' => '49499', 'employeeName' => 'Gasior, James' ],
+                        [ 'employeeNumber' => '366124', 'employeeName' => 'Munroz, Nedra' ],
+                        [ 'employeeNumber' => '229702', 'employeeName' => 'Clark, Heidi' ],
+                        [ 'employeeNumber' => '348370', 'employeeName' => 'Weglarz, Dennis' ],
+                        [ 'employeeNumber' => '296261', 'employeeName' => 'Sena, Randy' ]
+                    ]);
+                    break;
+                    
                 case 'submitTimeoffRequest':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     

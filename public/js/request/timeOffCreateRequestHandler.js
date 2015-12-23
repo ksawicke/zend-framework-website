@@ -59,12 +59,17 @@ var timeOffCreateRequestHandler = new function()
                 ajax: {
                     url: timeOffLoadCalendarUrl,
                     method: 'post',
-                    data: {
-                  	  action: 'loadEmployees'
+                    preDispatch: function (query) {
+                        return {
+                            search: query,
+                            action: 'getEmployeeList'
+                        }
                     },
+                    valueField: 'employeeNumber',
+                    displayField: 'employeeName',
                     triggerLength: 1
                 },
-                onSelect: timeOffCreateRequestHandler.displayResult
+                onSelect: timeOffCreateRequestHandler.selectResult
             });
         	
         	/**
@@ -681,8 +686,10 @@ var timeOffCreateRequestHandler = new function()
         });
     }
     
-    this.displayResult = function(item) {
-        $('.alert').show().html('You selected <strong>' + item.value + '</strong>: <strong>' + item.text + '</strong>');
+    this.selectResult = function(item) {
+//    	console.log("You selected", item);
+    	timeOffCreateRequestHandler.loadCalendars(item.value);
+    	// item.value = employeeNumber
     }
 };
 
