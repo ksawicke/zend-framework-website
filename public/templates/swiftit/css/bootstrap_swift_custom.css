@@ -891,3 +891,45 @@ span.badge {
 .red {
 	color: red;
 }
+
+button .full-width {
+	width:100%;
+	display:block;
+}
+
+.requestIsForMe {
+	width: 100%;
+	text-align:left;
+}
+.requestIsForAnother {
+	display:none;
+}
+
+.typeahead + .dropdown-menu {
+    background-color:#fff;
+	border:1px solid #296eaa;
+}
+.typeahead + .dropdown-menu .active > a,
+.typeahead + .dropdown-menu .active > a:hover {
+    color: #000;
+    background-color: #e5c458;
+    /*background-image: -moz-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e5c458), to(#FF44FF));
+    background-image: -webkit-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: -o-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: linear-gradient(to bottom, #e5c458, #FF44FF);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5c458', endColorstr='#FF44FF', GradientType=0);*/
+}
+.typeahead + .dropdown-menu li {
+	background:#fff;
+	margin:0px;
+	margin-top:-3px;
+	padding:5px;
+}
+
+.requestIsForMe {
+	border:1px solid #00467E;
+}
+.requestIsForMe:focus {
+	border:1px solid #e5c458;
+}

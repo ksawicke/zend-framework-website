@@ -20,7 +20,8 @@ var timeOffCreateRequestHandler = new function()
     	totalApprovedNoPayRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
-    	requestForEmployee = '',
+    	requestForEmployeeNumber = '',
+    	requestForEmployeeName = '',
     	requestReason = '',
     	/** Dates selected for this request **/
     	
@@ -69,8 +70,46 @@ var timeOffCreateRequestHandler = new function()
                     displayField: 'employeeName',
                     triggerLength: 1
                 },
-                onSelect: timeOffCreateRequestHandler.selectResult
+                onSelect: function(selection) {
+                	requestForEmployeeNumber = selection.value;
+                	requestForEmployeeName = selection.text;
+                	timeOffCreateRequestHandler.requestForAnotherComplete();
+                	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+                	console.log(selection);
+                	console.log("Request is for", requestForEmployeeNumber);
+                }
             });
+        	
+        	$(document).on('click', '.requestIsForMe', function() {
+        		timeOffCreateRequestHandler.setAsRequestForAnother();
+        	});
+        	
+        	$(document).on('click', '.requestIsForAnother', function() {
+        		timeOffCreateRequestHandler.clearRequestFor();
+//        		if(typeof requestForEmployeeNumber === "undefined") {
+//        			timeOffCreateRequestHandler.setAsRequestForMe();
+//        		}
+//        		if(typeof requestForEmployeeNumber === "string") {
+//        			console.log("WOO HOO");
+//        		}
+        	});
+
+        	$(document).on('focusout', '#demo5', function () {
+        		if($("#demo5").val()==="") {
+        			timeOffCreateRequestHandler.setAsRequestForMe();
+        		} else {
+        			$("#demo5").val(requestForEmployeeName);
+        		}
+        	});
+        	
+        	$(document).on('blur', '#demo5', function () {
+//        		console.log("#demo5 blur!");
+//        		console.log("CHECK requestForEmployeeNumber", requestForEmployeeNumber);
+//        		console.log("CHECK requestForEmployeeName", requestForEmployeeName);
+        		if($("#demo5").val()==="" && typeof requestForEmployeeNumber==="string") {
+        			$("#demo5").val(requestForEmployeeName);
+        		}
+        	});
         	
         	/**
         	 * Handle clicking previous or next buttons on calendars
@@ -109,7 +148,7 @@ var timeOffCreateRequestHandler = new function()
         		}
         	});
         	
-        	$(document).on('click', '.changeRequestForEmployee', function() {
+        	$(document).on('click', '.changerequestForEmployeeNumber', function() {
         		timeOffCreateRequestHandler.loadCalendars($(this).attr("data-employee-number"));
         	});
         	
@@ -229,8 +268,8 @@ var timeOffCreateRequestHandler = new function()
           dataType: 'json'
     	})
         .success( function(json) {
-        	requestForEmployee = employeeNumber;
-//        	console.log("requestForEmployee", requestForEmployee);
+        	requestForEmployeeNumber = employeeNumber;
+//        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
         	var calendarHtml = '';
         	$.each(json.calendars, function(index, thisCalendarHtml) {
         		$("#calendar" + index + "Html").html(
@@ -274,7 +313,7 @@ var timeOffCreateRequestHandler = new function()
               action: 'submitTimeoffRequest',
               selectedDatesNew: selectedDatesNew,
               requestReason: requestReason,
-              employeeNumber: requestForEmployee
+              employeeNumber: requestForEmployeeNumber
             },
             dataType: 'json'
       	})
@@ -300,7 +339,7 @@ var timeOffCreateRequestHandler = new function()
         	  action: 'loadCalendar',
         	  startMonth: startMonth,
         	  startYear: startYear,
-        	  employeeNumber: requestForEmployee
+        	  employeeNumber: requestForEmployeeNumber
           },
           dataType: 'json'
     	})
@@ -690,6 +729,27 @@ var timeOffCreateRequestHandler = new function()
 //    	console.log("You selected", item);
     	timeOffCreateRequestHandler.loadCalendars(item.value);
     	// item.value = employeeNumber
+    }
+    
+    this.setAsRequestForAnother = function() {
+    	$('.requestIsForMe').hide();
+		$('.requestIsForAnother').show();
+		$('.requestIsForAnother').focus();
+    }
+    
+    this.setAsRequestForMe = function() {
+    	$('.requestIsForMe').show();
+		$('.requestIsForAnother').hide();
+		timeOffCreateRequestHandler.clearRequestFor();
+    }
+    
+    this.clearRequestFor = function() {
+    	$('#demo5').val('');
+    }
+    
+    this.requestForAnotherComplete = function() {
+    	$(':focus').blur();
+    	console.log("Did we exit the field??");
     }
 };
 

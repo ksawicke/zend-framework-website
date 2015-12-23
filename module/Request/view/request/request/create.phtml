@@ -1,19 +1,30 @@
 <h3>Create New Time Off Request</h3>
 
-<strong>For: <span class="changeRequestForEmployee" data-employee-number="296261"><?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong></span>
-<br />
+<!-- strong>For: <span class="changeRequestForEmployee" data-employee-number="296261"><?php echo ucwords($employeeData->FIRST_NAME); ?> <?php echo ucwords($employeeData->LAST_NAME); ?></strong></span>
+<br /-->
 <!-- strong><span class="changeRequestForEmployee" data-employee-number="49499">JAMES GASIOR</span></strong>&nbsp;&nbsp;&nbsp;<strong><span class="changeRequestForEmployee" data-employee-number="366099">GUIDO FAECKE</span></strong-->
-<br />
+<br style="clear:both;" />
 
 <div class="tab-pane" id="tab-demo5">
-    <div class="well col-md-5">
-        <input id="demo5" type="text" class="col-md-12 form-control" placeholder="Choose another employee" autocomplete="off" />
+    <div class="col-md-1 col-lg-1">
+    	<strong>For:</strong>
+	</div>
+	<div class="col-md-5 col-lg-5">
+		<div class="btn-group col-md-12 col-lg-12">
+          <button type="button" class="btn btn-default dropdown-toggle requestIsForMe"
+           aria-haspopup="false" aria-expanded="false">
+            Sena, Randy <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>
+          </button>
+		  <input id="demo5" type="text" class="form-control requestIsForAnother typeahead" placeholder="Choose another employee" autocomplete="off" />
+		</div>
     </div>
-    <div class="col-md-7">
-
+    <div class="col-md-6 col-lg-6">
+		
     </div>
 </div>
 
+<br style="clear:both;" />
+<br style="clear:both;" />
 <br style="clear:both;" />
 
 <div id="MyWizard" class="wizard">
