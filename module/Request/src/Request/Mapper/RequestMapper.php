@@ -744,6 +744,22 @@ class RequestMapper implements RequestMapperInterface
         return $employeeData;
     }
     
+    public function findManagerEmployees($managerEmployeeNumber = null)
+    {
+        $sql = new Sql($this->dbAdapter);
+        
+        $select = $sql->select(['employee' => 'PRPMS'])
+            ->columns(['employeeNumber' => 'PREN', 'employeeLastName' => 'PRLNM', 'employeeFirstName' => 'PRFNM'])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['trim(manager.SPSPEN)' => $managerEmployeeNumber])
+            ->order(['employee.PRLNM ASC, employee.PRFNM ASC']);
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
+        return $employeeData;
+    }
+    
     public function findQueuesByManager($managerEmployeeNumber = null)
     {
 //         $select = $this->dbAdapter->query("select

@@ -45,8 +45,8 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '296261';
-        $this->managerNumber = '229589';
+        $this->employeeNumber = '229589';
+        $this->managerNumber = '49602';
     }
 
     public function createAction()
@@ -82,6 +82,12 @@ class RequestController extends AbstractActionController
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'getEmployeeList':
+//                     $employeeData = $this->requestService->findManagerEmployees($this->employeeNumber);
+//                     $result = new JsonModel([$employeeData]);
+//                     echo '<pre>';
+//                     print_r($employeeData);
+//                     echo '</pre>';
+//                     exit();
                     //$request->getPost()->search
                     
                     /**
@@ -94,14 +100,24 @@ class RequestController extends AbstractActionController
                        296261  RANDY SENA
                      **/
                     
-                    $result = new JsonModel([
-                        [ 'employeeNumber' => '366099', 'employeeName' => 'Faecke, Guido' ],
-                        [ 'employeeNumber' => '49499', 'employeeName' => 'Gasior, James' ],
-                        [ 'employeeNumber' => '366124', 'employeeName' => 'Munroz, Nedra' ],
-                        [ 'employeeNumber' => '229702', 'employeeName' => 'Clark, Heidi' ],
-                        [ 'employeeNumber' => '348370', 'employeeName' => 'Weglarz, Dennis' ],
-                        [ 'employeeNumber' => '296261', 'employeeName' => 'Sena, Randy' ]
-                    ]);
+                    $r = [];
+                    $x = $this->requestService->findManagerEmployees($this->employeeNumber);
+                    foreach($x as $id => $data) {
+                        $r[] = [ 'employeeNumber' => trim($data->EMPLOYEENUMBER),
+                                   'employeeName' => trim(ucwords(strtolower($data->EMPLOYEELASTNAME))) . ", " .
+                                                     trim(ucwords(strtolower($data->EMPLOYEEFIRSTNAME)))
+                                 ];
+                    }
+                    $result = new JsonModel($r);
+                    
+//                     $result = new JsonModel([
+//                         [ 'employeeNumber' => '366099', 'employeeName' => 'Faecke, Guido' ],
+//                         [ 'employeeNumber' => '49499', 'employeeName' => 'Gasior, James' ],
+//                         [ 'employeeNumber' => '366124', 'employeeName' => 'Munroz, Nedra' ],
+//                         [ 'employeeNumber' => '229702', 'employeeName' => 'Clark, Heidi' ],
+//                         [ 'employeeNumber' => '348370', 'employeeName' => 'Weglarz, Dennis' ],
+//                         [ 'employeeNumber' => '296261', 'employeeName' => 'Sena, Randy' ]
+//                     ]);
                     break;
                     
                 case 'submitTimeoffRequest':

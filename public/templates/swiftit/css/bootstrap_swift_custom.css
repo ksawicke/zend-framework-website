@@ -926,10 +926,3 @@ button .full-width {
 	margin-top:-3px;
 	padding:5px;
 }
-
-.requestIsForMe {
-	border:1px solid #00467E;
-}
-.requestIsForMe:focus {
-	border:1px solid #e5c458;
-}

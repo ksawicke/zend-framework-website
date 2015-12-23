@@ -75,6 +75,7 @@ var timeOffCreateRequestHandler = new function()
                 	requestForEmployeeName = selection.text;
                 	timeOffCreateRequestHandler.requestForAnotherComplete();
                 	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+                	timeOffCreateRequestHandler.setAsRequestForAnother();
                 	console.log(selection);
                 	console.log("Request is for", requestForEmployeeNumber);
                 }
@@ -95,20 +96,16 @@ var timeOffCreateRequestHandler = new function()
         	});
 
         	$(document).on('focusout', '#demo5', function () {
-        		if($("#demo5").val()==="") {
+//        		console.log("focusout :: " + requestForEmployeeName + " :: " + $("#demo5").val());
+        		if(requestForEmployeeName!=="" && requestForEmployeeName===$("#demo5").val()) {
+        			// Do nothing.
+        		} else if(requestForEmployeeName==="" && $("#demo5").val()==="") {
         			timeOffCreateRequestHandler.setAsRequestForMe();
-        		} else {
-        			$("#demo5").val(requestForEmployeeName);
         		}
         	});
         	
         	$(document).on('blur', '#demo5', function () {
-//        		console.log("#demo5 blur!");
-//        		console.log("CHECK requestForEmployeeNumber", requestForEmployeeNumber);
-//        		console.log("CHECK requestForEmployeeName", requestForEmployeeName);
-        		if($("#demo5").val()==="" && typeof requestForEmployeeNumber==="string") {
-        			$("#demo5").val(requestForEmployeeName);
-        		}
+//        		timeOffCreateRequestHandler.setAsRequestForMe();
         	});
         	
         	/**
@@ -290,6 +287,17 @@ var timeOffCreateRequestHandler = new function()
 //        	console.log('json.pendingRequestJson', json.pendingRequestJson);
         	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeOffCreateRequestHandler.highlightDates();
+        	
+        	console.log('employeeData', json.employeeData);
+        	// json.employeeData.EMPLOYEE_NUMBER
+        	// json.employeeData.FIRST_NAME
+        	// json.employeeData.LAST_NAME
+//        	console.log($.trim(json.employeeData.EMPLOYEE_NUMBER));
+        	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
+        	requestForEmployeeName = timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
+        		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.FIRST_NAME);
+        	$(".requestIsForMe").html(requestForEmployeeName +
+        	  ' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
             return;
         })
         .error( function() {
@@ -750,6 +758,10 @@ var timeOffCreateRequestHandler = new function()
     this.requestForAnotherComplete = function() {
     	$(':focus').blur();
     	console.log("Did we exit the field??");
+    }
+    
+    this.capitalizeFirstLetter = function(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 };
 
