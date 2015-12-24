@@ -358,6 +358,10 @@ class RequestMapper implements RequestMapperInterface
         $result['APPROVED_NO_PAY_PENDING'] = 0;
         $result['APPROVED_NO_PAY_PENDING_APPROVAL'] = 0;
         
+        $result['FIRST_NAME'] = trim($result['FIRST_NAME']);
+        $result['LAST_NAME'] = trim($result['LAST_NAME']);
+        $result['POSITION_TITLE'] = trim($result['POSITION_TITLE']);
+        
 //         echo '<pre>';
 //         print_r($result);
 //         echo '</pre>';
@@ -744,17 +748,31 @@ class RequestMapper implements RequestMapperInterface
         return $employeeData;
     }
     
-    public function findManagerEmployees($managerEmployeeNumber = null)
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null)
     {
         $sql = new Sql($this->dbAdapter);
         
         $select = $sql->select(['employee' => 'PRPMS'])
-            ->columns(['employeeNumber' => 'PREN', 'employeeLastName' => 'PRLNM', 'employeeFirstName' => 'PRFNM'])
+            ->columns(['employeeNumber' => 'PREN',
+                       'employeeLastName' => 'PRLNM',
+                       'employeeFirstName' => 'PRFNM',
+//                        'employeeSearchResult' => new Expression("concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' )")
+                      ])
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where(['trim(manager.SPSPEN)' => $managerEmployeeNumber])
+            ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' AND ( trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRFNM) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' )")
+            
+            // AND concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' ) LIKE '%gas%'
+            
+            // This works:
+            // ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' OR trim(manager.SPSPEN) = '49602'")
+            
+//             ->where(['trim(manager.SPSPEN)' => $managerEmployeeNumber
+// //                      'employeeSearchResult' => 'SENA, RANDY (296261)'
+//                     ])
+//             ->where(['employeeSearchResult LIKE ?', "%$search%"])
             ->order(['employee.PRLNM ASC, employee.PRFNM ASC']);
-        
+//         die($select->getSqlString());
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         
         return $employeeData;

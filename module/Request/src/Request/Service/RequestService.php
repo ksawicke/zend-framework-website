@@ -53,9 +53,9 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->findTimeOffBalancesByManager($managerEmployeeNumber);
     }
     
-    public function findManagerEmployees($managerEmployeeNumber)
+    public function findManagerEmployees($managerEmployeeNumber, $search)
     {
-        return $this->requestMapper->findManagerEmployees($managerEmployeeNumber);
+        return $this->requestMapper->findManagerEmployees($managerEmployeeNumber, $search);
     }
     
     public function findQueuesByManager($managerEmployeeNumber)

@@ -16,7 +16,7 @@ interface RequestServiceInterface
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber);
     
-    public function findManagerEmployees($managerEmployeeNumber);
+    public function findManagerEmployees($managerEmployeeNumber, $search);
     
     public function findQueuesByManager($managerEmployeeNumber);
     

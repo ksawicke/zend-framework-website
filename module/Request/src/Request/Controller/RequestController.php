@@ -101,11 +101,15 @@ class RequestController extends AbstractActionController
                      **/
                     
                     $r = [];
-                    $x = $this->requestService->findManagerEmployees($this->employeeNumber);
+                    $x = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
+//                     echo '<pre>';
+//                     print_r($x);
+//                     echo '</pre>';
+//                     die("@@@");
                     foreach($x as $id => $data) {
-                        $r[] = [ 'employeeNumber' => trim($data->EMPLOYEENUMBER),
-                                   'employeeName' => trim(ucwords(strtolower($data->EMPLOYEELASTNAME))) . ", " .
-                                                     trim(ucwords(strtolower($data->EMPLOYEEFIRSTNAME)))
+                        $r[] = [ 'id' => trim($data->EMPLOYEENUMBER),
+                                 'text' => trim($data->EMPLOYEELASTNAME) . ", " .
+                                           trim($data->EMPLOYEEFIRSTNAME)
                                  ];
                     }
                     $result = new JsonModel($r);

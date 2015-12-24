@@ -56,53 +56,99 @@ var timeOffCreateRequestHandler = new function()
      */
     this.initialize = function() {
         $(document).ready(function() {
-        	$('#demo5').typeahead({
-                ajax: {
-                    url: timeOffLoadCalendarUrl,
-                    method: 'post',
-                    preDispatch: function (query) {
-                        return {
-                            search: query,
-                            action: 'getEmployeeList'
-                        }
-                    },
-                    valueField: 'employeeNumber',
-                    displayField: 'employeeName',
-                    triggerLength: 1
-                },
-                onSelect: function(selection) {
-                	requestForEmployeeNumber = selection.value;
-                	requestForEmployeeName = selection.text;
-                	timeOffCreateRequestHandler.requestForAnotherComplete();
-                	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-                	timeOffCreateRequestHandler.setAsRequestForAnother();
-                	console.log(selection);
-                	console.log("Request is for", requestForEmployeeNumber);
-                }
-            });
+        	//var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
         	
-        	$(document).on('click', '.requestIsForMe', function() {
-        		timeOffCreateRequestHandler.setAsRequestForAnother();
-        	});
-        	
-        	$(document).on('click', '.requestIsForAnother', function() {
-        		timeOffCreateRequestHandler.clearRequestFor();
-//        		if(typeof requestForEmployeeNumber === "undefined") {
-//        			timeOffCreateRequestHandler.setAsRequestForMe();
-//        		}
-//        		if(typeof requestForEmployeeNumber === "string") {
-//        			console.log("WOO HOO");
-//        		}
+        	var $eventLog = $(".js-event-log");
+        	var $requestForEventSelect = $("#requestFor");
+        	$("#requestFor").select2({
+        		//data: data
+        		ajax: {
+        			 url: timeOffLoadCalendarUrl,
+        			 method: 'post',
+        			 dataType: 'json',
+        			 delay: 250,
+        			 data: function(params) {
+        				 return {
+        					 search: params.term,
+        					 action: 'getEmployeeList',
+        					 page: params.page
+        				 };
+        			 },
+        			 processResults: function(data, params) {
+        				 params.page = params.page || 1;
+        				 
+        				 return {
+        					 results: data,
+        					 pagination: {
+        						 more: (params.page * 30) < data.total_count
+        					 }
+        				 };
+        			 },
+        			 cache: true,
+        			 allowClear: true
+        		},
+//        		escapeMarkup: function(markup) {
+//        			return markup;
+//        		},
+        		minimumInputLength: 2,
+//        		theme: "classic"
+//        		templateResult: function(result) {
+//    		        var markup = result.employeeName + '<br />';
+//
+//    		        return markup;
+//    		    },
+//        		templateSelection: function(repo) {
+//        		      return repo.full_name || repo.text;
+//        	    }
         	});
 
+        	/**
+        	 * When we change the for dropdown using select2,
+        	 * set the employee number and name as a local variable
+        	 * for form submission, and refresh the calendars.
+        	 */
+        	$requestForEventSelect.on("select2:select", function (e) {
+        		var selectedEmployee = e.params.data;
+        		console.log(selectedEmployee);
+        		requestForEmployeeNumber = selectedEmployee.id;
+            	requestForEmployeeName = selectedEmployee.text;
+            	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+        	});
+        	
+//        	$('#demo5').typeahead({
+//                ajax: {
+//                    url: timeOffLoadCalendarUrl,
+//                    method: 'post',
+//                    preDispatch: function (query) {
+//                        return {
+//                            search: query,
+//                            action: 'getEmployeeList'
+//                        }
+//                    },
+//                    valueField: 'employeeNumber',
+//                    displayField: 'employeeName',
+//                    triggerLength: 1
+//                },
+//                onSelect: function(selection) {
+//                	requestForEmployeeNumber = selection.value;
+//                	requestForEmployeeName = selection.text;
+//                	timeOffCreateRequestHandler.requestForAnotherComplete();
+//                	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+//                	timeOffCreateRequestHandler.setAsRequestForAnother();
+//                	console.log(selection);
+//                	console.log("Request is for", requestForEmployeeNumber);
+//                }
+//            });
+        	
+//        	$(document).on('click', '.requestIsForMe', function() {
+//        		timeOffCreateRequestHandler.setAsRequestForAnother();
+//        	});
+//        	
+//        	$(document).on('click', '.requestIsForAnother', function() {
+//        		timeOffCreateRequestHandler.clearRequestFor();
+//        	});
+
         	$(document).on('focusout', '#demo5', function () {
-//        		console.log("focusout :: " + requestForEmployeeName + " :: " + $("#demo5").val());
-//        		if(requestForEmployeeName!=="" && requestForEmployeeName===$("#demo5").val()) {
-//        			// Do nothing.
-//        		} else if(requestForEmployeeName==="" && $("#demo5").val()==="") {
-//        			timeOffCreateRequestHandler.setAsRequestForMe();
-//        		}
-        		
         		if(requestForEmployeeName==="" &&
         		   requestForEmployeeName===$("#demo5").val() &&
         		   $("#demo5").val()===""
@@ -303,8 +349,26 @@ var timeOffCreateRequestHandler = new function()
         	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
         	requestForEmployeeName = timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
         		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.FIRST_NAME);
-        	$(".requestIsForMe").html(requestForEmployeeName +
-        	  ' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
+        	
+//        	console.log(requestForEmployeeNumber);
+//        	console.log(requestForEmployeeName);
+        	
+//        	$("#requestFor").empty().append('<option value="' + requestForEmployeeNumber + '">' +
+//        									requestForEmployeeName + '</option>').val('id').trigger('change');
+        	
+        	$("#requestFor")
+        		.empty()
+        		.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
+        		.val(requestForEmployeeNumber).trigger('change');
+        	
+//        	$('#requestFor').append(
+//        	   $('<option></option>').val('123456').html('abcdefg')
+//        	);
+        	
+        	// <option value="2" selected="selected">duplicate</option>
+        	
+//        	$(".requestIsForMe").html(requestForEmployeeName +
+//        	  ' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
             return;
         })
         .error( function() {
@@ -759,6 +823,29 @@ var timeOffCreateRequestHandler = new function()
     
     this.capitalizeFirstLetter = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    
+    this.log = function(name, evt) {
+    	if(!evt) {
+    		var args = "{}";
+    	} else {
+    		var args = JSON.stringify(evt.params, function(key, value) {
+    			if(value && value.nodeName) {
+    				return "[DOM node]";
+    			}
+    			if(value instanceof $.Event) {
+    				return "[$.Event]";
+    			}
+    			return value;
+    		});
+    	}
+    	var $e = $("<li>" + name + " -> " + args + "</li>");
+    	$eventLog.append($e);
+    	$e.animate({ opacity: 1 }, 10000, 'linear', function() {
+    		$e.animate({ opacity: 0 }, 2000, 'linear', function() {
+    			$e.remove();
+    		});
+    	});
     }
 };
 
