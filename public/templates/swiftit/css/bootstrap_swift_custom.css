@@ -898,11 +898,10 @@ button .full-width {
 }
 
 .requestIsForMe {
-	width: 100%;
-	text-align:left;
-}
-.requestIsForAnother {
 	display:none;
+	margin-right:30px;
+	margin-top:10px;
+	float:left;
 }
 
 .typeahead + .dropdown-menu {

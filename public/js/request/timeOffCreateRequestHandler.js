@@ -20,6 +20,7 @@ var timeOffCreateRequestHandler = new function()
     	totalApprovedNoPayRequested = 0,
     	defaultHours = 8,
     	selectedTimeoffCategory = null,
+    	loggedInUserData = [],
     	requestForEmployeeNumber = '',
     	requestForEmployeeName = '',
     	requestReason = '',
@@ -84,7 +85,7 @@ var timeOffCreateRequestHandler = new function()
         					 }
         				 };
         			 },
-        			 cache: true,
+//        			 cache: true,
         			 allowClear: true
         		},
 //        		escapeMarkup: function(markup) {
@@ -113,6 +114,7 @@ var timeOffCreateRequestHandler = new function()
         		requestForEmployeeNumber = selectedEmployee.id;
             	requestForEmployeeName = selectedEmployee.text;
             	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+            	$('.requestIsForMe').show();
         	});
         	
 //        	$('#demo5').typeahead({
@@ -147,19 +149,32 @@ var timeOffCreateRequestHandler = new function()
 //        	$(document).on('click', '.requestIsForAnother', function() {
 //        		timeOffCreateRequestHandler.clearRequestFor();
 //        	});
-
-        	$(document).on('focusout', '#demo5', function () {
-        		if(requestForEmployeeName==="" &&
-        		   requestForEmployeeName===$("#demo5").val() &&
-        		   $("#demo5").val()===""
-        		  ) {
-        			timeOffCreateRequestHandler.setAsRequestForMe();
-        		}
-        	});
         	
-        	$(document).on('blur', '#demo5', function () {
-//        		timeOffCreateRequestHandler.setAsRequestForMe();
+        	$(document).on('click', '.requestIsForMe', function() {
+        		$('.requestIsForMe').hide();
+        		//console.log('initial', loggedInUserData);
+        		requestForEmployeeNumber = loggedInUserData.EMPLOYEE_NUMBER;
+            	requestForEmployeeName = loggedInUserData.LAST_NAME+', '+loggedInUserData.FIRST_NAME;
+        		$("#requestFor")
+        			.empty()
+        			.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
+        			.val(requestForEmployeeNumber).trigger('change');
+        		timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+        		
         	});
+
+//        	$(document).on('focusout', '#demo5', function () {
+//        		if(requestForEmployeeName==="" &&
+//        		   requestForEmployeeName===$("#demo5").val() &&
+//        		   $("#demo5").val()===""
+//        		  ) {
+//        			timeOffCreateRequestHandler.setAsRequestForMe();
+//        		}
+//        	});
+        	
+//        	$(document).on('blur', '#demo5', function () {
+////        		timeOffCreateRequestHandler.setAsRequestForMe();
+//        	});
         	
         	/**
         	 * Handle clicking previous or next buttons on calendars
@@ -318,6 +333,10 @@ var timeOffCreateRequestHandler = new function()
           dataType: 'json'
     	})
         .success( function(json) {
+        	if(requestForEmployeeNumber==='') {
+        		loggedInUserData = json.employeeData;
+        	}
+        	
         	requestForEmployeeNumber = employeeNumber;
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
         	var calendarHtml = '';
@@ -346,6 +365,7 @@ var timeOffCreateRequestHandler = new function()
         	// json.employeeData.FIRST_NAME
         	// json.employeeData.LAST_NAME
 //        	console.log($.trim(json.employeeData.EMPLOYEE_NUMBER));
+        	
         	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
         	requestForEmployeeName = timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
         		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.FIRST_NAME);
