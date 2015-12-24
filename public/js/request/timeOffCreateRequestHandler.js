@@ -97,9 +97,16 @@ var timeOffCreateRequestHandler = new function()
 
         	$(document).on('focusout', '#demo5', function () {
 //        		console.log("focusout :: " + requestForEmployeeName + " :: " + $("#demo5").val());
-        		if(requestForEmployeeName!=="" && requestForEmployeeName===$("#demo5").val()) {
-        			// Do nothing.
-        		} else if(requestForEmployeeName==="" && $("#demo5").val()==="") {
+//        		if(requestForEmployeeName!=="" && requestForEmployeeName===$("#demo5").val()) {
+//        			// Do nothing.
+//        		} else if(requestForEmployeeName==="" && $("#demo5").val()==="") {
+//        			timeOffCreateRequestHandler.setAsRequestForMe();
+//        		}
+        		
+        		if(requestForEmployeeName==="" &&
+        		   requestForEmployeeName===$("#demo5").val() &&
+        		   $("#demo5").val()===""
+        		  ) {
         			timeOffCreateRequestHandler.setAsRequestForMe();
         		}
         	});
@@ -722,17 +729,6 @@ var timeOffCreateRequestHandler = new function()
 		console.log(selectedDatesNew);
     }
     
-    this.enableTypeAhead = function() {
-    	$('#demo5').typeahead({
-            ajax: {
-                url: '/cities/list',
-                method: 'post',
-                triggerLength: 1
-            },
-            onSelect: displayResult
-        });
-    }
-    
     this.selectResult = function(item) {
 //    	console.log("You selected", item);
     	timeOffCreateRequestHandler.loadCalendars(item.value);
@@ -756,8 +752,9 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.requestForAnotherComplete = function() {
-    	$(':focus').blur();
-    	console.log("Did we exit the field??");
+//    	$(':focus').blur();
+//    	console.log("Did we exit the field??");
+    	$(".requestIsForAnother").append(' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
     }
     
     this.capitalizeFirstLetter = function(string) {
