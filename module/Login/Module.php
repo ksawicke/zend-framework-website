@@ -59,11 +59,11 @@ class Module
 
         if ($session->offsetExists ( 'email' )) {
             if ($requestedResourse == 'Login\Controller\Login-index' || in_array ( $requestedResourse, $whiteList )) {
-                $url = '/login/index';
+                $url = '/sawik/timeoff/public/login/index';
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );
                 $response->setStatusCode ( 302 );
             }
-        }else{
+        } else {
 
             if ($requestedResourse != 'Login\Controller\Login-index' && ! in_array ( $requestedResourse, $whiteList )) {
                 $url = '/sawik/timeoff/public/login/index';

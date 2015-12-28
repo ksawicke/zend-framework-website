@@ -20,7 +20,11 @@ class LoginController extends AbstractActionController
         if ($request->isPost()) {
             $data = $request->getPost();
             $loginForm->setData($data);
-echo "got POST";
+            
+            echo '<pre>POST:';
+            print_r($data);
+            echo '</pre><br />';
+            
             if($loginForm->isValid()) {
                 $data = $loginForm->getData();
                 echo "is Valid!";
