@@ -703,6 +703,10 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 td.calendar-day {
 	cursor: pointer;
 }
+td.calendar-day-disabled {
+	background-color: #404040 !important;
+	cursor: default !important;
+}
 
 .requestPending {
 	filter:alpha(opacity=60); /* IE */

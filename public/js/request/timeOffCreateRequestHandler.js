@@ -222,7 +222,11 @@ var timeOffCreateRequestHandler = new function()
         	 */
         	$(document).on('click', '.calendar-day', function() {
         		var dateSelected = timeOffCreateRequestHandler.isSelected($(this));
-        		if(selectedTimeoffCategory != null) {
+//        		console.log(dateSelected);
+//        		console.log($(this));
+        		var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled($(this));
+//        		console.log(isDateDisabled);
+        		if(selectedTimeoffCategory != null && isDateDisabled === false) {
         			timeOffCreateRequestHandler.removeDateFromRequest(dateSelected);
         			timeOffCreateRequestHandler.drawHoursRequested();
         		}
@@ -234,6 +238,10 @@ var timeOffCreateRequestHandler = new function()
         	
         	$('.timeOffCalendarWrapper').hide();
         });
+    }
+    
+    this.isDateDisabled = function(object) {
+    	return ( object.hasClass("calendar-day-disabled") ? true : false );
     }
     
     this.getCategoryText = function(category) {

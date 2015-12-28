@@ -18,6 +18,12 @@ class RequestController extends AbstractActionController
 
     protected $managerNumber;
     
+    public $invalidRequestDates = [
+        'before' => '',
+        'after' => '',
+        'individual' => []
+    ];
+    
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
@@ -47,6 +53,24 @@ class RequestController extends AbstractActionController
 
         $this->employeeNumber = '229589';
         $this->managerNumber = '49602';
+        
+        // Disable dates starting with one month ago and any date before.
+        $this->invalidRequestDates['before'] = date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y"))));
+        
+        // Disable dates starting with the following date.
+        $this->invalidRequestDates['after'] = '12/31/2020';
+        
+        // Disable any dates in this array
+        $this->invalidRequestDates['individual'] = [
+            '12/25/2015',
+            '01/01/2016',
+            '05/30/2016',
+            '07/04/2016',
+            '09/05/2016',
+            '11/24/2016',
+            '12/26/2016',
+            '01/02/2017'
+        ];
     }
 
     public function createAction()
@@ -209,6 +233,7 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
                     \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
+                    \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
