@@ -59,6 +59,18 @@ return [
                 'may_terminate' => true,
                 'child_routes' => []
             ],
+//             'login' => [
+//                 'type' => 'literal',
+//                 'options' => [
+//                     'route' => '/request/login',
+//                     'defaults' => [
+//                         'controller' => 'Request\Controller\Request',
+//                         'action' => 'login'
+//                     ]
+//                 ],
+//                 'may_terminate' => true,
+//                 'child_routes' => []
+//             ],
             'viewEmployeeRequests' => [
                 'type' => 'literal',
                 'options' => [

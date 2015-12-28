@@ -71,7 +71,23 @@ class RequestController extends AbstractActionController
             '12/26/2016',
             '01/02/2017'
         ];
+        
+//         if(!$this->isLoggedIn()) {
+//             return $this->redirect()->toRoute('login');
+//         }
     }
+    
+//     public function isLoggedIn()
+//     {
+//         return false;
+//     }
+    
+//     public function loginAction()
+//     {
+//         return new ViewModel(array(
+            
+//         ));
+//     }
 
     public function createAction()
     {
