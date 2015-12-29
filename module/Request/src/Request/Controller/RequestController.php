@@ -9,7 +9,6 @@ use Zend\View\Model\JsonModel;
 
 class RequestController extends AbstractActionController
 {
-
     protected $requestService;
 
     protected $requestForm;

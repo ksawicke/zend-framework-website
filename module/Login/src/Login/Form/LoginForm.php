@@ -7,7 +7,7 @@ use Zend\Form\Element\Csrf;
 
 class LoginForm extends Form
 {
-    public function __construct($name)
+    public function __construct($name = null)
     {
         parent::__construct($name);
         $this->setAttribute('method', 'post');
@@ -17,7 +17,7 @@ class LoginForm extends Form
             'type' => 'text',
             'attributes' => array(
                 'id' => 'email',
-                'class' => 'input-sm',
+                'class' => 'form-control',
                 'placeholder' => 'example@example.com'
             ),
             'options' => array(
@@ -30,7 +30,7 @@ class LoginForm extends Form
             'type' => 'password',
             'attributes' => array(
                 'id' => 'password',
-                'class' => 'input-sm',
+                'class' => 'form-control',
                 'placeholder' => '**********'
             ),
             'options' => array(
@@ -53,7 +53,7 @@ class LoginForm extends Form
             'attributes' => array(
                 'type' => 'submit',
                 'value' => 'Submit',
-                'class' => 'btn btn-primary'
+                'class' => 'btn btn-form-primary'
             )
         ));
     }

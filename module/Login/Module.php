@@ -53,19 +53,25 @@ class Module
         $controller = $event->getRouteMatch ()->getParam ( 'controller' );
         $action = $event->getRouteMatch ()->getParam ( 'action' );
 
-        $requestedResourse = $controller . "-" . $action;
+        $requestedResource = $controller . "-" . $action;
 
         $session = new Container('User');
+        
+//         echo '<pre>';
+//         print_r($session);
+//         echo '</pre>';
+        
+//         die("@@");
 
         if ($session->offsetExists ( 'email' )) {
-            if ($requestedResourse == 'Login\Controller\Login-index' || in_array ( $requestedResourse, $whiteList )) {
-                $url = '/sawik/timeoff/public/login/index';
+            if ($requestedResource == 'Login\Controller\Login-index' || in_array ( $requestedResource, $whiteList )) {
+                $url = '/sawik/timeoff/public/request/create';
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );
                 $response->setStatusCode ( 302 );
             }
         } else {
 
-            if ($requestedResourse != 'Login\Controller\Login-index' && ! in_array ( $requestedResourse, $whiteList )) {
+            if ($requestedResource != 'Login\Controller\Login-index' && ! in_array ( $requestedResource, $whiteList )) {
                 $url = '/sawik/timeoff/public/login/index';
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );
                 $response->setStatusCode ( 302 );

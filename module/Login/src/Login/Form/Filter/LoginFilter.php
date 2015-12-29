@@ -31,14 +31,14 @@ class LoginFilter extends InputFilter
                     ),
                     'break_chain_on_failure' => true
                 ),
-                array(
-                    'name' => 'EmailAddress',
-                    'options' => array(
-                        'messages' => array(
-                            $invalidEmail => 'Enter Valid Email Address.'
-                        )
-                    )
-                )
+//                 array(
+//                     'name' => 'EmailAddress',
+//                     'options' => array(
+//                         'messages' => array(
+//                             $invalidEmail => 'Enter Valid Email Address.'
+//                         )
+//                     )
+//                 )
             )
         ));
 

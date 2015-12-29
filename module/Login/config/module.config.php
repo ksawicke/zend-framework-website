@@ -10,15 +10,26 @@
 namespace Login;
 
 return [
-    'controllers' => [
-        'invokables' => [
-            'Login\Controller\Login' => 'Login\Controller\LoginController'
-        ],
+    'service_manager' => [
+        'factories' => [
+            'Login\Mapper\LoginMapperInterface' => 'Login\Factory\LoginMapperFactory',
+            'Login\Service\AuthenticationServiceInterface' => 'Login\Factory\AuthenticationServiceFactory'
+        ]
     ],
+    'controllers' => [
+        'factories' => [
+            'Login\Controller\Login' => 'Login\Factory\LoginControllerFactory'
+        ]
+    ],
+//     'controllers' => [
+//         'invokables' => [
+//             'Login\Controller\Login' => 'Login\Controller\LoginController'
+//         ],
+//     ],
     'router' => [
         'routes' => [
             'login' => [
-                'type' => 'literal',
+                'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
                     'route' => '/login/index',
                     'defaults' => [
