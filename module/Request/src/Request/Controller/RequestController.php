@@ -158,10 +158,16 @@ class RequestController extends AbstractActionController
 //                     echo '</pre>';
 //                     die("@@@");
                     foreach($x as $id => $data) {
+                        $nameFormatted =
+                               trim($data->EMPLOYEECOMMONNAME) . " " . trim($data->EMPLOYEELASTNAME) . 
+                               " (" . trim($data->EMPLOYEENUMBER) . ")";
+//                             trim($data->EMPLOYEELASTNAME) . ", " .
+//                             trim($data->EMPLOYEECOMMONNAME) .
+//                             " (" . trim($data->EMPLOYEENUMBER) . ")";
+                        
                         $r[] = [ 'id' => trim($data->EMPLOYEENUMBER),
-                                 'text' => trim($data->EMPLOYEELASTNAME) . ", " .
-                                           trim($data->EMPLOYEECOMMONNAME)
-                                 ];
+                                 'text' => $nameFormatted
+                               ];
                     }
                     $result = new JsonModel($r);
                     

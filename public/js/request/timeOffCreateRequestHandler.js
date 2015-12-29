@@ -154,7 +154,7 @@ var timeOffCreateRequestHandler = new function()
         		$('.requestIsForMe').hide();
         		//console.log('initial', loggedInUserData);
         		requestForEmployeeNumber = loggedInUserData.EMPLOYEE_NUMBER;
-            	requestForEmployeeName = loggedInUserData.LAST_NAME+', '+loggedInUserData.COMMON_NAME;
+            	requestForEmployeeName = loggedInUserData.COMMON_NAME + " " + loggedInUserData.LAST_NAME;
         		$("#requestFor")
         			.empty()
         			.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
@@ -375,8 +375,14 @@ var timeOffCreateRequestHandler = new function()
 //        	console.log($.trim(json.employeeData.EMPLOYEE_NUMBER));
         	
         	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
-        	requestForEmployeeName = timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
-        		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME);
+        	requestForEmployeeName =
+        		timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
+        		" " + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
+        		' (' + requestForEmployeeNumber + ')';
+        	
+//        		timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
+//        		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
+//        		' (' + requestForEmployeeNumber + ')';
         	
 //        	console.log(requestForEmployeeNumber);
 //        	console.log(requestForEmployeeName);
