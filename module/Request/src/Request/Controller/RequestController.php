@@ -16,7 +16,7 @@ class RequestController extends AbstractActionController
 
     protected $employeeNumber;
 
-    protected $managerNumber;
+    protected $managerEmployeeNumber;
     
     public $invalidRequestDates = [
         'before' => '',
@@ -51,8 +51,13 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '229589';
-        $this->managerNumber = '49602';
+//         echo '<pre>';
+//         print_r($_SESSION['Timeoff_'.ENVIRONMENT]);
+//         echo '</pre>';
+//         die('**');
+        
+        $this->employeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'];
+        $this->managerEmployeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['MANAGER_EMPLOYEE_NUMBER'];
         
         // Disable dates starting with one month ago and any date before.
         $this->invalidRequestDates['before'] = date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y"))));
@@ -155,7 +160,7 @@ class RequestController extends AbstractActionController
                     foreach($x as $id => $data) {
                         $r[] = [ 'id' => trim($data->EMPLOYEENUMBER),
                                  'text' => trim($data->EMPLOYEELASTNAME) . ", " .
-                                           trim($data->EMPLOYEEFIRSTNAME)
+                                           trim($data->EMPLOYEECOMMONNAME)
                                  ];
                     }
                     $result = new JsonModel($r);
@@ -215,7 +220,7 @@ class RequestController extends AbstractActionController
                     $oneMonthBack = new \DateTime($prev);
                     $currentMonth = new \DateTime($current);
                     $oneMonthOut = new \DateTime($one);
-                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $startDate, $endDate);
+                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $startDate, $endDate);
                     
                     $result = new JsonModel([
                         'success' => true,
@@ -326,13 +331,13 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerNumber)
+            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerEmployeeNumber)
         ));
     }
     
     public function viewMyTeamCalendarAction()
     {
-//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, '2015-12-01', '2015-12-31');
+//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, '2015-12-01', '2015-12-31');
         
         return new ViewModel(array(
 //             'calendarData' => $calendarData,
@@ -357,13 +362,19 @@ class RequestController extends AbstractActionController
     {
         $requestId = $this->params()->fromRoute('request_id');
         $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'managerQueue', $requestId);
+        
+//         echo '<pre>';
+//         print_r($pendingRequestData);
+//         echo '</pre>';
+//         die("@@@");
+        
         $calendarFirstDate = \DateTime::createFromFormat('Y-m-d', trim($pendingRequestData[$requestId]['FIRST_DATE_REQUESTED']));
         $calendarLastDate = \DateTime::createFromFormat('Y-m-d', $pendingRequestData[$requestId]['LAST_DATE_REQUESTED']);
         
         $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
         $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
         
-        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
         return new ViewModel(array(
             'requestId' => $requestId,
             'pendingRequestData' => $pendingRequestData[$requestId]

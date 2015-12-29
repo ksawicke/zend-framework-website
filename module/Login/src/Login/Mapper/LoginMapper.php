@@ -63,12 +63,21 @@ class LoginMapper implements LoginMapperInterface
 //             'POSITION_TITLE' => 'PRTITL'
 //         ];
         
+        $this->supervisorAddonColumns = [
+            'MANAGER_EMPLOYER_NUMBER' => 'PRER',
+            'MANAGER_EMPLOYEE_NUMBER' => 'PREN',
+            'MANAGER_FIRST_NAME' => 'PRFNM',
+            'MANAGER_MIDDLE_INITIAL' => 'PRMNM',
+            'MANAGER_LAST_NAME' => 'PRLNM',
+            'MANAGER_EMAIL_ADDRESS' => 'PREML1'
+        ];
+        
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
         // as in when doing an update.
         // Can pass in multiple arrays here.
-//         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns));
+        $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->supervisorAddonColumns));
         // $this->employeeSupervisorColumns
     }
 
@@ -91,6 +100,7 @@ class LoginMapper implements LoginMapperInterface
                                'LEVEL_2' => 'PRL02',
                                'LEVEL_3' => 'PRL03',
                                'LEVEL_4' => 'PRL04',
+                               'COMMON_NAME' => 'PRCOMN',
                                'FIRST_NAME' => 'PRFNM',
                                'MIDDLE_INITIAL' => 'PRMNM',
                                'LAST_NAME' => 'PRLNM',
@@ -101,6 +111,8 @@ class LoginMapper implements LoginMapperInterface
                                'POSITION_TITLE' => 'PRTITL'
                              ])
 //                     ->where(['trim(employee.PREML1)' => trim($username)]);
+                    ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
+                    ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
                     ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
                 break;
         }

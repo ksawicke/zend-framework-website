@@ -92,7 +92,7 @@
               <div class="swift-header-item swift-site-name">
                 Time Off
                 <?php /***&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">***/ ?>
-                <?php echo (isset($_SESSION['User'])?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$_SESSION['User']['FIRST_NAME'].' '.$_SESSION['User']['LAST_NAME'].'!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout)</span>':''); ?>
+                <?php echo (isset($_SESSION['Timeoff_'.ENVIRONMENT])?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$_SESSION['Timeoff_'.ENVIRONMENT]['COMMON_NAME'].' '.$_SESSION['Timeoff_'.ENVIRONMENT]['LAST_NAME'].'!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout)</span>':''); ?>
               </div>
           </div>
           <div class="visible-xs visible-sm visible-md">

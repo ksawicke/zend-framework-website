@@ -55,14 +55,19 @@ class Module
 
         $requestedResource = $controller . "-" . $action;
 
-        $session = new Container('User');
+        $session = new Container('Timeoff_'.ENVIRONMENT);
         
 //         echo '<pre>';
 //         print_r($session);
 //         echo '</pre>';
         
+//         $session = $_SESSION['Timeoff'][ENVIRONMENT];
+        
+//         echo '<pre>!';
+//         print_r($session[ENVIRONMENT]);
+//         echo '</pre>';
 //         die("@@");
-
+        
         if ($session->offsetExists ( 'EMPLOYEE_NUMBER' )) {
             if ($requestedResource == 'Login\Controller\Login-index' || in_array ( $requestedResource, $whiteList )) {
                 $url = '/sawik/timeoff/public/request/create';

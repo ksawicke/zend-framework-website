@@ -52,6 +52,14 @@ class RequestMapper implements RequestMapperInterface
         'pendingApproval' => 'P',
         'beingReviewed' => 'R'
     ];
+    
+    public static $requestStatusText = [
+        'D' => 'draft',
+        'A' => 'approved',
+        'C' => 'cancelled',
+        'P' => 'pendingApproval',
+        'R' => 'beingReviewed'
+    ];
 
     /**
      *
@@ -73,6 +81,7 @@ class RequestMapper implements RequestMapperInterface
             'LEVEL_2' => 'PRL02',
             'LEVEL_3' => 'PRL03',
             'LEVEL_4' => 'PRL04',
+            'COMMON_NAME' => 'PRCOMN',
             'FIRST_NAME' => 'PRFNM',
             'MIDDLE_INITIAL' => 'PRMNM',
             'LAST_NAME' => 'PRLNM',
@@ -134,7 +143,8 @@ class RequestMapper implements RequestMapperInterface
         $this->timeoffRequestColumns = [
             'REQUEST_ID' => 'REQUEST_ID',
             'REQUEST_REASON' => 'REQUEST_REASON',
-            'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP'
+            'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP',
+            'REQUEST_STATUS' => 'REQUEST_STATUS'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -488,7 +498,8 @@ class RequestMapper implements RequestMapperInterface
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->order(['entry.REQUEST_DATE ASC']);
         if($requestId!=null) {
-            $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
+//             $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
+            $select->where(['request.REQUEST_ID' => $requestId]);
         }
     
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
@@ -521,6 +532,7 @@ class RequestMapper implements RequestMapperInterface
                         
                         $return[$data['REQUEST_ID']] =
                             [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                              'REQUEST_STATUS_TEXT' => self::$requestStatusText[$data['REQUEST_STATUS']],
                               'CREATE_TIMESTAMP' => $data['CREATE_TIMESTAMP'],
                               'DETAILS'        => [],
                               'TOTALS'         => [ 'PTO' => number_format(0.00, 2),
@@ -754,6 +766,7 @@ class RequestMapper implements RequestMapperInterface
         
         $select = $sql->select(['employee' => 'PRPMS'])
             ->columns(['employeeNumber' => 'PREN',
+                       'employeeCommonName' => 'PRCOMN',
                        'employeeLastName' => 'PRLNM',
                        'employeeFirstName' => 'PRFNM',
 //                        'employeeSearchResult' => new Expression("concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' )")

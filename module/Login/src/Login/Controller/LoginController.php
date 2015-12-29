@@ -31,14 +31,35 @@ class LoginController extends AbstractActionController
             
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
             
+//             echo '<pre>';
+//             print_r($result);
+//             echo '</pre>';
+//             exit();
+            
             if(count($result)==1) {
-                $session = new Container('User');
-                $session->EMPLOYEE_NUMBER = strtolower(trim($result[0]->EMAIL_ADDRESS));
-                $session->FIRST_NAME = ucwords(strtolower(trim($result[0]->FIRST_NAME)));
-                $session->LAST_NAME = ucwords(strtolower(trim($result[0]->LAST_NAME)));
-                $session->USERNAME = strtolower(trim($result[0]->USERNAME));
-                $session->POSITION_TITLE = trim($result[0]->POSITION_TITLE);
+                $session = new Container('Timeoff_'.ENVIRONMENT);
                 
+                $session->offsetSet('EMPLOYEE_NUMBER', trim($result[0]->EMPLOYEE_NUMBER));
+                $session->offsetSet('EMAIL_ADDRESS', strtolower(trim($result[0]->EMAIL_ADDRESS)));
+                $session->offsetSet('COMMON_NAME', ucwords(strtolower(trim($result[0]->COMMON_NAME))));
+                $session->offsetSet('FIRST_NAME', ucwords(strtolower(trim($result[0]->FIRST_NAME))));
+                $session->offsetSet('LAST_NAME', ucwords(strtolower(trim($result[0]->LAST_NAME))));
+                $session->offsetSet('USERNAME', strtolower(trim($result[0]->USERNAME)));
+                $session->offsetSet('POSITION_TITLE', trim($result[0]->POSITION_TITLE));
+                                
+                $session->offsetSet('MANAGER_EMPLOYEE_NUMBER', trim($result[0]->MANAGER_EMPLOYEE_NUMBER));
+                $session->offsetSet('MANAGER_FIRST_NAME', ucwords(strtolower(trim($result[0]->MANAGER_FIRST_NAME))));
+                $session->offsetSet('MANAGER_LAST_NAME', ucwords(strtolower(trim($result[0]->MANAGER_LAST_NAME))));
+                $session->offsetSet('MANAGER_EMAIL_ADDRESS', strtolower(trim($result[0]->MANAGER_EMAIL_ADDRESS)));
+                
+//                 echo '<pre>';
+//                 print_r($_SESSION['Timeoff']);
+//                 echo '</pre>';
+//                 exit();
+//                 echo '<pre>@!';
+//                 print_r($session);
+//                 echo '</pre>';
+//                 exit();
                 return $this->redirect()->toRoute('create2', array('controller' => 'request', 'action' => 'create'));
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');
@@ -51,7 +72,7 @@ class LoginController extends AbstractActionController
     
     public function logoutAction()
     {
-        unset($_SESSION['User']);
+        unset($_SESSION['Timeoff_'.ENVIRONMENT]);
     }
 
 }
