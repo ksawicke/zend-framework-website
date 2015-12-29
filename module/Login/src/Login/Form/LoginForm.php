@@ -13,15 +13,15 @@ class LoginForm extends Form
         $this->setAttribute('method', 'post');
 
         $this->add(array(
-            'name' => 'email',
+            'name' => 'username',
             'type' => 'text',
             'attributes' => array(
-                'id' => 'email',
+                'id' => 'username',
                 'class' => 'form-control',
-                'placeholder' => 'example@example.com'
+                'placeholder' => 'lastf'
             ),
             'options' => array(
-                'label' => 'Email'
+                'label' => 'Username'
             )
         ));
 

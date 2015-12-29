@@ -39,6 +39,18 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
+            ],
+            'logout' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/login/logout',
+                    'defaults' => [
+                        'controller' => 'Login\Controller\Login',
+                        'action' => 'logout'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
             ]
         ]
     ],

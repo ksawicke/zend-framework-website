@@ -60,6 +60,21 @@
   </head>
 
   <body>
+  
+  <?php
+  /**
+   * $_SESSION['User']
+   *    EMPLOYEE_NUMBER
+   *    FIRST_NAME
+   *    LAST_NAME
+   *    USERNAME
+   *    POSITION_TITLE
+   */
+//    echo '<pre>';
+//    print_r($_SESSION['User']);
+//    echo '</pre>';
+  ?>
+  
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
@@ -75,8 +90,9 @@
                 <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
               </div>
               <div class="swift-header-item swift-site-name">
-                Time Off&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">
-                <?php echo (isset($sessionVars)?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$sessionVars['name'].'!</span>':''); ?>
+                Time Off
+                <?php /***&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">***/ ?>
+                <?php echo (isset($_SESSION['User'])?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$_SESSION['User']['FIRST_NAME'].' '.$_SESSION['User']['LAST_NAME'].'!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout)</span>':''); ?>
               </div>
           </div>
           <div class="visible-xs visible-sm visible-md">

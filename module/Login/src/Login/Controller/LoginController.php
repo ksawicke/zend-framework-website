@@ -29,74 +29,29 @@ class LoginController extends AbstractActionController
             $data = $request->getPost();
             $loginForm->setData($data);
             
-//             echo '<pre>POST:';
-//             print_r($data);
-//             echo '</pre><br />';
+            $result = $this->authenticationService->authenticateUser($data->username, $data->password);
             
-            $result = $this->authenticationService->authenticateUser($data->email, $data->password);
-            
-            if($result->COUNT_USERS_FOUND==1) {
+            if(count($result)==1) {
                 $session = new Container('User');
-//                 unset($_SESSION['User']['email']);
-                $session->email = $data->email;
+                $session->EMPLOYEE_NUMBER = strtolower(trim($result[0]->EMAIL_ADDRESS));
+                $session->FIRST_NAME = ucwords(strtolower(trim($result[0]->FIRST_NAME)));
+                $session->LAST_NAME = ucwords(strtolower(trim($result[0]->LAST_NAME)));
+                $session->USERNAME = strtolower(trim($result[0]->USERNAME));
+                $session->POSITION_TITLE = trim($result[0]->POSITION_TITLE);
                 
-                //         echo '<pre>';
-                //         print_r($session);
-                //         echo '</pre>';
-                
-                //         die("@@");
-                
-//                 if ($session->offsetExists ( 'email' )) {
-//                     echo "USER EMAIL CHECK OK";
-//                 } else {
-//                     echo "UESR EMAIL CHECK NEGATIVE";
-//                 }
-                
-//                 die("@@");
-                
-//                 $authService = $this->getServiceLocator()->get('AuthService');
-//                 $authService->getAdapter()
-//                     ->setIdentity($data->email)
-//                     ->setCredential($data->password);
-//                 $result = $authService->authenticate();
-//                 var_dump($result);
-//                 var_dump($authService);
-//                 die("@");
-//                 die("WOO HOO YOU ARE REAL.");
+                return $this->redirect()->toRoute('create2', array('controller' => 'request', 'action' => 'create'));
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');
                 return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));
             }
-            
-//             echo '<pre>DATA';
-//             print_r($data);
-//             echo '</pre>';
-            
-//             die("@@@@");
-            
-//             if($loginForm->isValid()) {
-//                 $data = $loginForm->getData();
-//                 echo "is Valid!";
-
-//                 $authService = $this->getServiceLocator()->get('AuthService');
-                
-//                 echo '<pre>POST:';
-//                 print_r($authService);
-//                 echo '</pre><br />';
-
-//                 $authService->getAdapter()
-//                     ->setIdentity($data['email'])
-//                     ->setCredential($data['password']);
-
-//                 $result = $authService->authenticate();
-//                 echo "now here";
-//                 var_dump($authService); die();
-
-//             }
-
         }
         $view->setVariable('loginForm', $loginForm);
         return $view;
+    }
+    
+    public function logoutAction()
+    {
+        unset($_SESSION['User']);
     }
 
 }

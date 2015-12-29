@@ -46,7 +46,7 @@ class Module
         /* Offline pages not needed authentication */
         $whiteList = array (
             'Login\Controller\Login-index',
-//             'Login\Controller\Login-login',
+            'Login\Controller\Login-logout'
         );
 
         $requestUri = $request->getRequestUri();
@@ -63,7 +63,7 @@ class Module
         
 //         die("@@");
 
-        if ($session->offsetExists ( 'email' )) {
+        if ($session->offsetExists ( 'EMPLOYEE_NUMBER' )) {
             if ($requestedResource == 'Login\Controller\Login-index' || in_array ( $requestedResource, $whiteList )) {
                 $url = '/sawik/timeoff/public/request/create';
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );

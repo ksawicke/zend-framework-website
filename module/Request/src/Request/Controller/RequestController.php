@@ -6,6 +6,7 @@ use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
+use Zend\Session\Container;
 
 class RequestController extends AbstractActionController
 {
@@ -70,6 +71,12 @@ class RequestController extends AbstractActionController
             '12/26/2016',
             '01/02/2017'
         ];
+        
+//         $session = new Container('User');
+//         echo '<pre>';
+//         print_r($_SESSION['User']);
+//         echo '</pre>';
+//         die('**');
         
 //         if(!$this->isLoggedIn()) {
 //             return $this->redirect()->toRoute('login');
