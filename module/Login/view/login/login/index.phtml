@@ -1,0 +1,144 @@
+<div class="row">
+  <div class="col-lg-3">&nbsp;</div>
+  <div class="col-lg-6">
+
+    <?php /*****<form class="form-horizontal" role="form" method="post">*****/
+    
+    $form = $this->loginForm;
+    $form->prepare();
+    echo $this->form()->openTag($form);
+    
+    ?>
+    
+    <?php
+    $flashMessage = $this->flashMessenger()->getMessages();
+    
+    if (count($flashMessage)) {
+    ?>
+      <div class="alert alert-danger" role="alert">
+            <?php
+        foreach ($flashMessage as $mid => $message) {
+                ?><?php echo $message; ?>
+            
+    	<?php } ?>
+     </div>
+     <?php } ?>
+    
+      <div class="alert alert-info" role="info">Please login</div>
+      <div class="form-group">
+        
+        <?php /***
+        <label for="username" class="control-label login-label">Username</label>
+        <input type="text" placeholder="username" class="form-control"
+          name="username" value="">
+        ***/ ?>
+          
+        <?php echo $this->formlabel($form->get('username'));?>
+        <?php echo $this->formElement($form->get('username')); ?>  
+          
+        <div class="red-font">
+          <small><em><?php echo $this->formElementErrors($form->get('username'));?></em></small>
+        </div>
+
+		<?php /***
+        <label for="password" class="control-label login-label">Password</label>
+        <input type="password" placeholder="password" class="form-control"
+          name="password" value="">
+        ***/ ?>
+          
+        <?php echo $this->formlabel($form->get('password'));?>
+        <?php echo $this->formElement($form->get('password')); ?>  
+          
+        <div class="red-font">
+          <small><em><?php echo $this->formElementErrors($form->get('password'));?></em></small>
+        </div>
+
+        <br />
+
+		<?php /***
+        <button class="btn btn-custom-primary btn-lg btn-block btn-default"
+          name="login" type="submit" id="login">
+          <i class="fa fa-arrow-circle-o-right"></i> Login
+        </button>
+        ***/ ?>
+        
+        <?php
+        echo $this->formRow($form->get('loginCsrf'));
+        echo $this->formElement($form->get('submit'));
+        echo $this->form()->closeTag($form);
+        ?>
+
+    </form>
+  </div>
+
+</div>
+<div class="col-lg-3">&nbsp;</div>
+
+</div>
+
+
+<?php
+/******************************************************
+$flashMessage = $this->flashMessenger()->getMessages();
+if (count($flashMessage)) :
+    ?>
+<div class="row">
+  <ul>
+        <?php
+    foreach ($flashMessage as $msg) :
+        foreach ($msg as $type => $message) :
+            ?>
+            <li><span class="<?php echo $type; ?>"><?php echo $message; ?></span></li>
+        <?php endforeach; ?>
+        <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+    <?php if(isset($this->messages)) : ?>
+    <ul>
+        <?php foreach ($this->messages as $type => $msg) : ?>
+        <li><span class="<?php echo $type; ?>"><?php echo $msg; ?></span></li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+<?php endif; ?>
+<div class="row">
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Login</h3>
+      </div>
+      <div class="panel-body">
+          <?php
+    $form = $this->loginForm;
+    $form->prepare();
+    echo $this->form()->openTag($form);
+    ?>
+                  <table>
+          <tr>
+            <td><?php echo $this->formlabel($form->get('email'));?></td>
+            <td><?php echo $this->formElement($form->get('email')); ?>
+                            <span class="common-error-msg"><?php echo $this->formElementErrors($form->get('email'));?></span></td>
+          </tr>
+          <tr>
+            <td><?php echo $this->formlabel($form->get('password'));?></td>
+            <td><?php echo $this->formElement($form->get('password')); ?>
+                            <span class="common-error-msg"><?php echo $this->formElementErrors($form->get('password'));?></span></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+                            <?php
+                            echo $this->formRow($form->get('loginCsrf'));
+                            echo $this->formElement($form->get('submit'));
+                            ?>
+                            </td>
+          </tr>
+        </table>
+                <?php
+                echo $this->form()->closeTag($form);
+                ?>
+            </div>
+    </div>
+  </div>
+</div>
+*********************/ ?>

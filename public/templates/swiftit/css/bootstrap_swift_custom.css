@@ -511,6 +511,12 @@ td.calendar-day-np {
 /**
 https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 **/
+
+.btn-requestCategory {
+	padding: 0px;
+	line-height:16px;
+}
+
 .timeOffPTO {
 	background-color: #f57900 !important;
 }
@@ -534,6 +540,17 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 }
 .timeOffApprovedNoPay {
 	background-color: #cc0000 !important;
+}
+
+.rowWrapper {
+	margin:15px;
+}
+.categoryButtonWrapper {
+	width:90%;
+}
+.categoryButton {
+	padding:10px;
+	border: 1px solid #000;
 }
 
 /** CSS Stripes
@@ -629,6 +646,7 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 .categorySelected {
 	font-weight: bold;
 	border:4px solid black;
+	color:#fff;
 }
 .pendingHours {
 	font-size:12px;
@@ -685,6 +703,10 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 td.calendar-day {
 	cursor: pointer;
 }
+td.calendar-day-disabled {
+	background-color: #404040 !important;
+	cursor: default !important;
+}
 
 .requestPending {
 	filter:alpha(opacity=60); /* IE */
@@ -714,4 +736,196 @@ div.alert.alert-warning {
 span.badge {
 	font-size:16px;
 	margin-bottom:10px;
+}
+
+/**
+ * Fuel step wizard CSS
+ **/
+.wizard {
+    position: relative;
+    overflow: hidden;
+    background-color: #f9f9f9
+}
+
+.wizard:before,.wizard:after {
+    display: table;
+    line-height: 0;
+    content: ""
+}
+
+.wizard:after {
+    clear: both
+}
+
+.wizard ul {
+    width: 4000px;
+    padding: 0;
+    margin: 0;
+    list-style: none outside none
+}
+
+.wizard ul.previous-disabled li.complete {
+    cursor: default
+}
+
+.wizard ul.previous-disabled li.complete:hover {
+    color: #468847;
+    cursor: default;
+    background: #f3f4f5
+}
+
+.wizard ul.previous-disabled li.complete:hover .chevron:before {
+    border-left-color: #f3f4f5
+}
+
+.wizard ul li {
+    position: relative;
+    float: left;
+    height: 46px;
+    padding: 0 20px 0 30px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 46px;
+    color: #a5a5a5;
+    cursor: default;
+    background: #f2f2f2
+}
+
+.wizard ul li:first-child {
+    padding-left: 20px
+}
+
+.wizard ul li .chevron {
+    position: absolute;
+    top: -24px;
+    right: -14px;
+    z-index: 1;
+    display: block;
+    border: 48px solid transparent;
+    border-right: 0;
+    border-left: 24px solid #fff
+}
+
+.wizard ul li .chevron:before {
+    position: absolute;
+    top: -48px;
+    right: 5px;
+    display: block;
+    border: 48px solid transparent;
+    border-right: 0;
+    border-left: 24px solid #f2f2f2;
+    content: ""
+}
+
+.wizard ul li.complete {
+    color: #fff;
+    background: #4ba84b
+}
+
+.wizard ul li.complete:hover {
+    cursor: pointer;
+    background: #49a449
+}
+
+.wizard ul li.complete:hover .chevron:before {
+    border-left: 24px solid #49a449
+}
+
+.wizard ul li.complete .chevron:before {
+    border-left: 24px solid #4ba84b
+}
+
+.wizard ul li.active {
+    color: #fff;
+    background: #296eaa
+}
+
+.wizard ul li.active .chevron:before {
+    border-left: 24px solid #296eaa
+}
+
+.wizard ul li .badge {
+    position: relative;
+    top: -2px;
+    margin-right: 8px;
+    padding: 4px 7px
+}
+
+.wizard ul li .badge.badge-info {
+    background-color: #1f5381
+}
+
+.wizard ul li .badge.badge-success {
+    background-color: #3b853b
+}
+
+.step-content {
+    margin: 30px 0;
+    padding-left: 20px
+}
+
+.step-content .step-pane {
+    display: none
+}
+
+.step-content .active {
+    display: block
+}
+
+.step-content .active .btn-group .active {
+    display: inline-block
+}
+
+/**
+ * Close button
+ **/
+
+.buttonAllowForIcon {
+    position: relative;
+}
+
+.categoryCloseIcon {
+    position: absolute;
+	color:#fff;
+	right:5px;
+	top:5px;
+    width:15px;
+    height:15px;
+}
+.red {
+	color: red;
+}
+
+button .full-width {
+	width:100%;
+	display:block;
+}
+
+.requestIsForMe {
+	display:none;
+	margin-right:30px;
+	margin-top:10px;
+	float:left;
+}
+
+.typeahead + .dropdown-menu {
+    background-color:#fff;
+	border:1px solid #296eaa;
+}
+.typeahead + .dropdown-menu .active > a,
+.typeahead + .dropdown-menu .active > a:hover {
+    color: #000;
+    background-color: #e5c458;
+    /*background-image: -moz-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e5c458), to(#FF44FF));
+    background-image: -webkit-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: -o-linear-gradient(top, #e5c458, #FF44FF);
+    background-image: linear-gradient(to bottom, #e5c458, #FF44FF);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5c458', endColorstr='#FF44FF', GradientType=0);*/
+}
+.typeahead + .dropdown-menu li {
+	background:#fff;
+	margin:0px;
+	margin-top:-3px;
+	padding:5px;
 }

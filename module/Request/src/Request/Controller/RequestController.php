@@ -6,17 +6,23 @@ use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
+use Zend\Session\Container;
 
 class RequestController extends AbstractActionController
 {
-
     protected $requestService;
 
     protected $requestForm;
 
-    public $employeeNumber;
+    protected $employeeNumber;
 
-    public $managerNumber;
+    protected $managerEmployeeNumber;
+    
+    public $invalidRequestDates = [
+        'before' => '',
+        'after' => '',
+        'individual' => []
+    ];
     
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
@@ -45,9 +51,54 @@ class RequestController extends AbstractActionController
         $this->requestService = $requestService;
         $this->requestForm = $requestForm;
 
-        $this->employeeNumber = '296261';
-        $this->managerNumber = '229589';
+//         echo '<pre>';
+//         print_r($_SESSION['Timeoff_'.ENVIRONMENT]);
+//         echo '</pre>';
+//         die('**');
+        
+        $this->employeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'];
+        $this->managerEmployeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['MANAGER_EMPLOYEE_NUMBER'];
+        
+        // Disable dates starting with one month ago and any date before.
+        $this->invalidRequestDates['before'] = date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y"))));
+        
+        // Disable dates starting with the following date.
+        $this->invalidRequestDates['after'] = '12/31/2020';
+        
+        // Disable any dates in this array
+        $this->invalidRequestDates['individual'] = [
+            '12/25/2015',
+            '01/01/2016',
+            '05/30/2016',
+            '07/04/2016',
+            '09/05/2016',
+            '11/24/2016',
+            '12/26/2016',
+            '01/02/2017'
+        ];
+        
+//         $session = new Container('User');
+//         echo '<pre>';
+//         print_r($_SESSION['User']);
+//         echo '</pre>';
+//         die('**');
+        
+//         if(!$this->isLoggedIn()) {
+//             return $this->redirect()->toRoute('login');
+//         }
     }
+    
+//     public function isLoggedIn()
+//     {
+//         return false;
+//     }
+    
+//     public function loginAction()
+//     {
+//         return new ViewModel(array(
+            
+//         ));
+//     }
 
     public function createAction()
     {
@@ -81,18 +132,75 @@ class RequestController extends AbstractActionController
         
         if ($request->isPost()) {
             switch($request->getPost()->action) {
+                case 'getEmployeeList':
+//                     $employeeData = $this->requestService->findManagerEmployees($this->employeeNumber);
+//                     $result = new JsonModel([$employeeData]);
+//                     echo '<pre>';
+//                     print_r($employeeData);
+//                     echo '</pre>';
+//                     exit();
+                    //$request->getPost()->search
+                    
+                    /**
+                     * 366099  GUIDO FAECKE
+                       49499  JAMES GASIOR
+                       229589  MARY JACKSON
+                       366124  NEDRA MUNOZ
+                       229702  HEIDI CLARK
+                       348370  DENNIS WEGLARZ
+                       296261  RANDY SENA
+                     **/
+                    
+                    $r = [];
+                    $x = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
+//                     echo '<pre>';
+//                     print_r($x);
+//                     echo '</pre>';
+//                     die("@@@");
+                    foreach($x as $id => $data) {
+                        $nameFormatted =
+                               trim($data->EMPLOYEECOMMONNAME) . " " . trim($data->EMPLOYEELASTNAME) . 
+                               " (" . trim($data->EMPLOYEENUMBER) . ")";
+//                             trim($data->EMPLOYEELASTNAME) . ", " .
+//                             trim($data->EMPLOYEECOMMONNAME) .
+//                             " (" . trim($data->EMPLOYEENUMBER) . ")";
+                        
+                        $r[] = [ 'id' => trim($data->EMPLOYEENUMBER),
+                                 'text' => $nameFormatted
+                               ];
+                    }
+                    $result = new JsonModel($r);
+                    
+//                     $result = new JsonModel([
+//                         [ 'employeeNumber' => '366099', 'employeeName' => 'Faecke, Guido' ],
+//                         [ 'employeeNumber' => '49499', 'employeeName' => 'Gasior, James' ],
+//                         [ 'employeeNumber' => '366124', 'employeeName' => 'Munroz, Nedra' ],
+//                         [ 'employeeNumber' => '229702', 'employeeName' => 'Clark, Heidi' ],
+//                         [ 'employeeNumber' => '348370', 'employeeName' => 'Weglarz, Dennis' ],
+//                         [ 'employeeNumber' => '296261', 'employeeName' => 'Sena, Randy' ]
+//                     ]);
+                    break;
+                    
                 case 'submitTimeoffRequest':
+                    $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
+                    
                     $requestData = [];
-                    foreach($request->getPost()->selectedDates as $key => $date) {
-                        $date = \DateTime::createFromFormat('m/d/Y', $date);
+                    
+//                     echo '<pre>';
+//                     print_r($request->getPost()->selectedDatesNew);
+//                     echo '</pre>';
+//                     exit();
+                    
+                    foreach($request->getPost()->selectedDatesNew as $key => $data) {
+                        $date = \DateTime::createFromFormat('m/d/Y', $request->getPost()->selectedDatesNew[$key]['date']);
                         $requestData[] = [
                             'date' => $date->format('Y-m-d'),
-                            'type' => self::$typesToCodes[$request->getPost()->selectedDateCategories[$key]],
-                            'hours' => (int) $request->getPost()->selectedDateHours[$key]
+                            'type' => self::$typesToCodes[$request->getPost()->selectedDatesNew[$key]['category']],
+                            'hours' => (int) $request->getPost()->selectedDatesNew[$key]['hours']
                         ];
                     }
                     
-                    $requestReturnData = $this->requestService->submitRequestForApproval($this->employeeNumber, $requestData, $request->getPost()->requestReason);
+                    $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -118,7 +226,7 @@ class RequestController extends AbstractActionController
                     $oneMonthBack = new \DateTime($prev);
                     $currentMonth = new \DateTime($current);
                     $oneMonthOut = new \DateTime($one);
-                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $startDate, $endDate);
+                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $startDate, $endDate);
                     
                     $result = new JsonModel([
                         'success' => true,
@@ -140,6 +248,8 @@ class RequestController extends AbstractActionController
                     break;
                     
                 case 'loadCalendar':
+                    $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
+                    
                     //submitTimeoffRequest
                     $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
                     $prev = date("Y-m-d", strtotime("-3 month", $time));
@@ -156,11 +266,12 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
                     \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
+                    \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber);
+                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
                     //$employeeData['FLOAT_REMAINING'] = "71.33";
-                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "A");
-                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($this->employeeNumber, "P");
+                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
+                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
 //                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
 //                     $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
@@ -208,6 +319,7 @@ class RequestController extends AbstractActionController
                         'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                         'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
                         'employeeData' => $employeeData,
+                        'employeeNumber' => $employeeNumber,
                         'approvedRequestData' => $approvedRequestData,
                         'approvedRequestJson' => $approvedRequestJson,
                         'pendingRequestData' => $pendingRequestData,
@@ -225,13 +337,13 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerNumber)
+            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerEmployeeNumber)
         ));
     }
     
     public function viewMyTeamCalendarAction()
     {
-//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, '2015-12-01', '2015-12-31');
+//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, '2015-12-01', '2015-12-31');
         
         return new ViewModel(array(
 //             'calendarData' => $calendarData,
@@ -256,16 +368,27 @@ class RequestController extends AbstractActionController
     {
         $requestId = $this->params()->fromRoute('request_id');
         $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'managerQueue', $requestId);
+        
+//         echo '<pre>';
+//         print_r($pendingRequestData);
+//         echo '</pre>';
+//         die("@@@");
+        
         $calendarFirstDate = \DateTime::createFromFormat('Y-m-d', trim($pendingRequestData[$requestId]['FIRST_DATE_REQUESTED']));
         $calendarLastDate = \DateTime::createFromFormat('Y-m-d', $pendingRequestData[$requestId]['LAST_DATE_REQUESTED']);
         
         $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
         $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
         
-        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
         return new ViewModel(array(
             'requestId' => $requestId,
             'pendingRequestData' => $pendingRequestData[$requestId]
         ));
+    }
+    
+    protected function setEmployeeNumber($employeeNumber)
+    {
+        $this->employeeNumber = $employeeNumber;
     }
 }

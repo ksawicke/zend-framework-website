@@ -52,6 +52,14 @@ class RequestMapper implements RequestMapperInterface
         'pendingApproval' => 'P',
         'beingReviewed' => 'R'
     ];
+    
+    public static $requestStatusText = [
+        'D' => 'draft',
+        'A' => 'approved',
+        'C' => 'cancelled',
+        'P' => 'pendingApproval',
+        'R' => 'beingReviewed'
+    ];
 
     /**
      *
@@ -73,6 +81,7 @@ class RequestMapper implements RequestMapperInterface
             'LEVEL_2' => 'PRL02',
             'LEVEL_3' => 'PRL03',
             'LEVEL_4' => 'PRL04',
+            'COMMON_NAME' => 'PRCOMN',
             'FIRST_NAME' => 'PRFNM',
             'MIDDLE_INITIAL' => 'PRMNM',
             'LAST_NAME' => 'PRLNM',
@@ -134,7 +143,8 @@ class RequestMapper implements RequestMapperInterface
         $this->timeoffRequestColumns = [
             'REQUEST_ID' => 'REQUEST_ID',
             'REQUEST_REASON' => 'REQUEST_REASON',
-            'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP'
+            'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP',
+            'REQUEST_STATUS' => 'REQUEST_STATUS'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -358,6 +368,10 @@ class RequestMapper implements RequestMapperInterface
         $result['APPROVED_NO_PAY_PENDING'] = 0;
         $result['APPROVED_NO_PAY_PENDING_APPROVAL'] = 0;
         
+        $result['FIRST_NAME'] = trim($result['FIRST_NAME']);
+        $result['LAST_NAME'] = trim($result['LAST_NAME']);
+        $result['POSITION_TITLE'] = trim($result['POSITION_TITLE']);
+        
 //         echo '<pre>';
 //         print_r($result);
 //         echo '</pre>';
@@ -484,7 +498,8 @@ class RequestMapper implements RequestMapperInterface
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->order(['entry.REQUEST_DATE ASC']);
         if($requestId!=null) {
-            $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
+//             $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
+            $select->where(['request.REQUEST_ID' => $requestId]);
         }
     
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
@@ -517,6 +532,7 @@ class RequestMapper implements RequestMapperInterface
                         
                         $return[$data['REQUEST_ID']] =
                             [ 'REQUEST_REASON' => $data['REQUEST_REASON'],
+                              'REQUEST_STATUS_TEXT' => self::$requestStatusText[$data['REQUEST_STATUS']],
                               'CREATE_TIMESTAMP' => $data['CREATE_TIMESTAMP'],
                               'DETAILS'        => [],
                               'TOTALS'         => [ 'PTO' => number_format(0.00, 2),
@@ -741,6 +757,37 @@ class RequestMapper implements RequestMapperInterface
             $employeeData[$counter]['PENDING_APPROVAL_TIME_OFF'] = $this->findTimeOffPendingRequestsByEmployee($employee->EMPLOYEE_NUMBER, "managerQueue", null);
         }
 
+        return $employeeData;
+    }
+    
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null)
+    {
+        $sql = new Sql($this->dbAdapter);
+        
+        $select = $sql->select(['employee' => 'PRPMS'])
+            ->columns(['employeeNumber' => 'PREN',
+                       'employeeCommonName' => 'PRCOMN',
+                       'employeeLastName' => 'PRLNM',
+                       'employeeFirstName' => 'PRFNM',
+//                        'employeeSearchResult' => new Expression("concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' )")
+                      ])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' AND ( trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRFNM) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' )")
+            
+            // AND concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' ) LIKE '%gas%'
+            
+            // This works:
+            // ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' OR trim(manager.SPSPEN) = '49602'")
+            
+//             ->where(['trim(manager.SPSPEN)' => $managerEmployeeNumber
+// //                      'employeeSearchResult' => 'SENA, RANDY (296261)'
+//                     ])
+//             ->where(['employeeSearchResult LIKE ?', "%$search%"])
+            ->order(['employee.PRLNM ASC, employee.PRFNM ASC']);
+//         die($select->getSqlString());
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
         return $employeeData;
     }
     

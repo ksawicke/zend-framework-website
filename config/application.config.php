@@ -11,6 +11,7 @@ return [
     'modules' => [
         'Application',
         'Request',
+        'Login'
 //        'Album',
 //        'Blog',
 //        'Simpler',

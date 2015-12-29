@@ -15,6 +15,8 @@ interface RequestMapperInterface
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber = null);
     
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null);
+    
     public function findQueuesByManager($managerEmployeeNumber = null);
     
     public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null);

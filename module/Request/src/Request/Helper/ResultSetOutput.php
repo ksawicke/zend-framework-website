@@ -10,7 +10,13 @@ class ResultSetOutput
 
     public static function getResultRecord($sql, $select)
     {
-        $stmt = $sql->prepareStatementForSqlObject($select);
+        try {
+            $stmt = $sql->prepareStatementForSqlObject($select);
+        } catch(Exception $e) {
+            var_dump($e);
+        }
+//         echo $select->getSqlString();exit();
+//         var_dump($stmt);exit();
         $result = $stmt->execute();
 
         $resultSet = new ResultSet();
@@ -27,7 +33,7 @@ class ResultSetOutput
             var_dump($e);
         }
 //         var_dump($stmt);exit();
-            $result = $stmt->execute();
+        $result = $stmt->execute();
 
         $resultSet = new ResultSet();
         $resultSet->initialize($result);
