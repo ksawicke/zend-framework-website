@@ -117,39 +117,6 @@ var timeOffCreateRequestHandler = new function()
             	$('.requestIsForMe').show();
         	});
         	
-//        	$('#demo5').typeahead({
-//                ajax: {
-//                    url: timeOffLoadCalendarUrl,
-//                    method: 'post',
-//                    preDispatch: function (query) {
-//                        return {
-//                            search: query,
-//                            action: 'getEmployeeList'
-//                        }
-//                    },
-//                    valueField: 'employeeNumber',
-//                    displayField: 'employeeName',
-//                    triggerLength: 1
-//                },
-//                onSelect: function(selection) {
-//                	requestForEmployeeNumber = selection.value;
-//                	requestForEmployeeName = selection.text;
-//                	timeOffCreateRequestHandler.requestForAnotherComplete();
-//                	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-//                	timeOffCreateRequestHandler.setAsRequestForAnother();
-//                	console.log(selection);
-//                	console.log("Request is for", requestForEmployeeNumber);
-//                }
-//            });
-        	
-//        	$(document).on('click', '.requestIsForMe', function() {
-//        		timeOffCreateRequestHandler.setAsRequestForAnother();
-//        	});
-//        	
-//        	$(document).on('click', '.requestIsForAnother', function() {
-//        		timeOffCreateRequestHandler.clearRequestFor();
-//        	});
-        	
         	$(document).on('click', '.requestIsForMe', function() {
         		$('.requestIsForMe').hide();
         		//console.log('initial', loggedInUserData);
@@ -162,19 +129,6 @@ var timeOffCreateRequestHandler = new function()
         		timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
         		
         	});
-
-//        	$(document).on('focusout', '#demo5', function () {
-//        		if(requestForEmployeeName==="" &&
-//        		   requestForEmployeeName===$("#demo5").val() &&
-//        		   $("#demo5").val()===""
-//        		  ) {
-//        			timeOffCreateRequestHandler.setAsRequestForMe();
-//        		}
-//        	});
-        	
-//        	$(document).on('blur', '#demo5', function () {
-////        		timeOffCreateRequestHandler.setAsRequestForMe();
-//        	});
         	
         	/**
         	 * Handle clicking previous or next buttons on calendars
@@ -187,8 +141,21 @@ var timeOffCreateRequestHandler = new function()
         	 * Handle clicking category
         	 */
         	$(".selectTimeOffCategory").click(function() {
-        		timeOffCreateRequestHandler.resetTimeoffCategory($(this));
-        		timeOffCreateRequestHandler.setTimeoffCategory($(this));
+        		if(!$(this).hasClass('disableTimeOffCategorySelection')) {
+        			timeOffCreateRequestHandler.resetTimeoffCategory($(this));
+            		timeOffCreateRequestHandler.setTimeoffCategory($(this));
+        		}
+        		if($(this).hasClass('disableTimeOffCategorySelection') && $(this).hasClass('categoryPTO')) {
+        			// dialogGrandfatheredAlert
+        			$( "#dialogGrandfatheredAlert").dialog({
+    			      modal: true,
+    			      buttons: {
+    			        Ok: function() {
+    			          $( this ).dialog( "close" );
+    			        }
+    			      }
+    			    });
+        		}
         	});
         	
         	$(document).on('change', '.selectedDateHours', function() {
@@ -271,19 +238,13 @@ var timeOffCreateRequestHandler = new function()
      * Resets the remaining sick time for selected employee.
      */
     this.resetTimeoffCategory = function(object) {
-//    	console.log("OBJECT", object);
     	$('.btn-requestCategory').removeClass("categorySelected");
     	$('.btn-requestCategory').removeClass(selectedTimeoffCategory);
-    	//categoryText
+
     	for(category in categoryText) {
     		$('.'+category+'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
     		$('.buttonDisappear'+category.substr(7)).show();
     	}
-//    	object.removeClass(object.attr("data-category"));
-//    	object.removeClass("categorySelected");
-//    	$(".selectTimeOffCategory").removeClass("categorySelected");
-//    	$(".selectTimeOffCategory").removeClass("categorySelected").prev('div').removeClass("categoryColorSelected");
-//    	$(".timeOffCategoryLeft").html('&nbsp;<br />&nbsp;');
     }
     
     /**
@@ -295,24 +256,19 @@ var timeOffCreateRequestHandler = new function()
     		selectedTimeoffCategory = null;
     		object.removeClass("categorySelected");
     		$('.'+object.attr("data-category")+'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
-    		//$('#noCategorySelected').show();
     		timeOffCreateRequestHandler.setStep('1');
     		$('.timeOffCalendarWrapper').hide();
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
-//	    	console.log("SELECT " + selectedTimeoffCategory);
-//	    	object.prev('div').addClass("categoryColorSelected");
 	    	object.addClass("categorySelected");
 	    	object.addClass(selectedTimeoffCategory);
-//	    	$('.buttonDisappearPTO').hide();
+
 	    	for(category in categoryText) {
 	    		if(selectedTimeoffCategory!=category) {
-//	    			console.log('.buttonDisappear'+category.substr(7));
 	    			$('.buttonDisappear'+category.substr(7)).hide();
 	    		}
 	    	}
-//	    	console.log(selectedTimeoffCategory);
-//	    	$('#noCategorySelected').hide();
+	    	
 	    	if(selectedDatesNew.length>0) {
 	    		timeOffCreateRequestHandler.setStep('3');
 	    	} else {
@@ -367,23 +323,23 @@ var timeOffCreateRequestHandler = new function()
         		console.log(sample);
         	});
         	
+        	var gfa = json.employeeData.GRANDFATHERED_AVAILABLE + 24.00;
+        	
         	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceRemaining(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeBereavementRemaining(json.employeeData.BEREAVEMENT_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeCivicDutyRemaining(json.employeeData.CIVIC_DUTY_AVAILABLE);
-        	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GRANDFATHERED_AVAILABLE);
+        	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(gfa);
         	timeOffCreateRequestHandler.setEmployeeApprovedNoPayRemaining(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
-//        	console.log('json.pendingRequestJson', json.pendingRequestJson);
-        	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+    		timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
         	timeOffCreateRequestHandler.highlightDates();
         	
-        	console.log('employeeData', json.employeeData);
-        	// json.employeeData.EMPLOYEE_NUMBER
-        	// json.employeeData.FIRST_NAME
-        	// json.employeeData.LAST_NAME
-//        	console.log($.trim(json.employeeData.EMPLOYEE_NUMBER));
+        	// $(this).hasClass('disableTimeOffCategorySelection')
+        	if(gfa > 0) {
+        		$('.categoryPTO').addClass('disableTimeOffCategorySelection');
+        	}
         	
         	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
         	requestForEmployeeName =
@@ -391,29 +347,11 @@ var timeOffCreateRequestHandler = new function()
         		" " + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
         		' (' + requestForEmployeeNumber + ')';
         	
-//        		timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
-//        		', ' + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
-//        		' (' + requestForEmployeeNumber + ')';
-        	
-//        	console.log(requestForEmployeeNumber);
-//        	console.log(requestForEmployeeName);
-        	
-//        	$("#requestFor").empty().append('<option value="' + requestForEmployeeNumber + '">' +
-//        									requestForEmployeeName + '</option>').val('id').trigger('change');
-        	
         	$("#requestFor")
         		.empty()
         		.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
         		.val(requestForEmployeeNumber).trigger('change');
         	
-//        	$('#requestFor').append(
-//        	   $('<option></option>').val('123456').html('abcdefg')
-//        	);
-        	
-        	// <option value="2" selected="selected">duplicate</option>
-        	
-//        	$(".requestIsForMe").html(requestForEmployeeName +
-//        	  ' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
             return;
         })
         .error( function() {
@@ -747,11 +685,6 @@ var timeOffCreateRequestHandler = new function()
     	});
 		
     	timeOffCreateRequestHandler.sortDatesSelected();
-//		selectedDatesNew.sort(function(a,b) {
-//			var dateA = new Date(a.date).getTime();
-//	        var dateB = new Date(b.date).getTime();
-//	        return dateA > dateB ? 1 : -1; 
-//		});
     }
     
     /**
@@ -841,9 +774,7 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.selectResult = function(item) {
-//    	console.log("You selected", item);
     	timeOffCreateRequestHandler.loadCalendars(item.value);
-    	// item.value = employeeNumber
     }
     
     this.setAsRequestForAnother = function() {
@@ -863,8 +794,6 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.requestForAnotherComplete = function() {
-//    	$(':focus').blur();
-//    	console.log("Did we exit the field??");
     	$(".requestIsForAnother").append(' <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span>');
     }
     
