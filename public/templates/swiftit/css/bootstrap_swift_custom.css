@@ -933,3 +933,7 @@ button .full-width {
 #dialogGrandfatheredAlert {
 	display: none;
 }
+
+.hidden {
+	display:none;
+}
