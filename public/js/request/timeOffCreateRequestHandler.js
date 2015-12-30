@@ -351,9 +351,20 @@ var timeOffCreateRequestHandler = new function()
         	$.each(json.calendars, function(index, thisCalendarHtml) {
         		$("#calendar" + index + "Html").html(
         			json.openHeader +
-        			( (index==1) ? json.prevButton : '' ) + thisCalendarHtml.header + ( (index==3) ? json.nextButton : '' ) +
+        			
+        			( (index==1) ? json.fastRewindButton + ' ' + json.prevButton : '' ) +
+        			thisCalendarHtml.header + ( (index==3) ? json.nextButton + ' ' + json.fastForwardButton : '' ) +
         		    json.closeHeader +
         		    thisCalendarHtml.data);
+        		
+        		var sample = json.openHeader +
+    			
+    			( (index==1) ? json.fastRewindButton + ' ' + json.prevButton : '' ) +
+    			thisCalendarHtml.header + ( (index==3) ? json.nextButton + ' ' + json.fastForwardButton : '' ) +
+    		    json.closeHeader +
+    		    thisCalendarHtml.data;
+        	
+        		console.log(sample);
         	});
         	
         	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
@@ -461,7 +472,9 @@ var timeOffCreateRequestHandler = new function()
         	$.each(json.calendars, function(index, thisCalendarHtml) {
         		$("#calendar" + index + "Html").html(
         			json.openHeader +
-        			( (index==1) ? json.prevButton : '' ) + thisCalendarHtml.header + ( (index==3) ? json.nextButton : '' ) +
+        			
+        			( (index==1) ? json.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.prevButton : '' ) +
+        			thisCalendarHtml.header + ( (index==3) ? json.nextButton + '&nbsp;&nbsp;&nbsp;' + json.fastForwardButton : '' ) +
         		    json.closeHeader +
         		    thisCalendarHtml.data);
         	});

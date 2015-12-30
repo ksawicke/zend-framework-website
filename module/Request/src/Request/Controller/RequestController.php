@@ -55,7 +55,7 @@ class RequestController extends AbstractActionController
 //         print_r($_SESSION['Timeoff_'.ENVIRONMENT]);
 //         echo '</pre>';
 //         die('**');
-        
+
         $this->employeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'];
         $this->managerEmployeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['MANAGER_EMPLOYEE_NUMBER'];
         
@@ -63,7 +63,7 @@ class RequestController extends AbstractActionController
         $this->invalidRequestDates['before'] = date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y"))));
         
         // Disable dates starting with the following date.
-        $this->invalidRequestDates['after'] = '12/31/2020';
+        $this->invalidRequestDates['after'] = date("m/d/Y", strtotime("+5 years", strtotime(date("m/d/Y"))));
         
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = [
@@ -133,63 +133,24 @@ class RequestController extends AbstractActionController
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'getEmployeeList':
-//                     $employeeData = $this->requestService->findManagerEmployees($this->employeeNumber);
-//                     $result = new JsonModel([$employeeData]);
-//                     echo '<pre>';
-//                     print_r($employeeData);
-//                     echo '</pre>';
-//                     exit();
-                    //$request->getPost()->search
-                    
-                    /**
-                     * 366099  GUIDO FAECKE
-                       49499  JAMES GASIOR
-                       229589  MARY JACKSON
-                       366124  NEDRA MUNOZ
-                       229702  HEIDI CLARK
-                       348370  DENNIS WEGLARZ
-                       296261  RANDY SENA
-                     **/
-                    
-                    $r = [];
-                    $x = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
-//                     echo '<pre>';
-//                     print_r($x);
-//                     echo '</pre>';
-//                     die("@@@");
-                    foreach($x as $id => $data) {
+                    $return = [];
+                    $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
+                    foreach($managerEmployees as $id => $data) {
                         $nameFormatted =
                                trim($data->EMPLOYEECOMMONNAME) . " " . trim($data->EMPLOYEELASTNAME) . 
                                " (" . trim($data->EMPLOYEENUMBER) . ")";
-//                             trim($data->EMPLOYEELASTNAME) . ", " .
-//                             trim($data->EMPLOYEECOMMONNAME) .
-//                             " (" . trim($data->EMPLOYEENUMBER) . ")";
                         
-                        $r[] = [ 'id' => trim($data->EMPLOYEENUMBER),
+                        $return[] = [ 'id' => trim($data->EMPLOYEENUMBER),
                                  'text' => $nameFormatted
                                ];
                     }
-                    $result = new JsonModel($r);
-                    
-//                     $result = new JsonModel([
-//                         [ 'employeeNumber' => '366099', 'employeeName' => 'Faecke, Guido' ],
-//                         [ 'employeeNumber' => '49499', 'employeeName' => 'Gasior, James' ],
-//                         [ 'employeeNumber' => '366124', 'employeeName' => 'Munroz, Nedra' ],
-//                         [ 'employeeNumber' => '229702', 'employeeName' => 'Clark, Heidi' ],
-//                         [ 'employeeNumber' => '348370', 'employeeName' => 'Weglarz, Dennis' ],
-//                         [ 'employeeNumber' => '296261', 'employeeName' => 'Sena, Randy' ]
-//                     ]);
+                    $result = new JsonModel($return);
                     break;
                     
                 case 'submitTimeoffRequest':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     
                     $requestData = [];
-                    
-//                     echo '<pre>';
-//                     print_r($request->getPost()->selectedDatesNew);
-//                     echo '</pre>';
-//                     exit();
                     
                     foreach($request->getPost()->selectedDatesNew as $key => $data) {
                         $date = \DateTime::createFromFormat('m/d/Y', $request->getPost()->selectedDatesNew[$key]['date']);
@@ -237,11 +198,6 @@ class RequestController extends AbstractActionController
                         ],
                         'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $oneMonthBack->format('m') . '" data-year="' . $oneMonthBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
                         'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $oneMonthOut->format('m') . '" data-year="' . $oneMonthOut->format('Y') . '"> </span>',
-                        //'employeeData' => $employeeData,
-//                         'approvedRequestData' => $approvedRequestData,
-//                         'approvedRequestJson' => $approvedRequestJson,
-//                         'pendingRequestData' => $pendingRequestData,
-//                         'pendingRequestJson' => $pendingRequestJson,
                         'openHeader' => '<strong>',
                         'closeHeader' => '</strong><br /><br />'
                     ]);
@@ -250,18 +206,21 @@ class RequestController extends AbstractActionController
                 case 'loadCalendar':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     
-                    //submitTimeoffRequest
                     $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
+                    $fastPrev = date("Y-m-d", strtotime("-6 month", $time));
                     $prev = date("Y-m-d", strtotime("-3 month", $time));
                     $current = date("Y-m-d", strtotime("+0 month", $time));
                     $one = date("Y-m-d", strtotime("+1 month", $time));
                     $two = date("Y-m-d", strtotime("+2 month", $time));
                     $three = date("Y-m-d", strtotime("+3 month", $time));
+                    $six = date("Y-m-d", strtotime("+6 month", $time));
+                    $sixMonthsBack = new \DateTime($fastPrev);
                     $threeMonthsBack = new \DateTime($prev);
                     $currentMonth = new \DateTime($current);
                     $oneMonthOut = new \DateTime($one);
                     $twoMonthsOut = new \DateTime($two);
                     $threeMonthsOut = new \DateTime($three);
+                    $sixMonthsOut = new \DateTime($six);
                     
                     \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
@@ -269,24 +228,11 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    //$employeeData['FLOAT_REMAINING'] = "71.33";
                     $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
                     $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
-//                     $approvedRequestData = $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly');
-//                     $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'datesOnly', null);
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
-                    
-//                     echo '<pre>approvedRequestData';
-//                     print_r($approvedRequestData);
-//                     echo '</pre>';
-                    
-//                     echo '<pre>pendingRequestData';
-//                     print_r($pendingRequestData);
-//                     echo '</pre>';
-                    
-//                     exit();
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
                         $approvedRequestJson[] = [
@@ -316,8 +262,10 @@ class RequestController extends AbstractActionController
                                 'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
                             ]
                         ],
-                        'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
+                        'fastRewindButton' => '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $sixMonthsBack->format('m') . '" data-year="' . $sixMonthsBack->format('Y') . '"> </span>',
+                        'prevButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go back 3 months" class="glyphicon-class glyphicon glyphicon-step-backward calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;',
+                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 3 months" class="glyphicon-class glyphicon glyphicon-step-forward calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
+                        'fastForwardButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 6 months" class="glyphicon-class glyphicon glyphicon-fast-forward calendarNavigation" data-month="' . $sixMonthsOut->format('m') . '" data-year="' . $sixMonthsOut->format('Y') . '"> </span>',
                         'employeeData' => $employeeData,
                         'employeeNumber' => $employeeNumber,
                         'approvedRequestData' => $approvedRequestData,

@@ -11,13 +11,10 @@ use Zend\Session\Container;
 
 class LoginController extends AbstractActionController
 {
-    protected $userSessionNamespace = null;
-    
     public function __construct(AuthenticationServiceInterface $authenticationService, FormInterface $loginForm)
     {
         $this->authenticationService = $authenticationService;
         $this->loginForm = $loginForm;
-        $this->userSessionNamespace = 'Timeoff_'.ENVIRONMENT;
     }
     
     /**
@@ -39,8 +36,7 @@ class LoginController extends AbstractActionController
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
             
             if(count($result)==1) {
-                $session = new Container($this->userSessionNamespace);
-                $session = \Login\Helper\UserSession::createUserSession($session, $result);
+                $session = \Login\Helper\UserSession::createUserSession($result);
                 
                 return $this->redirect()->toRoute('create2', array('controller' => 'request', 'action' => 'create'));
             } else {
@@ -57,7 +53,7 @@ class LoginController extends AbstractActionController
      */
     public function logoutAction()
     {
-        \Login\Helper\UserSession::endUserSession($this->userSessionNamespace);
+        \Login\Helper\UserSession::endUserSession();
     }
 
 }
