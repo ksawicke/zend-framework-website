@@ -929,3 +929,7 @@ button .full-width {
 	margin-top:-3px;
 	padding:5px;
 }
+
+#dialogGrandfatheredAlert {
+	display: none;
+}

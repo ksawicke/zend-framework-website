@@ -63,7 +63,7 @@ class RequestController extends AbstractActionController
         $this->invalidRequestDates['before'] = date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y"))));
         
         // Disable dates starting with the following date.
-        $this->invalidRequestDates['after'] = date("m/d/Y", strtotime("+5 years", strtotime(date("m/d/Y"))));
+        $this->invalidRequestDates['after'] = date("m/d/Y", strtotime("+1 year", strtotime(date("m/d/Y"))));
         
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = [
