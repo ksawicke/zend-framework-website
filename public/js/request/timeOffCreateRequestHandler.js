@@ -518,8 +518,10 @@ var timeOffCreateRequestHandler = new function()
      */
     this.printEmployeePTOAvailable = function() {
     	$("#employeePTOAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable) + " hr");
-    	if(employeePTOAvailable<=0) {
+    	if(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable)<=0) {
     		$('.buttonDisappearPTO').addClass('hidden');
+    	} else {
+    		$('.buttonDisappearPTO').removeClass('hidden');
     	}
     }
     
@@ -532,8 +534,10 @@ var timeOffCreateRequestHandler = new function()
      */
     this.printEmployeeFloatAvailable = function() {
     	$("#employeeFloatAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatAvailable) + " hr");
-    	if(employeeFloatAvailable<=0) {
+    	if(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatAvailable)<=0) {
     		$('.buttonDisappearFloat').addClass('hidden');
+    	} else {
+    		$('.buttonDisappearFloat').removeClass('hidden');
     	}
     }
     
@@ -546,8 +550,10 @@ var timeOffCreateRequestHandler = new function()
      */
     this.printEmployeeSickAvailable = function() {
     	$("#employeeSickAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickAvailable) + " hr");
-    	if(employeeSickAvailableHours<=0) {
+    	if(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickAvailable)<=0) {
     		$('.buttonDisappearSick').addClass('hidden');
+    	} else {
+    		$('.buttonDisappearSick').removeClass('hidden');
     	}
     }
     
@@ -557,7 +563,7 @@ var timeOffCreateRequestHandler = new function()
     
     this.printEmployeeGrandfatheredAvailable = function() {
     	$("#employeeGrandfatheredAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredAvailable) + " hr");
-    	if(employeeGrandfatheredAvailable<=0) {
+    	if(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredAvailable)<=0) {
     		$('.buttonDisappearGrandfathered').addClass('hidden');
     	}
     }
