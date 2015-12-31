@@ -137,13 +137,24 @@ class RequestController extends AbstractActionController
                     $return = [];
                     $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
                     foreach($managerEmployees as $id => $data) {
-                        $nameFormatted =
-                               trim($data->EMPLOYEE_NAME) . " " . 
-                               " (" . trim($data->EMPLOYEE_NUMBER) . ")";
+//                         $nameFormatted =
+//                                trim($data->EMPLOYEE_NAME) . " " . 
+//                                " (" . trim($data->EMPLOYEE_NUMBER) . ")\r\n" .
+//                                $data->POSITION_TITLE;
                         
-                        $return[] = [ 'id' => trim($data->EMPLOYEE_NUMBER),
-                                 'text' => $nameFormatted
-                               ];
+                        $return[] = [ 
+                                      'id' => $data->EMPLOYEE_NUMBER,
+                                      'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE
+                                    ];
+                        
+//                         $nameFormatted =
+//                                trim($data->EMPLOYEE_NAME) . " " . 
+//                                " (" . trim($data->EMPLOYEE_NUMBER) . ")\r\n" .
+//                                $data->POSITION_TITLE;
+                        
+//                         $return[] = [ 'id' => trim($data->EMPLOYEE_NUMBER),
+//                                  'text' => $nameFormatted
+//                                ];
                     }
                     $result = new JsonModel($return);
                     break;

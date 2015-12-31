@@ -110,7 +110,7 @@ var timeOffCreateRequestHandler = new function()
         	 */
         	$requestForEventSelect.on("select2:select", function (e) {
         		var selectedEmployee = e.params.data;
-        		console.log(selectedEmployee);
+        		console.log("SELECTED EMPLOYEE", selectedEmployee);
         		requestForEmployeeNumber = selectedEmployee.id;
             	requestForEmployeeName = selectedEmployee.text;
             	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
@@ -340,9 +340,9 @@ var timeOffCreateRequestHandler = new function()
         	
         	requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
         	requestForEmployeeName =
+        		timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
         		timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
-        		" " + timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) +
-        		' (' + requestForEmployeeNumber + ')';
+        		' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
         	
         	$("#requestFor")
         		.empty()
