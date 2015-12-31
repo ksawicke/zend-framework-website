@@ -762,18 +762,182 @@ class RequestMapper implements RequestMapperInterface
     
     public function findManagerEmployees($managerEmployeeNumber = null, $search = null)
     {
-        $sql = new Sql($this->dbAdapter);
+//         $sql = "SELECT * FROM PRPMS employee WHERE trim(employee.PREN) = '49499'";
+//         $statement = $this->dbAdapter->query($sql);
+//         $result = $statement->execute();
         
-        $select = $sql->select(['employee' => 'PRPMS'])
-            ->columns(['employeeNumber' => 'PREN',
-                       'employeeCommonName' => 'PRCOMN',
-                       'employeeLastName' => 'PRLNM',
-                       'employeeFirstName' => 'PRFNM',
-//                        'employeeSearchResult' => new Expression("concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' )")
-                      ])
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' AND ( trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRFNM) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' )")
+//         $resultSet = new ResultSet;
+//         $resultSet->initialize($result);
+        
+//         $array = [];
+//         foreach($resultSet as $row) {
+//             $array[] = $row;
+//         }
+        
+//         echo '<pre>';
+//         print_r($array);
+//         echo '</pre>';
+        
+//         die('@@@@@@@@@@@@@@@');
+        
+        $rawSql = "SELECT
+              case
+        	  when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                  else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+              end as EMPLOYEE_NAME,
+              trim(employee.PREN) AS EMPLOYEE_NUMBER,
+              employee.PRL01 AS LEVEL_1,
+              employee.PRL02 AS LEVEL_2,
+              employee.PRL03 AS LEVEL_3,
+              employee.PRL04 AS LEVEL_4,
+              hierarchy.DIRECT_INDIRECT,
+              hierarchy.MANAGER_LEVEL,
+              employee.PRPOS AS POSITION,
+              employee.PREML1 AS EMAIL_ADDRESS,
+              employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+              employee.PRTITL AS POSITION_TITLE,
+              TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+              trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+              manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+        FROM PRPMS employee
+        INNER JOIN table (
+           
+              SELECT
+                  trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+        	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+        	  DIRECT_INDIRECT,
+        	  MANAGER_LEVEL
+              FROM table (
+        	  CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
+              ) as data
+            
+        ) hierarchy
+              ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+        INNER JOIN PRPSP manager
+              ON employee.PREN = manager.SPEN
+        INNER JOIN PRPMS manager_addons
+             ON manager_addons.PREN = manager.SPSPEN
+        WHERE
+             ( trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR
+               trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
+               trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%'
+             )
+        ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        
+        return $employeeData;
+                
+        //$sql = new Sql($this->dbAdapter);
+        
+        /**
+         * 
+         * SELECT
+         *      employee.PREN AS employeeNumber, employee.PRCOMN AS employeeCommonName,
+         *      employee.PRLNM AS employeeLastName, employee.PRFNM AS employeeFirstName,
+         *      manager_addons.PRER AS MANAGER_EMPLOYER_NUMBER, manager_addons.PREN AS MANAGER_EMPLOYEE_NUMBER,
+         *      manager_addons.PRFNM AS MANAGER_FIRST_NAME, manager_addons.PRMNM AS MANAGER_MIDDLE_INITIAL,
+         *      manager_addons.PRLNM AS MANAGER_LAST_NAME,
+         *      manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
+         * FROM PRPMS employee
+         * INNER JOIN PRPSP manager
+         *      ON employee.PREN = manager.SPEN
+         * INNER JOIN PRPMS manager_addons
+         *      ON manager_addons.PREN = manager.SPSPEN
+         * WHERE
+         *      trim(manager.SPSPEN) = '49602' AND
+         *      ( trim(employee.PREN) LIKE '%SENA%' OR
+         *        trim(employee.PRFNM) LIKE '%SENA%' OR
+         *        trim(employee.PRLNM) LIKE '%SENA%'
+         *      )
+         * ORDER BY employee.PRLNM ASC
+         * 
+         * @var unknown
+         */
+//         $select = $sql->select(['employee' => 'PRPMS'])
+//             ->columns(['employeeNumber' => 'PREN',
+//                        'employeeCommonName' => 'PRCOMN',
+//                        'employeeLastName' => 'PRLNM',
+//                        'employeeFirstName' => 'PRFNM'
+//                       ])
+//             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+//             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+//             ->where("trim(manager.SPSPEN) = '$managerEmployeeNumber' AND ( trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRFNM) LIKE '%" . strtoupper($search) . "%' OR trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' )")
+            
+//         $select = $sql->select(['employee' => 'PRPMS'])
+//             ->columns(['EMPLOYEE_NAME' => 'trim(employee.PRLNM)',
+//                        'LEVEL_1' => 'PRL01',
+//                        'LEVEL_2' => 'PRL02',
+//                        'LEVEL_3' => 'PRL03',
+//                        'LEVEL_4' => 'PRL04',
+//                       ])
+//             ->join(['hierarchy' => 'table (
+           
+//                  SELECT
+//                      trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+//         	     TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+//         	     DIRECT_INDIRECT,
+//         	     MANAGER_LEVEL
+//                  FROM table (
+//         	     CARE_GET_MANAGER_EMPLOYEES("002", "49602", "B")
+//                  )
+            
+//               )'], 'hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)', ['DIRECT_INDIRECT' => 'DIRECT_INDIRECT', 'MANAGER_LEVEL' => 'MANAGER_LEVEL'])
+//             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', $this->supervisorAddonColumns)
+//             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+//             ->where("( trim(employee.PREN) LIKE '%HE%' OR
+//                trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%HE%' OR
+//                trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%HE%'
+//              )");
+        
+        /**
+         * 12/31/15 WANT TO CHANGE TO THIS QUERY:
+         * 
+         * SELECT
+              case
+        	  when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                  else 'NULL'
+              end as EMPLOYEE_NAME,
+              trim(employee.PREN) AS EMPLOYEE_NUMBER,
+              employee.PRL01 AS LEVEL_1,
+              employee.PRL02 AS LEVEL_2,
+              employee.PRL03 AS LEVEL_3,
+              employee.PRL04 AS LEVEL_4,
+              hierarchy.DIRECT_INDIRECT,
+              hierarchy.MANAGER_LEVEL,
+              employee.PRPOS AS POSITION,
+              employee.PREML1 AS EMAIL_ADDRESS,
+              employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+              employee.PRTITL AS POSITION_TITLE,
+              TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+              trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+              manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+        FROM PRPMS employee
+        INNER JOIN table (
+           
+              SELECT
+                  trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+        	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+        	  DIRECT_INDIRECT,
+        	  MANAGER_LEVEL
+              FROM table (
+        	  CARE_GET_MANAGER_EMPLOYEES('002', '49602', 'B')
+              ) as data
+            
+        ) hierarchy
+              ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+        INNER JOIN PRPSP manager
+              ON employee.PREN = manager.SPEN
+        INNER JOIN PRPMS manager_addons
+             ON manager_addons.PREN = manager.SPSPEN
+        WHERE
+             ( trim(employee.PREN) LIKE '%HE%' OR
+               trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%HE%' OR
+               trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%HE%'
+             )
+        ORDER BY employee.PRLNM ASC, employee.PRFNM ASC;;
+         */    
+            
             
             // AND concat( concat( concat( concat( concat(trim(employee.PRLNM),', '), trim(employee.PRFNM) ),' ('), trim(employee.PREN) ),')' ) LIKE '%gas%'
             
@@ -784,11 +948,11 @@ class RequestMapper implements RequestMapperInterface
 // //                      'employeeSearchResult' => 'SENA, RANDY (296261)'
 //                     ])
 //             ->where(['employeeSearchResult LIKE ?', "%$search%"])
-            ->order(['employee.PRLNM ASC, employee.PRFNM ASC']);
+//             ->order(['employee.PRLNM ASC, employee.PRFNM ASC']);
 //         die($select->getSqlString());
-        $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+//         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         
-        return $employeeData;
+//         return $employeeData;
     }
     
     public function findQueuesByManager($managerEmployeeNumber = null)

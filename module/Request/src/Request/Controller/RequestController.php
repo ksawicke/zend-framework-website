@@ -114,6 +114,7 @@ class RequestController extends AbstractActionController
         
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
+            'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena')
 //             'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly'),
 //             'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
 //             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
@@ -137,10 +138,10 @@ class RequestController extends AbstractActionController
                     $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
                     foreach($managerEmployees as $id => $data) {
                         $nameFormatted =
-                               trim($data->EMPLOYEECOMMONNAME) . " " . trim($data->EMPLOYEELASTNAME) . 
-                               " (" . trim($data->EMPLOYEENUMBER) . ")";
+                               trim($data->EMPLOYEE_NAME) . " " . 
+                               " (" . trim($data->EMPLOYEE_NUMBER) . ")";
                         
-                        $return[] = [ 'id' => trim($data->EMPLOYEENUMBER),
+                        $return[] = [ 'id' => trim($data->EMPLOYEE_NUMBER),
                                  'text' => $nameFormatted
                                ];
                     }
