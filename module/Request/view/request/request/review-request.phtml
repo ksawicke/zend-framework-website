@@ -152,9 +152,11 @@
   <div class="form-group">
     <label for="inputPassword3" class="col-sm-3 control-label">Approval Actions</label>
     <div class="col-sm-9">
+      <input type="hidden" id="requestId" value="<?php echo $requestId; ?>">
+      <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
       <p>
-        <button type="button" class="btn btn-form-primary btn-lg" disabled="disabled">Approve</button>
-        <button type="button" class="btn btn-form-primary btn-lg" disabled="disabled">Deny</button>
+        <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest">Approve</button>
+        <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest">Deny</button>
       </p>
     </div>
   </div>

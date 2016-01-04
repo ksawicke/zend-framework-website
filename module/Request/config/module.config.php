@@ -118,6 +118,30 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
+            ],
+            'approvedRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/request/approved-request',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'approvedRequest'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
+            'deniedRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/request/denied-request',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'deniedRequest'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
             ]
         ]
     ],

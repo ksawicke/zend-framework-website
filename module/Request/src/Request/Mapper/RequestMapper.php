@@ -1018,16 +1018,16 @@ class RequestMapper implements RequestMapperInterface
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
         INNER JOIN table (
-                      SELECT
-                          trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
-                	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                	  DIRECT_INDIRECT,
-                	  MANAGER_LEVEL
-                      FROM table (
-                	  CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
-                      ) as data
-                ) hierarchy
-                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+              SELECT
+                  trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+        	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+        	  DIRECT_INDIRECT,
+        	  MANAGER_LEVEL
+              FROM table (
+        	  CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
+              ) as data
+        ) hierarchy
+              ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
         WHERE request.REQUEST_STATUS = 'P'";
         
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
@@ -1085,6 +1085,19 @@ class RequestMapper implements RequestMapperInterface
                 throw new \Exception("Can't execute statement: " . $e->getMessage());
             }
         }
+        $requestReturnData['request_id'] = $requestId;
+        
+        return $requestReturnData;
+    }
+    
+    public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null)
+    {
+        $requestReturnData = ['request_id' => null];
+        
+        $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
+//         die($rawSql)
+        $employeeData = \Request\Helper\ResultSetOutput::executeRawSql($this->dbAdapter, $rawSql);
+        
         $requestReturnData['request_id'] = $requestId;
         
         return $requestReturnData;

@@ -123,6 +123,16 @@ class RequestController extends AbstractActionController
         ));
     }
     
+    public function approvedRequestAction()
+    {
+        die("Approved");
+    }
+    
+    public function deniedRequestAction()
+    {
+        die("Denied");
+    }
+    
     /**
      * Load three calendars starting with the month and year passed in via AJAX.
      * 
@@ -134,6 +144,38 @@ class RequestController extends AbstractActionController
         
         if ($request->isPost()) {
             switch($request->getPost()->action) {
+                case 'submitApprovalResponse':
+                    $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                    if($requestReturnData['request_id']!=null) {
+                        $result = new JsonModel([
+                            'success' => true,
+                            'request_id' => $requestReturnData['request_id'],
+                            'action' => 'A'
+                        ]);
+                    } else {
+                        $result = new JsonModel([
+                            'success' => false,
+                            'message' => 'There was an error submitting your request. Please try again.'
+                        ]);
+                    }
+                    break;
+                    
+                case 'submitDenyResponse':
+                    $requestReturnData = $this->requestService->submitApprovalResponse('D', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                    if($requestReturnData['request_id']!=null) {
+                        $result = new JsonModel([
+                            'success' => true,
+                            'request_id' => $requestReturnData['request_id'],
+                            'action' => 'D'
+                        ]);
+                    } else {
+                        $result = new JsonModel([
+                            'success' => false,
+                            'message' => 'There was an error submitting your request. Please try again.'
+                        ]);
+                    }
+                    break;
+                
                 case 'getEmployeeList':
                     $return = [];
                     $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);

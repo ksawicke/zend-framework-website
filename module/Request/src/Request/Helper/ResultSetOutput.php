@@ -66,4 +66,17 @@ class ResultSetOutput
         
         return $array;
     }
+    
+    public static function executeRawSql($dbAdapter, $rawSql)
+    {
+        try {
+            $statement = $dbAdapter->createStatement($rawSql);
+        } catch(Exception $e) {
+            var_dump($e);
+        }
+    
+        $result = $statement->execute();
+    
+        return $result;
+    }
 }

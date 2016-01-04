@@ -57,7 +57,11 @@
       }
       if(strpos($_SERVER['REDIRECT_URL'], '/request/view-employee-requests') !== false) {
           $this->headScript()
-          ->appendFile($this->basePath('js/request/timeOffQueueHandler.js'));
+            ->appendFile($this->basePath('js/request/timeOffQueueHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/review-request') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffApproveRequestHandler.js'));
       }
       
       echo $this->headScript();
