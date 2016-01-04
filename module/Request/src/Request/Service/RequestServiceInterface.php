@@ -22,5 +22,7 @@ interface RequestServiceInterface
     
     public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     
+    public function isManager($employeeNumber);
+    
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason);
 }

@@ -59,64 +59,6 @@ var timeOffCreateRequestHandler = new function()
         $(document).ready(function() {
         	//var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
         	
-        	var $eventLog = $(".js-event-log");
-        	var $requestForEventSelect = $("#requestFor");
-        	$("#requestFor").select2({
-        		//data: data
-        		ajax: {
-        			 url: timeOffLoadCalendarUrl,
-        			 method: 'post',
-        			 dataType: 'json',
-        			 delay: 250,
-        			 data: function(params) {
-        				 return {
-        					 search: params.term,
-        					 action: 'getEmployeeList',
-        					 page: params.page
-        				 };
-        			 },
-        			 processResults: function(data, params) {
-        				 params.page = params.page || 1;
-        				 
-        				 return {
-        					 results: data,
-        					 pagination: {
-        						 more: (params.page * 30) < data.total_count
-        					 }
-        				 };
-        			 },
-//        			 cache: true,
-        			 allowClear: true
-        		},
-//        		escapeMarkup: function(markup) {
-//        			return markup;
-//        		},
-        		minimumInputLength: 2,
-//        		theme: "classic"
-//        		templateResult: function(result) {
-//    		        var markup = result.employeeName + '<br />';
-//
-//    		        return markup;
-//    		    },
-//        		templateSelection: function(repo) {
-//        		      return repo.full_name || repo.text;
-//        	    }
-        	});
-
-        	/**
-        	 * When we change the for dropdown using select2,
-        	 * set the employee number and name as a local variable
-        	 * for form submission, and refresh the calendars.
-        	 */
-        	$requestForEventSelect.on("select2:select", function (e) {
-        		var selectedEmployee = e.params.data;
-        		console.log("SELECTED EMPLOYEE", selectedEmployee);
-        		requestForEmployeeNumber = selectedEmployee.id;
-            	requestForEmployeeName = selectedEmployee.text;
-            	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-            	$('.requestIsForMe').show();
-        	});
-        	
         	$(document).on('click', '.requestIsForMe', function() {
         		$('.requestIsForMe').hide();
         		//console.log('initial', loggedInUserData);
@@ -193,7 +135,7 @@ var timeOffCreateRequestHandler = new function()
         	});
         	
         	timeOffCreateRequestHandler.loadCalendars();
-        	timeOffCreateRequestHandler.checkLocalStorage();
+//        	timeOffCreateRequestHandler.checkLocalStorage();
         	
         	$('.timeOffCalendarWrapper').hide();
         });
@@ -348,6 +290,8 @@ var timeOffCreateRequestHandler = new function()
         		.empty()
         		.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
         		.val(requestForEmployeeNumber).trigger('change');
+        	
+        	timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
         	
             return;
         })
@@ -900,6 +844,75 @@ var timeOffCreateRequestHandler = new function()
     		$e.animate({ opacity: 0 }, 2000, 'linear', function() {
     			$e.remove();
     		});
+    	});
+    }
+    
+    this.checkAllowRequestOnBehalfOf = function() {
+    	if(loggedInUserData.IS_LOGGED_IN_USER_MANAGER==="Y") {
+    		timeOffCreateRequestHandler.enableSelectRequestFor();
+    		$("#requestFor").prop('disabled', false);
+    	} else {
+    		$("#requestFor").prop('disabled', true);
+    	}
+    }
+    
+    this.enableSelectRequestFor = function() {
+    	var $eventLog = $(".js-event-log");
+    	var $requestForEventSelect = $("#requestFor");
+    	$("#requestFor").select2({
+    		//data: data
+    		ajax: {
+    			 url: timeOffLoadCalendarUrl,
+    			 method: 'post',
+    			 dataType: 'json',
+    			 delay: 250,
+    			 data: function(params) {
+    				 return {
+    					 search: params.term,
+    					 action: 'getEmployeeList',
+    					 page: params.page
+    				 };
+    			 },
+    			 processResults: function(data, params) {
+    				 params.page = params.page || 1;
+    				 
+    				 return {
+    					 results: data,
+    					 pagination: {
+    						 more: (params.page * 30) < data.total_count
+    					 }
+    				 };
+    			 },
+//    			 cache: true,
+    			 allowClear: true
+    		},
+//    		escapeMarkup: function(markup) {
+//    			return markup;
+//    		},
+    		minimumInputLength: 2,
+//    		theme: "classic"
+//    		templateResult: function(result) {
+//		        var markup = result.employeeName + '<br />';
+//
+//		        return markup;
+//		    },
+//    		templateSelection: function(repo) {
+//    		      return repo.full_name || repo.text;
+//    	    }
+    	});
+
+    	/**
+    	 * When we change the for dropdown using select2,
+    	 * set the employee number and name as a local variable
+    	 * for form submission, and refresh the calendars.
+    	 */
+    	$requestForEventSelect.on("select2:select", function (e) {
+    		var selectedEmployee = e.params.data;
+    		console.log("SELECTED EMPLOYEE", selectedEmployee);
+    		requestForEmployeeNumber = selectedEmployee.id;
+        	requestForEmployeeName = selectedEmployee.text;
+        	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+        	$('.requestIsForMe').show();
     	});
     }
 };

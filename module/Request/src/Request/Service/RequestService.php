@@ -68,6 +68,11 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     }
     
+    public function isManager($employeeNumber)
+    {
+        return $this->requestMapper->isManager($employeeNumber);
+    }
+    
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason)
     {
         return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData, $requestReason);

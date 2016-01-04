@@ -114,7 +114,8 @@ class RequestController extends AbstractActionController
         
         return new ViewModel(array(
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
-            'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena')
+            'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
+            'isSupervisor' => $this->requestService->isManager($this->employeeNumber)
 //             'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly'),
 //             'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
 //             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
@@ -240,6 +241,7 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
+                    $employeeData['IS_LOGGED_IN_USER_MANAGER'] = $this->requestService->isManager($this->employeeNumber);
                     $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
                     $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
                     

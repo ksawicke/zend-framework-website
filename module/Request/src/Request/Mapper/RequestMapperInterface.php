@@ -21,5 +21,7 @@ interface RequestMapperInterface
     
     public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null);
     
+    public function isManager($employeeNumber = null);
+    
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null);
 }

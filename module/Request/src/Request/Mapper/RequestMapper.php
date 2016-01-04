@@ -802,7 +802,6 @@ class RequestMapper implements RequestMapperInterface
               manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
         FROM PRPMS employee
         INNER JOIN table (
-           
               SELECT
                   trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
         	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
@@ -811,7 +810,6 @@ class RequestMapper implements RequestMapperInterface
               FROM table (
         	  CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
               ) as data
-            
         ) hierarchy
               ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
         INNER JOIN PRPSP manager
@@ -1002,6 +1000,15 @@ class RequestMapper implements RequestMapperInterface
         //             INNER JOIN PRPMS employee ON trim(employee.PREN) = trim(request.employee_number)
         //             WHERE request.REQUEST_STATUS = 'P';
         /// END.
+    }
+    
+    public function isManager($employeeNumber = null)
+    {
+        $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
+    
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return $isSupervisorData[0]->IS_MANAGER;
     }
     
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null)
