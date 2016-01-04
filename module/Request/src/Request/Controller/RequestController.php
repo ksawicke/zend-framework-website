@@ -299,7 +299,8 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         return new ViewModel(array(
-            'managerDirectReportsData' => $this->requestService->findQueuesByManager($this->managerEmployeeNumber)
+            'isLoggedInUserManager' => $this->requestService->isManager($this->employeeNumber),
+            'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber)
         ));
     }
     

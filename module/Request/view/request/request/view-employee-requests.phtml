@@ -2,6 +2,8 @@
 
 <br />
 
+<?php if($isLoggedInUserManager==="Y") { ?>
+
 <table id="pendingApprovalQueue" class="display" style="width:100%;">
     <thead>
         <tr>
@@ -14,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-    	<?php foreach($managerDirectReportsData as $key => $request) { ?>
+    	<?php foreach($managerReportsData as $key => $request) { ?>
         <tr>
             <td><?php echo $request->EMPLOYEE_LAST_NAME; ?>, <?php echo $request->EMPLOYEE_FIRST_NAME; ?> <?php echo $request->EMPLOYEE_MIDDLE_NAME; ?></td>
             <td><?php echo $request->MANAGER_LAST_NAME; ?>, <?php echo $request->MANAGER_FIRST_NAME; ?></td>
@@ -26,6 +28,14 @@
         <?php } ?>
     </tbody>
 </table>
+
+<?php } else { ?>
+
+<div class="alert alert-danger" role="alert">
+	<strong>You do not have access to this page.</strong>
+</div>
+
+<?php } ?>
 
 <br /><br />
 

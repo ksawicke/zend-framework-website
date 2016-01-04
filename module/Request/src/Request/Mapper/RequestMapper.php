@@ -970,23 +970,20 @@ class RequestMapper implements RequestMapperInterface
 // WHERE request.REQUEST_STATUS = 'P'");
 //         return $select->execute();
         
-        $sql = new Sql($this->dbAdapter);
+//         $sql = new Sql($this->dbAdapter);
 
-        $select = $sql->select(['request' => 'TIMEOFF_REQUESTS'])
-            ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUEST_REASON' => 'REQUEST_REASON', 'REQUEST_STATUS' => 'REQUEST_STATUS',
-                'requested_hours' => new Expression('(SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id)')                
-                ])
-            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER',
-                   ['EMPLOYEE_LAST_NAME' => 'PRLNM', 'EMPLOYEE_FIRST_NAME' => 'PRFNM', 'EMPLOYEE_MIDDLE_NAME' => 'PRMNM'
-                   ])
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where(['request.REQUEST_STATUS' => 'P']);
-            
-        // 'TOTAL_HOURS_REQUESTED' => '(select sum(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id)'
-//         var_dump($select);exit();
+//         $select = $sql->select(['request' => 'TIMEOFF_REQUESTS'])
+//             ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUEST_REASON' => 'REQUEST_REASON', 'REQUEST_STATUS' => 'REQUEST_STATUS',
+//                 'requested_hours' => new Expression('(SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id)')                
+//                 ])
+//             ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER',
+//                    ['EMPLOYEE_LAST_NAME' => 'PRLNM', 'EMPLOYEE_FIRST_NAME' => 'PRFNM', 'EMPLOYEE_MIDDLE_NAME' => 'PRMNM'
+//                    ])
+//             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
+//             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+//             ->where(['request.REQUEST_STATUS' => 'P']);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+//         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         //         select
         
         //         request.request_id, request.request_reason,
@@ -1000,6 +997,42 @@ class RequestMapper implements RequestMapperInterface
         //             INNER JOIN PRPMS employee ON trim(employee.PREN) = trim(request.employee_number)
         //             WHERE request.REQUEST_STATUS = 'P';
         /// END.
+        
+        $rawSql = "SELECT
+        	request.REQUEST_ID AS REQUEST_ID,
+        	request.EMPLOYEE_NUMBER,
+        	request.REQUEST_REASON AS REQUEST_REASON,
+        	request.REQUEST_STATUS AS REQUEST_STATUS,
+        	(
+        		SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+        	) AS requested_hours,
+        
+        	employee.PRLNM AS EMPLOYEE_LAST_NAME, employee.PRFNM AS EMPLOYEE_FIRST_NAME, employee.PRMNM AS EMPLOYEE_MIDDLE_NAME,
+        
+        	manager_addons.PRER AS MANAGER_EMPLOYER_NUMBER, manager_addons.PREN AS MANAGER_EMPLOYEE_NUMBER,
+        	manager_addons.PRFNM AS MANAGER_FIRST_NAME, manager_addons.PRMNM AS MANAGER_MIDDLE_INITIAL,
+        	manager_addons.PRLNM AS MANAGER_LAST_NAME, manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
+        
+        FROM TIMEOFF_REQUESTS request
+        INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+        INNER JOIN table (
+                      SELECT
+                          trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+                	  TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                	  DIRECT_INDIRECT,
+                	  MANAGER_LEVEL
+                      FROM table (
+                	  CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
+                      ) as data
+                ) hierarchy
+                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+        WHERE request.REQUEST_STATUS = 'P'";
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        
+        return $employeeData;
     }
     
     public function isManager($employeeNumber = null)

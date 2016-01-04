@@ -853,6 +853,10 @@ var timeOffCreateRequestHandler = new function()
     		$("#requestFor").prop('disabled', false);
     	} else {
     		$("#requestFor").prop('disabled', true);
+    		$(".categoryBereavement").hide();
+    		$(".categoryCivicDuty").hide();
+    		$(".categoryApprovedNoPay").hide();
+    		$(".categoryUnexcusedAbsence").hide();
     	}
     }
     
