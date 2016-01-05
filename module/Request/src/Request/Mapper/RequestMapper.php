@@ -141,11 +141,20 @@ class RequestMapper implements RequestMapperInterface
             'MANAGER_LAST_NAME' => 'PRLNM',
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
+        $this->requesterAddonColumns = [
+            'REQUESTER_EMPLOYER_NUMBER' => 'PRER',
+            'REQUESTER_EMPLOYEE_NUMBER' => 'PREN',
+            'REQUESTER_FIRST_NAME' => 'PRFNM',
+            'REQUESTER_MIDDLE_INITIAL' => 'PRMNM',
+            'REQUESTER_LAST_NAME' => 'PRLNM',
+            'REQUESTER_EMAIL_ADDRESS' => 'PREML1'
+        ];
         $this->timeoffRequestColumns = [
             'REQUEST_ID' => 'REQUEST_ID',
             'REQUEST_REASON' => 'REQUEST_REASON',
             'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP',
-            'REQUEST_STATUS' => 'REQUEST_STATUS'
+            'REQUEST_STATUS' => 'REQUEST_STATUS',
+            'REQUESTER_EMPLOYEE_ID' => 'CREATE_USER'
         ];
         $this->timeoffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
@@ -497,12 +506,13 @@ class RequestMapper implements RequestMapperInterface
             ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER', $this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->join(['requester_addons' => 'PRPMS'], 'trim(requester_addons.PREN) = request.CREATE_USER', $this->requesterAddonColumns)
             ->order(['entry.REQUEST_DATE ASC']);
         if($requestId!=null) {
 //             $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
             $select->where(['request.REQUEST_ID' => $requestId]);
         }
-    
+        
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
         switch($returnType) {
             case 'datesOnly':
@@ -548,6 +558,12 @@ class RequestMapper implements RequestMapperInterface
                                                   ],
                               'FIRST_DATE_REQUESTED' => '',
                               'LAST_DATE_REQUESTED' => '',
+                              'REQUESTER'      => [ 'EMPLOYEE_NUMBER' => $data['REQUESTER_EMPLOYEE_NUMBER'],
+                                                    'FIRST_NAME' => $data['REQUESTER_FIRST_NAME'],
+                                                    'MIDDLE_INITIAL' => $data['REQUESTER_MIDDLE_INITIAL'],
+                                                    'LAST_NAME' => $data['REQUESTER_LAST_NAME'],
+                                                    'EMAIL_ADDRESS' => $data['REQUESTER_EMAIL_ADDRESS']
+                                                  ],
                               'EMPLOYEE'       => [ 'EMPLOYEE_NUMBER' => $data['EMPLOYEE_NUMBER'],
                                                     'FIRST_NAME' => $data['FIRST_NAME'],
                                                     'MIDDLE_INITIAL' => $data['MIDDLE_INITIAL'],
@@ -640,6 +656,11 @@ class RequestMapper implements RequestMapperInterface
                                                                        ]
                                                        ];
                     }
+                    
+//                     echo '<pre>';
+//                     print_r($data);
+//                     echo '</pre>';
+//                     die("@@@");
                     
                     $return[$data['REQUEST_ID']]['DETAILS'][] = [
                         'REQUEST_DATE' => $data['REQUEST_DATE'],
@@ -1044,7 +1065,7 @@ class RequestMapper implements RequestMapperInterface
         return $isSupervisorData[0]->IS_MANAGER;
     }
     
-    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null)
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)
     {
         $requestReturnData = ['request_id' => null];
         
@@ -1053,7 +1074,7 @@ class RequestMapper implements RequestMapperInterface
         $action->values([
             'EMPLOYEE_NUMBER' => $employeeNumber,
             'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
-            'CREATE_USER' => $employeeNumber,
+            'CREATE_USER' => $requesterEmployeeNumber,
             'REQUEST_REASON' => $requestReason
         ]);
         $sql    = new Sql($this->dbAdapter);

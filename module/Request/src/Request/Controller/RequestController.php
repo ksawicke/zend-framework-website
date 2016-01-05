@@ -204,6 +204,7 @@ class RequestController extends AbstractActionController
                     
                 case 'submitTimeoffRequest':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
+                    $requesterEmployeeNumber = trim($request->getPost()->loggedInUserData['EMPLOYEE_NUMBER']);
                     
                     $requestData = [];
                     
@@ -216,7 +217,7 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     
-                    $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason);
+                    $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -385,7 +386,39 @@ class RequestController extends AbstractActionController
         $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
         $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
         
-        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        $teamCalendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
+        
+//         $teamCalendarByDate = [];
+//         foreach($teamCalendarData as $key => $calendarData) {
+//             $date = $calendarData['REQUEST_DATE'];
+//             $teamCalendarByDate[$date][] = [
+//                 'EMPLOYEE_NUMBER' => trim($calendarData['EMPLOYEE_NUMBER']),
+//                 'NAME' => trim($calendarData['FIRST_NAME']) . ' ' . trim($calendarData['LAST_NAME']),
+//                 'REQUEST_TYPE' => $calendarData['REQUEST_TYPE'],
+//                 'REQUESTED_HOURS' => $calendarData['REQUESTED_HOURS']
+//             ];
+//         }
+        
+        $teamCalendarByDate = [];
+        foreach($teamCalendarData as $key => $calendarData) {
+            $date = \DateTime::createFromFormat('Y-m-d', $calendarData['REQUEST_DATE']);
+            $date = $date->format('m/d/Y');
+            $stuff = trim($calendarData['FIRST_NAME']) . ' ' . trim($calendarData['LAST_NAME']) . ' - ' .
+                $calendarData['REQUESTED_HOURS'] . ' ' . $calendarData['REQUEST_TYPE'] . '<br />';
+            if(array_key_exists($date, $teamCalendarByDate)) {
+                $teamCalendarByDate[$date] .= $stuff;
+            } else {
+                $teamCalendarByDate[$date] = $stuff;
+            }
+        }
+        
+        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $teamCalendarByDate;
+        
+//         echo '<pre>TEAM CALENDAR';
+//         print_r($teamCalendarByDate);
+//         echo '</pre>';
+//         die("@@@");
+        
         return new ViewModel(array(
             'requestId' => $requestId,
             'pendingRequestData' => $pendingRequestData[$requestId]

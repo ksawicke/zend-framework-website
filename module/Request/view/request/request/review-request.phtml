@@ -3,7 +3,7 @@
 <form class="form-horizontal">
 
   <div class="form-group">
-    <label class="col-sm-3 control-label">Email</label>
+    <label class="col-sm-3 control-label">Name</label>
     <div class="col-sm-9">
       <?php echo $pendingRequestData['EMPLOYEE']['FIRST_NAME']; ?>&nbsp;<?php echo $pendingRequestData['EMPLOYEE']['LAST_NAME']; ?>
     </div>
@@ -36,7 +36,10 @@
       <?php
       foreach($pendingRequestData['DETAILS'] as $key => $requestDetail) {
           $requestDate = \DateTime::createFromFormat('Y-m-d', trim($requestDetail['REQUEST_DATE']));
-          echo $requestDate->format('m/d/Y') . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $requestDetail['REQUESTED_HOURS'] . ' ' . $requestDetail['REQUEST_TYPE'] . '<br />';
+          echo $requestDate->format('m/d/Y') . '<br />';
+          echo '<div style="padding-left:30px;padding-bottom:15px;">';
+          echo $requestDetail['REQUESTED_HOURS'] . ' ' . $requestDetail['REQUEST_TYPE'];
+          echo '</div>';
       }
       ?>
     </div>
@@ -46,11 +49,34 @@
     <label for="inputPassword3" class="col-sm-3 control-label">Team Approved Requests<br />(Same Period)</label>
     <div class="col-sm-9">
       <?php
-      foreach($pendingRequestData['TEAM_CALENDAR'] as $key => $teamCalendarDetail) {
-          $requestDate = \DateTime::createFromFormat('Y-m-d', trim($teamCalendarDetail['REQUEST_DATE']));
-          echo $requestDate->format('m/d/Y') . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $teamCalendarDetail['REQUESTED_HOURS'] . ' ' .
-            $requestDetail['REQUEST_TYPE'] . '&nbsp;&nbsp;-&nbsp;&nbsp;' . $teamCalendarDetail['FIRST_NAME'] . '&nbsp;' . $teamCalendarDetail['LAST_NAME'] . '<br />';
+      if(count($pendingRequestData['TEAM_CALENDAR']) === 0) {
+          ?>
+          
+          <div class="alert alert-warning" role="alert">
+          	  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;No team members have requested time off during this period.
+          </div>
+          
+          <?php
+      } else {
+      ?>
+      
+      <?php
+          foreach($pendingRequestData['TEAM_CALENDAR'] as $date => $teamData) {
+             echo $date . "<br />";
+             echo '<div style="padding-left:30px;padding-bottom:15px;">';
+             echo $teamData;
+             echo '</div>';
+          }
       }
+      ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Requested By</label>
+    <div class="col-sm-9">
+      <?php
+      echo $pendingRequestData['REQUESTER']['FIRST_NAME'] . ' ' . $pendingRequestData['REQUESTER']['LAST_NAME'];
       ?>
     </div>
   </div>
@@ -143,9 +169,19 @@
   <div class="form-group">
     <label for="inputPassword3" class="col-sm-3 control-label">Message</label>
     <div class="col-sm-9">
-      <div class="alert alert-info" role="alert">
-      	Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
-      </div>
+    	<?php if($pendingRequestData['REQUEST_STATUS_TEXT']==='approved') { ?>
+      	
+          	<div class="alert alert-success" role="alert">
+          		<span class="glyphicon glyphicon-thumbs-up pull-left" aria-hidden="true"></span>&nbsp;&nbsp;This request has been approved.
+          	</div>
+      	
+      	<?php } else { ?>
+      	
+      		<div class="alert alert-info" role="alert">
+              	<span class="glyphicon glyphicon-exclamation-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
+            </div>
+            
+        <?php } ?>
     </div>
   </div>
   
@@ -153,10 +189,10 @@
     <label for="inputPassword3" class="col-sm-3 control-label">Approval Actions</label>
     <div class="col-sm-9">
       <input type="hidden" id="requestId" value="<?php echo $requestId; ?>">
-      <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
+      <textarea cols="40" rows="4" id="reviewRequestReason"<?php echo (($pendingRequestData['REQUEST_STATUS_TEXT']==='approved')?' disabled':''); ?>></textarea><br /><br />
       <p>
-        <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest">Approve</button>
-        <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest">Deny</button>
+      	<button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest"<?php echo (($pendingRequestData['REQUEST_STATUS_TEXT']==='approved')?' disabled':''); ?>>Approve</button>
+        <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest"<?php echo (($pendingRequestData['REQUEST_STATUS_TEXT']==='approved')?' disabled':''); ?>>Deny</button>
       </p>
     </div>
   </div>
@@ -166,4 +202,211 @@
 <?php /**
 <pre>
 	<?php print_r($pendingRequestData); ?>
+	
+	Array
+(
+    [100361] => Array
+        (
+            [REQUEST_REASON] => testadoodle
+            [REQUEST_STATUS_TEXT] => pendingApproval
+            [CREATE_TIMESTAMP] => 2016-01-05-14.20.30.183145
+            [DETAILS] => Array
+                (
+                    [0] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-07
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [1] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-08
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [2] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-09
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [3] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-10
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [4] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-11
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [5] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-14
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [6] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-15
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [7] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-16
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [8] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-17
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                    [9] => Array
+                        (
+                            [REQUEST_DATE] => 2016-03-18
+                            [REQUESTED_HOURS] => 8.0
+                            [REQUEST_TYPE] => PTO
+                        )
+
+                )
+
+            [TOTALS] => Array
+                (
+                    [PTO] => 80.00
+                    [Float] => 0.00
+                    [Sick] => 0.00
+                    [UnexcusedAbsence] => 0.00
+                    [Bereavement] => 0.00
+                    [CivicDuty] => 0.00
+                    [Grandfathered] => 0.00
+                    [ApprovedNoPay] => 0.00
+                    [Grand] => 80.00
+                )
+
+            [FIRST_DATE_REQUESTED] => 2016-03-07
+            [LAST_DATE_REQUESTED] => 2016-03-18
+            [REQUESTER] => Array
+                (
+                    [EMPLOYEE_NUMBER] =>     49602
+                    [FIRST_NAME] => DAVID             
+                    [MIDDLE_INITIAL] => E
+                    [LAST_NAME] => TOMLIN            
+                    [EMAIL_ADDRESS] => Dave_Tomlin@swifttrans.com                                                 
+                )
+
+            [EMPLOYEE] => Array
+                (
+                    [EMPLOYEE_NUMBER] =>     49499
+                    [FIRST_NAME] => JAMES             
+                    [MIDDLE_INITIAL] => R
+                    [LAST_NAME] => GASIOR            
+                    [POSITION] => AZSDA2
+                    [POSITION_TITLE] => PHOAZ-SOFTWARE DEV/ANALYST II 
+                    [EMAIL_ADDRESS] => James_Gasior@Swifttrans.com                                                
+                    [BALANCES] => Array
+                        (
+                            [PTO] => Array
+                                (
+                                    [PTO_EARNED] => 1943.33
+                                    [PTO_TAKEN] => 1560.00
+                                    [PTO_PENDING] => 8.00
+                                    [PTO_PENDING_APPROVAL] => 80.0
+                                    [PTO_AVAILABLE] => 295.33
+                                    [PTO_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [Float] => Array
+                                (
+                                    [FLOAT_EARNED] => 152.00
+                                    [FLOAT_TAKEN] => 144.00
+                                    [FLOAT_PENDING] => .00
+                                    [FLOAT_PENDING_APPROVAL] => 8.0
+                                    [FLOAT_AVAILABLE] => 0.00
+                                    [FLOAT_POST_PENDING_APPROVAL] => 8.00
+                                )
+
+                            [Sick] => Array
+                                (
+                                    [SICK_EARNED] => 513.33
+                                    [SICK_TAKEN] => 424.00
+                                    [SICK_PENDING] => .00
+                                    [SICK_PENDING_APPROVAL] => 0.00
+                                    [SICK_AVAILABLE] => 89.33
+                                    [SICK_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [UnexcusedAbsence] => Array
+                                (
+                                    [UNEXCUSED_ABSENCE_EARNED] => 0.00
+                                    [UNEXCUSED_ABSENCE_TAKEN] => 0.00
+                                    [UNEXCUSED_ABSENCE_PENDING] => 0.00
+                                    [UNEXCUSED_ABSENCE_PENDING_APPROVAL] => 0.00
+                                    [UNEXCUSED_ABSENCE_AVAILABLE] => 0.00
+                                    [UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [Bereavement] => Array
+                                (
+                                    [BEREAVEMENT_EARNED] => 0.00
+                                    [BEREAVEMENT_TAKEN] => 0.00
+                                    [BEREAVEMENT_PENDING] => 0.00
+                                    [BEREAVEMENT_PENDING_APPROVAL] => 0.00
+                                    [BEREAVEMENT_AVAILABLE] => 0.00
+                                    [BEREAVEMENT_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [CivicDuty] => Array
+                                (
+                                    [CIVIC_DUTY_EARNED] => 0.00
+                                    [CIVIC_DUTY_TAKEN] => 0.00
+                                    [CIVIC_DUTY_PENDING] => 0.00
+                                    [CIVIC_DUTY_PENDING_APPROVAL] => 0.00
+                                    [CIVIC_DUTY_AVAILABLE] => 0.00
+                                    [CIVIC_DUTY_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [Grandfathered] => Array
+                                (
+                                    [GRANDFATHERED_EARNED] => 0.00
+                                    [GRANDFATHERED_TAKEN] => 0.00
+                                    [GRANDFATHERED_PENDING] => 0.00
+                                    [GRANDFATHERED_PENDING_APPROVAL] => 0.00
+                                    [GRANDFATHERED_AVAILABLE] => 0.00
+                                    [GRANDFATHERED_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [ApprovedNoPay] => Array
+                                (
+                                    [APPROVED_NO_PAY_EARNED] => 0.00
+                                    [APPROVED_NO_PAY_TAKEN] => 0.00
+                                    [APPROVED_NO_PAY_PENDING] => 0.00
+                                    [APPROVED_NO_PAY_PENDING_APPROVAL] => 0.00
+                                    [APPROVED_NO_PAY_AVAILABLE] => 0.00
+                                    [APPROVED_NO_PAY_POST_PENDING_APPROVAL] => 0.00
+                                )
+
+                            [Grand] => 8.00
+                        )
+
+                )
+
+        )
+
+)
+@@@
+	
 </pre>**/ ?>

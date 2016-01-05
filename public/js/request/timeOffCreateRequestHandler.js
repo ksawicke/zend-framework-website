@@ -316,7 +316,8 @@ var timeOffCreateRequestHandler = new function()
               action: 'submitTimeoffRequest',
               selectedDatesNew: selectedDatesNew,
               requestReason: requestReason,
-              employeeNumber: requestForEmployeeNumber
+              employeeNumber: requestForEmployeeNumber,
+              loggedInUserData: loggedInUserData
             },
             dataType: 'json'
       	})

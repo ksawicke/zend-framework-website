@@ -73,9 +73,9 @@ class RequestService implements RequestServiceInterface
         return $this->requestMapper->isManager($employeeNumber);
     }
     
-    public function submitRequestForApproval($employeeNumber, $requestData, $requestReason)
+    public function submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber)
     {
-        return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData, $requestReason);
+        return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber);
     }
     
     public function submitApprovalResponse($action, $requestId, $reviewRequestReason)
