@@ -17,6 +17,15 @@
   </div>
   
   <div class="form-group">
+    <label for="inputPassword3" class="col-sm-3 control-label">Requested By</label>
+    <div class="col-sm-9">
+      <?php
+      echo $pendingRequestData['REQUESTER']['FIRST_NAME'] . ' ' . $pendingRequestData['REQUESTER']['LAST_NAME'];
+      ?>
+    </div>
+  </div>
+  
+  <div class="form-group">
     <label for="inputPassword3" class="col-sm-3 control-label">Total Hours Requested</label>
     <div class="col-sm-9">
       <?php echo $pendingRequestData['TOTALS']['Grand']; ?>
@@ -68,15 +77,6 @@
              echo '</div>';
           }
       }
-      ?>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label for="inputPassword3" class="col-sm-3 control-label">Requested By</label>
-    <div class="col-sm-9">
-      <?php
-      echo $pendingRequestData['REQUESTER']['FIRST_NAME'] . ' ' . $pendingRequestData['REQUESTER']['LAST_NAME'];
       ?>
     </div>
   </div>

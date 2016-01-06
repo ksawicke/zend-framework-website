@@ -25,6 +25,20 @@ html {
 	overflow-y: scroll;
 }
 
+* {
+  border-radius: 0 !important;
+}
+
+/* 10px gutter */
+.gutter-10.row {
+  margin-right: -5px;
+  margin-left: -5px;
+}
+.gutter-10 > [class^="col-"], .gutter-10 > [class^=" col-"] {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
 .copyright {
 	color: #fff;
 }
@@ -937,3 +951,43 @@ button .full-width {
 .hidden {
 	display:none;
 }
+
+/** Calendar Legend for requests **/
+.legend-title {
+    text-align: left;
+    margin-bottom: 15px;
+    font-weight: normal;
+    font-size: 90%;
+    }
+  .timeOffCalendarLegend .legend-scale ul {
+    margin: 0;
+    padding: 0;
+    float: left;
+    list-style: none;
+    }
+  .timeOffCalendarLegend .legend-scale ul li {
+    display: block;
+    float: left;
+    width: 75px;
+    margin-bottom: 0px;
+    text-align: center;
+    font-size: 80%;
+    list-style: none;
+    }
+  .timeOffCalendarLegend ul.legend-labels {
+	margin-top:-30px;
+  }
+  .timeOffCalendarLegend ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 15px;
+    width: 75px;
+    }
+  .timeOffCalendarLegend .legend-source {
+    font-size: 70%;
+    color: #999;
+    clear: both;
+    }
+  .timeOffCalendarLegend a {
+    color: #777;
+    }

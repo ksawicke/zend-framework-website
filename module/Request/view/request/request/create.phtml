@@ -54,7 +54,7 @@
 	</div>
 </div>
 
-<div class="row">
+<div class="row gutter-10">
 	<div class="col-md-3 col-sm-3 col-xs-12 buttonDisappearGrandfathered">
     	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory buttonAllowForIcon categoryGrandfathered" data-category="timeOffGrandfathered">
 			<span class="timeOffGrandfatheredCloseIcon"></span>
@@ -147,7 +147,7 @@
 
 <br style="clear:both;" />
 
-<div class="row">
+<div class="row gutter-10">
 	<div class="col-md-3 col-sm-3 col-xs-12 buttonDisappearUnexcusedAbsence">
     	<button type="button" class="btn btn-requestCategory btn-lg btn-block selectTimeOffCategory buttonAllowForIcon categoryUnexcusedAbsence" data-category="timeOffUnexcusedAbsence">
 			<span class="timeOffUnexcusedAbsenceCloseIcon"></span>
@@ -241,7 +241,7 @@
 <br style="clear:both;" />
 
 <?php /*****
-<div class="row">
+<div class="row gutter-10">
     <div class="col-md-3">
 		<div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
         	&nbsp;<br />&nbsp;
@@ -282,7 +282,7 @@
 
 <br style="clear:both;" />
 
-<div class="row">
+<div class="row gutter-10">
     <div class="col-md-3">
     	<div class="selectTimeOffCategory timeOffCategoryLeft timeOffUnexcusedAbsence cursorHand" data-category="timeOffUnexcusedAbsence">
         	&nbsp;<br />&nbsp;
@@ -338,11 +338,31 @@
     <br style="clear:both;" />
 	<br style="clear:both;" />
 	<div id="calendarLegend">
-		
+		<div class="legend-title">
+			<strong>Request Types by Color</strong><br />
+			<i>Note: Pending requests appear in a lighter version of each color.</i>
+		</div>
+		<div class="timeOffCalendarLegend">
+        	<div class="legend-scale">
+              <ul class="legend-labels">
+                <li><span style="background:#f57900;"></span>PTO</li>
+                <li><span style="background:#edd400;"></span>Float</li>
+                <li><span style="background:#73d216;"></span>Sick</li>
+                <li><span style="background:#888a85;"></span>Unexcused</li>
+                <li><span style="background:#729fcf;"></span>Bereavement</li>
+                <li><span style="background:#75507b;"></span>Civic Duty</li>
+                <li><span style="background:#c17d11;"></span>Grandfathered</li>
+                <li><span style="background:#cc0000;"></span>Approved No Pay</li>
+              </ul>
+        	</div>
+        </div>
 	</div>
 </div>
 
-<!-- div class="row timeOffCalendarWrapper">
+<br style="clear:both;" />
+<br style="clear:both;" />
+
+<!-- div class="row gutter-10 timeOffCalendarWrapper">
     <div class="col-md-4" id="calendar1Html">
 		
 	</div>
@@ -362,7 +382,7 @@
 
 <!-- div id="datesSelectedDetails"></div-->
 
-<div class="row timeOffCalendarWrapper">
+<div class="row gutter-10 timeOffCalendarWrapper">
     <div class="col-md-4">
 		
 	</div>
