@@ -112,15 +112,20 @@ class RequestController extends AbstractActionController
 //         \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
 //         \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
         
-        return new ViewModel(array(
+        return new ViewModel([
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
-            'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
-            'isSupervisor' => $this->requestService->isManager($this->employeeNumber)
+//             'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
+            'isSupervisor' => $this->requestService->isManager($this->employeeNumber),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
 //             'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly'),
 //             'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
 //             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
 //             'calendar3Html' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
-        ));
+        ]);
     }
     
     public function approvedRequestAction()
@@ -359,15 +364,8 @@ class RequestController extends AbstractActionController
     
     public function submittedForApprovalAction()
     {
-        $this->flashMessenger()->addSuccessMessage('Saved!');
-        
-        return new ViewModel([
-            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
-                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
-                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
-                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
-                               ]
-                             ]);
+        $this->flashMessenger()->addSuccessMessage('Request has been submitted successfully.');
+        return $this->redirect()->toRoute('create');
     }
     
     public function reviewRequestAction()

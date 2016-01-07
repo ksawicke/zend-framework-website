@@ -10,6 +10,19 @@ var timeOffCreateRequestHandler = new function()
     	employeePTOAvailable = 0,
     	employeeFloatAvailable = 0,
     	employeeSickAvailable = 0,
+    	employeeUnexcusedAbsenceAvailable = 0,
+    	employeeBereavementAvailable = 0,
+    	employeeCivicDutyAvailable = 0,
+    	employeeGrandfatheredAvailable = 0,
+    	employeeApprovedNoPayAvailable = 0,
+    	employeePTOPending = 0,
+    	employeeFloatPending = 0,
+    	employeeSickPending = 0,
+    	employeeUnexcusedAbsencePending = 0,
+    	employeeBereavementPending = 0,
+    	employeeCivicDutyPending = 0,
+    	employeeGrandfatheredPending = 0,
+    	employeeApprovedNoPayPending = 0,
     	totalPTORequested = 0,
     	totalFloatRequested = 0,
     	totalSickRequested = 0,
@@ -97,6 +110,12 @@ var timeOffCreateRequestHandler = new function()
     			      }
     			    });
         		}
+        		//console.log("selectedTimeoffCategory", selectedTimeoffCategory);
+        		if(selectedTimeoffCategory===null) {
+        			timeOffCreateRequestHandler.maskCalendars('hide');
+        		} else {
+        			timeOffCreateRequestHandler.maskCalendars('show');
+        		}
         	});
         	
         	$(document).on('change', '.selectedDateHours', function() {
@@ -135,9 +154,10 @@ var timeOffCreateRequestHandler = new function()
         	});
         	
         	timeOffCreateRequestHandler.loadCalendars();
+        	
 //        	timeOffCreateRequestHandler.checkLocalStorage();
         	
-        	$('.timeOffCalendarWrapper').hide();
+//        	$('.timeOffCalendarWrapper').hide();
         });
     }
     
@@ -191,17 +211,17 @@ var timeOffCreateRequestHandler = new function()
     		object.removeClass("categorySelected");
     		$('.'+object.attr("data-category")+'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
     		timeOffCreateRequestHandler.setStep('1');
-    		$('.timeOffCalendarWrapper').hide();
+//    		$('.timeOffCalendarWrapper').hide();
     	} else {
 	    	selectedTimeoffCategory = object.attr("data-category");
 	    	object.addClass("categorySelected");
 	    	object.addClass(selectedTimeoffCategory);
 
-	    	for(category in categoryText) {
-	    		if(selectedTimeoffCategory!=category) {
-	    			$('.buttonDisappear'+category.substr(7)).hide();
-	    		}
-	    	}
+//	    	for(category in categoryText) {
+//	    		if(selectedTimeoffCategory!=category) {
+//	    			$('.buttonDisappear'+category.substr(7)).hide();
+//	    		}
+//	    	}
 	    	
 	    	if(selectedDatesNew.length>0) {
 	    		timeOffCreateRequestHandler.setStep('3');
@@ -209,8 +229,9 @@ var timeOffCreateRequestHandler = new function()
 	    		timeOffCreateRequestHandler.setStep('2');
 	    	}
 	    	$('.'+selectedTimeoffCategory+'CloseIcon').addClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
-	    	$('.timeOffCalendarWrapper').show();
+//	    	$('.timeOffCalendarWrapper').show();
     	}
+//    	$('.timeOffCalendarWrapper').show();
     }
     
     /**
@@ -404,7 +425,7 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.setEmployeeSickPending = function(sickPending) {
-    	employeeSickPending = sickPending;
+    	var employeeSickPending = sickPending;
     	timeOffCreateRequestHandler.printEmployeeSickPending();
     }
     
@@ -414,32 +435,32 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.setEmployeeGrandfatheredPending = function(grandfatheredPending) {
-    	employeeGrandfatheredPending = grandfatheredPending;
+    	var employeeGrandfatheredPending = grandfatheredPending;
     	timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
     }
     
     this.setEmployeeUnexcusedAbsenceAvailable = function(unexcusedAbsenceAvailable) {
-    	employeeUnexcusedAbsenceAvailable = unexcusedAbsenceAvailable;
+    	var employeeUnexcusedAbsenceAvailable = unexcusedAbsenceAvailable;
     	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceAvailable();
     }
     
     this.setEmployeeUnexcusedAbsencePending = function(unexcusedAbsencePending) {
-    	employeeUnexcusedAbsencePending = unexcusedAbsencePending;
+    	var employeeUnexcusedAbsencePending = unexcusedAbsencePending;
     	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
     }
     
     this.setEmployeeBereavementAvailable = function(bereavementAvailable) {
-    	employeeBereavementAvailable = bereavementAvailable;
+    	var employeeBereavementAvailable = bereavementAvailable;
     	timeOffCreateRequestHandler.printEmployeeBereavementAvailable();
     }
     
     this.setEmployeeBereavementPending = function(bereavementPending) {
-    	employeeBereavementPending = bereavementPending;
+    	var employeeBereavementPending = bereavementPending;
     	timeOffCreateRequestHandler.printEmployeeBereavementPending();
     }
     
     this.setEmployeeCivicDutyAvailable = function(civicDutyAvailable) {
-    	employeeCivicDutyAvailable = civicDutyAvailable;
+    	var employeeCivicDutyAvailable = civicDutyAvailable;
     	timeOffCreateRequestHandler.printEmployeeCivicDutyAvailable();
     }
     
@@ -462,6 +483,7 @@ var timeOffCreateRequestHandler = new function()
      * Prints the Available PTO time for selected employee.
      */
     this.printEmployeePTOAvailable = function() {
+//    	console.log("WHOOOOOOOOOOOOA", employeePTOAvailable);
     	$("#employeePTOAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable) + " hr");
     	if(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable)<=0) {
     		$('.buttonDisappearPTO').addClass('hidden');
@@ -783,6 +805,38 @@ var timeOffCreateRequestHandler = new function()
 			$('#datesSelectedDetails').show();
 			timeOffCreateRequestHandler.setStep('3');
 		}
+		
+//		if(employeePTOAvailable > 0) {
+//			
+//		}
+//		console.log("CURRENT SELECTED CATEGORY: " + selectedTimeoffCategory);
+//		console.log("PTO AVAIL: " + employeePTOAvailable);
+//		console.log("FLOAT AVAIL: " + employeeFloatAvailable);
+//		console.log("SICK AVAIL: " + employeeSickAvailable);
+//		console.log("UNEXCUSED ABSENCE AVAIL: " + employeeUnexcusedAbsenceAvailable);
+//		
+//		console.log("BEREAVEMENT AVAIL: " + employeeBereavementAvailable);
+//		console.log("CIVIC DUTY AVAIL: " + employeeCivicDutyAvailable);
+//		console.log("GRANDFATHERED AVAIL: " + employeeGrandfatheredAvailable);
+//		console.log("APPROVED NO PAY AVAIL: " + employeeApprovedNoPayAvailable);
+		
+		timeOffCreateRequestHandler.printEmployeePTOAvailable();
+		
+//		if(selectedTimeoffCategory==="timeOffFloat" && employeeFloatAvailable===0) {
+//			console.log("BUTTONS ARE MISSING. NOW WHAT?");
+//		}
+//		var type = selectedTimeoffCategory.substr(7);
+//		var $$category = "timeOff" + type;
+//		var $$available = "employee" + type + "Available";
+//		if(selectedTimeoffCategory===$$category && $$available===0) {
+//			console.log("BUTTONS ARE MISSING. NOW WHAT?");
+//		}
+//		if(selectedTimeoffCategory===$$category) {
+//			console.log("YUP");
+//		}
+//		console.log("selectedTimeoffCategory " + selectedTimeoffCategory);
+//		console.log("category " + $$category);
+//		console.log("available " + $$available);
     }
     
     /**
@@ -919,6 +973,18 @@ var timeOffCreateRequestHandler = new function()
         	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
         	$('.requestIsForMe').show();
     	});
+    }
+    
+    /**
+     * Mask the request calendar so user can not pick dates or scroll
+     * to a different month.
+     */
+    this.maskCalendars = function(action) {    	
+    	if (!action || action === 'show') {
+    		$('body').append('<link href="/sawik/timeoff/public/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
+  	    } else if (action === 'hide') {
+  	    	$('#enableTimeOffCalendar').remove();
+  	    }
     }
 };
 

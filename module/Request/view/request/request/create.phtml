@@ -322,8 +322,14 @@
 </div>
 ***/ ?>
 
-<div class="timeOffCalendarWrapper">
-    <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
+<div id="timeOffCalendarWrapper">
+	<div id="timeOffCalendarWarningNoCategorySelected">
+		<div class="alert alert-danger" role="alert">
+			<span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+			<strong>Sorry!</strong>&nbsp;Before you select any dates, please select a category above.
+		</div>
+	</div>
+	<div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
     	<?php /***<strong>December 2015</strong><br /><br />
     	<?php echo $calendar1Html; **/ ?>
     </div>
@@ -393,6 +399,8 @@
 		
 	</div>
 </div>
+
+<br style="clear:both;" />
 
 <div id="MyWizard" class="wizard">
     <ul class="steps">

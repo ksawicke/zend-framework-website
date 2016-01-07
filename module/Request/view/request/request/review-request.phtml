@@ -62,7 +62,8 @@
           ?>
           
           <div class="alert alert-warning" role="alert">
-          	  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;No team members have requested time off during this period.
+          	  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+          	  No team members have requested time off during this period.
           </div>
           
           <?php
@@ -172,13 +173,15 @@
     	<?php if($pendingRequestData['REQUEST_STATUS_TEXT']==='approved') { ?>
       	
           	<div class="alert alert-success" role="alert">
-          		<span class="glyphicon glyphicon-thumbs-up pull-left" aria-hidden="true"></span>&nbsp;&nbsp;This request has been approved.
+          		<span class="glyphicon glyphicon-thumbs-up pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+          		This request has been approved.
           	</div>
       	
       	<?php } else { ?>
       	
       		<div class="alert alert-info" role="alert">
-              	<span class="glyphicon glyphicon-exclamation-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
+              	<span class="glyphicon glyphicon-exclamation-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+              	Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
             </div>
             
         <?php } ?>

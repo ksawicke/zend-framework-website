@@ -26,7 +26,7 @@ return [
             'create' => [
                 'type' => 'literal',
                 'options' => [
-                    'route' => '/request',
+                    'route' => '/request/create',
                     'defaults' => [
                         'controller' => 'Request\Controller\Request',
                         'action' => 'create'
