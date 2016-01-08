@@ -86,6 +86,24 @@ var timeOffCreateRequestHandler = new function()
         	});
         	
         	/**
+        	 * Handle clicking a calendar date
+        	 */
+        	$(document).on('click', '.calendar-day', function() {
+        		timeOffCreateRequestHandler.selectCalendarDay($(this));
+        	});
+        	
+        	/**
+        	 * Handle removing a date from request
+        	 */
+        	$(document).on('click', '.remove-date-requested', function() {
+        		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
+        		if(selectedTimeoffCategory != null) {
+        			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
+        			timeOffCreateRequestHandler.drawHoursRequested();
+        		}
+        	});
+        	
+        	/**
         	 * Handle user changing the hours for a date manually
         	 */
         	$(document).on('change', '.selectedDateHours', function() {
@@ -102,16 +120,7 @@ var timeOffCreateRequestHandler = new function()
         		timeOffCreateRequestHandler.submitTimeOffRequest();
         	});
         	
-        	/**
-        	 * Handle removing a date from request
-        	 */
-        	$(document).on('click', '.remove-date-requested', function() {
-        		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-        		if(selectedTimeoffCategory != null) {
-        			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
-        			timeOffCreateRequestHandler.drawHoursRequested();
-        		}
-        	});
+        	
         	
         	/**
         	 * Handle splitting a date into two categories
@@ -125,12 +134,7 @@ var timeOffCreateRequestHandler = new function()
         		console.log('138');
         	});
         	
-        	/**
-        	 * Handle clicking a calendar date
-        	 */
-        	$(document).on('click', '.calendar-day', function() {
-        		timeOffCreateRequestHandler.selectCalendarDay($(this));
-        	});
+        	
         	
         	timeOffCreateRequestHandler.loadCalendars();
         	
@@ -740,10 +744,10 @@ var timeOffCreateRequestHandler = new function()
     	totalCivicDutyRequested = 0;
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
-    	
+    	// taco
 		for(var key = 0; key < selectedDatesNew.length; key++) {
 			datesSelectedDetailsHtml += selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
-				'<input class="selectedDateHours" value="' + selectedDatesNew[key].hours + '" size="2" data-key="' + key + '" disabled="disabled">' +
+				'<input class="selectedDateHours" value="' + timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) + '" size="2" data-key="' + key + '" disabled="disabled">' +
 				'&nbsp;&nbsp;&nbsp;&nbsp;' +
 				'<span class="badge ' + selectedDatesNew[key].category + '">' +
 				timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
@@ -1060,14 +1064,32 @@ var timeOffCreateRequestHandler = new function()
 			console.log("BEFORE", selectedDatesNew[index]);
 			
 			/** Update to number of split hours **/
-			selectedDatesNew[index].hours = "4.00";
+			selectedDatesNew[index].hours = defaultSplitHours;
 			
 			/** Add back the split hours to the selected category **/
 			timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, defaultSplitHours);
 			
 			console.log("AFTER", selectedDatesNew[index]);
 			
+			/**
+			 * Add the date to the request object
+			 */
+			var obj = { date: selectedDate.obj.date,
+				    hours: defaultSplitHours,
+				    category: selectedTimeoffCategory
+				  };
+			selectedDatesNew.push(obj);
+			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultSplitHours);
+			
 			timeOffCreateRequestHandler.drawHoursRequested();
+			
+//	    	$.each($('.calendar-day'), function(index, object) {
+//	    		if(selectedDate.obj.date==$(this).data("date")) {
+//	    			$(this).toggleClass(selectedTimeoffCategory + "Selected");
+//	    		}
+//	    	});
+			
+	    	timeOffCreateRequestHandler.sortDatesSelected();
 		}
     }
     
