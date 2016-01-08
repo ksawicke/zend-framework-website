@@ -32,6 +32,7 @@ var timeOffCreateRequestHandler = new function()
     	totalGrandfatheredRequested = 0,
     	totalApprovedNoPayRequested = 0,
     	defaultHours = 8,
+    	defaultSplitHours = 4,
     	selectedTimeoffCategory = null,
     	loggedInUserData = [],
     	requestForEmployeeNumber = '',
@@ -70,18 +71,6 @@ var timeOffCreateRequestHandler = new function()
      */
     this.initialize = function() {
         $(document).ready(function() {
-        	/****$(document).on('click', '.requestIsForMe', function() {
-        		$('.requestIsForMe').hide();
-        		//console.log('initial', loggedInUserData);
-        		requestForEmployeeNumber = loggedInUserData.EMPLOYEE_NUMBER;
-            	requestForEmployeeName = loggedInUserData.COMMON_NAME + " " + loggedInUserData.LAST_NAME;
-        		$("#requestFor")
-        			.empty()
-        			.append('<option value="'+requestForEmployeeNumber+'">'+requestForEmployeeName+'</option>')
-        			.val(requestForEmployeeNumber).trigger('change');
-        		timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-        	});****/
-        	
         	/**
         	 * Handle clicking previous or next buttons on calendars
         	 */
@@ -93,39 +82,29 @@ var timeOffCreateRequestHandler = new function()
         	 * Handle clicking category
         	 */
         	$(".selectTimeOffCategory").click(function() {
-        		if(!$(this).hasClass('disableTimeOffCategorySelection')) {
-        			timeOffCreateRequestHandler.resetTimeoffCategory($(this));
-            		timeOffCreateRequestHandler.setTimeoffCategory($(this));
-        		}
-        		if($(this).hasClass('disableTimeOffCategorySelection') && $(this).hasClass('categoryPTO')) {
-        			$( "#dialogGrandfatheredAlert").dialog({
-    			      modal: true,
-    			      buttons: {
-    			        Ok: function() {
-    			          $( this ).dialog( "close" );
-    			        }
-    			      }
-    			    });
-        		}
-        		//console.log("selectedTimeoffCategory", selectedTimeoffCategory);
-        		if(selectedTimeoffCategory===null) {
-        			timeOffCreateRequestHandler.maskCalendars('hide');
-        		} else {
-        			timeOffCreateRequestHandler.maskCalendars('show');
-        		}
+        		timeOffCreateRequestHandler.selectCategory($(this));
         	});
         	
+        	/**
+        	 * Handle user changing the hours for a date manually
+        	 */
         	$(document).on('change', '.selectedDateHours', function() {
         		var key = $(this).attr("data-key");
         		var value = $(this).val();
         		selectedDateHours[key] = value;
         	});
         	
+        	/**
+        	 * Submit time off request
+        	 */
         	$(document).on('click', '.submitTimeOffRequest', function() {
         		requestReason = $("#requestReason").val();
         		timeOffCreateRequestHandler.submitTimeOffRequest();
         	});
         	
+        	/**
+        	 * Handle removing a date from request
+        	 */
         	$(document).on('click', '.remove-date-requested', function() {
         		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
         		if(selectedTimeoffCategory != null) {
@@ -134,37 +113,11 @@ var timeOffCreateRequestHandler = new function()
         		}
         	});
         	
+        	/**
+        	 * Handle splitting a date into two categories
+        	 */
         	$(document).on('click', '.split-date-requested', function() {
-        		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-        		if(selectedTimeoffCategory != null) {
-        			//timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
-        			//timeOffCreateRequestHandler.drawHoursRequested();
-        			console.log("TESTING SPLIT", selectedTimeoffCategory);
-        			for(key in selectedDate) {
-        				console.log("selectedDate[" + key + "] :: " + selectedDate[key]);
-        				if(key==='obj') {
-        					for(key2 in selectedDate.obj) {
-        						console.log("selectedDate.obj[" + key2 + "] :: " + selectedDate.obj[key2]);
-        					}
-        				}
-        			}
-        			 
-//        			console.log(selectedDate[obj]);
-//        			console.log(selectedDate.obj);
-//        			console.log(selectedDate.obj.date);
-        			var index = selectedDate.deleteIndex - 1;
-        			html = 'You want to split time off on ' + selectedDate.obj.date + ' for ' +
-        				selectedDate.obj.hours + ' of ' + selectedDatesNew[index].category + '. ' +
-        				'Lets split it evenly with category ' + selectedTimeoffCategory;
-        			console.log(html);
-        			console.log(selectedDate.deleteIndex);
-        			console.log(selectedDatesNew);
-        			for(key in selectedDatesNew) {
-        				console.log(selectedDatesNew[key]);
-        			}
-        			var index = selectedDate.deleteIndex - 1;
-        			console.log("???", selectedDatesNew[index]);
-        		}
+        		timeOffCreateRequestHandler.splitDateRequested($(this));
         	});
         	
         	$(document).on('click', '.changerequestForEmployeeNumber', function() {
@@ -176,16 +129,10 @@ var timeOffCreateRequestHandler = new function()
         	 * Handle clicking a calendar date
         	 */
         	$(document).on('click', '.calendar-day', function() {
-        		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-        		var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled($(this));
-        		if(selectedTimeoffCategory != null && isDateDisabled === false) {
-        			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
-        			timeOffCreateRequestHandler.drawHoursRequested();
-        		}
+        		timeOffCreateRequestHandler.selectCalendarDay($(this));
         	});
         	
         	timeOffCreateRequestHandler.loadCalendars();
-//        	console.log('154');
         	
         	/**
         	 * Fade out flash messages automatically.
@@ -193,8 +140,6 @@ var timeOffCreateRequestHandler = new function()
         	timeOffCreateRequestHandler.fadeOutFlashMessage();
         	
 //        	timeOffCreateRequestHandler.checkLocalStorage();
-        	
-//        	$('.timeOffCalendarWrapper').hide();
         });
     }
     
@@ -628,20 +573,20 @@ var timeOffCreateRequestHandler = new function()
     /**
      * Adds employee defaultHours from the current Category of time Available.
      */
-    this.addTime = function(selectedTimeoffCategory, defaultHours) {
+    this.addTime = function(selectedTimeoffCategory, hours) {
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
-	    		employeePTOAvailable -= defaultHours;
+	    		employeePTOAvailable -= hours;
 	    		timeOffCreateRequestHandler.printEmployeePTOAvailable();
 	    		break;
 	    		
 	    	case 'timeOffFloat':
-	    		employeeFloatAvailable -= defaultHours;
+	    		employeeFloatAvailable -= hours;
 	    		timeOffCreateRequestHandler.printEmployeeFloatAvailable();
 	    		break;
 	    		
 	    	case 'timeOffSick':
-	    		employeeSickAvailable -= defaultHours;
+	    		employeeSickAvailable -= hours;
 	    		timeOffCreateRequestHandler.printEmployeeSickAvailable();
 	    		break;
 	    		
@@ -655,20 +600,20 @@ var timeOffCreateRequestHandler = new function()
     /**
      * Subtracts employee defaultHours from the current Category of time Available.
      */
-    this.subtractTime = function(selectedTimeoffCategory, defaultHours) {
+    this.subtractTime = function(selectedTimeoffCategory, hours) {
     	switch(selectedTimeoffCategory) {
 	    	case 'timeOffPTO':
-	    		employeePTOAvailable += defaultHours;
+	    		employeePTOAvailable += hours;
 	    		timeOffCreateRequestHandler.printEmployeePTOAvailable();
 	    		break;
 	    		
 	    	case 'timeOffFloat':
-	    		employeeFloatAvailable += defaultHours;
+	    		employeeFloatAvailable += hours;
 	    		timeOffCreateRequestHandler.printEmployeeFloatAvailable();
 	    		break;
 	    		
 	    	case 'timeOffSick':
-	    		employeeSickAvailable += defaultHours;
+	    		employeeSickAvailable += hours;
 	    		timeOffCreateRequestHandler.printEmployeeSickAvailable();
 	    		break;
 		}
@@ -798,7 +743,7 @@ var timeOffCreateRequestHandler = new function()
     	
 		for(var key = 0; key < selectedDatesNew.length; key++) {
 			datesSelectedDetailsHtml += selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
-				'<input class="selectedDateHours" value="8.00" size="2" data-key="' + key + '" disabled="disabled">' +
+				'<input class="selectedDateHours" value="' + selectedDatesNew[key].hours + '" size="2" data-key="' + key + '" disabled="disabled">' +
 				'&nbsp;&nbsp;&nbsp;&nbsp;' +
 				'<span class="badge ' + selectedDatesNew[key].category + '">' +
 				timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
@@ -864,6 +809,8 @@ var timeOffCreateRequestHandler = new function()
 			'<br style="clear:both;" /><br style="clear:both;" />';
 		
 		$("#datesSelectedDetails").html(datesSelectedDetailsHtml);
+		
+		console.log(datesSelectedDetailsHtml);
 		
 		if(selectedDatesNew.length===0) {
 			$('#datesSelectedDetails').hide();
@@ -1065,6 +1012,84 @@ var timeOffCreateRequestHandler = new function()
 			}
 		}, 1000);
 	}
+    
+    this.selectCategory = function(categoryButton) {
+    	if(!categoryButton.hasClass('disableTimeOffCategorySelection')) {
+			timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);
+    		timeOffCreateRequestHandler.setTimeoffCategory(categoryButton);
+		}
+		if(categoryButton.hasClass('disableTimeOffCategorySelection') && categoryButton.hasClass('categoryPTO')) {
+			timeOffCreateRequestHandler.alertUserToTakeGrandfatheredTime();
+		}
+		if(selectedTimeoffCategory===null) {
+			timeOffCreateRequestHandler.maskCalendars('hide');
+		} else {
+			timeOffCreateRequestHandler.maskCalendars('show');
+		}
+    }
+    
+    this.splitDateRequested = function(dateRequestObject) {
+    	var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
+		if(selectedTimeoffCategory != null) {
+			//timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
+			//timeOffCreateRequestHandler.drawHoursRequested();
+			console.log("TESTING SPLIT", selectedTimeoffCategory);
+			for(key in selectedDate) {
+				console.log("selectedDate[" + key + "] :: " + selectedDate[key]);
+				if(key==='obj') {
+					for(key2 in selectedDate.obj) {
+						console.log("selectedDate.obj[" + key2 + "] :: " + selectedDate.obj[key2]);
+					}
+				}
+			}
+			 
+//			console.log(selectedDate[obj]);
+//			console.log(selectedDate.obj);
+//			console.log(selectedDate.obj.date);
+			var index = selectedDate.deleteIndex - 1;
+			html = 'You want to split time off on ' + selectedDate.obj.date + ' for ' +
+				selectedDate.obj.hours + ' of ' + selectedDatesNew[index].category + '. ' +
+				'Lets split it evenly with category ' + selectedTimeoffCategory;
+			console.log(html);
+			console.log(selectedDate.deleteIndex);
+			console.log(selectedDatesNew);
+			for(key in selectedDatesNew) {
+				console.log(selectedDatesNew[key]);
+			}
+			var index = selectedDate.deleteIndex - 1;
+			console.log("BEFORE", selectedDatesNew[index]);
+			
+			/** Update to number of split hours **/
+			selectedDatesNew[index].hours = "4.00";
+			
+			/** Add back the split hours to the selected category **/
+			timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, defaultSplitHours);
+			
+			console.log("AFTER", selectedDatesNew[index]);
+			
+			timeOffCreateRequestHandler.drawHoursRequested();
+		}
+    }
+    
+    this.selectCalendarDay = function(dateRequestObject) {
+    	var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
+		var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled(dateRequestObject);
+		if(selectedTimeoffCategory != null && isDateDisabled === false) {
+			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
+			timeOffCreateRequestHandler.drawHoursRequested();
+		}
+    }
+    
+    this.alertUserToTakeGrandfatheredTime = function() {
+    	$( "#dialogGrandfatheredAlert").dialog({
+	      modal: true,
+	      buttons: {
+	        Ok: function() {
+	          $( this ).dialog( "close" );
+	        }
+	      }
+	    });
+    }
 };
 
 // Initialize the class
