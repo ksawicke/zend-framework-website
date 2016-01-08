@@ -142,7 +142,11 @@
       	      foreach($ourView->flashMessages as $alertType => $messages) {
       	         if(!empty($messages)) {
       	         ?>
-      	         <div class="alert alert-<?php echo $alertType; ?>" role="alert"><span class="glyphicon glyphicon-ok" aria-hidden="true" style="display:inline-block;"></span>&nbsp;&nbsp;<?php foreach($messages as $mk => $message) { echo $message . '<br />'; } ?></div>
+      	         <div id="applicationFlashMessage" class="alert alert-<?php echo $alertType; ?>" role="alert">
+      	         	<button type="button" class="close" data-dismiss="alert">&times;</button>
+      	         	<?php foreach($messages as $mk => $message) { echo $message . '<br />'; } ?>
+      	         	<div class="autoCloseMessage">This message will auto close in <span class="autoCloseMessage">10</span> seconds.</div>
+      	         </div>
       	         <?php
       	         }
       	      }

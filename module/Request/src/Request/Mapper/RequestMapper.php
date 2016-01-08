@@ -380,6 +380,8 @@ class RequestMapper implements RequestMapperInterface
         
         $result['FIRST_NAME'] = trim($result['FIRST_NAME']);
         $result['LAST_NAME'] = trim($result['LAST_NAME']);
+        $result['COMMON_NAME'] = trim($result['COMMON_NAME']);
+        $result['EMPLOYEE_NUMBER'] = trim($result['EMPLOYEE_NUMBER']);
         $result['POSITION_TITLE'] = trim($result['POSITION_TITLE']);
         
 //         echo '<pre>';

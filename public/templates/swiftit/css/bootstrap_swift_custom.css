@@ -608,6 +608,11 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
   	display: block;
 }
 
+.autoCloseMessage {
+	display:inline-block;
+	margin:0px;
+}
+
 
 /** CSS Stripes
  * @see https://css-tricks.com/stripes-css/
@@ -950,6 +955,14 @@ span.badge {
 }
 .red {
 	color: red;
+}
+.green {
+	color: green;
+}
+
+.split-date-requested,
+.remove-date-requested {
+	cursor:hand;
 }
 
 button .full-width {
