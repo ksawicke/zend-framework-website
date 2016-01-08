@@ -1037,59 +1037,109 @@ var timeOffCreateRequestHandler = new function()
 		if(selectedTimeoffCategory != null) {
 			//timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
 			//timeOffCreateRequestHandler.drawHoursRequested();
-			console.log("TESTING SPLIT", selectedTimeoffCategory);
-			for(key in selectedDate) {
-				console.log("selectedDate[" + key + "] :: " + selectedDate[key]);
-				if(key==='obj') {
-					for(key2 in selectedDate.obj) {
-						console.log("selectedDate.obj[" + key2 + "] :: " + selectedDate.obj[key2]);
-					}
-				}
-			}
-			 
-//			console.log(selectedDate[obj]);
-//			console.log(selectedDate.obj);
-//			console.log(selectedDate.obj.date);
-			var index = selectedDate.deleteIndex - 1;
-			html = 'You want to split time off on ' + selectedDate.obj.date + ' for ' +
-				selectedDate.obj.hours + ' of ' + selectedDatesNew[index].category + '. ' +
-				'Lets split it evenly with category ' + selectedTimeoffCategory;
-			console.log(html);
-			console.log(selectedDate.deleteIndex);
-			console.log(selectedDatesNew);
-			for(key in selectedDatesNew) {
-				console.log(selectedDatesNew[key]);
-			}
-			var index = selectedDate.deleteIndex - 1;
-			console.log("BEFORE", selectedDatesNew[index]);
-			
-			/** Update to number of split hours **/
-			selectedDatesNew[index].hours = defaultSplitHours;
-			
-			/** Add back the split hours to the selected category **/
-			timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, defaultSplitHours);
-			
-			console.log("AFTER", selectedDatesNew[index]);
 			
 			/**
-			 * Add the date to the request object
+			 * Let's find exact keys where the date is the date selected
 			 */
-			var obj = { date: selectedDate.obj.date,
-				    hours: defaultSplitHours,
-				    category: selectedTimeoffCategory
-				  };
-			selectedDatesNew.push(obj);
-			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultSplitHours);
+			allowSplitDate = timeOffCreateRequestHandler.allowSplitDate(selectedDate);
+			console.log("allowSplitDate", allowSplitDate);
+			if(allowSplitDate.allowSplitDate===true) {
+				var item = allowSplitDate.items[0];
+//				console.log("ITEM!!", item);
+//				html = 'You want to split time off on ' + item.date + ' for ' +
+//				item.hours + ' of ' + item.category + '. ' +
+//				'Lets split it evenly with category ' + selectedTimeoffCategory;
+	
+//				console.log(html);
+//				console.log(selectedDate.deleteIndex);
+//				console.log(selectedDatesNew);
+//				for(key in selectedDatesNew) {
+//					console.log(selectedDatesNew[key]);
+//				}
+				//var index = selectedDate.deleteIndex - 1;
+				var index = item.index;
+//				console.log("BEFORE", selectedDatesNew[index]);
+				
+				/** Update to number of split hours **/
+				selectedDatesNew[index].hours = 4;
+				
+				/** Add back the split hours to the selected category **/
+				timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, 4);
+				
+//				console.log("AFTER", selectedDatesNew[index]);
+				
+				/**
+				 * Add the date to the request object
+				 */
+				var obj = { date: item.date,
+					    hours: 4,
+					    category: selectedTimeoffCategory
+					  };
+				selectedDatesNew.push(obj);
+				timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, 4);
+				
+				timeOffCreateRequestHandler.drawHoursRequested();
+				
+	//	    	$.each($('.calendar-day'), function(index, object) {
+	//	    		if(selectedDate.obj.date==$(this).data("date")) {
+	//	    			$(this).toggleClass(selectedTimeoffCategory + "Selected");
+	//	    		}
+	//	    	});
+				
+		    	timeOffCreateRequestHandler.sortDatesSelected();
+			}
 			
-			timeOffCreateRequestHandler.drawHoursRequested();
-			
-//	    	$.each($('.calendar-day'), function(index, object) {
-//	    		if(selectedDate.obj.date==$(this).data("date")) {
-//	    			$(this).toggleClass(selectedTimeoffCategory + "Selected");
-//	    		}
-//	    	});
-			
-	    	timeOffCreateRequestHandler.sortDatesSelected();
+//			console.log("TESTING SPLIT", selectedTimeoffCategory);
+//			for(key in selectedDate) {
+//				console.log("selectedDate[" + key + "] :: " + selectedDate[key]);
+//				if(key==='obj') {
+//					for(key2 in selectedDate.obj) {
+//						console.log("selectedDate.obj[" + key2 + "] :: " + selectedDate.obj[key2]);
+//					}
+//				}
+//			}
+			 
+//			var index = selectedDate.deleteIndex - 1;
+//			html = 'You want to split time off on ' + selectedDate.obj.date + ' for ' +
+//				selectedDate.obj.hours + ' of ' + selectedDatesNew[index].category + '. ' +
+//				'Lets split it evenly with category ' + selectedTimeoffCategory;
+//	
+//			console.log(html);
+//			console.log(selectedDate.deleteIndex);
+//			console.log(selectedDatesNew);
+//			for(key in selectedDatesNew) {
+//				console.log(selectedDatesNew[key]);
+//			}
+//			var index = selectedDate.deleteIndex - 1;
+//			console.log("BEFORE", selectedDatesNew[index]);
+//			
+//			/** Update to number of split hours **/
+//			selectedDatesNew[index].hours = defaultSplitHours;
+//			
+//			/** Add back the split hours to the selected category **/
+//			timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, defaultSplitHours);
+//			
+//			console.log("AFTER", selectedDatesNew[index]);
+//			
+//			/**
+//			 * Add the date to the request object
+//			 */
+//			var obj = { date: selectedDate.obj.date,
+//				    hours: defaultSplitHours,
+//				    category: selectedTimeoffCategory
+//				  };
+//			selectedDatesNew.push(obj);
+//			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultSplitHours);
+//			
+//			timeOffCreateRequestHandler.drawHoursRequested();
+//			
+////	    	$.each($('.calendar-day'), function(index, object) {
+////	    		if(selectedDate.obj.date==$(this).data("date")) {
+////	    			$(this).toggleClass(selectedTimeoffCategory + "Selected");
+////	    		}
+////	    	});
+//			
+//	    	timeOffCreateRequestHandler.sortDatesSelected();
 		}
     }
     
@@ -1111,6 +1161,28 @@ var timeOffCreateRequestHandler = new function()
 	        }
 	      }
 	    });
+    }
+    
+    this.allowSplitDate = function(selectedDate) {
+    	var allowSplitDate = false;
+    	items = [];
+		$.each(selectedDatesNew, function(index, object) {
+    		if(object.date===selectedDate.obj.date) {
+    			object.index = index;
+    			items.push(object);
+    		}
+    	});
+		if( (items.length===1 && selectedTimeoffCategory==="timeOffFloat") ||
+			(items.length===0) ||
+			(items.length>1)
+		  ) {
+			allowSplitDate = false;	
+		}
+		if(items.length===1 && selectedTimeoffCategory!="timeOffFloat") {
+			allowSplitDate = true;
+		}
+		
+		return {allowSplitDate:allowSplitDate, items};
     }
 };
 

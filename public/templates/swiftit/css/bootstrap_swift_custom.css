@@ -965,6 +965,10 @@ span.badge {
 	cursor:hand;
 }
 
+.moveDown {
+	margin-top:10px;
+}
+
 button .full-width {
 	width:100%;
 	display:block;
