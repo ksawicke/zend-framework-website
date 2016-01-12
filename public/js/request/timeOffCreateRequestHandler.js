@@ -89,18 +89,94 @@ var timeOffCreateRequestHandler = new function()
         	 * Handle clicking a calendar date
         	 */
         	$(document).on('click', '.calendar-day', function() {
-        		timeOffCreateRequestHandler.selectCalendarDay($(this));
+//                    timeOffCreateRequestHandler.selectCalendarDay($(this));
+//                    var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
+//                    console.log("TEST");
+//                    console.log("this", $(this));
+//                    console.log("selectedDate", selectedDate);
+//                    if(selectedTimeoffCategory != null) {
+//                        timeOffCreateRequestHandler.toggleDateFromRequest($(this));
+//                    }
+
+                    var obj1 = { category: "timeOffPTO", date: "02/22/2016", hours: "8.00" };
+                    var obj2 = { category: "timeOffPTO", date: "02/23/2016", hours: "8.00" };
+                    var obj3 = { category: "timeOffPTO", date: "02/24/2016", hours: "8.00" };
+                    var obj4 = { category: "timeOffPTO", date: "02/25/2016", hours: "8.00" };
+                    var obj5 = { category: "timeOffPTO", date: "02/26/2016", hours: "8.00" };
+                    var arr = [];
+                    arr.push(obj1);
+                    arr.push(obj2);
+                    arr.push(obj3);
+                    arr.push(obj4);
+                    arr.push(obj5);
+                    
+                    // Split example
+                    //var obj6 = { category: "timeOffSick", date: "02/25/2016" };
+                    
+                    // Delete example
+//                    var obj6 = { category: "timeOffPTO", date: "02/25/2016" };
+                    
+                    // Add example
+                    var obj6 = { category: "timeOffPTO", date: "02/29/2016" };
+                    
+                    var found = false;
+                    var copy = null;
+                    var deleteKey = null;
+                    $.each( arr, function( key, dateObject ) {
+                        console.log( key, dateObject );
+                        console.log( "obj6", obj6);
+                        
+                        if(obj6.date==dateObject.date && obj6.category===dateObject.category) {
+                            found = true;
+                            console.log("Found an entry for " + obj6.date + " but this is same category. Remove it! " + obj6.category + " :: " + dateObject.category);
+                            deleteKey = key;
+                        }
+                        if(obj6.date==dateObject.date && obj6.category!=dateObject.category && found===false) {
+                            found = true;
+                            console.log("Found an entry for " + obj6.date + " but this is a new category. Split! " + obj6.category + " :: " + dateObject.category);
+                            copy = dateObject;
+                            deleteKey = key;
+//                            arr.splice(key, 1);
+//                            obj6.hours = "4.00";
+//                            arr.push(obj6);
+//                            dateObject.hours = "4.00";
+//                            arr.push(dateObject);
+                        }
+                        console.log("--------------");
+                    });
+//                    if(found==false) {
+//                        found = true;
+//                        console.log("Add new entry");
+//                        obj6.hours = "8.00";
+//                        arr.push(obj6);
+//                    }
+                    
+                    console.log("arr", arr);
+                    console.log("copy", copy);
+                    console.log("obj6", obj6);
+                    console.log("deleteKey", deleteKey);
+                    
+                    if(copy===null && deleteKey===null) {
+                        obj6.hours = "8.00";
+                        console.log("Push object to arr", obj6);
+                    }
+                    if(copy==null && deleteKey!==null) {
+                        console.log("Delete from arr key " + deleteKey);
+                    }
+                    if(copy!==null && deleteKey!==null) {
+                        console.log("Split the data. 1. Delete from arr key " + deleteKey + " // 2. Push object with hours set to 4 to arr // 3. Set obj6.hours = '4.00' then push to arr.");
+                    }
         	});
         	
         	/**
         	 * Handle removing a date from request
         	 */
         	$(document).on('click', '.remove-date-requested', function() {
-        		var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-        		if(selectedTimeoffCategory != null) {
-        			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
-        			timeOffCreateRequestHandler.drawHoursRequested();
-        		}
+//                    timeOffCreateRequestHandler.toggleDateFromRequest($(this));
+//                    var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
+                    if(selectedTimeoffCategory != null) {
+                        timeOffCreateRequestHandler.toggleDateFromRequest($(this));
+                    }
         	});
         	
         	/**
@@ -686,47 +762,192 @@ var timeOffCreateRequestHandler = new function()
      * Determines if the date is selected and returns an object we can handle later.
      */
     this.isSelected = function(object) {
-    	var thisDate = object.attr("data-date");
-		var thisCategory = selectedTimeoffCategory;
-		var thisHours = defaultHours;
-		var obj = {date:object.attr("data-date"), hours:'8.00', category:selectedTimeoffCategory};
-		var isSelected = false;
-		var deleteIndex = '';
+        console.log('object', object);
+    	var thisDate = object.data('date');
+        var thisCategory = selectedTimeoffCategory;
+        var thisHours = defaultHours;
+        var obj = {date:thisDate, hours:'8.00', category:selectedTimeoffCategory};
+        var isSelected = false;
+        var deleteIndex = null;
+        
+        for(var i = 0; i < selectedDatesNew.length; i++) {
+            if(selectedDatesNew[i].date===thisDate &&
+               selectedDatesNew[i].category!=thisCategory) {
+                console.log("STOP", i);
+                isSelected = true;
+                return {isSelected:isSelected, deleteIndex:i, obj:obj};
+            }
+        }
+        return {isSelected:isSelected, deleteIndex:i, obj:obj};
+//        console.log("Proposed object", obj);
+//        console.log("Existing dates", selectedDatesNew);
+//        
+//        return { isSelected:null,
+//                 obj:obj,
+//                 selectedDatesNew:selectedDatesNew
+//               };
+        
+//        var i = null;
+//
+////        console.log("thisDate", thisDate);
+////        console.log("object", object);
+//        console.log("obj", obj);
+//
+//        for(var i = 0; i < selectedDatesNew.length; i++) {
+//            console.log("ZZ", selectedDatesNew[i]);
+//            if(selectedDatesNew[i].date===thisDate) {
+//                console.log(i + " :: dates match   " + selectedDatesNew[i].date + " | " + thisDate);
+//            } else {
+////                console.log(i + " :: dates don't match");
+//            }
+////            
+//            if(selectedDatesNew[i].category===thisCategory) {
+//                console.log(i + " :: categories match   " + selectedDatesNew[i].category + " | " + thisCategory);
+//            } else {
+//                console.log(i + " :: categories don't match" + selectedDatesNew[i].category + " | " + thisCategory);
+//            }
+////            
+//            if(selectedDatesNew[i].date===thisDate &&
+//               selectedDatesNew[i].category!=thisCategory) {
+//                isSelected = true;
+//                console.log("isSelected", isSelected);
+//                console.log("i", i);
+//                return {isSelected:isSelected, deleteIndex:i, obj:obj};
+//            }
+//               isSelected===false) {
+////                console.log("FOUND " + i);
+//                isSelected = true;
+////                deleteIndex = i;
+////                break;
+//                return {isSelected:isSelected, deleteIndex:i, obj:obj};
+//            }
+
+
+//            if(selectedDatesNew[i].date &&
+//               selectedDatesNew[i].date===thisDate &&
+//               selectedDatesNew[i].category &&
+//               selectedDatesNew[i].category===thisCategory) {
+//                    console.log("FOUND " + i);
+//                    isSelected = true;
+//                    deleteIndex = i;
+//                    break;
+//            }
+//        }
 		
-		for(var i = 0; i < selectedDatesNew.length; i++) {
-			if(selectedDatesNew[i].date &&
-			   selectedDatesNew[i].date===thisDate &&
-			   selectedDatesNew[i].category &&
-			   selectedDatesNew[i].category===thisCategory) {
-				isSelected = true;
-				deleteIndex = i;
-				break;
-    		}
-    	}
-		
-		return {isSelected:isSelected, deleteIndex:i, obj:obj};
+//        return {isSelected:isSelected, deleteIndex:i, obj:obj};
+    }
+    
+    this.addDateToRequest = function(obj) {
+//        console.log("selectedDate", selectedDate);
+//        var obj = { date: selectedDate,
+//                    hours: 4,
+//                    category: selectedTimeoffCategory
+//                  };
+//        console.log("obj", obj);
+    	selectedDatesNew.push(obj);
+        timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultHours);
+    }
+    
+    this.removeDateFromRequest = function(deleteIndex) {
+//        console.log(selectedDate);
+    	selectedDatesNew.splice(deleteIndex, 1);
+        timeOffCreateRequestHandler.subtractTime(selectedTimeoffCategory, defaultHours);
     }
     
     /**
      * Removes a date from the request.
      */
-    this.removeDateFromRequest = function(selectedDate) {
-    	if(selectedDate.isSelected===false) {
-			selectedDatesNew.push(selectedDate.obj);
-			timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, defaultHours);
-		}
-		else {
-			selectedDatesNew.splice(selectedDate.deleteIndex, 1);
-			timeOffCreateRequestHandler.subtractTime(selectedTimeoffCategory, defaultHours);
-		}
+    this.toggleDateFromRequest = function(object) {
+    	var selectedDate = object.data('date');
+        var isSelected = timeOffCreateRequestHandler.isSelected(object);
+        var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled(object);
+        
+//        console.log("selectedTimeoffCategory", selectedTimeoffCategory);
+        console.log("isDateDisabled", isDateDisabled);
+        console.log("isSelected", isSelected);
+//        console.log("selectedDate", selectedDate);
+        
+//        if(selectedTimeoffCategory != null && isDateDisabled === false) {
+//            console.log("isSelected", isSelected);
+//            console.log("object", object);
+            
+            if(isSelected.isSelected===false) {
+                var obj = { date: selectedDate,
+                    hours: defaultHours,
+                    category: selectedTimeoffCategory
+                };
+                timeOffCreateRequestHandler.addDateToRequest(obj);
+            } else {
+//                var index = isSelected.deleteIndex;
+//                var split1Obj = selectedDatesNew[index];
+//                var category = split1Obj.category;
+                
+                console.log("@ index: " + index);
+                console.log("@ category: " + category);
+                console.log("@ selectedTimeoffCategory: " + selectedTimeoffCategory);
+//                if(category!==selectedTimeoffCategory) {
+//                timeOffCreateRequestHandler.removeDateFromRequest(index);
+//                timeOffCreateRequestHandler.subtractTime(category, defaultHours);
+                
+//                split1Obj.hours = defaultSplitHours;
+//                
+//                console.log("1", split1Obj);
+//                
+//                timeOffCreateRequestHandler.addDateToRequest(split1Obj);
+//                timeOffCreateRequestHandler.addTime(split1Obj.category, split1Obj.hours);
+                
+//                var split2Obj = { date: selectedDate,
+//                    hours: defaultSplitHours,
+//                    category: selectedTimeoffCategory
+//                };
+//                timeOffCreateRequestHandler.addDateToRequest(split2Obj);
+//                
+//                console.log("2", split2Obj);
+                
+//                timeOffCreateRequestHandler.addTime(split2Obj.category, split2Obj.hours);
+//                }
+            }
+            
+//            console.log("selectedDatesNew", selectedDatesNew);
+//                console.log("OBJJJJ", obj);
+//            } else {
+//                var index = isSelected.deleteIndex;
+//                var obj = selectedDatesNew[index];
+//                obj.hours = defaultSplitHours;
+//                
+//                console.log("REMOVE INDEX", index);
+                
+//                console.log("OBJZZZZZZZZZZZ", obj);
+//                var obj = selectedDatesNew[index];
+//                obj.hours = defaultSplitHours;
+                
+//                console.log('index', index);
+//                console.log('obj', obj);
+//                timeOffCreateRequestHandler.removeDateFromRequest(index);
+//                timeOffCreateRequestHandler.addDateToRequest(obj);
+//            }
 
-    	$.each($('.calendar-day'), function(index, object) {
-    		if(selectedDate.obj.date==$(this).data("date")) {
-    			$(this).toggleClass(selectedTimeoffCategory + "Selected");
-    		}
-    	});
-		
-    	timeOffCreateRequestHandler.sortDatesSelected();
+//            $.each($('.calendar-day'), function(index, object) {
+//                if(selectedDate==$(this).data("date")) {
+//                    $(this).toggleClass(selectedTimeoffCategory + "Selected");
+//                }
+//            });
+//
+//            timeOffCreateRequestHandler.sortDatesSelected();
+//            timeOffCreateRequestHandler.drawHoursRequested();
+//        }
+    }
+    
+    /**
+     * Removes a date from the request.
+     * @param {type} dateRequestObject
+     * @returns {undefined}     */
+    this.selectCalendarDay = function(dateRequestObject) {
+    	var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
+        var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled(dateRequestObject);
+        if(selectedTimeoffCategory != null && isDateDisabled === false) {
+                timeOffCreateRequestHandler.toggleDateFromRequest(selectedDate);
+        }
     }
     
     /**
@@ -734,96 +955,96 @@ var timeOffCreateRequestHandler = new function()
      */
     this.drawHoursRequested = function() {
     	var datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>' +
-		'<br style="clear:both;"/><br style="clear:both;"/>';
-		
-		totalPTORequested = 0;
-		totalFloatRequested = 0;
-		totalSickRequested = 0;
-		totalUnexcusedAbsenceRequested = 0;
+            '<br style="clear:both;"/><br style="clear:both;"/>';
+
+        totalPTORequested = 0;
+        totalFloatRequested = 0;
+        totalSickRequested = 0;
+        totalUnexcusedAbsenceRequested = 0;
     	totalBereavementRequested = 0;
     	totalCivicDutyRequested = 0;
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
     	// taco
-		for(var key = 0; key < selectedDatesNew.length; key++) {
-			datesSelectedDetailsHtml += selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
-				'<input class="selectedDateHours" value="' + timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) + '" size="2" data-key="' + key + '" disabled="disabled">' +
-				'&nbsp;&nbsp;&nbsp;&nbsp;' +
-				'<span class="badge ' + selectedDatesNew[key].category + '">' +
-				timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
-				'</span>' + 
-				'&nbsp;&nbsp;&nbsp;' +
-				'<span class="glyphicon glyphicon-duplicate green split-date-requested" ' +
-				    'data-date="' + selectedDatesNew[key].date + '" ' +
-				    'data-category="' + selectedDatesNew[key].category + '" ' +
-				    'title="Split time with selected category">' +
-				'</span>' +
-				'&nbsp;&nbsp;&nbsp;' +
-				'<span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
-				    'data-date="' + selectedDatesNew[key].date + '" ' +
-				    'data-category="' + selectedDatesNew[key].category + '" ' +
-				    'title="Remove date from request">' +
-				'</span>' +
-				'<br style="clear:both;" />';
-			
-			// glyphicon glyphicon-duplicate
-			
-			switch(selectedDatesNew[key].category) {
-				case 'timeOffPTO':
-					totalPTORequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffFloat':
-					totalFloatRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffSick':
-					totalSickRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffUnexcusedAbsence':
-					totalUnexcusedAbsenceRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffBereavement':
-					totalBereavementRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffCivicDuty':
-					totalCivicDutyRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffGrandfathered':
-					totalGrandfatheredRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-					
-				case 'timeOffApprovedNoPay':
-					totalApprovedNoPayRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-			}
-		}
-		
-		datesSelectedDetailsHtml +=
-			'<br style="clear:both;"/>' +
-    		'<strong>Reason for request:</strong>' +
-			'<br style="clear:both;"/>' +
-    		'<br style="clear:both;"/>' +
-    		'<textarea cols="40" rows="4" id="requestReason"></textarea><br /><br />' +
-			'<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>' +
-			'<br style="clear:both;" /><br style="clear:both;" />';
-		
-		$("#datesSelectedDetails").html(datesSelectedDetailsHtml);
-		
-		console.log(datesSelectedDetailsHtml);
-		
-		if(selectedDatesNew.length===0) {
-			$('#datesSelectedDetails').hide();
-			timeOffCreateRequestHandler.setStep('2');
-		} else {
-			$('#datesSelectedDetails').show();
-			timeOffCreateRequestHandler.setStep('3');
-		}
-		
+        for(var key = 0; key < selectedDatesNew.length; key++) {
+            datesSelectedDetailsHtml += selectedDatesNew[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '<input class="selectedDateHours" value="' + timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) + '" size="2" data-key="' + key + '" disabled="disabled">' +
+                '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '<span class="badge ' + selectedDatesNew[key].category + '">' +
+                timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
+                '</span>' + 
+                '&nbsp;&nbsp;&nbsp;' +
+                '<span class="glyphicon glyphicon-duplicate green split-date-requested" ' +
+                    'data-date="' + selectedDatesNew[key].date + '" ' +
+                    'data-category="' + selectedDatesNew[key].category + '" ' +
+                    'title="Split time with selected category">' +
+                '</span>' +
+                '&nbsp;&nbsp;&nbsp;' +
+                '<span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
+                    'data-date="' + selectedDatesNew[key].date + '" ' +
+                    'data-category="' + selectedDatesNew[key].category + '" ' +
+                    'title="Remove date from request">' +
+                '</span>' +
+                '<br style="clear:both;" />';
+
+            // glyphicon glyphicon-duplicate
+
+            switch(selectedDatesNew[key].category) {
+                case 'timeOffPTO':
+                        totalPTORequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffFloat':
+                        totalFloatRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffSick':
+                        totalSickRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffUnexcusedAbsence':
+                        totalUnexcusedAbsenceRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffBereavement':
+                        totalBereavementRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffCivicDuty':
+                        totalCivicDutyRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffGrandfathered':
+                        totalGrandfatheredRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+
+                case 'timeOffApprovedNoPay':
+                        totalApprovedNoPayRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        break;
+            }
+        }
+
+        datesSelectedDetailsHtml +=
+            '<br style="clear:both;"/>' +
+            '<strong>Reason for request:</strong>' +
+            '<br style="clear:both;"/>' +
+            '<br style="clear:both;"/>' +
+            '<textarea cols="40" rows="4" id="requestReason"></textarea><br /><br />' +
+            '<button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit My Request</button>' +
+            '<br style="clear:both;" /><br style="clear:both;" />';
+
+        $("#datesSelectedDetails").html(datesSelectedDetailsHtml);
+
+//        console.log(datesSelectedDetailsHtml);
+
+        if(selectedDatesNew.length===0) {
+            $('#datesSelectedDetails').hide();
+            timeOffCreateRequestHandler.setStep('2');
+        } else {
+            $('#datesSelectedDetails').show();
+            timeOffCreateRequestHandler.setStep('3');
+        }
+
 //		if(employeePTOAvailable > 0) {
 //			
 //		}
@@ -837,9 +1058,9 @@ var timeOffCreateRequestHandler = new function()
 //		console.log("CIVIC DUTY AVAIL: " + employeeCivicDutyAvailable);
 //		console.log("GRANDFATHERED AVAIL: " + employeeGrandfatheredAvailable);
 //		console.log("APPROVED NO PAY AVAIL: " + employeeApprovedNoPayAvailable);
-		
-		timeOffCreateRequestHandler.printEmployeePTOAvailable();
-		
+
+        timeOffCreateRequestHandler.printEmployeePTOAvailable();
+
 //		if(selectedTimeoffCategory==="timeOffFloat" && employeeFloatAvailable===0) {
 //			console.log("BUTTONS ARE MISSING. NOW WHAT?");
 //		}
@@ -1035,7 +1256,7 @@ var timeOffCreateRequestHandler = new function()
     this.splitDateRequested = function(dateRequestObject) {
     	var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
 		if(selectedTimeoffCategory != null) {
-			//timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
+			//timeOffCreateRequestHandler.toggleDateFromRequest(selectedDate);
 			//timeOffCreateRequestHandler.drawHoursRequested();
 			
 			/**
@@ -1140,15 +1361,6 @@ var timeOffCreateRequestHandler = new function()
 ////	    	});
 //			
 //	    	timeOffCreateRequestHandler.sortDatesSelected();
-		}
-    }
-    
-    this.selectCalendarDay = function(dateRequestObject) {
-    	var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
-		var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled(dateRequestObject);
-		if(selectedTimeoffCategory != null && isDateDisabled === false) {
-			timeOffCreateRequestHandler.removeDateFromRequest(selectedDate);
-			timeOffCreateRequestHandler.drawHoursRequested();
 		}
     }
     
