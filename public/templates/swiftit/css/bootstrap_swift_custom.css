@@ -609,8 +609,8 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 
 .autoCloseMessage {
-	display:inline-block;
-	margin:0px;
+    display:inline-block !important;
+    margin:0px;
 }
 
 
@@ -1050,3 +1050,11 @@ button .full-width {
   .timeOffCalendarLegend a {
     color: #777;
     }
+
+/** Alerts **/    
+.autoCloseMessage {
+    margin-left:12px;
+}
+.autoCloseMessage span {
+    margin:0px;
+}

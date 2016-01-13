@@ -1141,29 +1141,29 @@ var timeOffCreateRequestHandler = new function()
     	$("#requestFor").select2({
             //data: data
             ajax: {
-                     url: timeOffLoadCalendarUrl,
-                     method: 'post',
-                     dataType: 'json',
-                     delay: 250,
-                     data: function(params) {
-                             return {
-                                     search: params.term,
-                                     action: 'getEmployeeList',
-                                     page: params.page
-                             };
-                     },
-                     processResults: function(data, params) {
-                             params.page = params.page || 1;
+                url: timeOffLoadCalendarUrl,
+                method: 'post',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                            search: params.term,
+                            action: 'getEmployeeList',
+                            page: params.page
+                    };
+                },
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
 
-                             return {
-                                     results: data,
-                                     pagination: {
-                                             more: (params.page * 30) < data.total_count
-                                     }
-                             };
-                     },
+                    return {
+                            results: data,
+                            pagination: {
+                                    more: (params.page * 30) < data.total_count
+                            }
+                    };
+                },
 //    			 cache: true,
-                     allowClear: true
+                allowClear: true
             },
 //    		escapeMarkup: function(markup) {
 //    			return markup;
@@ -1202,10 +1202,10 @@ var timeOffCreateRequestHandler = new function()
      */
     this.maskCalendars = function(action) {    	
     	if (!action || action === 'show') {
-    		$('body').append('<link href="/sawik/timeoff/public/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
-  	    } else if (action === 'hide') {
-  	    	$('#enableTimeOffCalendar').remove();
-  	    }
+            $('body').append('<link href="/sawik/timeoff/public/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
+        } else if (action === 'hide') {
+            $('#enableTimeOffCalendar').remove();
+        }
     }
     
     this.fadeOutFlashMessage = function() {
@@ -1221,17 +1221,17 @@ var timeOffCreateRequestHandler = new function()
     
     this.selectCategory = function(categoryButton) {
     	if(!categoryButton.hasClass('disableTimeOffCategorySelection')) {
-			timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);
-    		timeOffCreateRequestHandler.setTimeoffCategory(categoryButton);
-		}
-		if(categoryButton.hasClass('disableTimeOffCategorySelection') && categoryButton.hasClass('categoryPTO')) {
-			timeOffCreateRequestHandler.alertUserToTakeGrandfatheredTime();
-		}
-		if(selectedTimeoffCategory===null) {
-			timeOffCreateRequestHandler.maskCalendars('hide');
-		} else {
-			timeOffCreateRequestHandler.maskCalendars('show');
-		}
+            timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);
+            timeOffCreateRequestHandler.setTimeoffCategory(categoryButton);
+        }
+        if(categoryButton.hasClass('disableTimeOffCategorySelection') && categoryButton.hasClass('categoryPTO')) {
+            timeOffCreateRequestHandler.alertUserToTakeGrandfatheredTime();
+        }
+        if(selectedTimeoffCategory===null) {
+            timeOffCreateRequestHandler.maskCalendars('hide');
+        } else {
+            timeOffCreateRequestHandler.maskCalendars('show');
+        }
     }
     
     this.splitDateRequested = function(dateRequestObject) {
@@ -1359,23 +1359,23 @@ var timeOffCreateRequestHandler = new function()
     this.allowSplitDate = function(selectedDate) {
     	var allowSplitDate = false;
     	items = [];
-		$.each(selectedDatesNew, function(index, object) {
-    		if(object.date===selectedDate.obj.date) {
-    			object.index = index;
-    			items.push(object);
-    		}
+            $.each(selectedDatesNew, function(index, object) {
+            if(object.date===selectedDate.obj.date) {
+                    object.index = index;
+                    items.push(object);
+            }
     	});
-		if( (items.length===1 && selectedTimeoffCategory==="timeOffFloat") ||
-			(items.length===0) ||
-			(items.length>1)
-		  ) {
-			allowSplitDate = false;	
-		}
-		if(items.length===1 && selectedTimeoffCategory!="timeOffFloat") {
-			allowSplitDate = true;
-		}
-		
-		return {allowSplitDate:allowSplitDate, items};
+        if( (items.length===1 && selectedTimeoffCategory==="timeOffFloat") ||
+                (items.length===0) ||
+                (items.length>1)
+          ) {
+                allowSplitDate = false;	
+        }
+        if(items.length===1 && selectedTimeoffCategory!="timeOffFloat") {
+                allowSplitDate = true;
+        }
+
+        return {allowSplitDate:allowSplitDate, items};
     }
     
     /**

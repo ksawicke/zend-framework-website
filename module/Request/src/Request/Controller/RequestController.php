@@ -130,12 +130,14 @@ class RequestController extends AbstractActionController
     
     public function approvedRequestAction()
     {
-        die("Approved");
+        $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
+        return $this->redirect()->toRoute('create');
     }
     
     public function deniedRequestAction()
     {
-        die("Denied");
+        $this->flashMessenger()->addSuccessMessage('You denied the request succesfully.');
+        return $this->redirect()->toRoute('create');
     }
     
     /**
@@ -248,7 +250,7 @@ class RequestController extends AbstractActionController
                     $oneMonthBack = new \DateTime($prev);
                     $currentMonth = new \DateTime($current);
                     $oneMonthOut = new \DateTime($one);
-                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, $startDate, $endDate);
+                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, $startDate, $endDate);
                     
                     $result = new JsonModel([
                         'success' => true,
@@ -354,8 +356,8 @@ class RequestController extends AbstractActionController
     
     public function viewMyTeamCalendarAction()
     {
-//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->managerEmployeeNumber, '2015-12-01', '2015-12-31');
-        
+//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, '2016-01-01', '2016-01-31');
+         
         return new ViewModel(array(
 //             'calendarData' => $calendarData,
 //             'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
