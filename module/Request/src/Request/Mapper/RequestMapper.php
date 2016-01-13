@@ -1029,6 +1029,12 @@ class RequestMapper implements RequestMapperInterface
         	(
         		SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
         	) AS requested_hours,
+		(
+        		SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+        	) AS MIN_REQUEST_DATE,
+        	(
+        		SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+        	) AS MAX_REQUEST_DATE,
         
         	employee.PRLNM AS EMPLOYEE_LAST_NAME, employee.PRFNM AS EMPLOYEE_FIRST_NAME, employee.PRMNM AS EMPLOYEE_MIDDLE_NAME,
         

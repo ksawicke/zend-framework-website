@@ -10,19 +10,21 @@
             <th>Employee</th>
             <th>Approver queue</th>
             <th>Transaction Status</th>
-            <th>Total Hours Requested</th>
+            <th>Hours Requested</th>
             <th>Request Reason</th>
+            <th>Minimum Date<br />Requested</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
     	<?php foreach($managerReportsData as $key => $request) { ?>
         <tr>
-            <td><?php echo $request->EMPLOYEE_LAST_NAME; ?>, <?php echo $request->EMPLOYEE_FIRST_NAME; ?> <?php echo $request->EMPLOYEE_MIDDLE_NAME; ?></td>
+            <td><?php echo $request->EMPLOYEE_LAST_NAME; ?>, <?php echo $request->EMPLOYEE_FIRST_NAME; ?> <?php echo $request->EMPLOYEE_MIDDLE_NAME; ?> (<?php echo $request->EMPLOYEE_NUMBER; ?>)</td>
             <td><?php echo $request->MANAGER_LAST_NAME; ?>, <?php echo $request->MANAGER_FIRST_NAME; ?></td>
             <td>Pending Approval</td>
             <td><?php echo $request->REQUESTED_HOURS; ?></td>
             <td><?php echo $request->REQUEST_REASON; ?></td>
+            <td><?php echo $request->MIN_REQUEST_DATE; ?></td>
             <td><a href="<?php echo $this->basePath('request/review-request/' . $request->REQUEST_ID); ?>"><button type="button" class="btn btn-form-primary btn-xs">View</button></a></td>
         </tr>
         <?php } ?>

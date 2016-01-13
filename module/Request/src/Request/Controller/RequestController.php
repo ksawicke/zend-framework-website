@@ -131,13 +131,13 @@ class RequestController extends AbstractActionController
     public function approvedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
-        return $this->redirect()->toRoute('create');
+        return $this->redirect()->toRoute('viewEmployeeRequests');
     }
     
     public function deniedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You denied the request succesfully.');
-        return $this->redirect()->toRoute('create');
+        return $this->redirect()->toRoute('viewEmployeeRequests');
     }
     
     /**
@@ -250,7 +250,11 @@ class RequestController extends AbstractActionController
                     $oneMonthBack = new \DateTime($prev);
                     $currentMonth = new \DateTime($current);
                     $oneMonthOut = new \DateTime($one);
-                    $calendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, $startDate, $endDate);
+                    
+                    $isLoggedInUserManager = $this->requestService->isManager($this->employeeNumber);
+                    $employeeNumber = ( ($isLoggedInUserManager==="Y") ? $this->employeeNumber : $this->managerEmployeeNumber );
+                    
+                    $calendarData = $this->requestService->findTimeOffCalendarByManager($employeeNumber, $startDate, $endDate);
                     
                     $result = new JsonModel([
                         'success' => true,
@@ -348,9 +352,19 @@ class RequestController extends AbstractActionController
 
     public function viewEmployeeRequestsAction()
     {
+        $isLoggedInUserManager = $this->requestService->isManager($this->employeeNumber);
+        if($isLoggedInUserManager!=="Y") {
+            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+            return $this->redirect()->toRoute('create');
+        }
         return new ViewModel(array(
-            'isLoggedInUserManager' => $this->requestService->isManager($this->employeeNumber),
-            'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber)
+            'isLoggedInUserManager' => $isLoggedInUserManager,
+            'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
         ));
     }
     
