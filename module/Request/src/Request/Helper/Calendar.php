@@ -36,7 +36,9 @@ class Calendar
     
     public static $beginWeekOne = '<tr class="calendar-row">';
     
-    public static $beginDayCell = '<td class="calendar-day" data-category="" data-date="&date&">';
+    // TODO sawik 01/14/2016 - If request is moved to payroll, should we flag it
+    // or disable clicking??
+    public static $beginDayCell = '<td class="calendar-day" data-category="" data-date="&date&">'; // &nbsp;&nbsp;<i class="fa fa-check-circle iconCalendarPayrollApproved"></i>
     
     public static $beginDayDisabledCell = '<td class="calendar-day calendar-day-disabled">';
     

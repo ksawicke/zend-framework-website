@@ -309,19 +309,19 @@ var timeOffCreateRequestHandler = new function()
         	timeOffCreateRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_APPROVAL);
         	
-        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
+//        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_ABSENCE_PENDING_APPROVAL);
         	
-        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
+//        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_APPROVAL);
         	
-        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
+//        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_APPROVAL);
         	
         	timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GRANDFATHERED_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GRANDFATHERED_PENDING_APPROVAL);
         	
-        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
+//        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
         	timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.APPROVED_NO_PAY_PENDING_APPROVAL);
         	
     		timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
@@ -474,40 +474,40 @@ var timeOffCreateRequestHandler = new function()
     	timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
     }
     
-    this.setEmployeeUnexcusedAbsenceAvailable = function(unexcusedAbsenceAvailable) {
-    	var employeeUnexcusedAbsenceAvailable = unexcusedAbsenceAvailable;
-    	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceAvailable();
-    }
+//    this.setEmployeeUnexcusedAbsenceAvailable = function(unexcusedAbsenceAvailable) {
+//    	var employeeUnexcusedAbsenceAvailable = unexcusedAbsenceAvailable;
+//    	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceAvailable();
+//    }
     
     this.setEmployeeUnexcusedAbsencePending = function(unexcusedAbsencePending) {
     	var employeeUnexcusedAbsencePending = unexcusedAbsencePending;
     	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
     }
     
-    this.setEmployeeBereavementAvailable = function(bereavementAvailable) {
-    	var employeeBereavementAvailable = bereavementAvailable;
-    	timeOffCreateRequestHandler.printEmployeeBereavementAvailable();
-    }
+//    this.setEmployeeBereavementAvailable = function(bereavementAvailable) {
+//    	var employeeBereavementAvailable = bereavementAvailable;
+//    	timeOffCreateRequestHandler.printEmployeeBereavementAvailable();
+//    }
     
     this.setEmployeeBereavementPending = function(bereavementPending) {
     	var employeeBereavementPending = bereavementPending;
     	timeOffCreateRequestHandler.printEmployeeBereavementPending();
     }
     
-    this.setEmployeeCivicDutyAvailable = function(civicDutyAvailable) {
-    	var employeeCivicDutyAvailable = civicDutyAvailable;
-    	timeOffCreateRequestHandler.printEmployeeCivicDutyAvailable();
-    }
+//    this.setEmployeeCivicDutyAvailable = function(civicDutyAvailable) {
+//    	var employeeCivicDutyAvailable = civicDutyAvailable;
+//    	timeOffCreateRequestHandler.printEmployeeCivicDutyAvailable();
+//    }
     
     this.setEmployeeCivicDutyPending = function(civicDutyPending) {
     	employeeCivicDutyPending = civicDutyPending;
     	timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
     }
     
-    this.setEmployeeApprovedNoPayAvailable = function(approvedNoPayAvailable) {
-    	employeeApprovedNoPayAvailable = approvedNoPayAvailable;
-    	timeOffCreateRequestHandler.printEmployeeApprovedNoPayAvailable();
-    }
+//    this.setEmployeeApprovedNoPayAvailable = function(approvedNoPayAvailable) {
+//    	employeeApprovedNoPayAvailable = approvedNoPayAvailable;
+//    	timeOffCreateRequestHandler.printEmployeeApprovedNoPayAvailable();
+//    }
     
     this.setEmployeeApprovedNoPayPending = function(approvedNoPayPending) {
     	employeeApprovedNoPayPending = approvedNoPayPending;
@@ -575,45 +575,45 @@ var timeOffCreateRequestHandler = new function()
     	$("#employeeGrandfatheredPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredPending) + " hours");
     }
     
-    this.printEmployeeUnexcusedAbsenceAvailable = function() {
-    	$("#employeeUnexcusedAbsenceAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsenceAvailable) + " hours");
-    	if(employeeUnexcusedAbsenceAvailable<=0) {
-    		$('.buttonDisappearUnexcusedAbsence').addClass('hidden');
-    	}
-    }
+//    this.printEmployeeUnexcusedAbsenceAvailable = function() {
+//    	$("#employeeUnexcusedAbsenceAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsenceAvailable) + " hours");
+//    	if(employeeUnexcusedAbsenceAvailable<=0) {
+//    		$('.buttonDisappearUnexcusedAbsence').addClass('hidden');
+//    	}
+//    }
     
     this.printEmployeeUnexcusedAbsencePending = function() {
     	$("#employeeUnexcusedAbsencePendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsencePending) + " hours");
     }
     
-    this.printEmployeeBereavementAvailable = function() {
-    	$("#employeeBereavementAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementAvailable) + " hours");
-    	if(employeeBereavementAvailable<=0) {
-    		$('.buttonDisappearBereavementAbsence').addClass('hidden');
-    	}
-    }
+//    this.printEmployeeBereavementAvailable = function() {
+//    	$("#employeeBereavementAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementAvailable) + " hours");
+//    	if(employeeBereavementAvailable<=0) {
+//    		$('.buttonDisappearBereavementAbsence').addClass('hidden');
+//    	}
+//    }
     
     this.printEmployeeBereavementPending = function() {
     	$("#employeeBereavementPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementPending) + " hours");
     }
     
-    this.printEmployeeCivicDutyAvailable = function() {
-    	$("#employeeCivicDutyAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyAvailable) + " hours");
-    	if(employeeCivicDutyAvailable<=0) {
-    		$('.buttonDisappearCivicDutyAbsence').addClass('hidden');
-    	}
-    }
+//    this.printEmployeeCivicDutyAvailable = function() {
+//    	$("#employeeCivicDutyAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyAvailable) + " hours");
+//    	if(employeeCivicDutyAvailable<=0) {
+//    		$('.buttonDisappearCivicDutyAbsence').addClass('hidden');
+//    	}
+//    }
     
     this.printEmployeeCivicDutyPending = function() {
     	$("#employeeCivicDutyPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyPending) + " hours");
     }
     
-    this.printEmployeeApprovedNoPayAvailable = function() {
-    	$("#employeeApprovedNoPayAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayAvailable) + " hours");
-    	if(employeeApprovedNoPayAvailable<=0) {
-    		$('.buttonDisappearApprovedNoPayAbsence').addClass('hidden');
-    	}
-    }
+//    this.printEmployeeApprovedNoPayAvailable = function() {
+//    	$("#employeeApprovedNoPayAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayAvailable) + " hours");
+//    	if(employeeApprovedNoPayAvailable<=0) {
+//    		$('.buttonDisappearApprovedNoPayAbsence').addClass('hidden');
+//    	}
+//    }
     
     this.printEmployeeApprovedNoPayPending = function() {
     	$("#employeeApprovedNoPayPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayPending) + " hours");
@@ -1131,7 +1131,7 @@ var timeOffCreateRequestHandler = new function()
             $(".categoryBereavement").hide();
             $(".categoryCivicDuty").hide();
             $(".categoryApprovedNoPay").hide();
-            $(".categoryUnexcusedAbsence").hide();
+//            $(".categoryUnexcusedAbsence").hide();
     	}
     }
     

@@ -1058,3 +1058,8 @@ button .full-width {
 .autoCloseMessage span {
     margin:0px;
 }
+
+/** Font Awesome **/
+.iconCalendarPayrollApproved {
+    color: #49a449;
+}

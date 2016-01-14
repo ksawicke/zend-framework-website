@@ -526,6 +526,15 @@ class RequestMapper implements RequestMapperInterface
                 $return = [];
                 
                 foreach($result as $key => $data) {
+                    $return[] = $data['REQUEST_TYPE'];
+                }
+                
+//                echo '<pre>';
+//                print_r($return);
+//                echo '</pre>';
+//                die("@@@");
+                
+                foreach($result as $key => $data) {
                     if(!array_key_exists($data['REQUEST_ID'], $return)) {
                         $data['PTO_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($data['PTO_PENDING']);
                         $data['FLOAT_PENDING'] = \Request\Helper\Format::setStringDefaultToZero($data['FLOAT_PENDING']);
@@ -663,39 +672,47 @@ class RequestMapper implements RequestMapperInterface
 //                     print_r($data);
 //                     echo '</pre>';
 //                     die("@@@");
+                    $requestId = $data['REQUEST_ID'];
                     
-                    $return[$data['REQUEST_ID']]['DETAILS'][] = [
+                    if($data['REQUEST_TYPE']==='Unexcused') {
+                        $data['REQUEST_TYPE'] = 'UnexcusedAbsence';
+                    }
+                    if($data['REQUEST_TYPE']==='Time Off Without Pay') {
+                        $data['REQUEST_TYPE'] = 'ApprovedNoPay';
+                    }
+                    
+                    $return[$requestId]['DETAILS'][] = [
                         'REQUEST_DATE' => $data['REQUEST_DATE'],
                         'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
                         'REQUEST_TYPE' => $data['REQUEST_TYPE']
                     ];
                     
-                    if( $return[$data['REQUEST_ID']]['FIRST_DATE_REQUESTED']=='' ) {
-                        $return[$data['REQUEST_ID']]['FIRST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
+                    if( $return[$requestId]['FIRST_DATE_REQUESTED'] === '' ) {
+                        $return[$requestId]['FIRST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
                     }
-                    $return[$data['REQUEST_ID']]['LAST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
+                    $return[$requestId]['LAST_DATE_REQUESTED'] = $data['REQUEST_DATE'];
                     
-                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
-                    $return[$data['REQUEST_ID']]['TOTALS']['Grand'] += $data['REQUESTED_HOURS'];
-                    $return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$data['REQUEST_ID']]['TOTALS'][$data['REQUEST_TYPE']], 2);
-                    $return[$data['REQUEST_ID']]['TOTALS']['Grand'] = number_format($return[$data['REQUEST_ID']]['TOTALS']['Grand'], 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] =
-                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['PTO']), 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] =
-                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Float']), 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL'] =
-                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL'] - $return[$data['REQUEST_ID']]['TOTALS']['Sick']), 2);
+                    $return[$requestId]['TOTALS'][$data['REQUEST_TYPE']] += $data['REQUESTED_HOURS'];
+                    $return[$requestId]['TOTALS']['Grand'] += $data['REQUESTED_HOURS'];
+                    $return[$requestId]['TOTALS'][$data['REQUEST_TYPE']] = number_format($return[$requestId]['TOTALS'][$data['REQUEST_TYPE']], 2);
+                    $return[$requestId]['TOTALS']['Grand'] = number_format($return[$requestId]['TOTALS']['Grand'], 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$requestId]['EMPLOYEE']['BALANCES']['PTO']['PTO_PENDING_APPROVAL'] - $return[$requestId]['TOTALS']['PTO']), 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$requestId]['EMPLOYEE']['BALANCES']['Float']['FLOAT_PENDING_APPROVAL'] - $return[$requestId]['TOTALS']['Float']), 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL'] =
+                        number_format(($return[$requestId]['EMPLOYEE']['BALANCES']['Sick']['SICK_PENDING_APPROVAL'] - $return[$requestId]['TOTALS']['Sick']), 2);
                     
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['UnexcusedAbsence']['UNEXCUSED_ABSENCE_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['Bereavement']['BEREAVEMENT_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['CivicDuty']['CIVIC_DUTY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['Grandfathered']['GRANDFATHERED_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['ApprovedNoPay']['APPROVED_NO_PAY_POST_PENDING_APPROVAL'] = number_format(0.00, 2);
                     
-                    $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Grand'] =
-                        number_format(($return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] +
-                                       $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] +
-                                       $return[$data['REQUEST_ID']]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL']
+                    $return[$requestId]['EMPLOYEE']['BALANCES']['Grand'] =
+                        number_format(($return[$requestId]['EMPLOYEE']['BALANCES']['PTO']['PTO_POST_PENDING_APPROVAL'] +
+                                       $return[$requestId]['EMPLOYEE']['BALANCES']['Float']['FLOAT_POST_PENDING_APPROVAL'] +
+                                       $return[$requestId]['EMPLOYEE']['BALANCES']['Sick']['SICK_POST_PENDING_APPROVAL']
                                       ), 2);
                 }
                 break;
