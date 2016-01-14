@@ -740,7 +740,7 @@ class RequestMapper implements RequestMapperInterface {
         return $employeeData;
     }
 
-    public function findManagerEmployees($managerEmployeeNumber = null, $search = null) {
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null) {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
         $where = "WHERE (
             employee.PRER = '002' and
@@ -783,7 +783,7 @@ class RequestMapper implements RequestMapperInterface {
                       DIRECT_INDIRECT,
                       MANAGER_LEVEL
                   FROM table (
-                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'B')
+                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                   ) as data
             ) hierarchy
                   ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)

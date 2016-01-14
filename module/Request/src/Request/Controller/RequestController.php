@@ -185,7 +185,7 @@ class RequestController extends AbstractActionController
                 
                 case 'getEmployeeList':
                     $return = [];
-                    $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search);
+                    $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search, $request->getPost()->directReportFilter);
                     foreach($managerEmployees as $id => $data) {
 //                         $nameFormatted =
 //                                trim($data->EMPLOYEE_NAME) . " " . 
