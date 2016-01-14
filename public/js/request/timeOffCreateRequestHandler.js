@@ -64,7 +64,8 @@ var timeOffCreateRequestHandler = new function()
     		'timeOffBereavement': 'Bereavement',
     		'timeOffCivicDuty': 'Civic Duty',
     		'timeOffApprovedNoPay': 'Approved No Pay'
-    	};
+    	},
+        directReportFilter = 'B';
 
     /**
      * Initializes binding
@@ -176,7 +177,9 @@ var timeOffCreateRequestHandler = new function()
                     console.log('138');
         	});
         	
-        	
+        	$(document).on('change', '#directReportForm input', function() {
+                    directReportFilter = $('input[name="directReportFilter"]:checked', '#directReportForm').val();
+                });
         	
         	timeOffCreateRequestHandler.loadCalendars();
         	
@@ -1149,6 +1152,7 @@ var timeOffCreateRequestHandler = new function()
                     return {
                             search: params.term,
                             action: 'getEmployeeList',
+                            directReportFilter: directReportFilter,
                             page: params.page
                     };
                 },
@@ -1186,14 +1190,60 @@ var timeOffCreateRequestHandler = new function()
     	 * for form submission, and refresh the calendars.
     	 */
     	$requestForEventSelect.on("select2:select", function (e) {
-    		var selectedEmployee = e.params.data;
-    		console.log("SELECTED EMPLOYEE", selectedEmployee);
-    		requestForEmployeeNumber = selectedEmployee.id;
-        	requestForEmployeeName = selectedEmployee.text;
-        	timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-        	console.log('983');
-        	$('.requestIsForMe').show();
+            var selectedEmployee = e.params.data;
+            console.log("SELECTED EMPLOYEE", selectedEmployee);
+            requestForEmployeeNumber = selectedEmployee.id;
+            requestForEmployeeName = selectedEmployee.text;
+            timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+            console.log('983');
+            $('.requestIsForMe').show();
+    	})
+        .on("select2:open", function (e) {
+            //console.log("SELECT2 OPENED");
+            $("span").remove(".select2CustomTag");
+            var $filter = 
+                '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
+                '<input type="radio" name="directReportFilter" value="B" checked> Both&nbsp;&nbsp;&nbsp;' +
+                '<input type="radio" name="directReportFilter" value="D"> Direct Reports&nbsp;&nbsp;&nbsp;' +
+                '<input type="radio" name="directReportFilter" value="I"> Indirect Reports&nbsp;&nbsp;&nbsp;' +
+                '</form>';
+            $("<span class='select2CustomTag' style='padding-left:6px;'>" + $filter + "</span>").insertBefore('.select2-results');
+    	})
+        .on("select2:close", function (e) {
+            //console.log("SELECT2 CLOSED");
     	});
+        
+//        $requestForEventSelect
+//            .on("change", function(e) {
+//              // mostly used event, fired to the original element when the value changes
+//              console.log("change val=" + e.val);
+//            })
+//            .on("select2-opening", function() {
+//              console.log("opening");
+//            })
+//            .on("select2-open", function() {
+//              // fired to the original element when the dropdown opens
+//              console.log("open");
+//            })
+//            .on("select2-close", function() {
+//              // fired to the original element when the dropdown closes
+//              console.log("close");
+//            })
+//            .on("select2-highlight", function(e) {
+//              console.log("highlighted val=" + e.val + " choice=" + e.choice.text);
+//            })
+//            .on("select2-selecting", function(e) {
+//              console.log("selecting val=" + e.val + " choice=" + e.object.text);
+//            })
+//            .on("select2-removed", function(e) {
+//              console.log("removed val=" + e.val + " choice=" + e.choice.text);
+//            })
+//            .on("select2-loaded", function(e) {
+//              console.log("loaded (data property omitted for brevitiy)");
+//            })
+//            .on("select2-focus", function(e) {
+//              console.log("focus");
+//            });
     }
     
     /**
