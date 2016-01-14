@@ -295,7 +295,8 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    $employeeData['IS_LOGGED_IN_USER_MANAGER'] = $this->requestService->isManager($this->employeeNumber);
+                    $employeeData['IS_LOGGED_IN_USER_MANAGER'] = \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER');
+                    $employeeData['IS_LOGGED_IN_USER_PAYROLL'] = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
                     $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
                     $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
                     

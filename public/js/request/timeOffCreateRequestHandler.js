@@ -1123,7 +1123,7 @@ var timeOffCreateRequestHandler = new function()
     }
     
     this.checkAllowRequestOnBehalfOf = function() {
-    	if(loggedInUserData.IS_LOGGED_IN_USER_MANAGER==="Y") {
+        if(loggedInUserData.IS_LOGGED_IN_USER_MANAGER==="Y" || loggedInUserData.IS_LOGGED_IN_USER_PAYROLL==="Y") {
             timeOffCreateRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
     	} else {
