@@ -23,6 +23,8 @@ interface RequestMapperInterface
     
     public function isManager($employeeNumber = null);
     
+    public function isPayroll($employeeNumber = null);
+    
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null);
     
     public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null);

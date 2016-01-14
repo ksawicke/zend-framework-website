@@ -38,6 +38,12 @@ class LoginController extends AbstractActionController
             if(count($result)==1) {
                 $session = \Login\Helper\UserSession::createUserSession($result);
                 
+                $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
+                $isManager = $this->authenticationService->isManager($employeeNumber);
+                $isPayroll = $this->authenticationService->isPayroll($employeeNumber);
+                \Login\Helper\UserSession::setUserSessionVariable('IS_MANAGER', $isManager);
+                \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL', $isPayroll);
+                
                 return $this->redirect()->toRoute('create2', array('controller' => 'request', 'action' => 'create'));
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');

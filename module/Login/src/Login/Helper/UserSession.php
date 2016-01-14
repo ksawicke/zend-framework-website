@@ -58,4 +58,11 @@ class UserSession
         $session = new Container($userSessionNamespace);
         return $session->offsetGet($variable);
     }
+    
+    public static function setUserSessionVariable($variable, $value)
+    {
+        $userSessionNamespace = self::getUserSessionNamespace();
+        $session = new Container($userSessionNamespace);
+        $session->offsetSet($variable, $value);
+    }
 }

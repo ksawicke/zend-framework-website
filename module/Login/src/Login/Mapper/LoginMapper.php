@@ -121,4 +121,25 @@ class LoginMapper implements LoginMapperInterface
         
         return $return;
     }
+    
+    public function isManager($employeeNumber = null)
+    {
+        $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
+    
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return $isSupervisorData[0]->IS_MANAGER;
+    }
+    
+    public function isPayroll($employeeNumber = null)
+    {
+        $rawSql = "SELECT
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL
+            FROM PRPMS
+            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+    
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return $isSupervisorData[0]->IS_PAYROLL;
+    }
 }

@@ -115,7 +115,7 @@ class RequestController extends AbstractActionController
         return new ViewModel([
             'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
 //             'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
-            'isSupervisor' => $this->requestService->isManager($this->employeeNumber),
+            'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
@@ -303,6 +303,13 @@ class RequestController extends AbstractActionController
                     $pendingRequestJson = [];
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
+                        if($approvedRequest['REQUEST_TYPE']==='Unexcused') {
+                            $approvedRequest['REQUEST_TYPE'] = 'UnexcusedAbsence';
+                        }
+                        if($approvedRequest['REQUEST_TYPE']==='Time Off Without Pay') {
+                            $approvedRequest['REQUEST_TYPE'] = 'ApprovedNoPay';
+                        }
+                        
                         $approvedRequestJson[] = [
                             'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
                             'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
@@ -310,6 +317,12 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     foreach($pendingRequestData as $key => $pendingRequest) {
+                        if($pendingRequest['REQUEST_TYPE']==='Unexcused') {
+                            $pendingRequest['REQUEST_TYPE'] = 'UnexcusedAbsence';
+                        }
+                        if($pendingRequest['REQUEST_TYPE']==='Time Off Without Pay') {
+                            $pendingRequest['REQUEST_TYPE'] = 'ApprovedNoPay';
+                        }
                         $pendingRequestJson[] = [
                             'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
                             'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],

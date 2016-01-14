@@ -1090,6 +1090,18 @@ class RequestMapper implements RequestMapperInterface
         return $isSupervisorData[0]->IS_MANAGER;
     }
     
+    public function isPayroll($employeeNumber = null)
+    {
+        $rawSql = "SELECT
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL
+            FROM PRPMS
+            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+    
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return $isSupervisorData[0]->IS_MANAGER;
+    }
+    
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)
     {
         $requestReturnData = ['request_id' => null];

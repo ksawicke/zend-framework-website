@@ -24,6 +24,8 @@ interface RequestServiceInterface
     
     public function isManager($employeeNumber);
     
+    public function isPayroll($employeeNumber);
+    
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber);
     
     public function submitApprovalResponse($action, $requestId, $reviewRequestReason);
