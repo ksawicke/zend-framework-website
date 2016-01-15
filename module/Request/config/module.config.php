@@ -23,6 +23,18 @@ return [
                     ]
                 ]
             ],
+            'outlook' => [
+                'type' => 'literal',
+                'options' => [
+                    'route' => '/request/outlook',
+                    'defaults' => [
+                        'controller' => 'Request\Controller\Request',
+                        'action' => 'outlook'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
             'create' => [
                 'type' => 'literal',
                 'options' => [

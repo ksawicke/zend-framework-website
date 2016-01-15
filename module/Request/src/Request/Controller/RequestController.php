@@ -100,8 +100,24 @@ class RequestController extends AbstractActionController
 //         ));
 //     }
 
+    public function outlookAction()
+    {
+        $isSent = \Request\Helper\OutlookHelper::addToCalendar();
+//        $isSent2 = \Request\Helper\OutlookHelper::sendCal();
+        var_dump($isSent);
+//        var_dump($isSent2);
+        die("@@@");
+    }
+    
     public function createAction()
     {
+//        $send = $this->testUpdateCal();
+//        if($send) {
+//            die("SENT");
+//        } else {
+//            die("NOT SENT");
+//        }
+        
         // One method to grab a service....
         // Not using this but leaving as a reference for maybe later.
         //         $service = $this->getServiceLocator()->get('Request\Service\RequestServiceInterface');
@@ -457,4 +473,139 @@ class RequestController extends AbstractActionController
     {
         $this->employeeNumber = $employeeNumber;
     }
+    
+    // http://r2d2.cc/2014/01/27/create-outlook-meeting-request-php/
+    protected function testUpdateCal() {
+        $to = 'kevin_sawicke@swifttrans.com';
+        $subject = "TEST Meeting";
+
+        $organizer = 'Kevin Sawicke';
+        $organizer_email = 'kevin_sawicke@swifttrans.com';
+
+        $participant_name_1 = 'Kevin Sawicke';
+        $participant_email_1 = 'kevin_sawicke@swifttrans.com';
+
+        $participant_name_2 = 'Kevin Sawicke';
+        $participant_email_2 = 'kevin_sawicke@swifttrans.com';
+
+        $location = "Sample location here";
+        $date = '20160114';
+        $startTime = '0800';
+        $endTime = '1300';
+        $subject = 'Is this the subject';
+        $desc = 'The purpose of the meeting is to discuss something.';
+
+        $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
+        $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
+
+        $message = "BEGIN:VCALENDAR\r\n
+    VERSION:2.0\r\n
+    PRODID:-//Timeoff-mailer//timeoff/NONSGML v1.0//EN\r\n
+    METHOD:REQUEST\r\n
+    BEGIN:VEVENT\r\n
+    UID:" . md5(uniqid(mt_rand(), true)) . "swifttrans.com\r\n
+    DTSTAMP:" . gmdate('Ymd') . 'T' . gmdate('His') . "Z\r\n
+    DTSTART:" . $date . "T" . $startTime . "00Z\r\n
+    DTEND:" . $date . "T" . $endTime . "00Z\r\n
+    SUMMARY:" . $subject . "\r\n
+    ORGANIZER;CN=" . $organizer . ":mailto:" . $organizer_email . "\r\n
+    LOCATION:" . $location . "\r\n
+    DESCRIPTION:" . $desc . "\r\n
+    ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN" . $participant_name_1 . ";X-NUM-GUESTS=0:MAILTO:" . $participant_email_1 . "\r\n
+    ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN" . $participant_name_2 . ";X-NUM-GUESTS=0:MAILTO:" . $participant_email_2 . "\r\n
+    END:VEVENT\r\n
+    END:VCALENDAR\r\n";
+
+        $headers .= $message;
+        $mailsent = mail($to, $subject, $message, $headers);
+
+        return ($mailsent) ? (true) : (false);
+
+//        $from_name = "Kevin";        
+//        $from_address = "kevin_sawicke@swifttrans.com";        
+//        $to_name = "Kevin";        
+//        $to_address = "kevin_sawicke@swifttrans.com";        
+//        $startTime = "01/15/2016 08:00:00";        
+//        $endTime = "01/15/2016 13:00:00";        
+//        $subject = "My Test Subject";        
+//        $description = "My Awesome Description";        
+//        $location = "TESTING LOCATION";
+//        $this->sendIcalEvent($from_name, $from_address, $to_name, $to_address, $startTime, $endTime, $subject, $description, $location);
+    }
+
+    protected function sendIcalEvent($from_name, $from_address, $to_name, $to_address, $startTime, $endTime, $subject, $description, $location) {
+        $domain = 'swifttrans.com';
+
+        //Create Email Headers
+        $mime_boundary = "----Meeting Booking----" . MD5(TIME());
+
+        $headers = "From: " . $from_name . " <" . $from_address . ">\n";
+        $headers .= "Reply-To: " . $from_name . " <" . $from_address . ">\n";
+        $headers .= "MIME-Version: 1.0\n";
+        $headers .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
+        $headers .= "Content-class: urn:content-classes:calendarmessage\n";
+
+        //Create Email Body (HTML)
+        $message = "--$mime_boundary\r\n";
+        $message .= "Content-Type: text/html; charset=UTF-8\n";
+        $message .= "Content-Transfer-Encoding: 8bit\n\n";
+        $message .= "<html>\n";
+        $message .= "<body>\n";
+        $message .= '<p>Dear ' . $to_name . ',</p>';
+        $message .= '<p>' . $description . '</p>';
+        $message .= "</body>\n";
+        $message .= "</html>\n";
+        $message .= "--$mime_boundary\r\n";
+
+        $ical = 'BEGIN:VCALENDAR' . "\r\n" .
+                'PRODID:-//Microsoft Corporation//Outlook 10.0 MIMEDIR//EN' . "\r\n" .
+                'VERSION:2.0' . "\r\n" .
+                'METHOD:REQUEST' . "\r\n" .
+                'BEGIN:VTIMEZONE' . "\r\n" .
+                'TZID:Eastern Time' . "\r\n" .
+                'BEGIN:STANDARD' . "\r\n" .
+                'DTSTART:20091101T020000' . "\r\n" .
+                'RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=11' . "\r\n" .
+                'TZOFFSETFROM:-0400' . "\r\n" .
+                'TZOFFSETTO:-0500' . "\r\n" .
+                'TZNAME:EST' . "\r\n" .
+                'END:STANDARD' . "\r\n" .
+                'BEGIN:DAYLIGHT' . "\r\n" .
+                'DTSTART:20090301T020000' . "\r\n" .
+                'RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=2SU;BYMONTH=3' . "\r\n" .
+                'TZOFFSETFROM:-0500' . "\r\n" .
+                'TZOFFSETTO:-0400' . "\r\n" .
+                'TZNAME:EDST' . "\r\n" .
+                'END:DAYLIGHT' . "\r\n" .
+                'END:VTIMEZONE' . "\r\n" .
+                'BEGIN:VEVENT' . "\r\n" .
+                'ORGANIZER;CN="' . $from_name . '":MAILTO:' . $from_address . "\r\n" .
+                'ATTENDEE;CN="' . $to_name . '";ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:' . $to_address . "\r\n" .
+                'LAST-MODIFIED:' . date("Ymd\TGis") . "\r\n" .
+                'UID:' . date("Ymd\TGis", strtotime($startTime)) . rand() . "@" . $domain . "\r\n" .
+                'DTSTAMP:' . date("Ymd\TGis") . "\r\n" .
+                'DTSTART;TZID="Eastern Time":' . date("Ymd\THis", strtotime($startTime)) . "\r\n" .
+                'DTEND;TZID="Eastern Time":' . date("Ymd\THis", strtotime($endTime)) . "\r\n" .
+                'TRANSP:OPAQUE' . "\r\n" .
+                'SEQUENCE:1' . "\r\n" .
+                'SUMMARY:' . $subject . "\r\n" .
+                'LOCATION:' . $location . "\r\n" .
+                'CLASS:PUBLIC' . "\r\n" .
+                'PRIORITY:5' . "\r\n" .
+                'BEGIN:VALARM' . "\r\n" .
+                'TRIGGER:-PT15M' . "\r\n" .
+                'ACTION:DISPLAY' . "\r\n" .
+                'DESCRIPTION:Reminder' . "\r\n" .
+                'END:VALARM' . "\r\n" .
+                'END:VEVENT' . "\r\n" .
+                'END:VCALENDAR' . "\r\n";
+        $message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST' . "\n";
+        $message .= "Content-Transfer-Encoding: 8bit\n\n";
+        $message .= $ical;
+
+        $mailsent = mail($to_address, $subject, $message, $headers);
+
+        return ($mailsent) ? (true) : (false);
+    }
+
 }

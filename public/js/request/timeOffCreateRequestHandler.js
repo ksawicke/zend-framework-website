@@ -1200,14 +1200,16 @@ var timeOffCreateRequestHandler = new function()
     	})
         .on("select2:open", function (e) {
             //console.log("SELECT2 OPENED");
-            $("span").remove(".select2CustomTag");
-            var $filter = 
-                '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
-                '<input type="radio" name="directReportFilter" value="B" checked> Both&nbsp;&nbsp;&nbsp;' +
-                '<input type="radio" name="directReportFilter" value="D"> Direct Reports&nbsp;&nbsp;&nbsp;' +
-                '<input type="radio" name="directReportFilter" value="I"> Indirect Reports&nbsp;&nbsp;&nbsp;' +
-                '</form>';
-            $("<span class='select2CustomTag' style='padding-left:6px;'>" + $filter + "</span>").insertBefore('.select2-results');
+            if(loggedInUserData.IS_LOGGED_IN_USER_PAYROLL==="N") {
+                $("span").remove(".select2CustomTag");
+                var $filter = 
+                    '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
+                    '<input type="radio" name="directReportFilter" value="B"' + ((directReportFilter==='B')?' checked':'') + '> Both&nbsp;&nbsp;&nbsp;' +
+                    '<input type="radio" name="directReportFilter" value="D"' + ((directReportFilter==='D')?' checked':'') + '> Direct Reports&nbsp;&nbsp;&nbsp;' +
+                    '<input type="radio" name="directReportFilter" value="I"' + ((directReportFilter==='I')?' checked':'') + '> Indirect Reports&nbsp;&nbsp;&nbsp;' +
+                    '</form>';
+                $("<span class='select2CustomTag' style='padding-left:6px;'>" + $filter + "</span>").insertBefore('.select2-results');
+            }
     	})
         .on("select2:close", function (e) {
             //console.log("SELECT2 CLOSED");

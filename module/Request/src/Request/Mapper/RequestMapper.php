@@ -933,6 +933,9 @@ class RequestMapper implements RequestMapperInterface {
         $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql($this->dbAdapter, $rawSql);
         $requestReturnData['request_id'] = $requestId;
+        
+        // Send calendar invites for this time off to appropriate individual(s)
+        
 
         return $requestReturnData;
     }
