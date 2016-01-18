@@ -102,10 +102,33 @@ class RequestController extends AbstractActionController
 
     public function outlookAction()
     {
-        $isSent = \Request\Helper\OutlookHelper::addToCalendar();
-//        $isSent2 = \Request\Helper\OutlookHelper::sendCal();
+//        $isSent = \Request\Helper\OutlookHelper::addToCalendar();
+//        var_dump($isSent);
+        
+        /**
+         * 01/15/2016 sawik Tested thoroughly and this seems to work.
+         * Let's try using this block for each day of approved request.
+         * Insert dynamic info as needed.
+         */
+        $description = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 02/02/2016 8.00 PTO; 02/03/2016 2.00 SICK + 6.00 PTO; 02/04/2016 8.00 BEREAVEMENT';
+        
+        $outlookHelper = new \Request\Helper\OutlookHelper();
+        $outlookHelper->setStartDate('20160202'); // date in yyyymmdd format
+        $outlookHelper->setEndDate('20160205'); // date in yyyymmdd format
+        $outlookHelper->setSubject('[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF');
+        $outlookHelper->setOrganizerName('Kevin Sawicke'); // Employee name
+        $outlookHelper->setOrganizerEmail('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setToEmail('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setParticipantName1('Kevin Sawicke'); // Employee name
+        $outlookHelper->setParticipantEmail1('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setParticipantName2('Mary Jackson'); // Manager name
+        $outlookHelper->setParticipantEmail2('mary_jackson@swifttrans.com'); // Manager email
+        $outlookHelper->setDescription($description); // date in mm/dd/yyyy format; 2nd line should be request i.e. 6.00 PTO + 2.00 Sick
+        
+        $isSent = $outlookHelper->addToCalendar();
+        
         var_dump($isSent);
-//        var_dump($isSent2);
+        
         die("@@@");
     }
     
