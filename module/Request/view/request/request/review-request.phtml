@@ -1,27 +1,18 @@
-<h3>Approve Request <?php echo $requestId; ?></h3>
+<h3>Review Request <?php echo $requestId; ?></h3>
 
 <form class="form-horizontal">
 
   <div class="form-group">
-    <label class="col-sm-3 control-label">Name</label>
+    <label class="col-sm-3 control-label">For</label>
     <div class="col-sm-9">
-      <?php echo $pendingRequestData['EMPLOYEE']['FIRST_NAME']; ?>&nbsp;<?php echo $pendingRequestData['EMPLOYEE']['LAST_NAME']; ?>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label for="inputPassword3" class="col-sm-3 control-label">Position</label>
-    <div class="col-sm-9">
-      <?php echo $pendingRequestData['EMPLOYEE']['POSITION_TITLE']; ?>
+      <?php echo $pendingRequestData['EMPLOYEE']['FIRST_NAME']; ?>&nbsp;<?php echo $pendingRequestData['EMPLOYEE']['LAST_NAME']; ?>&nbsp;(<?php echo $pendingRequestData['EMPLOYEE']['EMPLOYEE_NUMBER']; ?>)&nbsp;-&nbsp;<?php echo $pendingRequestData['EMPLOYEE']['POSITION_TITLE']; ?>
     </div>
   </div>
   
   <div class="form-group">
     <label for="inputPassword3" class="col-sm-3 control-label">Requested By</label>
     <div class="col-sm-9">
-      <?php
-      echo $pendingRequestData['REQUESTER']['FIRST_NAME'] . ' ' . $pendingRequestData['REQUESTER']['LAST_NAME'];
-      ?>
+      <?php echo $pendingRequestData['REQUESTER']['FIRST_NAME'] . ' ' . $pendingRequestData['REQUESTER']['LAST_NAME']; ?>&nbsp;(<?php echo $pendingRequestData['REQUESTER']['EMPLOYEE_NUMBER']; ?>)&nbsp;-&nbsp;<?php echo $pendingRequestData['REQUESTER']['POSITION_TITLE']; ?>
     </div>
   </div>
   

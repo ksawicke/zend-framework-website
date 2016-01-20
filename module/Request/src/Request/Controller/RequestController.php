@@ -46,6 +46,15 @@ class RequestController extends AbstractActionController
         'ApprovedNoPay' => 'timeOffApprovedNoPay'
     ];
     
+    protected static $codesToKronos = [
+        'P' => 'PTO',
+        'R' => 'GFVAC',
+        'B' => 'BR',
+        'K' => 'FHP',
+        'S' => 'SK',
+        'V' => 'VA'
+    ];
+    
     public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
     {
         $this->requestService = $requestService;
@@ -102,19 +111,33 @@ class RequestController extends AbstractActionController
 
     public function outlookAction()
     {
-//        $isSent = \Request\Helper\OutlookHelper::addToCalendar();
-//        var_dump($isSent);
+        $employeeSchedules = new \Request\Model\EmployeeSchedules();
+        $employeeSchedules->getAll(['test'=>'ww']);
+        die('@@');
         
-        /**
-         * 01/15/2016 sawik Tested thoroughly and this seems to work.
-         * Let's try using this block for each day of approved request.
-         * Insert dynamic info as needed.
-         */
-        $description = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 02/02/2016 8.00 PTO; 02/03/2016 2.00 SICK + 6.00 PTO; 02/04/2016 8.00 BEREAVEMENT';
+        $description = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 01/25/2016 8.00 PTO; 01/26/2016 8.00 PTO; 01/27/2016 8.00 PTO; 01/28/2016 8.00 PTO; 01/29/2016 8.00 PTO';
+        
+        $requestObject = [
+            'datesRequested' => [ ['start' => '20160125', 'end' => '20160129' ],
+                                  ['start' => '20160201', 'end' => '20160205' ]
+                                ],
+            'subject' =>        '[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF',
+            'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 01/25/2016 8.00 PTO; 01/26/2016 8.00 PTO; 01/27/2016 8.00 PTO; 01/28/2016 8.00 PTO; 01/29/2016 8.00 PTO',
+            'organizer' =>      [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ],
+            'to' =>             'kevin_sawicke@swifttrans.com',
+            'participants' =>   [ ['name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ],
+                                  ['name' => 'Mary Jackson', 'email' => 'mary_jackson@swifttrans.com' ]
+                                ]
+        ];
+        
+        echo '<pre>requestObject';
+        print_r($requestObject);
+        echo '</pre>';
+        die("@@");
         
         $outlookHelper = new \Request\Helper\OutlookHelper();
-        $outlookHelper->setStartDate('20160202'); // date in yyyymmdd format
-        $outlookHelper->setEndDate('20160205'); // date in yyyymmdd format
+        $outlookHelper->setStartDate('20160125'); // date in yyyymmdd format
+        $outlookHelper->setEndDate('20160129'); // date in yyyymmdd format
         $outlookHelper->setSubject('[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF');
         $outlookHelper->setOrganizerName('Kevin Sawicke'); // Employee name
         $outlookHelper->setOrganizerEmail('kevin_sawicke@swifttrans.com'); // Employee email
@@ -128,6 +151,26 @@ class RequestController extends AbstractActionController
         $isSent = $outlookHelper->addToCalendar();
         
         var_dump($isSent);
+        
+        
+        
+        $description2 = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 02/01/2016 8.00 PTO; 02/02/2016 8.00 PTO; 02/03/2016 8.00 PTO; 02/04/2016 8.00 PTO; 02/05/2016 8.00 PTO';
+        
+        $outlookHelper->setStartDate('20160201'); // date in yyyymmdd format
+        $outlookHelper->setEndDate('20160205'); // date in yyyymmdd format
+        $outlookHelper->setSubject('[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF');
+        $outlookHelper->setOrganizerName('Kevin Sawicke'); // Employee name
+        $outlookHelper->setOrganizerEmail('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setToEmail('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setParticipantName1('Kevin Sawicke'); // Employee name
+        $outlookHelper->setParticipantEmail1('kevin_sawicke@swifttrans.com'); // Employee email
+        $outlookHelper->setParticipantName2('Mary Jackson'); // Manager name
+        $outlookHelper->setParticipantEmail2('mary_jackson@swifttrans.com'); // Manager email
+        $outlookHelper->setDescription($description2); // date in mm/dd/yyyy format; 2nd line should be request i.e. 6.00 PTO + 2.00 Sick
+        
+        $isSent2 = $outlookHelper->addToCalendar();
+        
+        var_dump($isSent2);
         
         die("@@@");
     }
@@ -191,6 +234,35 @@ class RequestController extends AbstractActionController
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'submitApprovalResponse':
+                    $calendarInviteData = $this->requestService->findRequestCalendarInviteData($request->getPost()->request_id);                    
+                    $descriptionString = '';
+                    foreach($calendarInviteData['datesRequested'] as $group => $data) {
+                        // date("Ymd", strtotime($event['start']))
+                        $descriptionString .= 
+                            ($data['start']!==$data['end']) ?    
+                            $data['hours'] . " " . $data['type'] . ' on ' . date("m/d/Y", strtotime($data['start'])) . '; ' :
+                            $data['hours'] . " " . $data['type'] . ' daily from ' . date("m/d/Y", strtotime($data['start'])) . ' - ' . date("m/d/Y", strtotime($data['end'])) . '; ';
+                    }
+                    $descriptionString = substr($descriptionString, 0, -2);
+                    
+                    $for = trim($calendarInviteData['request']['COMMON_NAME']) . " " . trim($calendarInviteData['request']['LAST_NAME']);
+                    $forEmail = trim($calendarInviteData['request']['EMAIL_ADDRESS']);
+                    $manager = trim($calendarInviteData['request']['MANAGER_FIRST_NAME']) . " " . trim($calendarInviteData['request']['MANAGER_LAST_NAME']);
+                    $managerEmail = trim($calendarInviteData['request']['MANAGER_EMAIL_ADDRESS']);
+                    $requestObject = [
+                        'datesRequested' => $calendarInviteData['datesRequested'],
+                        'subject' =>        '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF',
+                        'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that ' . ucwords(strtolower($for)) . ' is taking off the following time off: ' . $descriptionString,
+                        'organizer' =>      [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ], // 'name' => ucwords(strtolower($for)), 'email' => $forEmail
+                        'to' =>             'kevin_sawicke@swifttrans.com', // ,'.$forEmail.",".$managerEmail
+                        'participants' =>   [ [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ] ]/*[ ['name' => ucwords(strtolower($for)), 'email' => $forEmail ],
+                                              ['name' => ucwords(strtolower($manager)), 'email' => $managerEmail ]
+                                            ]*/
+                    ];
+
+                    $outlookHelper = new \Request\Helper\OutlookHelper();
+                    $isSent = $outlookHelper->addToCalendar($requestObject);
+                    
                     $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
@@ -249,6 +321,11 @@ class RequestController extends AbstractActionController
                     break;
                     
                 case 'submitTimeoffRequest':
+//                    echo '<pre>';
+//                    print_r($request->getPost());
+//                    echo '</pre>';
+//                    die("@@");
+                    
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     $requesterEmployeeNumber = trim($request->getPost()->loggedInUserData['EMPLOYEE_NUMBER']);
                     

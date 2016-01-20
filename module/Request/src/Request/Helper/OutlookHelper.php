@@ -35,25 +35,25 @@ class OutlookHelper {
     public function __construct()
     {
         $this->startTime = '0000';
-        $this->endTime = '0000';      
+        $this->endTime = '2359';      
     }
     
-    /**
-     * Add appointment for day, all day event
-     * @return type
-     */
-    public function addToCalendar()
+    public function outputBeginVCalendar()
     {
-        $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-//        $headers .= 'Content-Disposition: inline; filename=calendar.ics';
-        $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
-        
-        $message = "BEGIN:VCALENDAR
+        return "BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//SwiftTransportation//TimeoffRequests/NONSGML v1.0//EN\r\n
-METHOD:REQUEST\r\n
-
-BEGIN:VTIMEZONE
+METHOD:REQUEST\r\n\r\n";
+    }
+    
+    public function outputEndVCalendar()
+    {
+        return "END:VCALENDAR";
+    }
+    
+    public function outputVTimezone()
+    {
+        return "BEGIN:VTIMEZONE
 TZID:America/Phoenix
 X-LIC-LOCATION:America/Phoenix
 BEGIN:DAYLIGHT
@@ -70,35 +70,74 @@ TZNAME:PST
 DTSTART:19701101T020000
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
-END:VTIMEZONE
-
-BEGIN:VEVENT
-UID:" . md5(uniqid(mt_rand(), true)) . "swifttrans.com\r\n
-DTSTART;TZID=America/Phoenix:" . $this->startDate . "T" . $this->startTime . "00
-DTEND;TZID=America/Phoenix:" . $this->endDate . "T" . $this->endTime . "00
-DTSTAMP:20160201
-SUMMARY:" . $this->getSubject() . "\r\n
-LOCATION:" . $this->getLocation() . "\r\n
-DESCRIPTION:" . $this->getDescription() . "\r\n
-STATUS:CONFIRMED\r\n
-X-MICROSOFT-CDO-BUSYSTATUS:FREE\r\n
-X-MICROSOFT-CDO-INSTTYPE:0\r\n
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE\r\n
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\n
-FBTYPE:FREE\r\n
-ORGANIZER;CN=" . $this->getOrganizerName() . ":mailto:" . $this->getOrganizerEmail() . "\r\n
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN" . $this->getParticipantName1() . ";X-NUM-GUESTS=0:MAILTO:" . $this->getParticipantEmail1() . "\r\n
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN" . $this->getParticipantName2() . ";X-NUM-GUESTS=0:MAILTO:" . $this->getParticipantEmail2() . "\r\n
-END:VEVENT
-END:VCALENDAR";
+END:VTIMEZONE\r\n\r\n";
+    }
+    
+    public function outputUID()
+    {
+        return md5(uniqid(mt_rand(), true)) . "swifttrans.com";
+    }
+    
+    public function outputVEvents($requestObject)
+    {
+        $dtStamp = date('Ymd');
+        $vEvents = '';
+        $participantsText = '';
+        foreach($requestObject['participants'] as $pctr => $participant) {
+            $participantsText = "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN" .
+            $requestObject['participants'][$pctr]['name'] .
+            ";X-NUM-GUESTS=0:MAILTO:" .
+            $requestObject['participants'][$pctr]['email'];
+        }
+            
+        foreach($requestObject['datesRequested'] as $key => $event) {
+            $startDate = date("Ymd", strtotime($event['start']));
+            $endDate = date("Ymd", strtotime($event['end']));
+            
+            $vEvents .= "BEGIN:VEVENT
+UID:" . $this->outputUID() . "
+DTSTART;TZID=America/Phoenix:" . $startDate . "T" . $this->startTime . "00
+DTEND;TZID=America/Phoenix:" . $endDate . "T" . $this->endTime . "00
+DTSTAMP:" . $dtStamp . "
+SUMMARY:" . $requestObject['subject'] . "
+LOCATION:
+DESCRIPTION:" . $requestObject['description'] . "
+STATUS:CONFIRMED
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+FBTYPE:FREE
+ORGANIZER;CN=" . $requestObject['organizer']['name'] . ":mailto:" . $requestObject['organizer']['email'] . "\r\n" .
+                $participantsText .
+                "\r\nEND:VEVENT\r\n\r\n";
+        }
         
-        $headers .= $message;
+        return $vEvents;
+    }
+    
+    /**
+     * Add appointment for day, all day event
+     * @return type
+     */
+    public function addToCalendar($requestObject)
+    {
+        $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
+//        $headers .= 'Content-Disposition: inline; filename=calendar.ics';
+        $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
         
-        echo '<pre>';
-        print_r($headers);
-        echo '</pre>';
+        $vEvents = $this->outputVEvents($requestObject);
         
-        $mailsent = mail($this->getToEmail(), $this->getSubject(), $message, $headers);
+        $message = $this->outputBeginVCalendar().
+            $this->outputVTimezone() .
+            $this->outputVEvents($requestObject) .
+            $this->outputEndVCalendar();
+        
+//        var_dump($requestObject);
+//        die($message);
+        
+        $headers .= $message;        
+        $mailsent = mail($requestObject['to'], $requestObject['subject'], $message, $headers);
 
         return ($mailsent) ? (true) : (false);
     }

@@ -12,9 +12,15 @@ interface RequestServiceInterface
     
     public function findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType);
     
+    public function findRequestCalendarInviteData($requestId);
+    
     public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId);
 
     public function findTimeOffBalancesByManager($managerEmployeeNumber);
+    
+    public function findEmployeeSchedule($employeeNumber);
+    
+    public function makeDefaultEmployeeSchedule($employeeNumber);
     
     public function findManagerEmployees($managerEmployeeNumber, $search, $directReportFilter);
     
