@@ -35,4 +35,8 @@ interface RequestServiceInterface
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber);
     
     public function submitApprovalResponse($action, $requestId, $reviewRequestReason);
+    
+    public function checkHoursRequestedPerCategory($requestId);
+    
+    public function logEntry($requestId, $employeeNumber, $comment);
 }

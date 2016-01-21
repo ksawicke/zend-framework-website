@@ -102,4 +102,14 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->submitApprovalResponse($action, $requestId, $reviewRequestReason);
     }
+    
+    public function checkHoursRequestedPerCategory($requestId)
+    {
+        return $this->requestMapper->checkHoursRequestedPerCategory($requestId);
+    }
+    
+    public function logEntry($requestId, $employeeNumber, $comment)
+    {
+        return $this->requestMapper->logEntry($requestId, $employeeNumber, $comment);
+    }
 }

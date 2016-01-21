@@ -60,7 +60,8 @@ class RequestMapper implements RequestMapperInterface {
      * @param HydratorInterface $hydrator
      * @param PostInterface $postPrototype
      */
-    public function __construct(AdapterInterface $dbAdapter, HydratorInterface $hydrator, RequestInterface $requestPrototype) {
+    public function __construct(AdapterInterface $dbAdapter, HydratorInterface $hydrator, RequestInterface $requestPrototype)
+    {
         $this->dbAdapter = $dbAdapter;
         $this->hydrator = $hydrator;
         $this->requestPrototype = $requestPrototype;
@@ -271,7 +272,8 @@ class RequestMapper implements RequestMapperInterface {
      */
     // TODO: sawik 12/04/15 Change the join to join on the actual employee id,
     // hardcoded here.
-    public function findTimeOffBalancesByEmployee($employeeNumber = null) {
+    public function findTimeOffBalancesByEmployee($employeeNumber = null)
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
                 ->columns($this->employeeColumns)
@@ -368,15 +370,16 @@ class RequestMapper implements RequestMapperInterface {
         $result['EMPLOYEE_NUMBER'] = trim($result['EMPLOYEE_NUMBER']);
         $result['POSITION_TITLE'] = trim($result['POSITION_TITLE']);
 
-//        if(!$this->findEmployeeSchedule($employeeNumber)) {
-//            $this->makeDefaultEmployeeSchedule($employeeNumber);
-//        }
-//        $result['EMPLOYEE_SCHEDULE'] = 'woo'; //$this->findEmployeeSchedule($employeeNumber);
+        if(!$this->findEmployeeSchedule($employeeNumber)) {
+            $this->makeDefaultEmployeeSchedule($employeeNumber);
+        }
+        $result['EMPLOYEE_SCHEDULE'] = $this->findEmployeeSchedule($employeeNumber);
 
         return $result;
     }
 
-    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A") {
+    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A")
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
                 ->columns($this->timeoffRequestEntryColumns)
@@ -396,7 +399,8 @@ class RequestMapper implements RequestMapperInterface {
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
      */
-    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly") {
+    public function findTimeOffApprovedRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly")
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
                 ->columns($this->timeoffRequestEntryColumns)
@@ -502,18 +506,24 @@ class RequestMapper implements RequestMapperInterface {
             }
         }
         
+//        $for = trim($result2['COMMON_NAME']) . " " . trim($result2['LAST_NAME']);
+//        $forEmail = trim($result2['EMAIL_ADDRESS']);
+//        $manager = trim($result2['MANAGER_FIRST_NAME']) . " " . trim($result2['MANAGER_LAST_NAME']);
+//        $managerEmail = trim($result2['MANAGER_EMAIL_ADDRESS']);
+        
         $return = [ 'datesRequested' => $datesRequested,
-                    'request' => $result2
+                    'for' => $result2
                   ];
 //        echo '<pre>';
-//        print_r($return);
+//        print_r($result2);
 //        echo '</pre>';
 //        die("@@");
         
         return $return;
     }
 
-    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly", $requestId = null) {
+    public function findTimeOffPendingRequestsByEmployee($employeeNumber = null, $returnType = "datesOnly", $requestId = null)
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
             ->columns($this->timeoffRequestEntryColumns)
@@ -776,7 +786,8 @@ class RequestMapper implements RequestMapperInterface {
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffCalendarByManager()
      */
-    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null) {
+    public function findTimeOffCalendarByManager($managerEmployeeNumber = null, $startDate = null, $endDate = null)
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
                 ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
@@ -800,7 +811,8 @@ class RequestMapper implements RequestMapperInterface {
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByManager()
      */
-    public function findTimeOffBalancesByManager($managerEmployeeId = null) {
+    public function findTimeOffBalancesByManager($managerEmployeeId = null)
+    {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeId . "')"]) // (care_get_manager_employees('002', '   229589', ''))
             ->columns(['EMPLOYEE_NUMBER'])
@@ -872,7 +884,8 @@ class RequestMapper implements RequestMapperInterface {
         return false;
     }
 
-    public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null) {
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null)
+    {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
         $where = "WHERE (
             employee.PRER = '002' and
@@ -955,7 +968,8 @@ class RequestMapper implements RequestMapperInterface {
         return $employeeData;
     }
 
-    public function findQueuesByManager($managerEmployeeNumber = null) {
+    public function findQueuesByManager($managerEmployeeNumber = null)
+    {
         $rawSql = "SELECT
             request.REQUEST_ID AS REQUEST_ID,
             request.EMPLOYEE_NUMBER,
@@ -1000,14 +1014,16 @@ class RequestMapper implements RequestMapperInterface {
         return $employeeData;
     }
 
-    public function isManager($employeeNumber = null) {
+    public function isManager($employeeNumber = null)
+    {
         $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
         $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
 
         return $isSupervisorData[0]->IS_MANAGER;
     }
 
-    public function isPayroll($employeeNumber = null) {
+    public function isPayroll($employeeNumber = null)
+    {
         $rawSql = "SELECT
             (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL
             FROM PRPMS
@@ -1018,7 +1034,8 @@ class RequestMapper implements RequestMapperInterface {
         return $isSupervisorData[0]->IS_MANAGER;
     }
 
-    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null) {
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)
+    {
         $requestReturnData = ['request_id' => null];
 
         /** Insert record into TIMEOFF_REQUESTS * */
@@ -1061,7 +1078,8 @@ class RequestMapper implements RequestMapperInterface {
         return $requestReturnData;
     }
 
-    public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null) {
+    public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null)
+    {
         $requestReturnData = ['request_id' => null];
         $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql($this->dbAdapter, $rawSql);
@@ -1071,6 +1089,57 @@ class RequestMapper implements RequestMapperInterface {
         
 
         return $requestReturnData;
+    }
+    
+    public function checkHoursRequestedPerCategory($requestId = null)
+    {
+        $rawSql = "SELECT
+            request.REQUEST_ID AS ID,
+            request.EMPLOYEE_NUMBER,
+            request.REQUEST_REASON AS REASON,
+            (
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+
+            ) AS TOTAL,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'P'
+            ) AS PTO,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'K'
+            ) AS FLOAT,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'S'
+            ) AS SICK,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'R'
+            ) AS GRANDFATHERED
+            FROM TIMEOFF_REQUESTS request
+            WHERE request.REQUEST_ID = '100005'";
+        
+        $requestData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
+
+        return $requestData;
+    }
+    
+    public function logEntry($requestId = null, $employeeNumber = null, $comment = null)
+    {
+        $logEntry = new Insert('timeoff_request_log');
+        $logEntry->values([
+            'REQUEST_ID' => $requestId,
+            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'COMMENT' => $comment
+        ]);
+        $sql = new Sql($this->dbAdapter);
+        $stmt = $sql->prepareStatementForSqlObject($logEntry);
+        try {
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
     }
 
 }

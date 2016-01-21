@@ -34,4 +34,8 @@ interface RequestMapperInterface
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null);
     
     public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null);
+    
+    public function checkHoursRequestedPerCategory($requestId = null);
+    
+    public function logEntry($requestId = null, $employeeNumber = null, $comment = null);
 }
