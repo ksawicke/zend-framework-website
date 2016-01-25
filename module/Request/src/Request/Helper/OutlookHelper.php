@@ -101,34 +101,30 @@ END:VTIMEZONE\r\n\r\n";
         return substr($descriptionString, 0, -2);
     }
     
-    public function outputVEvents($requestObject)
+    public function outputVEvents($request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText)
     {
         $dtStamp = date('Ymd');
         $vEvents = '';
-        $participantsText = $this->outputParticipantsText($requestObject);
-            
-        foreach($requestObject['datesRequested'] as $key => $event) {
-            $startDate = date("Ymd", strtotime($event['start']));
-            $endDate = date("Ymd", strtotime($event['end']));
-            
-            $vEvents .= "BEGIN:VEVENT
+        $startDate = date("Ymd", strtotime($request['start']));
+        $endDate = date("Ymd", strtotime($request['end']));
+
+        $vEvents .= "BEGIN:VEVENT
 UID:" . $this->outputUID() . "
 DTSTART;TZID=America/Phoenix:" . $startDate . "T" . $this->startTime . "00
 DTEND;TZID=America/Phoenix:" . $endDate . "T" . $this->endTime . "00
 DTSTAMP:" . $dtStamp . "
-SUMMARY:" . $requestObject['subject'] . "
+SUMMARY:" . $subject . "
 LOCATION:
-DESCRIPTION:" . $requestObject['description'] . "
+DESCRIPTION:" . $descriptionString . "
 STATUS:CONFIRMED
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-INSTTYPE:0
 X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
 FBTYPE:FREE
-ORGANIZER;CN=" . $requestObject['organizer']['name'] . ":mailto:" . $requestObject['organizer']['email'] . "\r\n" .
-                $participantsText .
-                "\r\nEND:VEVENT\r\n\r\n";
-        }
+ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
+            $participantsText .
+            "\r\nEND:VEVENT\r\n\r\n";
         
         return $vEvents;
     }
@@ -143,64 +139,27 @@ ORGANIZER;CN=" . $requestObject['organizer']['name'] . ":mailto:" . $requestObje
         $forEmail = trim($requestObject['for']['EMAIL_ADDRESS']);
         $manager = trim($requestObject['for']['MANAGER_FIRST_NAME']) . " " . trim($requestObject['for']['MANAGER_LAST_NAME']);
         $managerEmail = trim($requestObject['for']['MANAGER_EMAIL_ADDRESS']);
-        
-        foreach($requestObject['datesRequested'] as $group => $data) {
-//            Array
-//            (
-//                [start] => 2016-02-01
-//                [end] => 2016-02-01
-//                [type] => PTO
-//                [hours] => 8.0
-//            )
-            $descriptionString = $this->outputDescriptionString($data);
-            echo '<pre>' . $descriptionString;
-            print_r($data);
-            echo '</pre>';
-//            echo $descriptionString;
-//            echo '<pre>LOOP';
-//            print_r($data);
-//            echo '</pre>';
-        }
-        
-//        echo '<pre>';
-//        print_r($requestObject);
-//        echo '</pre>';
-//        echo $requestObject['for']['LAST_NAME'];
-        die("@@@");
-        
-//        $descriptionString = '';
-//        foreach($requestObject['datesRequested'] as $group => $data) {
-//            // date("Ymd", strtotime($event['start']))
-//            $descriptionString .= 
-//                ($data['start']!==$data['end']) ?    
-//                $data['hours'] . " " . $data['type'] . ' on ' . date("m/d/Y", strtotime($data['start'])) . '; ' :
-//                $data['hours'] . " " . $data['type'] . ' daily from ' . date("m/d/Y", strtotime($data['start'])) . ' - ' . date("m/d/Y", strtotime($data['end'])) . '; ';
-//        }
-//        $descriptionString = substr($descriptionString, 0, -2);
-        
-//        echo $for . '<br />';
-//        echo $forEmail . '<br />';
-//        echo $manager . '<br />';
-//        echo $managerEmail . '<br />';
-//        die("@@@");
-        
-        $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-//        $headers .= 'Content-Disposition: inline; filename=calendar.ics';
-        $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
-        
-        $vEvents = $this->outputVEvents($requestObject);
-        
-        $message = $this->outputBeginVCalendar().
-            $this->outputVTimezone() .
-            $this->outputVEvents($requestObject) .
-            $this->outputEndVCalendar();
-        
-//        var_dump($requestObject);
-//        die($message);
-        
-        $headers .= $message;        
-        $mailsent = mail($requestObject['to'], $requestObject['subject'], $message, $headers);
+        $subject = '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF';
 
+        foreach($requestObject['datesRequested'] as $key => $request) {
+            $descriptionString = $this->outputDescriptionString($request);
+            $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
+            $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
+            $participantsText = $this->outputParticipantsText($requestObject);
+            
+            $message = $this->outputBeginVCalendar() .
+                $this->outputVTimezone() .
+                $this->outputVEvents($request, $subject, $descriptionString, $requestObject['organizer']['name'], $requestObject['organizer']['email'], $participantsText) .
+                $this->outputEndVCalendar();
+        
+            $headers .= $message;        
+//            echo $message . '<br /><br /><br />';
+            $mailsent = mail($requestObject['to'], $subject, $message, $headers);
+        }
+//        die("@@@@@@");
+        
+//        die("END TEST EMAIL OUTPUT");
+        
         return ($mailsent) ? (true) : (false);
     }
     /****

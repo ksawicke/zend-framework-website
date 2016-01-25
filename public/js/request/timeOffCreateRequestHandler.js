@@ -64,7 +64,7 @@ var timeOffCreateRequestHandler = new function ()
                 'timeOffCivicDuty': 'Civic Duty',
                 'timeOffApprovedNoPay': 'Approved No Pay'
             },
-    directReportFilter = 'D';
+    directReportFilter = 'B';
 
     /**
      * Initializes binding
@@ -93,7 +93,7 @@ var timeOffCreateRequestHandler = new function ()
                             $("span").remove(".select2CustomTag");
                             var $filter =
                                     '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
-                                    //'<input type="radio" name="directReportFilter" value="B"' + ((directReportFilter==='B')?' checked':'') + '> Both&nbsp;&nbsp;&nbsp;' +
+                                    '<input type="radio" name="directReportFilter" value="B"' + ((directReportFilter==='B')?' checked':'') + '> Both&nbsp;&nbsp;&nbsp;' +
                                     '<input type="radio" name="directReportFilter" value="D"' + ((directReportFilter === 'D') ? ' checked' : '') + '> Direct Reports&nbsp;&nbsp;&nbsp;' +
                                     '<input type="radio" name="directReportFilter" value="I"' + ((directReportFilter === 'I') ? ' checked' : '') + '> Indirect Reports&nbsp;&nbsp;&nbsp;' +
                                     '</form>';

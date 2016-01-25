@@ -1,5 +1,5 @@
 <?php
-return [
+$config = [
     'service_manager' => [
         'factories' => [
             'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
@@ -163,3 +163,16 @@ return [
         ]
     ]
 ];
+
+// Test add new routes here to make it easier
+//$config['router']['routes'];
+$route = new \Request\Helper\RouteHelper();
+$config = $route->addNewRoute(
+    $config,
+    ['route' => '/request/view-my-requests',
+     'controller' => 'Request\Controller\Request',
+     'action' => 'viewMyRequests'
+    ]
+);
+
+return $config;

@@ -236,133 +236,50 @@ class RequestController extends AbstractActionController
                 case 'submitApprovalResponse':
                     $requestData = $this->requestService->checkHoursRequestedPerCategory($request->getPost()->request_id);
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($requestData['EMPLOYEE_NUMBER']);
+                    
+//                    var_dump($requestData);die("@@@");
+                    
                     $validationHelper = new \Request\Helper\ValidationHelper();
                     $payrollReviewRequired = $validationHelper->isPayrollReviewRequired($requestData, $employeeData);
                     
                     if($payrollReviewRequired) {
-                        // Log:
-                        // Payroll review required because of insufficient hours
-                    }
-                    /**
-                     * CHECK: Does employee have enough hours available for the categories being requested?
-                     * PTO
-                     *    If (PRPMS.PRVAC - PRPMS.PRVAT) > PTO_REQUESTED, ok
-                     * FLOAT
-                     *    If (PRPMS.PRSHA - PRPMS.PRSHT) > FLOAT_REQUESTED, ok
-                     * SICK
-                     *    If (PRPMS.PRSDA - PRPMS.PRSDT) > SICK_REQUESTED, ok
-                     * GF
-                     *    If (PRPMS.PRAC5E - PRPMS.PRAC5T) > GF_REQUESTED, ok
-                     * 
-                     * // If does not pass, route to Payroll for approval.
-                     * // Status in current system is "Pending Payroll"
-                     * // If passes, mark as approved and send calendar invites to "For" and Manager
-                     */
-                    echo '<pre>requestData';
-                    print_r($requestData);
-                    echo '</pre>';
-                    
-                    echo '<pre>employeeData';
-                    print_r($employeeData);
-                    echo '</pre>';
-                    die("^@^@^@^@^@^@");
-                    
-                    
-                    $calendarInviteData = $this->requestService->findRequestCalendarInviteData($request->getPost()->request_id); 
-//                    var_dump($calendarInviteData);
-//                    echo '#####' . trim($calendarInviteData['request']['EMPLOYEE_NUMBER']);
-//                    die("@");
-//                    $descriptionString = '';
-//                    foreach($calendarInviteData['datesRequested'] as $group => $data) {
-//                        // date("Ymd", strtotime($event['start']))
-//                        $descriptionString .= 
-//                            ($data['start']!==$data['end']) ?    
-//                            $data['hours'] . " " . $data['type'] . ' on ' . date("m/d/Y", strtotime($data['start'])) . '; ' :
-//                            $data['hours'] . " " . $data['type'] . ' daily from ' . date("m/d/Y", strtotime($data['start'])) . ' - ' . date("m/d/Y", strtotime($data['end'])) . '; ';
-//                    }
-//                    $descriptionString = substr($descriptionString, 0, -2);
-                    
-//                    $for = trim($calendarInviteData['request']['COMMON_NAME']) . " " . trim($calendarInviteData['request']['LAST_NAME']);
-//                    $forEmail = trim($calendarInviteData['request']['EMAIL_ADDRESS']);
-//                    $manager = trim($calendarInviteData['request']['MANAGER_FIRST_NAME']) . " " . trim($calendarInviteData['request']['MANAGER_LAST_NAME']);
-//                    $managerEmail = trim($calendarInviteData['request']['MANAGER_EMAIL_ADDRESS']);
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee(trim($calendarInviteData['for']['EMPLOYEE_NUMBER']));
-                    $requestObject = [
-                        'datesRequested' => $calendarInviteData['datesRequested'],
-                        'for' =>            $employeeData,
-//                        'subject' =>        '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF',
-//                        'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that ' . ucwords(strtolower($for)) . ' is taking off the following time off: ' . $descriptionString,
-                        'organizer' =>      [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ], // 'name' => ucwords(strtolower($for)), 'email' => $forEmail
-                        'to' =>             'kevin_sawicke@swifttrans.com', // ,'.$forEmail.",".$managerEmail
-                        'participants' =>   [ [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ] ]/*[ ['name' => ucwords(strtolower($for)), 'email' => $forEmail ],
-                                              ['name' => ucwords(strtolower($manager)), 'email' => $managerEmail ]
-                                            ]*/
-                    ];
-                    
-                    
-                    die($request->getPost()->request_id);
-//                    echo '<pre>employeeData';
-//                    print_r($employeeData);
-//                    echo '</pre>';
-                    
-                    echo '<pre>For';
-                    print_r($requestObject['for']);
-                    echo '</pre>';
-                    
-                    echo '<pre>datesRequested';
-                    print_r($requestObject['datesRequested']);
-                    echo '</pre>';
-                    
-                    
-                    
-                    die("#$#$#$");
-//                    
-//                    Created by Pablo Garcia/Phoenix/Swift on 11/17/2015 05:37:32 PM
-//                    Sent for manager approval to ->John Berg/Phoenix/Swift
-//                    $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
-//                    $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
-//                    $this->requestService->logEntry($requestReturnData['request_id'], $requesterEmployeeNumber, $comment);
-                    
-//                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    
-                    echo '<pre>';
-                    print_r($employeeData);
-                    echo '</pre>';
-                    die("#$#$#$");
-                    
-                    $comment2 = 'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData['MANAGER_FIRST_NAME']))) . " " . trim(ucwords(strtolower($employeeData['MANAGER_LAST_NAME'])));
-                    $this->requestService->logEntry($request->getPost()->request_id, $requesterEmployeeNumber, $comment2);
-                    
-                    echo $comment . '<br />';
-                    echo $comment2 . '<br />';
-                    die("@@");
-//                    $session->offsetSet('EMPLOYEE_NUMBER', trim($result[0]->EMPLOYEE_NUMBER));
-//                    $session->offsetSet('EMAIL_ADDRESS', strtolower(trim($result[0]->EMAIL_ADDRESS)));
-//                    $session->offsetSet('COMMON_NAME', ucwords(strtolower(trim($result[0]->COMMON_NAME))));
-//                    $session->offsetSet('FIRST_NAME', ucwords(strtolower(trim($result[0]->FIRST_NAME))));
-//                    $session->offsetSet('LAST_NAME', ucwords(strtolower(trim($result[0]->LAST_NAME))));
-//                    $session->offsetSet('USERNAME', strtolower(trim($result[0]->USERNAME)));
-//                    $session->offsetSet('POSITION_TITLE', trim($result[0]->POSITION_TITLE));
-//
-//                    $session->offsetSet('MANAGER_EMPLOYEE_NUMBER', trim($result[0]->MANAGER_EMPLOYEE_NUMBER));
-//                    $session->offsetSet('MANAGER_FIRST_NAME', ucwords(strtolower(trim($result[0]->MANAGER_FIRST_NAME))));
-//                    $session->offsetSet('MANAGER_LAST_NAME', ucwords(strtolower(trim($result[0]->MANAGER_LAST_NAME))));
-//                    $session->offsetSet('MANAGER_EMAIL_ADDRESS', strtolower(trim($result[0]->MANAGER_EMAIL_ADDRESS)));
-                    
-                    echo '<pre>';
-                    print_r($request->getPost());
-                    echo '</pre>';
-                    
-                    die("@@@");
+                        $this->requestService->logEntry(
+                            $request->getPost()->request_id,
+                            \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+                            'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
+                            ' for ' . trim(ucwords(strtolower($employeeData['COMMON_NAME']))) . " " . trim(ucwords(strtolower($employeeData['LAST_NAME']))));
 
-//                    $outlookHelper = new \Request\Helper\OutlookHelper();
-//                    $isSent = $outlookHelper->addToCalendar($requestObject);
-                    $isSent = true;
-                    //$comment = 'Time off request approved by ' . trim($calendarInviteData['for'][''])
+                        $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                        
+                        $this->requestService->logEntry($request->getPost()->request_id, \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'), 'Payroll review required because of insufficient hours');
+                        $requestReturnData = $this->requestService->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                    } else {
+                        $calendarInviteData = $this->requestService->findRequestCalendarInviteData($request->getPost()->request_id); 
+                        $employeeData = $this->requestService->findTimeOffBalancesByEmployee(trim($calendarInviteData['for']['EMPLOYEE_NUMBER']));
+                        $requestObject = [
+                            'datesRequested' => $calendarInviteData['datesRequested'],
+                            'for' =>            $employeeData,
+    //                        'subject' =>        '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF',
+    //                        'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that ' . ucwords(strtolower($for)) . ' is taking off the following time off: ' . $descriptionString,
+                            'organizer' =>      [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ], // 'name' => ucwords(strtolower($for)), 'email' => $forEmail
+                            'to' =>             'kevin_sawicke@swifttrans.com', // ,'.$forEmail.",".$managerEmail
+                            'participants' =>   [ [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ] ]/*[ ['name' => ucwords(strtolower($for)), 'email' => $forEmail ],
+                                                  ['name' => ucwords(strtolower($manager)), 'email' => $managerEmail ]
+                                                ]*/
+                        ];
+                        
+                        $outlookHelper = new \Request\Helper\OutlookHelper();
+                        $isSent = $outlookHelper->addToCalendar($requestObject);
+
+                        $this->requestService->logEntry(
+                            $request->getPost()->request_id,
+                            \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+                            'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
+                            ' for ' . trim(ucwords(strtolower($employeeData['COMMON_NAME']))) . " " . trim(ucwords(strtolower($employeeData['LAST_NAME']))));
+
+                        $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                    }
                     
-                    $this->requestService->logEntry($request->getPost()->request_id, trim($calendarInviteData['for']['MANAGER_EMPLOYEE_NUMBER']), 'Time off request approved by ' . trim($calendarInviteData['for']['MANAGER_EMPLOYEE_NUMBER']) . ' for ' . trim($calendarInviteData['for']['EMPLOYEE_NUMBER']));
-                    
-                    $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -397,34 +314,14 @@ class RequestController extends AbstractActionController
                     $return = [];
                     $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search, $request->getPost()->directReportFilter);
                     foreach($managerEmployees as $id => $data) {
-//                         $nameFormatted =
-//                                trim($data->EMPLOYEE_NAME) . " " . 
-//                                " (" . trim($data->EMPLOYEE_NUMBER) . ")\r\n" .
-//                                $data->POSITION_TITLE;
-                        
-                        $return[] = [ 
-                                      'id' => $data->EMPLOYEE_NUMBER,
+                        $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
                                       'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE
                                     ];
-                        
-//                         $nameFormatted =
-//                                trim($data->EMPLOYEE_NAME) . " " . 
-//                                " (" . trim($data->EMPLOYEE_NUMBER) . ")\r\n" .
-//                                $data->POSITION_TITLE;
-                        
-//                         $return[] = [ 'id' => trim($data->EMPLOYEE_NUMBER),
-//                                  'text' => $nameFormatted
-//                                ];
                     }
                     $result = new JsonModel($return);
                     break;
                     
-                case 'submitTimeoffRequest':
-//                    echo '<pre>';
-//                    print_r($request->getPost());
-//                    echo '</pre>';
-//                    die("@@");
-                    
+                case 'submitTimeoffRequest':                    
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     $requesterEmployeeNumber = trim($request->getPost()->loggedInUserData['EMPLOYEE_NUMBER']);
                     
@@ -440,13 +337,18 @@ class RequestController extends AbstractActionController
                     }
                     
                     $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber);
-                    
+                    $requestId = $requestReturnData['request_id'];
                     $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
-                    $this->requestService->logEntry($requestReturnData['request_id'], $requesterEmployeeNumber, $comment);
+                    $this->requestService->logEntry($requestId, $requesterEmployeeNumber, $comment);
                     
                     $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    $comment2 = 'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData['MANAGER_FIRST_NAME']))) . " " . trim(ucwords(strtolower($employeeData['MANAGER_LAST_NAME'])));
-                    $this->requestService->logEntry($requestReturnData['request_id'], $requesterEmployeeNumber, $comment2);
+                    $this->requestService->logEntry(
+                        $requestId,
+                        $requesterEmployeeNumber,
+                        'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData['MANAGER_FIRST_NAME']))) .
+                        " " . trim(ucwords(strtolower($employeeData['MANAGER_LAST_NAME'])))
+                    );
+                    $requestReturnData = $this->requestService->submitApprovalResponse('P', $requestReturnData['request_id'], $request->getPost()->requestReason);
                     
                     //$employeeNumber
 //                    $comment2 = 'Sent for manager approval to ' . trim(ucwords(strtolower($calendarInviteData['for']['MANAGER_FIRST_NAME']))) . " " . trim(ucwords(strtolower($calendarInviteData['for']['MANAGER_LAST_NAME'])));
@@ -528,6 +430,7 @@ class RequestController extends AbstractActionController
                     
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
+                    $allRequestsJson = [];
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
                         if($approvedRequest['REQUEST_TYPE']==='Unexcused') {
@@ -542,6 +445,12 @@ class RequestController extends AbstractActionController
                             'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
                             'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
                         ];
+                        $allRequestsJson[] = [
+                            'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
+                            'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
+                            'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
+                            'REQUEST_STATUS' => 'A'
+                        ];
                     }
                     foreach($pendingRequestData as $key => $pendingRequest) {
                         if($pendingRequest['REQUEST_TYPE']==='Unexcused') {
@@ -554,6 +463,12 @@ class RequestController extends AbstractActionController
                             'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
                             'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
                             'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
+                        ];
+                        $allRequestsJson[] = [
+                            'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
+                            'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
+                            'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
+                            'REQUEST_STATUS' => 'P'
                         ];
                     }
                     
@@ -580,6 +495,7 @@ class RequestController extends AbstractActionController
                         'approvedRequestJson' => $approvedRequestJson,
                         'pendingRequestData' => $pendingRequestData,
                         'pendingRequestJson' => $pendingRequestJson,
+                        'allRequestsJson' => $allRequestsJson,
                         'openHeader' => '<strong>',
                         'closeHeader' => '</strong><br /><br />'
                     ]);
@@ -600,6 +516,17 @@ class RequestController extends AbstractActionController
         return new ViewModel(array(
             'isLoggedInUserManager' => $isLoggedInUserManager,
             'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ));
+    }
+    
+    public function viewMyRequestsAction()
+    {
+        return new ViewModel(array(
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),

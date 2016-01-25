@@ -6,14 +6,6 @@ class ValidationHelper {
     
     public function isPayrollReviewRequired($requestData, $employeeData)
     {
-//        echo '<pre>';
-//        print_r($requestData);
-//        echo '</pre>';
-//        
-//        echo '<pre>';
-//        print_r($employeeData);
-//        echo '</pre>';
-        
         if($requestData['PTO'] > ($employeeData['PTO_EARNED'] - $employeeData['PTO_TAKEN'])) {
             return true;
         }

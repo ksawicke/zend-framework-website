@@ -892,13 +892,14 @@ class RequestMapper implements RequestMapperInterface {
             employee.PRTEDH = 0 and
             employee.PRL02 <> 'DRV' and
             trim(employee.PREN) LIKE '%" . strtoupper($search) . "%' OR
-            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%' OR
             trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
-            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "' OR
-            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%' OR
-            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
-            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "'
+            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%'
         )";
+        
+//            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
+//            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "' OR
+//            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
+//            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "
 
         if ($isPayroll === "N") {
             $rawSql = "SELECT
@@ -1118,7 +1119,7 @@ class RequestMapper implements RequestMapperInterface {
                     AND entry.request_code = 'R'
             ) AS GRANDFATHERED
             FROM TIMEOFF_REQUESTS request
-            WHERE request.REQUEST_ID = '100005'";
+            WHERE request.REQUEST_ID = '" . $requestId . "'";
         
         $requestData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
 

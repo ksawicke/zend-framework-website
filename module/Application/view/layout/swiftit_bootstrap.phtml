@@ -52,6 +52,12 @@
             ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
             ->appendFile($this->basePath('js/select2/select2.min.js'));
       }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-requests') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
+            ->appendFile($this->basePath('js/request/timeOffViewMyRequestHandler.js'))
+            ->appendFile($this->basePath('js/select2/select2.min.js'));
+      }
       if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar') !== false) {
         $this->headScript()
             ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
