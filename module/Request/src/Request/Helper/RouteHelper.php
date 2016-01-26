@@ -6,9 +6,11 @@ class RouteHelper {
     
     public function addNewRoute($currentConfig, $routeOptions)
     {
+        $name = (array_key_exists('name', $routeOptions) ? $routeOptions['name'] : $routeOptions['action']);
         $action = $routeOptions['action'];
-        $currentConfig['router']['routes'][$action] = [
-            'type' => 'literal',
+        $type = (array_key_exists('type', $routeOptions) ? $routeOptions['type'] : 'Zend\Mvc\Router\Http\Literal');
+        $currentConfig['router']['routes'][$name] = [
+            'type' => $type, // Zend\Mvc\Router\Http\Literal or literal
             'options' => [
                 'route' => $routeOptions['route'],
                 'defaults' => [
