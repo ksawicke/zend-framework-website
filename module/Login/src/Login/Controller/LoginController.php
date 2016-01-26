@@ -44,7 +44,7 @@ class LoginController extends AbstractActionController
                 \Login\Helper\UserSession::setUserSessionVariable('IS_MANAGER', $isManager);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL', $isPayroll);
                 
-                return $this->redirect()->toRoute('create2', array('controller' => 'request', 'action' => 'create'));
+                return $this->redirect()->toRoute('home', array('controller' => 'request', 'action' => 'home'));
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');
                 return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));

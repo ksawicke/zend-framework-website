@@ -446,10 +446,10 @@ class RequestController extends AbstractActionController
                             'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
                         ];
                         $allRequestsJson[] = [
-                            'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
-                            'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
-                            'REQUEST_STATUS' => 'A'
+                            'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
+                            'hours' => $approvedRequest['REQUESTED_HOURS'],
+                            'category' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
+                            'status' => 'A'
                         ];
                     }
                     foreach($pendingRequestData as $key => $pendingRequest) {
@@ -465,10 +465,10 @@ class RequestController extends AbstractActionController
                             'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
                         ];
                         $allRequestsJson[] = [
-                            'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
-                            'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
-                            'REQUEST_STATUS' => 'P'
+                            'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
+                            'hours' => $pendingRequest['REQUESTED_HOURS'],
+                            'category' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
+                            'status' => 'P'
                         ];
                     }
                     
