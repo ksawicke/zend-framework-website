@@ -54,6 +54,8 @@ var timeOffCreateRequestHandler = new function ()
             selectedDatesPendingApproval = [],
             selectedDateCategoriesPendingApproval = [],
             selectedDateHoursPendingApproval = [],
+            showCurrentRequestsOnOrBefore = '',
+            showCurrentRequestsBefore = '',
             categoryText = {
                 'timeOffPTO': 'PTO',
                 'timeOffFloat': 'Float',
@@ -352,6 +354,8 @@ var timeOffCreateRequestHandler = new function ()
                     timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
                     
                     selectedDates = json.allRequestsJson;
+                    showCurrentRequestsOnOrBefore = json.showCurrentRequestsOnOrBefore;
+                    showCurrentRequestsBefore = json.showCurrentRequestsBefore;
                     timeOffCreateRequestHandler.drawHoursRequested();
                     
                     console.log("json", json);
@@ -424,6 +428,11 @@ var timeOffCreateRequestHandler = new function ()
 
                     timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
                     timeOffCreateRequestHandler.highlightDates();
+                    
+                    selectedDates = json.allRequestsJson;
+                    showCurrentRequestsOnOrBefore = json.showCurrentRequestsOnOrBefore;
+                    showCurrentRequestsBefore = json.showCurrentRequestsBefore;
+                    timeOffCreateRequestHandler.drawHoursRequested();
                     return;
                 })
                 .error(function () {
@@ -944,6 +953,7 @@ var timeOffCreateRequestHandler = new function ()
      * Draws form fields we can submit for the user.
      */
     this.drawHoursRequested = function () {
+        timeOffCreateRequestHandler.sortDatesSelected();
         var datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>' +
                 '<br style="clear:both;"/><br style="clear:both;"/>';
 
@@ -957,9 +967,11 @@ var timeOffCreateRequestHandler = new function ()
         totalApprovedNoPayRequested = 0;
         
         console.log("DATES TEST", selectedDates);
+        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
         
         for (var key = 0; key < selectedDates.length; key++) {
-            datesSelectedDetailsHtml += selectedDates[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
+            if(selectedDates[key].dateYmd >= showCurrentRequestsOnOrBefore && selectedDates[key].dateYmd <= showCurrentRequestsBefore) {
+                datesSelectedDetailsHtml += selectedDates[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
                     '<input class="selectedDateHours" value="' + timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDates[key].hours) + '" size="2" data-key="' + key + '" disabled="disabled">' +
                     '&nbsp;&nbsp;&nbsp;&nbsp;' +
                     '<span class="badge ' + selectedDates[key].category + '">' +
@@ -972,6 +984,7 @@ var timeOffCreateRequestHandler = new function ()
                     'title="' + ((selectedDates[key].status=='A') ? 'Approved time off' : 'Pending approval') + '">' +
                     '</span>' +
                     '<br style="clear:both;" />';
+            }
 
             switch (selectedDates[key].category) {
                 case 'timeOffPTO':
@@ -1026,12 +1039,12 @@ var timeOffCreateRequestHandler = new function ()
      * Sorts dates in the selected array.
      */
     this.sortDatesSelected = function () {
-        selectedDatesNew.sort(function (a, b) {
+        selectedDates.sort(function (a, b) {
             var dateA = new Date(a.date).getTime();
             var dateB = new Date(b.date).getTime();
             return dateA > dateB ? 1 : -1;
         });
-        console.log(selectedDatesNew);
+        console.log(selectedDates);
     }
 
     this.selectResult = function (item) {
@@ -1252,9 +1265,7 @@ var timeOffCreateRequestHandler = new function ()
      * Clears out the selected dates and refreshes the form.
      * @returns {undefined}     */
     this.clearSelectedDates = function () {
-//        selectedDatesNew = [];
-//        alert("HM?");
-//        timeOffCreateRequestHandler.drawHoursRequested();
+        selectedDates = [];
     }
 
     this.updateRequestDates = function (object, calendarDateObject) {

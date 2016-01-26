@@ -387,7 +387,7 @@ class RequestMapper implements RequestMapperInterface {
                 ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
                 ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => $status])
                 ->order(['entry.REQUEST_DATE ASC']);
-
+        
         $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         return $return;

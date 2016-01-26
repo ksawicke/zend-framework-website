@@ -447,6 +447,7 @@ class RequestController extends AbstractActionController
                         ];
                         $allRequestsJson[] = [
                             'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
+                            'dateYmd' => date("Y-m-d", strtotime($approvedRequest['REQUEST_DATE'])),
                             'hours' => $approvedRequest['REQUESTED_HOURS'],
                             'category' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
                             'status' => 'A'
@@ -466,6 +467,7 @@ class RequestController extends AbstractActionController
                         ];
                         $allRequestsJson[] = [
                             'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
+                            'dateYmd' => date("Y-m-d", strtotime($pendingRequest['REQUEST_DATE'])),
                             'hours' => $pendingRequest['REQUESTED_HOURS'],
                             'category' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
                             'status' => 'P'
@@ -497,7 +499,9 @@ class RequestController extends AbstractActionController
                         'pendingRequestJson' => $pendingRequestJson,
                         'allRequestsJson' => $allRequestsJson,
                         'openHeader' => '<strong>',
-                        'closeHeader' => '</strong><br /><br />'
+                        'closeHeader' => '</strong><br /><br />',
+                        'showCurrentRequestsOnOrBefore' => $current,
+                        'showCurrentRequestsBefore' => $three
                     ]);
                     break;
             }
