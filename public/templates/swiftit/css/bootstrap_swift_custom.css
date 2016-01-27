@@ -1063,3 +1063,7 @@ button .full-width {
 .iconCalendarPayrollApproved {
     color: #49a449;
 }
+
+#calendarLegend {
+    display:none;
+}

@@ -110,6 +110,11 @@ var timeOffCreateRequestHandler = new function ()
             $(document).on('click', '.calendarNavigation', function () {
                 timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
             });
+            
+            $(document).on('click', '.toggleLegend', function() {
+                timeOffCreateRequestHandler.toggleLegend();
+//                console.log("TOGGLE");
+            });
 
             /**
              * Handle clicking category
@@ -1553,6 +1558,10 @@ var timeOffCreateRequestHandler = new function ()
         timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
 
         calendarDateObject.addClass(newOne.category + "Selected");
+    }
+    
+    this.toggleLegend = function() {
+        $("#calendarLegend").toggle();
     }
 };
 
