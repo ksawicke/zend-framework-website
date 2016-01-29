@@ -482,7 +482,7 @@ class RequestController extends AbstractActionController
                     }
                     
                     $Employee = new \Request\Model\Employee();
-                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y")->trimEmployeeData();
+                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
                     
                     $result = new JsonModel([
                         'success' => true,
