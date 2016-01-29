@@ -6,6 +6,8 @@ use Request\Model\RequestInterface;
 interface RequestMapperInterface
 {
     public function findTimeOffBalancesByEmployee($employeeNumber = null);
+    
+    public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y");
 
     public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A");
     

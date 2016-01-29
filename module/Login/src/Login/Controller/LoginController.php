@@ -60,6 +60,7 @@ class LoginController extends AbstractActionController
     public function logoutAction()
     {
         \Login\Helper\UserSession::endUserSession();
+        return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));
     }
 
 }

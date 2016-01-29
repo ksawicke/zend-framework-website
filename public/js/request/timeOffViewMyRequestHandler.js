@@ -420,6 +420,7 @@ var timeOffViewRequestHandler = new function ()
             dataType: 'json'
         })
                 .success(function (json) {
+//                    timeOffViewRequestHandler.clearSelectedDates();
                     console.log("@@@@ 410");
                     var calendarHtml = '';
                     $.each(json.calendars, function (index, thisCalendarHtml) {
@@ -971,8 +972,13 @@ var timeOffViewRequestHandler = new function ()
         totalGrandfatheredRequested = 0;
         totalApprovedNoPayRequested = 0;
         
-        console.log("DATES TEST", selectedDates);
-        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
+//        console.log("DATES TEST", selectedDates);
+//        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
+        
+        console.log('length', selectedDates.length);
+        if(selectedDates.length==0) {
+            datesSelectedDetailsHtml += 'No dates requested during the calendar period shown.';
+        }
         
         for (var key = 0; key < selectedDates.length; key++) {
             if(selectedDates[key].dateYmd >= showCurrentRequestsOnOrBefore && selectedDates[key].dateYmd <= showCurrentRequestsBefore) {

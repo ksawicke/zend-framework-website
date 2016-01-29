@@ -398,6 +398,8 @@ class RequestController extends AbstractActionController
                     ]);
                     break;
                     
+                
+                
                 case 'loadCalendar':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     
@@ -445,13 +447,15 @@ class RequestController extends AbstractActionController
                             'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
                             'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
                         ];
-                        $allRequestsJson[] = [
-                            'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
-                            'dateYmd' => date("Y-m-d", strtotime($approvedRequest['REQUEST_DATE'])),
-                            'hours' => $approvedRequest['REQUESTED_HOURS'],
-                            'category' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
-                            'status' => 'A'
-                        ];
+                        if($approvedRequest['REQUEST_DATE'] > $current and $approvedRequest['REQUEST_DATE'] <= $three) {
+                            $allRequestsJson[] = [
+                                'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
+                                'dateYmd' => date("Y-m-d", strtotime($approvedRequest['REQUEST_DATE'])),
+                                'hours' => $approvedRequest['REQUESTED_HOURS'],
+                                'category' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
+                                'status' => 'A'
+                            ];
+                        }
                     }
                     foreach($pendingRequestData as $key => $pendingRequest) {
                         if($pendingRequest['REQUEST_TYPE']==='Unexcused') {
@@ -465,26 +469,32 @@ class RequestController extends AbstractActionController
                             'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
                             'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
                         ];
-                        $allRequestsJson[] = [
-                            'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
-                            'dateYmd' => date("Y-m-d", strtotime($pendingRequest['REQUEST_DATE'])),
-                            'hours' => $pendingRequest['REQUESTED_HOURS'],
-                            'category' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
-                            'status' => 'P'
-                        ];
+                        //$pendingRequest['REQUEST_DATE'] < $current and $pendingRequest['REQUEST_DATE'] >= $three
+                        if($pendingRequest['REQUEST_DATE'] > $current and $pendingRequest['REQUEST_DATE'] <= $three) {
+                            $allRequestsJson[] = [
+                                'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
+                                'dateYmd' => date("Y-m-d", strtotime($pendingRequest['REQUEST_DATE'])),
+                                'hours' => $pendingRequest['REQUESTED_HOURS'],
+                                'category' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
+                                'status' => 'P'
+                            ];
+                        }
                     }
+                    
+                    $Employee = new \Request\Model\Employee();
+                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y")->trimEmployeeData();
                     
                     $result = new JsonModel([
                         'success' => true,
                         'calendars' => [
-                            1 => [ 'header' => $currentMonth->format('M') . ' ' . $currentMonth->format('Y'),
-                                'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, [])
+                            1 => ['header' => $currentMonth->format('M') . ' ' . $currentMonth->format('Y'),
+                                  'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, [])
                             ],
-                            2 => [ 'header' => $oneMonthOut->format('M') . ' ' . $oneMonthOut->format('Y'),
-                                'data' => \Request\Helper\Calendar::drawCalendar($oneMonthOut->format('m'), $oneMonthOut->format('Y'), [])
+                            2 => ['header' => $oneMonthOut->format('M') . ' ' . $oneMonthOut->format('Y'),
+                                  'data' => \Request\Helper\Calendar::drawCalendar($oneMonthOut->format('m'), $oneMonthOut->format('Y'), [])
                             ],
-                            3 => [ 'header' => $twoMonthsOut->format('M') . ' ' . $twoMonthsOut->format('Y'),
-                                'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
+                            3 => ['header' => $twoMonthsOut->format('M') . ' ' . $twoMonthsOut->format('Y'),
+                                  'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
                             ]
                         ],
                         'fastRewindButton' => '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $sixMonthsBack->format('m') . '" data-year="' . $sixMonthsBack->format('Y') . '"> </span>',
@@ -501,7 +511,11 @@ class RequestController extends AbstractActionController
                         'openHeader' => '<strong>',
                         'closeHeader' => '</strong><br /><br />',
                         'showCurrentRequestsOnOrBefore' => $current,
-                        'showCurrentRequestsBefore' => $three
+                        'showCurrentRequestsBefore' => $three,
+                        'rebuild' => [
+                            'employeeData' => $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y"),
+                            'employeeData2' => $employeeData2
+                        ]
                     ]);
                     break;
             }
@@ -747,6 +761,18 @@ class RequestController extends AbstractActionController
         $mailsent = mail($to_address, $subject, $message, $headers);
 
         return ($mailsent) ? (true) : (false);
+    }
+    
+    public function testAction()
+    {   
+        $employeeNumber = $this->params()->fromRoute('employee_number');
+        $employeeData = $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y");
+        
+        echo '<pre>';
+        print_r($employeeData);
+        echo '</pre>';
+        
+        die('@@@');
     }
 
 }

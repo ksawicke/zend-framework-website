@@ -7,6 +7,8 @@ use Request\Model\RequestInterface;
 interface RequestServiceInterface
 {
     public function findTimeOffBalancesByEmployee($employeeNumber);
+    
+    public function findTimeOffEmployeeData($employeeNumber, $includeHourTotals);
 
     public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status);
     

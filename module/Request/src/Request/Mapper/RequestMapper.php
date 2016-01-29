@@ -34,6 +34,8 @@ class RequestMapper implements RequestMapperInterface {
      * @var \Request\Model\RequestInterface
      */
     protected $requestPrototype;
+    public $employerNumber;
+    public $includeApproved;
     public $requestColumns = [];
     public $authUserColumns = [];
     public $docTypeColumns = [];
@@ -65,6 +67,8 @@ class RequestMapper implements RequestMapperInterface {
         $this->dbAdapter = $dbAdapter;
         $this->hydrator = $hydrator;
         $this->requestPrototype = $requestPrototype;
+        $this->employerNumber = '002';
+        $this->includeApproved = 'N';
 
         // 'alias' => 'FIELDNAME'
         $this->employeeColumns = [
@@ -264,6 +268,23 @@ class RequestMapper implements RequestMapperInterface {
 //        }
 //        $employeeSchedule = $this->requestService->findEmployeeSchedule($this->employeeNumber);
 
+    public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y")
+    {
+        $rawSql = ($includeHourTotals=="Y") ?
+            "select * from table(sawik.timeoff_get_employee_data('" . $this->employerNumber .
+            "', '" . $employeeNumber . "', '" . $this->includeApproved . "')) as data"
+            :
+            "select EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS, LEVEL_1, LEVEL_2, LEVEL_3," .
+              "LEVEL_4, POSITION, POSITION_TITLE, EMPLOYEE_HIRE_DATE, SALARY_TYPE," .
+              "MANAGER_EMPLOYEE_NUMBER, MANAGER_POSITION, MANAGER_POSITION_TITLE," .
+              "MANAGER_NAME, MANAGER_EMAIL_ADDRESS from table(sawik.timeoff_get_employee_data('" . $this->employerNumber .
+            "', '" . $employeeNumber . "', '" . $this->includeApproved . "')) as data";
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
+
+        return $employeeData;
+    }
+    
     /**
      * Find time off balances by Employee Number lookup.
      * 
@@ -897,7 +918,7 @@ class RequestMapper implements RequestMapperInterface {
         )";
         
 //            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
-//            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "' OR
+//            trim(employee.PRCOMNk) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "' OR
 //            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
 //            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "
 

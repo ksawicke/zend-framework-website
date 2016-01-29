@@ -24,7 +24,6 @@ $config = [
 // Test add new routes here to make it easier
 //$config['router']['routes'];
 $route = new \Request\Helper\RouteHelper();
-
 $config = $route->addNewRoute(
     $config,
     ['name' => 'home',
@@ -105,6 +104,14 @@ $config = $route->addNewRoute(
     ['route' => '/request/denied-request',
      'controller' => 'Request\Controller\Request',
      'action' => 'deniedRequest'
+    ]
+);
+$config = $route->addNewRoute(
+    $config,
+    ['type' => 'segment',
+     'route' => '/request/test/[:employee_number]',
+     'controller' => 'Request\Controller\Request',
+     'action' => 'test'
     ]
 );
 
