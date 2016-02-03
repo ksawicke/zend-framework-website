@@ -25,6 +25,37 @@ class Employee extends BaseDB
     public $timeoffRequestColumns;
     public $timeoffRequestEntryColumns;
     public $timeoffRequestCodeColumns;
+    
+    protected static $typesToCodes = [
+        'timeOffPTO' => 'P',
+        'timeOffFloat' => 'K',
+        'timeOffSick' => 'S',
+        'timeOffUnexcusedAbsence' => 'X',
+        'timeOffBereavement' => 'B',
+        'timeOffCivicDuty' => 'J',
+        'timeOffGrandfathered' => 'R',
+        'timeOffApprovedNoPay' => 'A'
+    ];
+    
+    protected static $categoryToClass = [
+        'PTO' => 'timeOffPTO',
+        'Float' => 'timeOffFloat',
+        'Sick' => 'timeOffSick',
+        'UnexcusedAbsence' => 'timeOffUnexcusedAbsence',
+        'Bereavement' => 'timeOffBereavement',
+        'CivicDuty' => 'timeOffCivicDuty',
+        'Grandfathered' => 'timeOffGrandfathered',
+        'ApprovedNoPay' => 'timeOffApprovedNoPay'
+    ];
+    
+    protected static $codesToKronos = [
+        'P' => 'PTO',
+        'R' => 'GFVAC',
+        'B' => 'BR',
+        'K' => 'FHP',
+        'S' => 'SK',
+        'V' => 'VA'
+    ];
 
     public function __construct()
     {
@@ -49,103 +80,83 @@ class Employee extends BaseDB
     }
     
     public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y")
-    {        
-//         $rawSql = "SELECT * FROM TABLE (timeoff_get_employee_data('002', '49499', 'N')) as DATA";
-        
-        $rawSql = "select * from table(select prurl1, prfnm from prpms where trim(pren) = '49499') as data";
-        
+    {
+        $rawSql = "select * from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data";
         $statement = $this->adapter->query($rawSql);
         $result = $statement->execute();
-        
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-        
-        echo '<pre>! A  ';
-        print_r($resultSet);
-        echo '</pre>';
-        
-        echo '<pre>! B  ';
-        print_r($resultSet->toArray()[0]);
-        echo '</pre>';
-        
-        echo '<pre>! C  ';
-        print_r($resultSet->getDataSource());
-        echo '</pre>';
-        
-        echo '<pre>! D  ';
-        print_r($resultSet->current());
-        echo '</pre>';
-        
-        echo '<pre>! E';
-        print_r($resultSet->valid());
-        echo '</pre>';
-        
-        
-        
-        $rawSql = "select employee_number from table(timeoff_get_employee_data('002', '49499', 'N')) as data";
-//        $rawSql = "select * from table(select prurl1, prfnm from prpms where trim(pren) = '49499') as data";
-        
-        $statement = $this->adapter->query($rawSql);
-        $result = $statement->execute();
-        
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-        
-        echo '<pre>! A  ';
-        print_r($resultSet);
-        echo '</pre>';
-        
-        echo '<pre>! B  ';
-        print_r($resultSet->toArray()[0]);
-        echo '</pre>';
-        
-        echo '<pre>! C  ';
-        print_r($resultSet->getDataSource());
-        echo '</pre>';
-        
-        echo '<pre>! D  ';
-        print_r($resultSet->current());
-        echo '</pre>';
-        
-        echo '<pre>! E';
-        print_r($resultSet->valid());
-        echo '</pre>';
-        
-        die("####################");
-        
-        $statement = $this->adapter->query($rawSql);
-        $result = $statement->execute();
-        
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-        
-        echo '<pre>';
-        print_r($resultSet);
-        echo '</pre>';
-        
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        
-        
-        
-        
-        die("$~~$");
         
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
             $resultSet = new ResultSet;
             $resultSet->initialize($result);
-            echo '<pre>';
-            var_dump($resultSet->current());
-            echo '</pre>';
-//            $this->employeeData = $resultSet->toArray();
+            $this->employeeData = $resultSet->current();
         } else {
             $this->employeeData = [];
         }
-//        var_dump($resultSet);
-        die("!~&");
         
-        return $this->trimData($this->employeeData);
+        return \Request\Helper\Format::trimData( $this->employeeData );
+    }
+    
+    public function appendAllRequestsJsonArray($request)
+    {
+        return ['date' => date("m/d/Y", strtotime($request['REQUEST_DATE'])),
+                'dateYmd' => date("Y-m-d", strtotime($request['REQUEST_DATE'])),
+                'hours' => $request['REQUESTED_HOURS'],
+                'category' => self::$categoryToClass[$request['REQUEST_TYPE']],
+                'status' => 'A'
+               ];
+    }
+    
+    public function appendRequestJsonArray($request)
+    {
+        return ['REQUEST_DATE' => date("m/d/Y", strtotime($request['REQUEST_DATE'])),
+                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                'REQUEST_TYPE' => self::$categoryToClass[$request['REQUEST_TYPE']]
+               ];
+    }
+    
+    public function adjustRequestType($request)
+    {
+        if($request['REQUEST_TYPE']==='Unexcused') {
+            $request['REQUEST_TYPE'] = 'UnexcusedAbsence';
+        }
+        if($request['REQUEST_TYPE']==='Time Off Without Pay') {
+            $request['REQUEST_TYPE'] = 'ApprovedNoPay';
+        }
+        return $request;
+    }
+    
+    public function findTimeOffRequestData($employeeNumber = null, $calendarDates = null)
+    {
+        $approvedRequestsJson = [];
+        $pendingRequestsJson = [];
+        $allRequestsJson = [];
+        
+        $approvedRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
+        $pendingRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
+
+        foreach($approvedRequestsData as $key => $approvedRequest) {
+            $approvedRequest = $this->adjustRequestType($approvedRequest);
+            $approvedRequestsJson[] = $this->appendRequestJsonArray($approvedRequest);
+            if($approvedRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $approvedRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-01')) {
+                $allRequestsJson[] = $this->appendAllRequestsJsonArray($approvedRequest);
+            }
+        }
+        foreach($pendingRequestsData as $key => $pendingRequest) {
+            $pendingRequest = $this->adjustRequestType($pendingRequest);            
+            $pendingRequestJson[] = $this->appendRequestJsonArray($pendingRequest);
+            if($pendingRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $pendingRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-01')) {
+                $allRequestsJson[] = $this->appendAllRequestsJsonArray($pendingRequest);
+            }
+        }
+        
+        return ['json' => ['all' => $allRequestsJson,
+                           'approved' => $approvedRequestsJson,
+                           'pending' => $pendingRequestsData,
+                          ],
+                'data' => ['approved' => $approvedRequestsData,
+                           'pending' => $pendingRequestsData
+                          ]
+               ];
     }
     
     public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A")

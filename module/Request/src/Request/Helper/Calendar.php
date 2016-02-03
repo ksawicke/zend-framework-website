@@ -73,8 +73,8 @@ class Calendar
                 'navigation' => self::getCalendarNavigationForThreeCalendars($dates),
                 'openHeader' => self::$openHeader,
                 'closeHeader' => self::$closeHeader,
-                'showCurrentRequestsOnOrBefore' => $dates['currentMonth']->format('m'),
-                'showCurrentRequestsBefore' => $dates['threeMonthsOut']->format('m')
+                'showCurrentRequestsOnOrAfter' => $dates['currentMonth']->format('Y-m-01'),
+                'showCurrentRequestsBefore' => $dates['threeMonthsOut']->format('Y-m-01')
             ];
     }
     

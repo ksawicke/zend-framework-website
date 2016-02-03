@@ -406,84 +406,15 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth);
 
-//                    $Employee = new \Request\Model\Employee();
-//                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y"); // $this->requestService
-
-                    $employeeData = $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y");
-                    
-//                    echo '<pre>';
-//                    print_r($employeeData);
-//                    echo '</pre>';
-//                    
-//                    die("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                    
-                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
-                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
-
-                    $approvedRequestJson = [];
-                    $pendingRequestJson = [];
-                    $allRequestsJson = [];
-                    
-                    
-                    foreach($approvedRequestData as $key => $approvedRequest) {
-                        if($approvedRequest['REQUEST_TYPE']==='Unexcused') {
-                            $approvedRequest['REQUEST_TYPE'] = 'UnexcusedAbsence';
-                        }
-                        if($approvedRequest['REQUEST_TYPE']==='Time Off Without Pay') {
-                            $approvedRequest['REQUEST_TYPE'] = 'ApprovedNoPay';
-                        }
-                        
-                        $approvedRequestJson[] = [
-                            'REQUEST_DATE' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
-                            'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
-                        ];
-                        if($approvedRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $approvedRequest['REQUEST_DATE'] <= $calendarDates['threeMonthsOut']->format('Y-m-d')) {
-                            $allRequestsJson[] = [
-                                'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
-                                'dateYmd' => date("Y-m-d", strtotime($approvedRequest['REQUEST_DATE'])),
-                                'hours' => $approvedRequest['REQUESTED_HOURS'],
-                                'category' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']],
-                                'status' => 'A'
-                            ];
-                        }
-                    }
-                    foreach($pendingRequestData as $key => $pendingRequest) {
-                        if($pendingRequest['REQUEST_TYPE']==='Unexcused') {
-                            $pendingRequest['REQUEST_TYPE'] = 'UnexcusedAbsence';
-                        }
-                        if($pendingRequest['REQUEST_TYPE']==='Time Off Without Pay') {
-                            $pendingRequest['REQUEST_TYPE'] = 'ApprovedNoPay';
-                        }
-                        $pendingRequestJson[] = [
-                            'REQUEST_DATE' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
-                            'REQUESTED_HOURS' => $pendingRequest['REQUESTED_HOURS'],
-                            'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
-                        ];
-                        //$pendingRequest['REQUEST_DATE'] < $current and $pendingRequest['REQUEST_DATE'] >= $three
-                        if($pendingRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $pendingRequest['REQUEST_DATE'] <= $calendarDates['threeMonthsOut']->format('Y-m-d')) {
-                            $allRequestsJson[] = [
-                                'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
-                                'dateYmd' => date("Y-m-d", strtotime($pendingRequest['REQUEST_DATE'])),
-                                'hours' => $pendingRequest['REQUESTED_HOURS'],
-                                'category' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']],
-                                'status' => 'P'
-                            ];
-                        }
-                    }
-                    
-//                    $Employee = new \Request\Model\Employee();
-//                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+                    $Employee = new \Request\Model\Employee();
+                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+                    $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
                     
                     $result = new JsonModel([
                         'success' => true,
                         'calendarData' => \Request\Helper\Calendar::getThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth),
                         'employeeData' => $employeeData,
-                        'approvedRequestData' => $approvedRequestData,
-                        'approvedRequestJson' => $approvedRequestJson,
-                        'pendingRequestData' => $pendingRequestData,
-                        'pendingRequestJson' => $pendingRequestJson,
-                        'allRequestsJson' => $allRequestsJson,
+                        'requestData' => $requestData,
                         'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
                                            'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL')
                                           ]
@@ -739,8 +670,15 @@ class RequestController extends AbstractActionController
         $employeeNumber = $this->params()->fromRoute('employee_number');
         $employeeData = $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y");
         
-        echo '<pre>';
+        echo '<pre>TEST 1';
         print_r($employeeData);
+        echo '</pre>';
+        
+        $Employee = new \Request\Model\Employee();
+        $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+        
+        echo '<pre>TEST 2';
+        print_r($employeeData2);
         echo '</pre>';
         
         die('@@@');

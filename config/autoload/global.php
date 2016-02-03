@@ -30,15 +30,15 @@ return [
      ],
      'service_manager' => [
          'factories' => [
-            'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
-//            'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
-//                $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
-//                $adapter = $adapterFactory->createService($serviceManager);
-//                // Set static Adapter, to be used in base DB Class
-//                \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
-//
-//                return $adapter;
-//            }
+//            'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
+            'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
+                $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
+                $adapter = $adapterFactory->createService($serviceManager);
+                // Set static Adapter, to be used in base DB Class
+                \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
+
+                return $adapter;
+            }
          ]
      ]
  ];

@@ -54,7 +54,7 @@ var timeOffViewRequestHandler = new function ()
             selectedDatesPendingApproval = [],
             selectedDateCategoriesPendingApproval = [],
             selectedDateHoursPendingApproval = [],
-            showCurrentRequestsOnOrBefore = '',
+            showCurrentRequestsOnOrAfter = '',
             showCurrentRequestsBefore = '',
             categoryText = {
                 'timeOffPTO': 'PTO',
@@ -280,6 +280,7 @@ var timeOffViewRequestHandler = new function ()
 
 //        timeOffViewRequestHandler.clearSelectedDates();
 
+        console.log("HIC");
         $.ajax({
             url: timeOffLoadCalendarUrl,
             type: 'POST',
@@ -302,11 +303,11 @@ var timeOffViewRequestHandler = new function ()
                     var calendarHtml = '';
                     $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                         $("#calendar" + index + "Html").html(
-                                json.calendarData.openHeader +
-                                ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-                                thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.fastForwardButton : '') +
-                                json.calendarData.closeHeader +
-                                thisCalendarHtml.data);
+                            json.calendarData.openHeader +
+                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
+                            json.calendarData.closeHeader +
+                            thisCalendarHtml.data);
                     });
 
                     timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
@@ -333,7 +334,7 @@ var timeOffViewRequestHandler = new function ()
 //        	timeOffViewRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
                     timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
                     timeOffViewRequestHandler.highlightDates();
 
                     // $(this).hasClass('disableTimeOffCategorySelection')
@@ -341,27 +342,30 @@ var timeOffViewRequestHandler = new function ()
                         $('.categoryPTO').addClass('disableTimeOffCategorySelection');
                     }
 
-                    requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
-                    requestForEmployeeName =
-                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
-                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
-                            ' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
+                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+                    requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
+                        ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
+//                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
+//                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
+//                            ' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
 
                     console.log('json.employeeData', json.employeeData);
                     console.log('requestForEmployeeNumber', requestForEmployeeNumber);
                     console.log('requestForEmployeeName', requestForEmployeeName);
 
-                    $("#requestFor")
-                            .empty()
-                            .append('<option value="' + requestForEmployeeNumber + '">' + requestForEmployeeName + '</option>')
-                            .val(requestForEmployeeNumber).trigger('change');
+//                    $("#requestFor")
+//                        .empty()
+//                        .append('<option value="' + requestForEmployeeNumber + '">' + requestForEmployeeName + '</option>')
+//                        .val(requestForEmployeeNumber).trigger('change');
 
-                    timeOffViewRequestHandler.checkAllowRequestOnBehalfOf();
+//                    timeOffViewRequestHandler.checkAllowRequestOnBehalfOf();
                     
-                    selectedDates = json.allRequestsJson;
-                    showCurrentRequestsOnOrBefore = json.showCurrentRequestsOnOrBefore;
-                    showCurrentRequestsBefore = json.showCurrentRequestsBefore;
+                    selectedDates = json.requestData.all;
+                    showCurrentRequestsOnOrAfter = json.calendarData.showCurrentRequestsOnOrAfter;
+                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
                     timeOffViewRequestHandler.drawHoursRequested();
+                    
+                    console.log(json.calendarData.showCurrentRequestsOnOrAfter + ' :: ' + json.calendarData.showCurrentRequestsBefore);
                     
                     console.log("json", json);
 
@@ -423,21 +427,21 @@ var timeOffViewRequestHandler = new function ()
 //                    timeOffViewRequestHandler.clearSelectedDates();
                     console.log("@@@@ 410");
                     var calendarHtml = '';
-                    $.each(json.calendars, function (index, thisCalendarHtml) {
+                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                         $("#calendar" + index + "Html").html(
-                                json.openHeader +
-                                ((index == 1) ? json.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.prevButton : '') +
-                                thisCalendarHtml.header + ((index == 3) ? json.nextButton + '&nbsp;&nbsp;&nbsp;' + json.fastForwardButton : '') +
-                                json.closeHeader +
-                                thisCalendarHtml.data);
+                            json.calendarData.openHeader +
+                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
+                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
+                            json.calendarData.closeHeader +
+                            thisCalendarHtml.data);
                     });
 
-                    timeOffViewRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
                     timeOffViewRequestHandler.highlightDates();
                     
-                    selectedDates = json.allRequestsJson;
-                    showCurrentRequestsOnOrBefore = json.showCurrentRequestsOnOrBefore;
-                    showCurrentRequestsBefore = json.showCurrentRequestsBefore;
+                    selectedDates = json.requestData.all;
+                    showCurrentRequestsOnOrBefore = json.calendarData.showCurrentRequestsOnOrAfter;
+                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
                     timeOffViewRequestHandler.drawHoursRequested();
                     return;
                 })
@@ -725,7 +729,7 @@ var timeOffViewRequestHandler = new function ()
 
         $.each($(".calendar-day"), function (index, blah) {
             for (var i = 0; i < selectedDatesNew.length; i++) {
-                if (selectedDatesNew[i].date &&
+                if (selectedDates[i].date &&
                         selectedDatesNew[i].date === $(this).attr("data-date")) {
                     thisClass = selectedDatesNew[i].category + "Selected";
                     $(this).toggleClass(thisClass);
@@ -975,13 +979,14 @@ var timeOffViewRequestHandler = new function ()
 //        console.log("DATES TEST", selectedDates);
 //        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
         
+        console.log("TEST LENGTH");
         console.log('length', selectedDates.length);
         if(selectedDates.length==0) {
             datesSelectedDetailsHtml += 'No dates requested during the calendar period shown.';
         }
         
         for (var key = 0; key < selectedDates.length; key++) {
-            if(selectedDates[key].dateYmd >= showCurrentRequestsOnOrBefore && selectedDates[key].dateYmd <= showCurrentRequestsBefore) {
+            if(selectedDates[key].dateYmd >= showCurrentRequestsOnOrAfter && selectedDates[key].dateYmd <= showCurrentRequestsBefore) {
                 datesSelectedDetailsHtml += selectedDates[key].date + '&nbsp;&nbsp;&nbsp;&nbsp;' +
                     '<input class="selectedDateHours" value="' + timeOffViewRequestHandler.setTwoDecimalPlaces(selectedDates[key].hours) + '" size="2" data-key="' + key + '" disabled="disabled">' +
                     '&nbsp;&nbsp;&nbsp;&nbsp;' +
@@ -1050,12 +1055,12 @@ var timeOffViewRequestHandler = new function ()
      * Sorts dates in the selected array.
      */
     this.sortDatesSelected = function () {
-        selectedDates.sort(function (a, b) {
-            var dateA = new Date(a.date).getTime();
-            var dateB = new Date(b.date).getTime();
-            return dateA > dateB ? 1 : -1;
-        });
-        console.log(selectedDates);
+//        selectedDates.sort(function (a, b) {
+//            var dateA = new Date(a.date).getTime();
+//            var dateB = new Date(b.date).getTime();
+//            return dateA > dateB ? 1 : -1;
+//        });
+//        console.log(selectedDates);
     }
 
     this.selectResult = function (item) {
