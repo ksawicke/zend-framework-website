@@ -282,7 +282,7 @@ class RequestMapper implements RequestMapperInterface {
         
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
 
-        return $employeeData;
+        return \Request\Helper\Format::trimData($employeeData);
     }
     
     /**

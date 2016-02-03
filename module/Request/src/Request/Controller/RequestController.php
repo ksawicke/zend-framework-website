@@ -406,11 +406,19 @@ class RequestController extends AbstractActionController
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
                     $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth);
 
-                    $Employee = new \Request\Model\Employee();
-                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y"); // $this->requestService
+//                    $Employee = new \Request\Model\Employee();
+//                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y"); // $this->requestService
 
-                    $approvedRequestData = $Employee->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
-                    $pendingRequestData = $Employee->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
+                    $employeeData = $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y");
+                    
+//                    echo '<pre>';
+//                    print_r($employeeData);
+//                    echo '</pre>';
+//                    
+//                    die("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    
+                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
+                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
 
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];

@@ -50,9 +50,68 @@ class Employee extends BaseDB
     
     public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y")
     {        
-        $rawSql = "SELECT * FROM TABLE (timeoff_get_employee_data('002', '49499', 'N')) as DATA";
+//         $rawSql = "SELECT * FROM TABLE (timeoff_get_employee_data('002', '49499', 'N')) as DATA";
         
-//        $rawSql = "SELECT PRURL1, PRCOMN, PRFNM FROM PRPMS WHERE TRIM(PREN) = '49499'";
+        $rawSql = "select * from table(select prurl1, prfnm from prpms where trim(pren) = '49499') as data";
+        
+        $statement = $this->adapter->query($rawSql);
+        $result = $statement->execute();
+        
+        $resultSet = new ResultSet;
+        $resultSet->initialize($result);
+        
+        echo '<pre>! A  ';
+        print_r($resultSet);
+        echo '</pre>';
+        
+        echo '<pre>! B  ';
+        print_r($resultSet->toArray()[0]);
+        echo '</pre>';
+        
+        echo '<pre>! C  ';
+        print_r($resultSet->getDataSource());
+        echo '</pre>';
+        
+        echo '<pre>! D  ';
+        print_r($resultSet->current());
+        echo '</pre>';
+        
+        echo '<pre>! E';
+        print_r($resultSet->valid());
+        echo '</pre>';
+        
+        
+        
+        $rawSql = "select employee_number from table(timeoff_get_employee_data('002', '49499', 'N')) as data";
+//        $rawSql = "select * from table(select prurl1, prfnm from prpms where trim(pren) = '49499') as data";
+        
+        $statement = $this->adapter->query($rawSql);
+        $result = $statement->execute();
+        
+        $resultSet = new ResultSet;
+        $resultSet->initialize($result);
+        
+        echo '<pre>! A  ';
+        print_r($resultSet);
+        echo '</pre>';
+        
+        echo '<pre>! B  ';
+        print_r($resultSet->toArray()[0]);
+        echo '</pre>';
+        
+        echo '<pre>! C  ';
+        print_r($resultSet->getDataSource());
+        echo '</pre>';
+        
+        echo '<pre>! D  ';
+        print_r($resultSet->current());
+        echo '</pre>';
+        
+        echo '<pre>! E';
+        print_r($resultSet->valid());
+        echo '</pre>';
+        
+        die("####################");
         
         $statement = $this->adapter->query($rawSql);
         $result = $statement->execute();
@@ -61,8 +120,13 @@ class Employee extends BaseDB
         $resultSet->initialize($result);
         
         echo '<pre>';
+        print_r($resultSet);
+        echo '</pre>';
+        
+        echo '<pre>';
         print_r($result);
         echo '</pre>';
+        
         
         
         

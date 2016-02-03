@@ -79,8 +79,8 @@ class ResultSetOutput
         
         $resultSet = new ResultSet;
         $resultSet->initialize($result);
-        return $resultSet->toArray();       
-//        return $resultSet->current();
+//        return $resultSet->toArray();       
+        return $resultSet->current();
     }
     
     public static function executeRawSql($dbAdapter, $rawSql)
