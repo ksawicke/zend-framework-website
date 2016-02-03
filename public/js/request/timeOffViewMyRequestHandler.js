@@ -297,47 +297,47 @@ var timeOffViewRequestHandler = new function ()
                         loggedInUserData = json.employeeData;
                     }
 
-                    requestForEmployeeNumber = employeeNumber;
+                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
                     var calendarHtml = '';
-                    $.each(json.calendars, function (index, thisCalendarHtml) {
+                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                         $("#calendar" + index + "Html").html(
-                                json.openHeader +
-                                ((index == 1) ? json.fastRewindButton + ' ' + json.prevButton : '') +
-                                thisCalendarHtml.header + ((index == 3) ? json.nextButton + ' ' + json.fastForwardButton : '') +
-                                json.closeHeader +
+                                json.calendarData.openHeader +
+                                ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+                                thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.fastForwardButton : '') +
+                                json.calendarData.closeHeader +
                                 thisCalendarHtml.data);
                     });
 
                     timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
 
                     timeOffViewRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
 
                     timeOffViewRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_ABSENCE_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GRANDFATHERED_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GRANDFATHERED_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
+                    timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.APPROVED_NO_PAY_PENDING_APPROVAL);
+                    timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
                     timeOffViewRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
                     timeOffViewRequestHandler.highlightDates();
 
                     // $(this).hasClass('disableTimeOffCategorySelection')
-                    if (json.employeeData.GRANDFATHERED_AVAILABLE > 0) {
+                    if (json.employeeData.GF_AVAILABLE > 0) {
                         $('.categoryPTO').addClass('disableTimeOffCategorySelection');
                     }
 

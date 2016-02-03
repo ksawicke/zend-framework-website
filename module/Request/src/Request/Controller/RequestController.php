@@ -397,42 +397,25 @@ class RequestController extends AbstractActionController
                         'closeHeader' => '</strong><br /><br />'
                     ]);
                     break;
-                    
-                
-                
+
                 case 'loadCalendar':
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
-                    
-                    $time = strtotime($request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01");
-                    $fastPrev = date("Y-m-d", strtotime("-6 month", $time));
-                    $prev = date("Y-m-d", strtotime("-3 month", $time));
-                    $current = date("Y-m-d", strtotime("+0 month", $time));
-                    $one = date("Y-m-d", strtotime("+1 month", $time));
-                    $two = date("Y-m-d", strtotime("+2 month", $time));
-                    $three = date("Y-m-d", strtotime("+3 month", $time));
-                    $six = date("Y-m-d", strtotime("+6 month", $time));
-                    $sixMonthsBack = new \DateTime($fastPrev);
-                    $threeMonthsBack = new \DateTime($prev);
-                    $currentMonth = new \DateTime($current);
-                    $oneMonthOut = new \DateTime($one);
-                    $twoMonthsOut = new \DateTime($two);
-                    $threeMonthsOut = new \DateTime($three);
-                    $sixMonthsOut = new \DateTime($six);
-                    
                     \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
                     \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
                     \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
-                    
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    $employeeData['IS_LOGGED_IN_USER_MANAGER'] = \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER');
-                    $employeeData['IS_LOGGED_IN_USER_PAYROLL'] = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
-                    $approvedRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
-                    $pendingRequestData = $this->requestService->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
-                    
+                    $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth);
+
+                    $Employee = new \Request\Model\Employee();
+                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y"); // $this->requestService
+
+                    $approvedRequestData = $Employee->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
+                    $pendingRequestData = $Employee->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
+
                     $approvedRequestJson = [];
                     $pendingRequestJson = [];
                     $allRequestsJson = [];
+                    
                     
                     foreach($approvedRequestData as $key => $approvedRequest) {
                         if($approvedRequest['REQUEST_TYPE']==='Unexcused') {
@@ -447,7 +430,7 @@ class RequestController extends AbstractActionController
                             'REQUESTED_HOURS' => $approvedRequest['REQUESTED_HOURS'],
                             'REQUEST_TYPE' => self::$categoryToClass[$approvedRequest['REQUEST_TYPE']]
                         ];
-                        if($approvedRequest['REQUEST_DATE'] > $current and $approvedRequest['REQUEST_DATE'] <= $three) {
+                        if($approvedRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $approvedRequest['REQUEST_DATE'] <= $calendarDates['threeMonthsOut']->format('Y-m-d')) {
                             $allRequestsJson[] = [
                                 'date' => date("m/d/Y", strtotime($approvedRequest['REQUEST_DATE'])),
                                 'dateYmd' => date("Y-m-d", strtotime($approvedRequest['REQUEST_DATE'])),
@@ -470,7 +453,7 @@ class RequestController extends AbstractActionController
                             'REQUEST_TYPE' => self::$categoryToClass[$pendingRequest['REQUEST_TYPE']]
                         ];
                         //$pendingRequest['REQUEST_DATE'] < $current and $pendingRequest['REQUEST_DATE'] >= $three
-                        if($pendingRequest['REQUEST_DATE'] > $current and $pendingRequest['REQUEST_DATE'] <= $three) {
+                        if($pendingRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $pendingRequest['REQUEST_DATE'] <= $calendarDates['threeMonthsOut']->format('Y-m-d')) {
                             $allRequestsJson[] = [
                                 'date' => date("m/d/Y", strtotime($pendingRequest['REQUEST_DATE'])),
                                 'dateYmd' => date("Y-m-d", strtotime($pendingRequest['REQUEST_DATE'])),
@@ -481,41 +464,21 @@ class RequestController extends AbstractActionController
                         }
                     }
                     
-                    $Employee = new \Request\Model\Employee();
-                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+//                    $Employee = new \Request\Model\Employee();
+//                    $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
                     
                     $result = new JsonModel([
                         'success' => true,
-                        'calendars' => [
-                            1 => ['header' => $currentMonth->format('M') . ' ' . $currentMonth->format('Y'),
-                                  'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, [])
-                            ],
-                            2 => ['header' => $oneMonthOut->format('M') . ' ' . $oneMonthOut->format('Y'),
-                                  'data' => \Request\Helper\Calendar::drawCalendar($oneMonthOut->format('m'), $oneMonthOut->format('Y'), [])
-                            ],
-                            3 => ['header' => $twoMonthsOut->format('M') . ' ' . $twoMonthsOut->format('Y'),
-                                  'data' => \Request\Helper\Calendar::drawCalendar($twoMonthsOut->format('m'), $twoMonthsOut->format('Y'), [])
-                            ]
-                        ],
-                        'fastRewindButton' => '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $sixMonthsBack->format('m') . '" data-year="' . $sixMonthsBack->format('Y') . '"> </span>',
-                        'prevButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go back 3 months" class="glyphicon-class glyphicon glyphicon-step-backward calendarNavigation" data-month="' . $threeMonthsBack->format('m') . '" data-year="' . $threeMonthsBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;',
-                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 3 months" class="glyphicon-class glyphicon glyphicon-step-forward calendarNavigation" data-month="' . $threeMonthsOut->format('m') . '" data-year="' . $threeMonthsOut->format('Y') . '"> </span>',
-                        'fastForwardButton' => '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 6 months" class="glyphicon-class glyphicon glyphicon-fast-forward calendarNavigation" data-month="' . $sixMonthsOut->format('m') . '" data-year="' . $sixMonthsOut->format('Y') . '"> </span>',
+                        'calendarData' => \Request\Helper\Calendar::getThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth),
                         'employeeData' => $employeeData,
-                        'employeeNumber' => $employeeNumber,
                         'approvedRequestData' => $approvedRequestData,
                         'approvedRequestJson' => $approvedRequestJson,
                         'pendingRequestData' => $pendingRequestData,
                         'pendingRequestJson' => $pendingRequestJson,
                         'allRequestsJson' => $allRequestsJson,
-                        'openHeader' => '<strong>',
-                        'closeHeader' => '</strong><br /><br />',
-                        'showCurrentRequestsOnOrBefore' => $current,
-                        'showCurrentRequestsBefore' => $three,
-                        'rebuild' => [
-                            'employeeData' => $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y"),
-                            'employeeData2' => $employeeData2
-                        ]
+                        'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
+                                           'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL')
+                                          ]
                     ]);
                     break;
             }

@@ -279,7 +279,7 @@ class RequestMapper implements RequestMapperInterface {
               "MANAGER_EMPLOYEE_NUMBER, MANAGER_POSITION, MANAGER_POSITION_TITLE," .
               "MANAGER_NAME, MANAGER_EMAIL_ADDRESS from table(sawik.timeoff_get_employee_data('" . $this->employerNumber .
             "', '" . $employeeNumber . "', '" . $this->includeApproved . "')) as data";
-
+        
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
 
         return $employeeData;

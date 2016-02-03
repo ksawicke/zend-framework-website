@@ -56,6 +56,77 @@ class Calendar
     
     public static $closeCalendar = '</table>';
     
+    public static $openHeader = '<strong>';
+    
+    public static $closeHeader = '</strong><br /><br />';
+    
+    public static function getThreeCalendars($startYear = null, $startMonth = null)
+    {
+        $dates = self::getDatesForThreeCalendars($startYear, $startMonth);
+        return ['calendars' => [ 1 => ['header' => $dates['currentMonth']->format('M') . ' ' . $dates['currentMonth']->format('Y'),
+                                       'data' => self::drawCalendar($startYear, $startMonth, [])],
+                                 2 => ['header' => $dates['oneMonthOut']->format('M') . ' ' . $dates['oneMonthOut']->format('Y'),
+                                       'data' => self::drawCalendar($dates['oneMonthOut']->format('m'), $dates['oneMonthOut']->format('Y'), [])],
+                                 3 => ['header' => $dates['twoMonthsOut']->format('M') . ' ' . $dates['twoMonthsOut']->format('Y'),
+                                       'data' => self::drawCalendar($dates['twoMonthsOut']->format('m'), $dates['twoMonthsOut']->format('Y'), [])]
+                               ],
+                'navigation' => self::getCalendarNavigationForThreeCalendars($dates),
+                'openHeader' => self::$openHeader,
+                'closeHeader' => self::$closeHeader,
+                'showCurrentRequestsOnOrBefore' => $dates['currentMonth']->format('m'),
+                'showCurrentRequestsBefore' => $dates['threeMonthsOut']->format('m')
+            ];
+    }
+    
+    public static function getCalendarNavigationForThreeCalendars($dates)
+    {
+        return ['fastRewindButton' => self::getfastRewindButtonForThreeCalendars($dates),
+                'prevButton' => self::getprevButtonForThreeCalendars($dates),
+                'nextButton' => self::getNextButtonForThreeCalendars($dates),
+                'fastForwardButton' => self::getfastForwardButtonForThreeCalendars($dates)
+               ];
+    }
+    
+    public static function getfastRewindButtonForThreeCalendars($dates)
+    {
+        return '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"> </span>';
+    }
+    
+    public static function getprevButtonForThreeCalendars($dates)
+    {
+        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go back 3 months" class="glyphicon-class glyphicon glyphicon-step-backward calendarNavigation" data-month="' . $dates['threeMonthsBack']->format('m') . '" data-year="' . $dates['threeMonthsBack']->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;';
+    }
+    
+    public static function getNextButtonForThreeCalendars($dates)
+    {
+        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 3 months" class="glyphicon-class glyphicon glyphicon-step-forward calendarNavigation" data-month="' . $dates['threeMonthsOut']->format('m') . '" data-year="' . $dates['threeMonthsOut']->format('Y') . '"> </span>';
+    }
+    
+    public static function getfastForwardButtonForThreeCalendars($dates)
+    {
+        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 6 months" class="glyphicon-class glyphicon glyphicon-fast-forward calendarNavigation" data-month="' . $dates['sixMonthsOut']->format('m') . '" data-year="' . $dates['sixMonthsOut']->format('Y') . '"> </span>';
+    }
+    
+    public static function getDatesForThreeCalendars($startYear = null, $startMonth = null)
+    {
+        if($startYear===null) {
+            $startYear = date("Y");
+        }
+        if($startMonth===null) {
+            $startMonth = date("m");
+        }
+        
+        $time = strtotime($startYear . "-" . $startMonth . "-01");
+        return ['sixMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-6 month", $time))),
+                'threeMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-3 month", $time))),
+                'currentMonth' => new \DateTime(date("Y-m-d", strtotime("+0 month", $time))),
+                'oneMonthOut' => new \DateTime(date("Y-m-d", strtotime("+1 month", $time))),
+                'twoMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+2 month", $time))),
+                'threeMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+3 month", $time))),
+                'sixMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+6 month", $time)))
+              ];
+    }
+    
     /**
      * Draws a calendar.
      *
