@@ -102,7 +102,7 @@ class Employee extends BaseDB
                 'dateYmd' => date("Y-m-d", strtotime($request['REQUEST_DATE'])),
                 'hours' => $request['REQUESTED_HOURS'],
                 'category' => self::$categoryToClass[$request['REQUEST_TYPE']],
-                'status' => 'A'
+                'status' => $request['REQUEST_STATUS']
                ];
     }
     

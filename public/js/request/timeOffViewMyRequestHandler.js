@@ -992,7 +992,7 @@ var timeOffViewRequestHandler = new function ()
 //        console.log("DATES TEST", selectedDates);
 //        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
         
-        console.log("selectedDates", selectedDates.length);
+        console.log("selectedDates", selectedDates);
         
         console.log("TEST LENGTH");
         console.log('length', selectedDates.length);
