@@ -1,8 +1,11 @@
 <?php
 namespace Request\Model;
 
+use Zend\Db\Sql\Delete;
+use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
+use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
@@ -25,6 +28,22 @@ class Employee extends BaseDB
     public $timeoffRequestColumns;
     public $timeoffRequestEntryColumns;
     public $timeoffRequestCodeColumns;
+    
+    public static $requestStatuses = [
+        'draft' => 'D',
+        'approved' => 'A',
+        'cancelled' => 'C',
+        'pendingApproval' => 'P',
+        'beingReviewed' => 'R'
+    ];
+    
+    public static $requestStatusText = [
+        'D' => 'draft',
+        'A' => 'approved',
+        'C' => 'cancelled',
+        'P' => 'pendingApproval',
+        'R' => 'beingReviewed'
+    ];
     
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
@@ -191,7 +210,7 @@ class Employee extends BaseDB
             $calendarData = [];
         }
         
-        return \Request\Helper\Format::trimData( $calendarData );
+        return $calendarData; //\Request\Helper\Format::trimData( $calendarData );
     }
     
     public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A", $startDate = null, $endDate = null)
@@ -236,6 +255,50 @@ class Employee extends BaseDB
         }
 
         return $array;
+    }
+    
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)
+    {
+        $requestReturnData = ['request_id' => null];
+
+        /** Insert record into TIMEOFF_REQUESTS * */
+        $action = new Insert('timeoff_requests');
+        $action->values([
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad($employeeNumber),
+            'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
+            'CREATE_USER' => \Request\Helper\Format::rightPad($requesterEmployeeNumber),
+            'REQUEST_REASON' => $requestReason
+        ]);
+        $sql = new Sql($this->adapter);
+        $stmt = $sql->prepareStatementForSqlObject($action);
+        try {
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
+
+        $requestId = $result->getGeneratedValue();
+
+        /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES * */
+        foreach ($requestData as $key => $request) {
+            $action = new Insert('timeoff_request_entries');
+            $action->values([
+                'REQUEST_ID' => $requestId,
+                'REQUEST_DATE' => $request['date'],
+                'REQUESTED_HOURS' => $request['hours'],
+                'REQUEST_CODE' => $request['type']
+            ]);
+            $sql = new Sql($this->adapter);
+            $stmt = $sql->prepareStatementForSqlObject($action);
+            try {
+                $result = $stmt->execute();
+            } catch (Exception $e) {
+                throw new \Exception("Can't execute statement: " . $e->getMessage());
+            }
+        }
+        $requestReturnData['request_id'] = $requestId;
+
+        return $requestReturnData;
     }
     
     public function trimData($object)

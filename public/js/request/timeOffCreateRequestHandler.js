@@ -87,22 +87,22 @@ var timeOffCreateRequestHandler = new function ()
                 //            console.log('983');
                 $('.requestIsForMe').show();
             })
-                    .on("select2:open", function (e) {
-                        //console.log("SELECT2 OPENED");
-                        if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
-                            $("span").remove(".select2CustomTag");
-                            var $filter =
-                                    '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
-                                    '<input type="radio" name="directReportFilter" value="B"' + ((directReportFilter==='B')?' checked':'') + '> Both&nbsp;&nbsp;&nbsp;' +
-                                    '<input type="radio" name="directReportFilter" value="D"' + ((directReportFilter === 'D') ? ' checked' : '') + '> Direct Reports&nbsp;&nbsp;&nbsp;' +
-                                    '<input type="radio" name="directReportFilter" value="I"' + ((directReportFilter === 'I') ? ' checked' : '') + '> Indirect Reports&nbsp;&nbsp;&nbsp;' +
-                                    '</form>';
-                            $("<span class='select2CustomTag' style='padding-left:6px;'>" + $filter + "</span>").insertBefore('.select2-results');
-                        }
-                    })
-                    .on("select2:close", function (e) {
-                        //console.log("SELECT2 CLOSED");
-                    });
+            .on("select2:open", function (e) {
+                //console.log("SELECT2 OPENED");
+                if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
+                    $("span").remove(".select2CustomTag");
+                    var $filter =
+                            '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
+                            '<input type="radio" name="directReportFilter" value="B"' + ((directReportFilter==='B')?' checked':'') + '> Both&nbsp;&nbsp;&nbsp;' +
+                            '<input type="radio" name="directReportFilter" value="D"' + ((directReportFilter === 'D') ? ' checked' : '') + '> Direct Reports&nbsp;&nbsp;&nbsp;' +
+                            '<input type="radio" name="directReportFilter" value="I"' + ((directReportFilter === 'I') ? ' checked' : '') + '> Indirect Reports&nbsp;&nbsp;&nbsp;' +
+                            '</form>';
+                    $("<span class='select2CustomTag' style='padding-left:6px;'>" + $filter + "</span>").insertBefore('.select2-results');
+                }
+            })
+            .on("select2:close", function (e) {
+                //console.log("SELECT2 CLOSED");
+            });
 
             /**
              * Handle clicking previous or next buttons on calendars
@@ -322,77 +322,80 @@ var timeOffCreateRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
+        .success(function (json) {
 //                    console.log("### 289");
-                    if (requestForEmployeeNumber === '') {
-                        loggedInUserData = json.employeeData;
-                    }
+            if (requestForEmployeeNumber === '') {
+                loggedInUserData = json.employeeData;
+                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
+                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
+            }
 
-                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
-                    var calendarHtml = '';
-                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                        $("#calendar" + index + "Html").html(
-                            json.calendarData.openHeader +
-                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
-                            json.calendarData.closeHeader +
-                            thisCalendarHtml.data);
-                    });
+            var calendarHtml = '';
+            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
+                $("#calendar" + index + "Html").html(
+                    json.calendarData.openHeader +
+                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
+                    json.calendarData.closeHeader +
+                    thisCalendarHtml.data);
+            });
 
-                    timeOffCreateRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
+            timeOffCreateRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
+            timeOffCreateRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
+            timeOffCreateRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
 
-        //        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
+//        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
 
-        //        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
+//        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
 
-        //        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
+//        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
+            timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
 
-        //        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
+//        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
+            timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-                    timeOffCreateRequestHandler.highlightDates();
+            timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+            timeOffCreateRequestHandler.highlightDates();
 
-                    // $(this).hasClass('disableTimeOffCategorySelection')
-                    if (json.employeeData.GF_AVAILABLE > 0) {
-                        $('.categoryPTO').addClass('disableTimeOffCategorySelection');
-                    }
+            // $(this).hasClass('disableTimeOffCategorySelection')
+            if (json.employeeData.GF_AVAILABLE > 0) {
+                $('.categoryPTO').addClass('disableTimeOffCategorySelection');
+            }
 
-                    requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
-                    requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
-                        ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
+            console.log("FROG", json.employeeData);
+            requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
+            requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
+                ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
 
-                    console.log('json.employeeData', json.employeeData);
-                    console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-                    console.log('requestForEmployeeName', requestForEmployeeName);
+            console.log('json.employeeData', json.employeeData);
+            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
+            console.log('requestForEmployeeName', requestForEmployeeName);
 
-                    $("#requestFor")
-                            .empty()
-                            .append('<option value="' + requestForEmployeeNumber + '">' + requestForEmployeeName + '</option>')
-                            .val(requestForEmployeeNumber).trigger('change');
+            $("#requestFor")
+                    .empty()
+                    .append('<option value="' + requestForEmployeeNumber + '">' + requestForEmployeeName + '</option>')
+                    .val(requestForEmployeeNumber).trigger('change');
 
-                    timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
+            timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
 
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     }
 
     this.setStep = function (step) {
@@ -444,16 +447,16 @@ var timeOffCreateRequestHandler = new function ()
                 .success(function (json) {
                     console.log("@@@@ 410");
                     var calendarHtml = '';
-                    $.each(json.calendars, function (index, thisCalendarHtml) {
+                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                         $("#calendar" + index + "Html").html(
-                                json.openHeader +
-                                ((index == 1) ? json.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.prevButton : '') +
-                                thisCalendarHtml.header + ((index == 3) ? json.nextButton + '&nbsp;&nbsp;&nbsp;' + json.fastForwardButton : '') +
-                                json.closeHeader +
-                                thisCalendarHtml.data);
+                            json.calendarData.openHeader +
+                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
+                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
+                            json.calendarData.closeHeader +
+                            thisCalendarHtml.data);
                     });
 
-                    timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
                     timeOffCreateRequestHandler.highlightDates();
                     return;
                 })

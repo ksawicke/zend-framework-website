@@ -336,7 +336,8 @@ class RequestController extends AbstractActionController
                         ];
                     }
                     
-                    $requestReturnData = $this->requestService->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber);
+                    $Employee = new \Request\Model\Employee();
+                    $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber);
                     $requestId = $requestReturnData['request_id'];
                     $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
                     $this->requestService->logEntry($requestId, $requesterEmployeeNumber, $comment);

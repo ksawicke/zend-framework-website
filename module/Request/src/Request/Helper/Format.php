@@ -10,15 +10,29 @@ class Format
     
     public static function trimData($object)
     {
-        array_walk_recursive($object, function( &$value, $key ) {
-            /**
-             * Value is of type string
-             */
-            if ( is_string( $value ) ) {
-                $value = trim( $value );
-            }
-        });
+        if(!empty($object)) {
+            array_walk_recursive($object, function( &$value, $key ) {
+                /**
+                 * Value is of type string
+                 */
+                if ( is_string( $value ) ) {
+                    $value = trim( $value );
+                }
+            });
+        }
 
         return $object;
+    }
+    
+    public static function rightPad($string)
+    {
+        return str_pad($string, 9, " ", STR_PAD_LEFT);
+    }
+    
+    public static function p($array)
+    {
+        echo '<pre>';
+        print_r($array);
+        echo '</pre>';
     }
 }
