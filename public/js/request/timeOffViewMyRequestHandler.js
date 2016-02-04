@@ -446,9 +446,11 @@ var timeOffViewRequestHandler = new function ()
                     timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
                     timeOffViewRequestHandler.highlightDates();
                     
-                    selectedDates = json.requestData.all;
+                    //selectedDates = json.requestData.all;
                     showCurrentRequestsOnOrBefore = json.calendarData.showCurrentRequestsOnOrAfter;
                     showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
+                    
+                    selectedDates = json.requestData.json.all; //json.requestData.json.all;
                     timeOffViewRequestHandler.drawHoursRequested();
                     return;
                 })
