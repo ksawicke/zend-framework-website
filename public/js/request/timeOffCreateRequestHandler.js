@@ -328,55 +328,53 @@ var timeOffCreateRequestHandler = new function ()
                         loggedInUserData = json.employeeData;
                     }
 
-                    requestForEmployeeNumber = employeeNumber;
+                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
                     var calendarHtml = '';
-                    $.each(json.calendars, function (index, thisCalendarHtml) {
+                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                         $("#calendar" + index + "Html").html(
-                                json.openHeader +
-                                ((index == 1) ? json.fastRewindButton + ' ' + json.prevButton : '') +
-                                thisCalendarHtml.header + ((index == 3) ? json.nextButton + ' ' + json.fastForwardButton : '') +
-                                json.closeHeader +
-                                thisCalendarHtml.data);
+                            json.calendarData.openHeader +
+                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
+                            json.calendarData.closeHeader +
+                            thisCalendarHtml.data);
                     });
 
                     timeOffCreateRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_APPROVAL);
+                    timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
 
                     timeOffCreateRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_APPROVAL);
+                    timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
 
                     timeOffCreateRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_APPROVAL);
+                    timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
 
-//        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_ABSENCE_PENDING_APPROVAL);
+        //        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
+                    timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
 
-//        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_APPROVAL);
+        //        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
+                    timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
 
-//        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_APPROVAL);
+        //        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
+                    timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GRANDFATHERED_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GRANDFATHERED_PENDING_APPROVAL);
+                    timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
+                    timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
 
-//        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
-                    timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.APPROVED_NO_PAY_PENDING_APPROVAL);
+        //        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
+                    timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-                    timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
+                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
                     timeOffCreateRequestHandler.highlightDates();
 
                     // $(this).hasClass('disableTimeOffCategorySelection')
-                    if (json.employeeData.GRANDFATHERED_AVAILABLE > 0) {
+                    if (json.employeeData.GF_AVAILABLE > 0) {
                         $('.categoryPTO').addClass('disableTimeOffCategorySelection');
                     }
 
                     requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
-                    requestForEmployeeName =
-                            timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
-                            timeOffCreateRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
-                            ' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
+                    requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
+                        ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
 
                     console.log('json.employeeData', json.employeeData);
                     console.log('requestForEmployeeNumber', requestForEmployeeNumber);
