@@ -399,6 +399,8 @@ class RequestController extends AbstractActionController
                     break;
 
                 case 'loadCalendar':
+                    $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
+                    $endDate = date("Y-m-t", strtotime($startDate));
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
                     \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
@@ -409,12 +411,19 @@ class RequestController extends AbstractActionController
                     $Employee = new \Request\Model\Employee();
                     $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
                     $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
+//                    $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber($employeeNumber, $startDate, $endDate);
+                    
+//                    echo '<pre>';
+//                    print_r($calendarData);
+//                    echo '</pre>';
+//                    die("@@@");
                     
                     $result = new JsonModel([
                         'success' => true,
                         'calendarData' => \Request\Helper\Calendar::getThreeCalendars($request->getPost()->startYear, $request->getPost()->startMonth),
                         'employeeData' => $employeeData,
                         'requestData' => $requestData,
+//                        'test' => $calendarData,
                         'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
                                            'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL')
                                           ]

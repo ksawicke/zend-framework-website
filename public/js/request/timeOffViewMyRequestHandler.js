@@ -309,6 +309,11 @@ var timeOffViewRequestHandler = new function ()
                             json.calendarData.closeHeader +
                             thisCalendarHtml.data);
                     });
+                    
+                    // Take the JSON data and use it for highlighting dates
+//                    selectedDatesApproved = json.requestData.json.approved;
+//                    selectedDatesPendingApproval = json.requestData.json.pending;
+                    selectedDates = json.requestData.json.all;
 
                     timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
                     timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
@@ -360,7 +365,6 @@ var timeOffViewRequestHandler = new function ()
 
 //                    timeOffViewRequestHandler.checkAllowRequestOnBehalfOf();
                     
-                    selectedDates = json.requestData.all;
                     showCurrentRequestsOnOrAfter = json.calendarData.showCurrentRequestsOnOrAfter;
                     showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
                     timeOffViewRequestHandler.drawHoursRequested();
@@ -726,6 +730,10 @@ var timeOffViewRequestHandler = new function ()
             $(this).removeClass('timeOffCivicDutySelected');
 //            $(this).removeClass('');
         });
+
+        console.log("highlight selectedDatesNew check", selectedDatesNew);
+        console.log("highlight selectedDatesPendingApproval check", selectedDatesPendingApproval);
+        console.log("highlight selectedDatesApproved check", selectedDatesApproved);
 
         $.each($(".calendar-day"), function (index, blah) {
             for (var i = 0; i < selectedDatesNew.length; i++) {

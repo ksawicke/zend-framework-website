@@ -38,7 +38,7 @@ class Calendar
     
     // TODO sawik 01/14/2016 - If request is moved to payroll, should we flag it
     // or disable clicking??
-    public static $beginDayCell = '<td class="calendar-day" data-category="" data-date="&date&">'; // &nbsp;&nbsp;<i class="fa fa-check-circle iconCalendarPayrollApproved"></i>
+    public static $beginDayCell = '<td class="calendar-day &requestTypeClass&" data-category="" data-date="&date&">'; // &nbsp;&nbsp;<i class="fa fa-check-circle iconCalendarPayrollApproved"></i>
     
     public static $beginDayDisabledCell = '<td class="calendar-day calendar-day-disabled">';
     
@@ -140,6 +140,12 @@ class Calendar
      */
     public static function drawCalendar($month, $year, $calendarData)
     {
+//        echo '<pre>';
+//        print_r($calendarData);
+//        echo '</pre>';
+//        
+//        die("|| STOP");
+        
         /* draw table */
         $calendar = self::drawCalendarHeader();
         
@@ -260,12 +266,12 @@ class Calendar
     public static function isDateValidToSelect($thisDay)
     {
         $return = true;
-        if( ( !empty(self::$invalidRequestDates['before']) && strtotime($thisDay) < strtotime(self::$invalidRequestDates['before']) ) ||
-            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) ) ||
-            in_array($thisDay, self::$invalidRequestDates['individual'])
-          ) {
-            $return = false;
-        }
+//        if( ( !empty(self::$invalidRequestDates['before']) && strtotime($thisDay) < strtotime(self::$invalidRequestDates['before']) ) ||
+//            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) ) ||
+//            in_array($thisDay, self::$invalidRequestDates['individual'])
+//          ) {
+//            $return = false;
+//        }
         
         return $return;
     }
@@ -284,23 +290,41 @@ class Calendar
      */
     public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData)
     {
+//        echo '<pre>';
+//        print_r($calendarData);
+//        echo '</pre>';
+//        die("&");
         $calendarTemp = '';
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
             // $invalidRequestDates
             // $beginDayDisabledCell
             $thisDay = str_pad($month, 2, "0", STR_PAD_LEFT).'/'.str_pad($list_day, 2, "0", STR_PAD_LEFT).'/'.$year;
+            $thisDayYmd = $year.'-'.str_pad($month, 2, "0", STR_PAD_LEFT).'/'.str_pad($list_day, 2, "0", STR_PAD_LEFT);
             
             // $beginDayDisabledCell
             
-            $calendarTemp .= ( self::isDateValidToSelect($thisDay)
-                               ?
-                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell) . self::$beginDay . $list_day . self::$endDay .
-                               self::addDataToCalendarDay($list_day, $calendarData)
-                               :
-                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData)
-                             );
+            // &requestTypeClass&
+            
+            if(self::isDateValidToSelect($thisDay)) {
+                // Replace &requestTypeClass& with '' or CALENDAR_DAY_CLASS
+                $requestClass = ( ($thisDayYmd) ? '' : '' );
+                $beginDayCell = str_replace("&requestTypeClass&", '', self::$beginDayCell);
+                $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, $beginDayCell) . self::$beginDay . $list_day . self::$endDay .
+                               self::addDataToCalendarDay($list_day, $calendarData);
+            } else {
+                $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData);
+            }
+//            $calendarTemp .= ( self::isDateValidToSelect($thisDay)
+//                               ?
+//                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+//                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell) . self::$beginDay . $list_day . self::$endDay .
+//                               self::addDataToCalendarDay($list_day, $calendarData)
+//                               :
+//                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+//                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData)
+//                             );
 
 //             $calendarTemp .= str_replace("&date&", "", self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay .
 //                              self::addDataToCalendarDay($list_day, $calendarData);

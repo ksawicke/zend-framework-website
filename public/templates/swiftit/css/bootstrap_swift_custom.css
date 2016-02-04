@@ -540,7 +540,7 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 .timeOffSick {
 	background-color: #73d216 !important;
 }
-.timeOffUnexcusedAbsence {
+.timeOffUnexcused {
 	background-color: #888a85 !important;
 }
 .timeOffBereavement {
@@ -644,7 +644,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 	  #ddd 20px
 	);
 }
-.timeOffUnexcusedAbsenceSelected {
+.timeOffUnexcusedSelected {
 	background: repeating-linear-gradient(
 	  45deg,
 	  #888a85,
@@ -733,7 +733,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
     font-size: 2em;
     color: #73d216;
 }
-.glyphicon-timeOffUnexcusedAbsence:before {
+.glyphicon-timeOffUnexcused:before {
 	content:"\25cf";
     font-size: 2em;
     color: #888a85;

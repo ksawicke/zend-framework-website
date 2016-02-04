@@ -131,27 +131,31 @@ class Employee extends BaseDB
         $pendingRequestsJson = [];
         $allRequestsJson = [];
         
-        $approvedRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A");
-        $pendingRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P");
+//        var_dump($calendarDates);exit();
+        
+        $approvedRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "A", $calendarDates['currentMonth']->format('Y-m-d'), $calendarDates['threeMonthsOut']->format('Y-m-t'));
+        $pendingRequestsData = $this->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, "P", $calendarDates['currentMonth']->format('Y-m-d'), $calendarDates['threeMonthsOut']->format('Y-m-t'));
 
         foreach($approvedRequestsData as $key => $approvedRequest) {
             $approvedRequest = $this->adjustRequestType($approvedRequest);
+            $allRequestsJson[] = $this->appendAllRequestsJsonArray($approvedRequest);
             $approvedRequestsJson[] = $this->appendRequestJsonArray($approvedRequest);
-            if($approvedRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $approvedRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-01')) {
-                $allRequestsJson[] = $this->appendAllRequestsJsonArray($approvedRequest);
-            }
+//            if($approvedRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $approvedRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-t')) {
+//                $approvedRequestsJson[] = $this->appendAllRequestsJsonArray($approvedRequest);
+//            }
         }
         foreach($pendingRequestsData as $key => $pendingRequest) {
             $pendingRequest = $this->adjustRequestType($pendingRequest);            
-            $pendingRequestJson[] = $this->appendRequestJsonArray($pendingRequest);
-            if($pendingRequest['REQUEST_DATE'] > $calendarDates['currentMonth']->format('Y-m-d') and $pendingRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-01')) {
-                $allRequestsJson[] = $this->appendAllRequestsJsonArray($pendingRequest);
-            }
+            $allRequestsJson[] = $this->appendAllRequestsJsonArray($pendingRequest);
+            $pendingRequestsJson[] = $this->appendRequestJsonArray($pendingRequest);
+//            if($pendingRequest['REQUEST_DATE'] >= $calendarDates['currentMonth']->format('Y-m-d') and $pendingRequest['REQUEST_DATE'] < $calendarDates['threeMonthsOut']->format('Y-m-d')) {
+//                $pendingRequestsJson[] = $this->appendAllRequestsJsonArray($pendingRequest);
+//            }
         }
         
         return ['json' => ['all' => $allRequestsJson,
                            'approved' => $approvedRequestsJson,
-                           'pending' => $pendingRequestsData,
+                           'pending' => $pendingRequestsJson,
                           ],
                 'data' => ['approved' => $approvedRequestsData,
                            'pending' => $pendingRequestsData
@@ -159,15 +163,61 @@ class Employee extends BaseDB
                ];
     }
     
-    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A")
+    /**
+     * Find time off calendar data by Employee Number lookup.
+     * 
+     */
+    public function findTimeOffCalendarByEmployeeNumber($employeeNumber = null, $startDate = null, $endDate = null)
+    {
+        $rawSql = "SELECT entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS
+            FROM TIMEOFF_REQUEST_ENTRIES entry
+            INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
+            INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
+            WHERE
+               request.REQUEST_STATUS = 'A' AND
+               trim(employee.PREN) = '" . $employeeNumber . "' AND
+               entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'
+            ORDER BY REQUEST_DATE ASC";
+        die($rawSql);
+        $statement = $this->adapter->query($rawSql);
+        $result = $statement->execute();
+        
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            $calendarData = $resultSet->toArray();
+        } else {
+            $calendarData = [];
+        }
+        
+        return \Request\Helper\Format::trimData( $calendarData );
+    }
+    
+    public function findTimeOffRequestsByEmployeeAndStatus($employeeNumber = null, $status = "A", $startDate = null, $endDate = null)
     {   
         $sql = new Sql($this->adapter);
-        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+        if($startDate==null || $endDate==null) {
+            $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
                 ->columns($this->timeoffRequestEntryColumns)
                 ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
                 ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
-                ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => $status])
+                ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber),
+                         'request.REQUEST_STATUS' => $status
+                        ])
                 ->order(['entry.REQUEST_DATE ASC']);
+        } else {
+            $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+                ->columns($this->timeoffRequestEntryColumns)
+                ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
+                ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
+                ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber),
+                         'request.REQUEST_STATUS' => $status,
+                         'entry.REQUEST_DATE >= ?' => $startDate,
+                         'entry.REQUEST_DATE < ?' => $endDate
+                        ])
+                ->order(['entry.REQUEST_DATE ASC']);
+        }
         
         try {
             $statement = $sql->prepareStatementForSqlObject($select);
