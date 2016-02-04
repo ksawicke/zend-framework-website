@@ -5,68 +5,68 @@
 var timeOffViewRequestHandler = new function ()
 {
     var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
-            timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
-            timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
-            employeePTOAvailable = 0,
-            employeeFloatAvailable = 0,
-            employeeSickAvailable = 0,
-            employeeUnexcusedAbsenceAvailable = 0,
-            employeeBereavementAvailable = 0,
-            employeeCivicDutyAvailable = 0,
-            employeeGrandfatheredAvailable = 0,
-            employeeApprovedNoPayAvailable = 0,
-            employeePTOPending = 0,
-            employeeFloatPending = 0,
-            employeeSickPending = 0,
-            employeeUnexcusedAbsencePending = 0,
-            employeeBereavementPending = 0,
-            employeeCivicDutyPending = 0,
-            employeeGrandfatheredPending = 0,
-            employeeApprovedNoPayPending = 0,
-            totalPTORequested = 0,
-            totalFloatRequested = 0,
-            totalSickRequested = 0,
-            totalUnexcusedAbsenceRequested = 0,
-            totalBereavementRequested = 0,
-            totalCivicDutyRequested = 0,
-            totalGrandfatheredRequested = 0,
-            totalApprovedNoPayRequested = 0,
-            defaultHours = 8,
-            defaultSplitHours = 4,
-            selectedTimeoffCategory = null,
-            loggedInUserData = [],
-            requestForEmployeeNumber = '',
-            requestForEmployeeName = '',
-            requestReason = '',
-            /** Dates selected for this request **/
-                
-            selectedDatesNew = [],
-            selectedDatesApproved = [],
-            selectedDatesPendingApproval = [],
-            selectedDates = [],
-            selectedDateCategories = [],
-            selectedDateHours = [],
-            /** Dates selected for approved requests **/
-            selectedDatesApproved = [],
-            selectedDateCategoriesApproved = [],
-            selectedDateHoursApproved = [],
-            /** Dates selected for pending approval requests **/
-            selectedDatesPendingApproval = [],
-            selectedDateCategoriesPendingApproval = [],
-            selectedDateHoursPendingApproval = [],
-            showCurrentRequestsOnOrAfter = '',
-            showCurrentRequestsBefore = '',
-            categoryText = {
-                'timeOffPTO': 'PTO',
-                'timeOffFloat': 'Float',
-                'timeOffSick': 'Sick',
-                'timeOffGrandfathered': 'Grandfathered',
-                'timeOffUnexcusedAbsence': 'Unexcused',
-                'timeOffBereavement': 'Bereavement',
-                'timeOffCivicDuty': 'Civic Duty',
-                'timeOffApprovedNoPay': 'Approved No Pay'
-            },
-    directReportFilter = 'B';
+        timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+        timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
+        employeePTOAvailable = 0,
+        employeeFloatAvailable = 0,
+        employeeSickAvailable = 0,
+        employeeUnexcusedAbsenceAvailable = 0,
+        employeeBereavementAvailable = 0,
+        employeeCivicDutyAvailable = 0,
+        employeeGrandfatheredAvailable = 0,
+        employeeApprovedNoPayAvailable = 0,
+        employeePTOPending = 0,
+        employeeFloatPending = 0,
+        employeeSickPending = 0,
+        employeeUnexcusedAbsencePending = 0,
+        employeeBereavementPending = 0,
+        employeeCivicDutyPending = 0,
+        employeeGrandfatheredPending = 0,
+        employeeApprovedNoPayPending = 0,
+        totalPTORequested = 0,
+        totalFloatRequested = 0,
+        totalSickRequested = 0,
+        totalUnexcusedAbsenceRequested = 0,
+        totalBereavementRequested = 0,
+        totalCivicDutyRequested = 0,
+        totalGrandfatheredRequested = 0,
+        totalApprovedNoPayRequested = 0,
+        defaultHours = 8,
+        defaultSplitHours = 4,
+        selectedTimeoffCategory = null,
+        loggedInUserData = [],
+        requestForEmployeeNumber = '',
+        requestForEmployeeName = '',
+        requestReason = '',
+        /** Dates selected for this request **/
+
+        selectedDatesNew = [],
+        selectedDatesApproved = [],
+        selectedDatesPendingApproval = [],
+        selectedDates = [],
+        selectedDateCategories = [],
+        selectedDateHours = [],
+        /** Dates selected for approved requests **/
+        selectedDatesApproved = [],
+        selectedDateCategoriesApproved = [],
+        selectedDateHoursApproved = [],
+        /** Dates selected for pending approval requests **/
+        selectedDatesPendingApproval = [],
+        selectedDateCategoriesPendingApproval = [],
+        selectedDateHoursPendingApproval = [],
+        showCurrentRequestsOnOrAfter = '',
+        showCurrentRequestsBefore = '',
+        categoryText = {
+            'timeOffPTO': 'PTO',
+            'timeOffFloat': 'Float',
+            'timeOffSick': 'Sick',
+            'timeOffGrandfathered': 'Grandfathered',
+            'timeOffUnexcusedAbsence': 'Unexcused',
+            'timeOffBereavement': 'Bereavement',
+            'timeOffCivicDuty': 'Civic Duty',
+            'timeOffApprovedNoPay': 'Approved No Pay'
+        },
+        directReportFilter = 'B';
 
     /**
      * Initializes binding
@@ -292,71 +292,71 @@ var timeOffViewRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
+        .success(function (json) {
 //                    console.log("### 289");
-                    if (requestForEmployeeNumber === '') {
-                        loggedInUserData = json.employeeData;
-                    }
+            if (requestForEmployeeNumber === '') {
+                loggedInUserData = json.employeeData;
+            }
 
-                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
-                    var calendarHtml = '';
-                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                        $("#calendar" + index + "Html").html(
-                            json.calendarData.openHeader +
-                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
-                            json.calendarData.closeHeader +
-                            thisCalendarHtml.data);
-                    });
+            var calendarHtml = '';
+            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
+                $("#calendar" + index + "Html").html(
+                    json.calendarData.openHeader +
+                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
+                    json.calendarData.closeHeader +
+                    thisCalendarHtml.data);
+            });
                     
-                    // Take the JSON data and use it for highlighting dates
+            // Take the JSON data and use it for highlighting dates
 //                    selectedDatesApproved = json.requestData.json.approved;
 //                    selectedDatesPendingApproval = json.requestData.json.pending;
-                    selectedDates = json.requestData.json.all;
+//                    selectedDates = json.requestData.json.all;
 
-                    timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
+            timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
+            timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
+            timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
+            timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
 
 //        	timeOffViewRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
-                    timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
+            timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-                    timeOffViewRequestHandler.highlightDates();
+            timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+            timeOffViewRequestHandler.highlightDates();
 
-                    // $(this).hasClass('disableTimeOffCategorySelection')
-                    if (json.employeeData.GF_AVAILABLE > 0) {
-                        $('.categoryPTO').addClass('disableTimeOffCategorySelection');
-                    }
+            // $(this).hasClass('disableTimeOffCategorySelection')
+            if (json.employeeData.GF_AVAILABLE > 0) {
+                $('.categoryPTO').addClass('disableTimeOffCategorySelection');
+            }
 
-                    requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
-                    requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
-                        ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
+            requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
+                ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
 //                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
 //                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
 //                            ' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
 
-                    console.log('json.employeeData', json.employeeData);
-                    console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-                    console.log('requestForEmployeeName', requestForEmployeeName);
+            console.log('json.employeeData', json.employeeData);
+//            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
+//            console.log('requestForEmployeeName', requestForEmployeeName);
 
 //                    $("#requestFor")
 //                        .empty()
@@ -364,21 +364,24 @@ var timeOffViewRequestHandler = new function ()
 //                        .val(requestForEmployeeNumber).trigger('change');
 
 //                    timeOffViewRequestHandler.checkAllowRequestOnBehalfOf();
-                    
-                    showCurrentRequestsOnOrAfter = json.calendarData.showCurrentRequestsOnOrAfter;
-                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
-                    timeOffViewRequestHandler.drawHoursRequested();
-                    
-                    console.log(json.calendarData.showCurrentRequestsOnOrAfter + ' :: ' + json.calendarData.showCurrentRequestsBefore);
-                    
-                    console.log("json", json);
 
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+            showCurrentRequestsOnOrAfter = json.calendarData.showCurrentRequestsOnOrAfter;
+            showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
+            
+            // YO DUDE
+            selectedDates = json.requestData.json.all; //json.requestData.json.all;
+            timeOffViewRequestHandler.drawHoursRequested();
+
+            console.log(json.calendarData.showCurrentRequestsOnOrAfter + ' :: ' + json.calendarData.showCurrentRequestsBefore);
+
+            console.log("json", json);
+
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     }
 
     this.setStep = function (step) {
@@ -731,9 +734,9 @@ var timeOffViewRequestHandler = new function ()
 //            $(this).removeClass('');
         });
 
-        console.log("highlight selectedDatesNew check", selectedDatesNew);
-        console.log("highlight selectedDatesPendingApproval check", selectedDatesPendingApproval);
-        console.log("highlight selectedDatesApproved check", selectedDatesApproved);
+//        console.log("highlight selectedDatesNew check", selectedDatesNew);
+//        console.log("highlight selectedDatesPendingApproval check", selectedDatesPendingApproval);
+//        console.log("highlight selectedDatesApproved check", selectedDatesApproved);
 
         $.each($(".calendar-day"), function (index, blah) {
             for (var i = 0; i < selectedDatesNew.length; i++) {
@@ -987,6 +990,8 @@ var timeOffViewRequestHandler = new function ()
 //        console.log("DATES TEST", selectedDates);
 //        console.log(showCurrentRequestsOnOrBefore + " :: " + showCurrentRequestsBefore);
         
+        console.log("selectedDates", selectedDates.length);
+        
         console.log("TEST LENGTH");
         console.log('length', selectedDates.length);
         if(selectedDates.length==0) {
@@ -1068,7 +1073,7 @@ var timeOffViewRequestHandler = new function ()
 //            var dateB = new Date(b.date).getTime();
 //            return dateA > dateB ? 1 : -1;
 //        });
-//        console.log(selectedDates);
+        console.log("SORT selectedDates", selectedDates);
     }
 
     this.selectResult = function (item) {

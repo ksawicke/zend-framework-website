@@ -64,7 +64,7 @@ class Calendar
     {
         $dates = self::getDatesForThreeCalendars($startYear, $startMonth);
         return ['calendars' => [ 1 => ['header' => $dates['currentMonth']->format('M') . ' ' . $dates['currentMonth']->format('Y'),
-                                       'data' => self::drawCalendar($startYear, $startMonth, [])],
+                                       'data' => self::drawCalendar($startMonth, $startYear, [])],
                                  2 => ['header' => $dates['oneMonthOut']->format('M') . ' ' . $dates['oneMonthOut']->format('Y'),
                                        'data' => self::drawCalendar($dates['oneMonthOut']->format('m'), $dates['oneMonthOut']->format('Y'), [])],
                                  3 => ['header' => $dates['twoMonthsOut']->format('M') . ' ' . $dates['twoMonthsOut']->format('Y'),
@@ -290,10 +290,6 @@ class Calendar
      */
     public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData)
     {
-//        echo '<pre>';
-//        print_r($calendarData);
-//        echo '</pre>';
-//        die("&");
         $calendarTemp = '';
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
             // $invalidRequestDates
