@@ -1,8 +1,8 @@
 <?php
 namespace Request\Controller;
 
-use Request\Service\RequestServiceInterface;
-use Zend\Form\FormInterface;
+//use Request\Service\RequestServiceInterface;
+//use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
@@ -10,9 +10,9 @@ use Zend\Session\Container;
 
 class RequestController extends AbstractActionController
 {
-    protected $requestService;
-
-    protected $requestForm;
+//    protected $requestService;
+//
+//    protected $requestForm;
 
     protected $employeeNumber;
 
@@ -55,10 +55,10 @@ class RequestController extends AbstractActionController
         'V' => 'VA'
     ];
     
-    public function __construct(RequestServiceInterface $requestService, FormInterface $requestForm)
+    public function __construct() // RequestServiceInterface $requestService, FormInterface $requestForm
     {
-        $this->requestService = $requestService;
-        $this->requestForm = $requestForm;
+//        $this->requestService = $requestService;
+//        $this->requestForm = $requestForm;
 
 //         echo '<pre>';
 //         print_r($_SESSION['Timeoff_'.ENVIRONMENT]);
@@ -193,9 +193,9 @@ class RequestController extends AbstractActionController
 //         \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
 //         \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
 //         \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
-        
+        $Employee = new \Request\Model\Employee();
         return new ViewModel([
-            'employeeData' => $this->requestService->findTimeOffBalancesByEmployee($this->employeeNumber),
+            'employeeData' => [], //$Employee->findTimeOffBalancesByEmployee($this->employeeNumber),
 //             'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
@@ -312,7 +312,8 @@ class RequestController extends AbstractActionController
                 
                 case 'getEmployeeList':
                     $return = [];
-                    $managerEmployees = $this->requestService->findManagerEmployees($this->employeeNumber, $request->getPost()->search, $request->getPost()->directReportFilter);
+                    $Employee = new \Request\Model\Employee();
+                    $managerEmployees = $Employee->findManagerEmployees($this->employeeNumber, $request->getPost()->search, $request->getPost()->directReportFilter);
                     foreach($managerEmployees as $id => $data) {
                         $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
                                       'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE

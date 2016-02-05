@@ -1,29 +1,26 @@
 <?php
 namespace Request;
 
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
+//use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+//use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
-class Module implements AutoloaderProviderInterface, ConfigProviderInterface
+use Zend\Mvc\ModuleRouteListener;
+use Zend\Mvc\MvcEvent;
+use Zend\Mvc\Application;
+
+class Module //implements AutoloaderProviderInterface, ConfigProviderInterface
 {
-
-    /**
-     * Return an array for passing to Zend\Loader\AutoloaderFactory.
-     *
-     * @return array
-     */
-    public function getAutoloaderConfig()
+    public function onBootstrap(MvcEvent $e)
     {
-        return array(
-            'Zend\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
-                    // Autoload all classes from namespace 'Blog' from '/module/Blog/src/Blog'
-                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__
-                )
-            )
-        );
-    }
+        $eventManager        = $e->getApplication()->getEventManager();
+        $moduleRouteListener = new ModuleRouteListener();
+        $moduleRouteListener->attach($eventManager);
 
+        // tell the ServiceManager to get the adapter, as configured in global.php
+        $serviveManager = $e->getApplication()->getServiceManager();
+        $serviveManager->get('Zend\Db\Adapter\Adapter');
+    }
+    
     /**
      * Returns configuration to merge with application configuration
      *
@@ -31,7 +28,17 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
      */
     public function getConfig()
     {
-        // var_dump(include __DIR__ . '/config/module.config.php');die("..");
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function getAutoloaderConfig()
+    {
+        return array(
+            'Zend\Loader\StandardAutoloader' => array(
+                'namespaces' => array(
+                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                ),
+            ),
+        );
     }
 }

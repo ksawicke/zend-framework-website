@@ -1,16 +1,34 @@
 <?php
 namespace Request\Model;
 
+use Zend\Db\Sql\Delete;
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Update;
+use Zend\Db\Sql\Expression;
+use Zend\Db\Adapter\Driver\ResultInterface;
+use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 
 /**
- * Common Request arrays
+ * All Database functions for employees
  *
  * @author sawik
  *
  */
-class Request extends BaseDB
+class TimeOffRequests extends BaseDB
 {
+
+    /**
+     * @var array
+     */
+    public $employeeData = [];
+    public $employerNumber = '';
+    public $includeApproved = '';
+    public $timeoffRequestColumns;
+    public $timeoffRequestEntryColumns;
+    public $timeoffRequestCodeColumns;
+    
     public static $requestStatuses = [
         'draft' => 'D',
         'approved' => 'A',
@@ -57,5 +75,3 @@ class Request extends BaseDB
         'S' => 'SK',
         'V' => 'VA'
     ];
-    
-}

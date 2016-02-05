@@ -22,7 +22,74 @@ class Employee extends BaseDB
     /**
      * @var array
      */
-    public $employeeData = [];
+    public $employeeData = []; //['BEREAVEMENT_PENDING' => '.00',
+//        'BEREAVEMENT_PENDING_TMP' => '.00',
+//        'BEREAVEMENT_PENDING_TOTAL' => '.00',
+//        'BEREAVEMENT_UNAPPROVED' => '.00',
+//        'CIVIC_DUTY_PENDING' => '.00',
+//        'CIVIC_DUTY_PENDING_TMP' => '.00',
+//        'CIVIC_DUTY_PENDING_TOTAL' => '.00',
+//        'CIVIC_DUTY_UNAPPROVED' => '.00',
+//        'EMAIL_ADDRESS' => 'James_Gasior@Swifttrans.com',
+//        'EMPLOYEE_HIRE_DATE' => '8/06/1999',
+//        'EMPLOYEE_NAME' => 'GASIOR, JAMES',
+//        'EMPLOYEE_NUMBER' => '49499"
+//        'FLOAT_AVAILABLE' => '.00',
+//        'FLOAT_EARNED' => '152.00',
+//        'FLOAT_PENDING' => '.00',
+//        'FLOAT_PENDING_TMP' => '.00',
+//        'FLOAT_PENDING_TOTAL' => '.00',
+//        'FLOAT_TAKEN' => '152.00',
+//        'FLOAT_UNAPPROVED' => '.00',
+//        'GF_AVAILABLE' => '.00',
+//        'GF_EARNED' => '.00',
+//        'GF_PENDING' => '.00',
+//        'GF_PENDING_TMP' => '.00',
+//        'GF_PENDING_TOTAL' => '.00',
+//        'GF_TAKEN' => '.00',
+//        'GF_UNAPPROVED' => '.00',
+//        'LEVEL_1' => '10100"
+//        'LEVEL_2' => 'IT"
+//        'LEVEL_3' => 'DV00X"
+//        'LEVEL_4' => '92510"
+//        'MANAGER_EMAIL_ADDRESS' => 'Mary_Jackson@swifttrans.com"
+//        'MANAGER_EMPLOYEE_NUMBER' => '229589"
+//        'MANAGER_NAME' => 'JACKSON, MARY"
+//        'MANAGER_POSITION' => 'MESITP"
+//        'MANAGER_POSITION_TITLE' => 'SAVTN-SR IT PROJECT LDR"
+//        'POSITION' => 'AZSDA3"
+//        'POSITION_TITLE' => 'PHOAZ-SOFTWARE DEV/ANALYST III"
+//        'PTO_AVAILABLE' => '-230.67"
+//        'PTO_EARNED' => '1993.33"
+//        'PTO_PENDING' => '8.00',
+//        'PTO_PENDING_TMP' => '.00',
+//        'PTO_PENDING_TOTAL' => '632.00',
+//        'PTO_TAKEN' => '1592.00',
+//        'PTO_UNAPPROVED' => '624.00',
+//        'SALARY_TYPE' => 'S"
+//        'SCHEDULE_FRI' => '8.00',
+//        'SCHEDULE_MON' => '8.00',
+//        'SCHEDULE_SAT' => '.00',
+//        'SCHEDULE_SUN' => '.00',
+//        'SCHEDULE_THU' => '8.00',
+//        'SCHEDULE_TUE' => '8.00',
+//        'SCHEDULE_WED' => '8.00',
+//        'SICK_AVAILABLE' => '-6.67"
+//        'SICK_EARNED' => '513.33"
+//        'SICK_PENDING' => '.00',
+//        'SICK_PENDING_TMP' => '.00',
+//        'SICK_PENDING_TOTAL' => '96.00',
+//        'SICK_TAKEN' => '424.00',
+//        'SICK_UNAPPROVED' => '96.00',
+//        'UNEXCUSED_PENDING' => '.00',
+//        'UNEXCUSED_PENDING_TMP' => '.00',
+//        'UNEXCUSED_PENDING_TOTAL' => '.00',
+//        'UNEXCUSED_UNAPPROVED' => '.00',
+//        'UNPAID_PENDING' => '.00',
+//        'UNPAID_PENDING_TMP' => '.00',
+//        'UNPAID_PENDING_TOTAL' => '.00',
+//        'UNPAID_UNAPPROVED' => '.00'
+//    ];
     public $employerNumber = '';
     public $includeApproved = '';
     public $timeoffRequestColumns;
@@ -113,6 +180,88 @@ class Employee extends BaseDB
         }
         
         return \Request\Helper\Format::trimData( $this->employeeData );
+    }
+    
+    public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null)
+    {
+        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
+        $where = "WHERE (
+            employee.PRER = '002' and
+            employee.PRTEDH = 0 and
+            employee.PRL02 <> 'DRV' and
+            trim(employee.PREN) LIKE '" . strtoupper($search) . "%' OR
+            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%' OR
+            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%'
+        )";
+
+        if ($isPayroll === "N") {
+            $rawSql = "SELECT
+                CASE
+                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+                END AS EMPLOYEE_NAME,
+                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+                employee.PRL01 AS LEVEL_1,
+                employee.PRL02 AS LEVEL_2,
+                employee.PRL03 AS LEVEL_3,
+                employee.PRL04 AS LEVEL_4,
+                hierarchy.DIRECT_INDIRECT,
+                hierarchy.MANAGER_LEVEL,
+                trim(employee.PRPOS) AS POSITION,
+                trim(employee.PREML1) AS EMAIL_ADDRESS,
+                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+                trim(employee.PRTITL) AS POSITION_TITLE,
+                TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+                manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+            FROM PRPMS employee
+            INNER JOIN table (
+                  SELECT
+                      trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+                      TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                      DIRECT_INDIRECT,
+                      MANAGER_LEVEL
+                  FROM table (
+                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+                  ) as data
+            ) hierarchy
+                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+            INNER JOIN PRPSP manager
+                  ON employee.PREN = manager.SPEN
+            INNER JOIN PRPMS manager_addons
+                 ON manager_addons.PREN = manager.SPSPEN
+            " . $where . "
+            ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+        } else {
+            $rawSql = "SELECT
+                CASE
+                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+                END AS EMPLOYEE_NAME,
+                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+                employee.PRL01 AS LEVEL_1,
+                employee.PRL02 AS LEVEL_2,
+                employee.PRL03 AS LEVEL_3,
+                employee.PRL04 AS LEVEL_4,
+                'N' AS DIRECT_INDIRECT,
+                '0' AS MANAGER_LEVEL,
+                trim(employee.PRPOS) AS POSITION,
+                trim(employee.PREML1) AS EMAIL_ADDRESS,
+                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+                trim(employee.PRTITL) AS POSITION_TITLE,
+                '' AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                '' AS DIRECT_MANAGER_NAME,
+                '' AS DIRECT_MANAGER_EMAIL_ADDRESS
+                FROM PRPMS employee
+                " . $where . "
+                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+        }
+        
+//        die($rawSql);
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
+
+        return $employeeData;
     }
     
     public function appendAllRequestsJsonArray($request)

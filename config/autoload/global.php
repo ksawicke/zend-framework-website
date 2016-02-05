@@ -30,7 +30,6 @@ return [
      ],
      'service_manager' => [
          'factories' => [
-//            'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
             'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
                 $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
                 $adapter = $adapterFactory->createService($serviceManager);

@@ -1,14 +1,20 @@
 <?php
+
+namespace Request;
+
 $config = [
     'service_manager' => [
         'factories' => [
-            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
-            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
+//            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
+//            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
         ]
     ],
     'controllers' => [
-        'factories' => [
-            'Request\Controller\Request' => 'Request\Factory\RequestControllerFactory'
+//        'factories' => [
+//            'Request\Controller\Request' => 'Request\Factory\RequestControllerFactory'
+//        ],
+        'invokables' => [
+            'Request\Controller\Request' => Controller\RequestController::class
         ]
     ],
     'router' => [

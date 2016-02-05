@@ -1,7 +1,7 @@
 <?php
 namespace Request\Factory;
 
-use Request\Mapper\RequestMapper;
+//use Request\Mapper\RequestMapper;
 use Request\Model\Request;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
