@@ -85,29 +85,7 @@ class RequestController extends AbstractActionController
             '12/26/2016',
             '01/02/2017'
         ];
-        
-//         $session = new Container('User');
-//         echo '<pre>';
-//         print_r($_SESSION['User']);
-//         echo '</pre>';
-//         die('**');
-        
-//         if(!$this->isLoggedIn()) {
-//             return $this->redirect()->toRoute('login');
-//         }
     }
-    
-//     public function isLoggedIn()
-//     {
-//         return false;
-//     }
-    
-//     public function loginAction()
-//     {
-//         return new ViewModel(array(
-            
-//         ));
-//     }
 
     public function outlookAction()
     {
@@ -177,25 +155,10 @@ class RequestController extends AbstractActionController
     
     public function createAction()
     {
-//        $send = $this->testUpdateCal();
-//        if($send) {
-//            die("SENT");
-//        } else {
-//            die("NOT SENT");
-//        }
-        
-        // One method to grab a service....
-        // Not using this but leaving as a reference for maybe later.
-        //         $service = $this->getServiceLocator()->get('Request\Service\RequestServiceInterface');
-        //         var_dump($service->findTimeOffBalances($this->employeeId));
-        //         exit();
-
-//         \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
-//         \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
-//         \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
         $Employee = new \Request\Model\Employee();
+        
         return new ViewModel([
-            'employeeData' => [], //$Employee->findTimeOffBalancesByEmployee($this->employeeNumber),
+            'employeeData' => $Employee->findTimeOffEmployeeData($this->employeeNumber, "Y"),
 //             'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
@@ -203,10 +166,6 @@ class RequestController extends AbstractActionController
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
-//             'approvedRequestData' => $this->requestService->findTimeOffApprovedRequestsByEmployee($this->employeeNumber, 'datesOnly'),
-//             'calendar1Html' => \Request\Helper\Calendar::drawCalendar('12', '2015', []),
-//             'calendar2Html' => \Request\Helper\Calendar::drawCalendar('1', '2016', []),
-//             'calendar3Html' => \Request\Helper\Calendar::drawCalendar('2', '2016', [])
         ]);
     }
     
@@ -234,8 +193,13 @@ class RequestController extends AbstractActionController
         if ($request->isPost()) {
             switch($request->getPost()->action) {
                 case 'submitApprovalResponse':
-                    $requestData = $this->requestService->checkHoursRequestedPerCategory($request->getPost()->request_id);
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($requestData['EMPLOYEE_NUMBER']);
+                    $Employee = new \Request\Model\Employee();
+                    $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
+                    $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
+                    
+                    var_dump($requestData);
+                    var_dump($employeeData);
+                    die("#");
                     
 //                    var_dump($requestData);die("@@@");
                     
@@ -338,23 +302,33 @@ class RequestController extends AbstractActionController
                     }
                     
                     $Employee = new \Request\Model\Employee();
-                    $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber);
+                    $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y",
+                        "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS, " .
+                        "MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_EMAIL_ADDRESS, " .
+                        "PTO_EARNED, PTO_TAKEN, PTO_UNAPPROVED, " .
+                        "PTO_PENDING, PTO_PENDING_TMP, PTO_PENDING_TOTAL, PTO_AVAILABLE, " .
+                        "FLOAT_EARNED, FLOAT_TAKEN, FLOAT_UNAPPROVED, " .
+                        "FLOAT_PENDING, FLOAT_PENDING_TMP, FLOAT_PENDING_TOTAL, FLOAT_AVAILABLE, " .
+                        "SICK_EARNED, SICK_TAKEN, SICK_UNAPPROVED, SICK_PENDING, SICK_PENDING_TMP, SICK_PENDING_TOTAL, " .
+                        "SICK_AVAILABLE, GF_EARNED, GF_TAKEN, GF_UNAPPROVED, GF_PENDING, GF_PENDING_TMP, " . 
+                        "GF_PENDING_TOTAL, GF_AVAILABLE, UNEXCUSED_UNAPPROVED, UNEXCUSED_PENDING, " .
+                        "UNEXCUSED_PENDING_TMP, UNEXCUSED_PENDING_TOTAL, BEREAVEMENT_UNAPPROVED, " .
+                        "BEREAVEMENT_PENDING, BEREAVEMENT_PENDING_TMP, BEREAVEMENT_PENDING_TOTAL, CIVIC_DUTY_UNAPPROVED, ".
+                        "CIVIC_DUTY_PENDING, CIVIC_DUTY_PENDING_TMP, CIVIC_DUTY_PENDING_TOTAL, UNPAID_UNAPPROVED, " .
+                        "UNPAID_PENDING, UNPAID_PENDING_TMP, UNPAID_PENDING_TOTAL");
+                    
+                    $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber, json_encode($employeeData));
                     $requestId = $requestReturnData['request_id'];
                     $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
-                    $this->requestService->logEntry($requestId, $requesterEmployeeNumber, $comment);
+                    $Employee->logEntry($requestId, $requesterEmployeeNumber, $comment);
                     
-                    $employeeData = $this->requestService->findTimeOffBalancesByEmployee($employeeNumber);
-                    $this->requestService->logEntry(
+                    $Employee->logEntry(
                         $requestId,
                         $requesterEmployeeNumber,
-                        'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData['MANAGER_FIRST_NAME']))) .
-                        " " . trim(ucwords(strtolower($employeeData['MANAGER_LAST_NAME'])))
+                        'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData->MANAGER_NAME)))
                     );
-                    $requestReturnData = $this->requestService->submitApprovalResponse('P', $requestReturnData['request_id'], $request->getPost()->requestReason);
-                    
-                    //$employeeNumber
-//                    $comment2 = 'Sent for manager approval to ' . trim(ucwords(strtolower($calendarInviteData['for']['MANAGER_FIRST_NAME']))) . " " . trim(ucwords(strtolower($calendarInviteData['for']['MANAGER_LAST_NAME'])));
-                    
+                    $requestReturnData = $Employee->submitApprovalResponse('P', $requestReturnData['request_id'], $request->getPost()->requestReason, json_encode($employeeData));
+
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -366,7 +340,6 @@ class RequestController extends AbstractActionController
                             'message' => 'There was an error submitting your request. Please try again.'
                         ]);
                     }
-                    
                     break;
                     
                 case 'loadTeamCalendar':

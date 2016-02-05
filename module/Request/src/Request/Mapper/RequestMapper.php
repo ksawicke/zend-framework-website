@@ -882,7 +882,7 @@ class RequestMapper implements RequestMapperInterface {
     {
         $action = new Insert('timeoff_request_employee_schedules');
         $action->values([
-            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad($employeeNumber),
             'SCHEDULE_MON' => '8.00',
             'SCHEDULE_TUE' => '8.00',
             'SCHEDULE_WED' => '8.00',

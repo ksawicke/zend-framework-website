@@ -11,10 +11,10 @@ $config = [
     ],
     'controllers' => [
 //        'factories' => [
-//            'Request\Controller\Request' => 'Request\Factory\RequestControllerFactory'
+//            'RequestController' => 'Request\Factory\RequestControllerFactory'
 //        ],
         'invokables' => [
-            'Request\Controller\Request' => Controller\RequestController::class
+            'RequestController' => Controller\RequestController::class
         ]
     ],
     'router' => [
@@ -34,7 +34,7 @@ $config = $route->addNewRoute(
     $config,
     ['name' => 'home',
      'route' => '/request/view-my-requests',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'viewMyRequests'
     ]
 );
@@ -42,21 +42,21 @@ $config = $route->addNewRoute(
     $config,
     ['name' => 'success',
      'route' => '/request/submitted-for-approval',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'submittedForApproval'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/view-employee-requests',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'viewEmployeeRequests'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/view-my-team-calendar',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'viewMyTeamCalendar'
     ]
 );
@@ -64,7 +64,7 @@ $config = $route->addNewRoute(
     $config,
     ['name' => 'create',
      'route' => '/request/create',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'create'
     ]
 );
@@ -72,21 +72,21 @@ $config = $route->addNewRoute(
     $config,
     ['name' => 'create2',
      'route' => '/request/create',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'create'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/api',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'api'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/view-my-requests',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'viewMyRequests'
     ]
 );
@@ -94,21 +94,21 @@ $config = $route->addNewRoute(
     $config,
     ['type' => 'segment',
      'route' => '/request/review-request/[:request_id]',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'reviewRequest'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/approved-request',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'approvedRequest'
     ]
 );
 $config = $route->addNewRoute(
     $config,
     ['route' => '/request/denied-request',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'deniedRequest'
     ]
 );
@@ -116,7 +116,7 @@ $config = $route->addNewRoute(
     $config,
     ['type' => 'segment',
      'route' => '/request/test/[:employee_number]',
-     'controller' => 'Request\Controller\Request',
+     'controller' => 'RequestController',
      'action' => 'test'
     ]
 );

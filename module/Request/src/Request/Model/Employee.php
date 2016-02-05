@@ -95,6 +95,7 @@ class Employee extends BaseDB
     public $timeoffRequestColumns;
     public $timeoffRequestEntryColumns;
     public $timeoffRequestCodeColumns;
+    public $excludeLevel2 = [];
     
     public static $requestStatuses = [
         'draft' => 'D',
@@ -163,11 +164,55 @@ class Employee extends BaseDB
         $this->timeoffRequestCodeColumns = [
             'REQUEST_TYPE' => 'DESCRIPTION'
         ];
+        $this->excludeLevel2 = ['DRV'];
     }
     
-    public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y")
+    public function getExcludedLevel2()
     {
-        $rawSql = "select * from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data";
+        $where = '';
+        foreach($this->excludeLevel2 as $excluded) {
+            $where .= "employee.PRL02 <> '" . implode(', ', $this->excludeLevel2) . "' and ";
+        }
+        return $where;
+    }
+    
+    public function checkHoursRequestedPerCategory($requestId = null)
+    {
+        $rawSql = "SELECT
+            request.REQUEST_ID AS ID,
+            request.EMPLOYEE_NUMBER,
+            request.REQUEST_REASON AS REASON,
+            (
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+
+            ) AS TOTAL,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'P'
+            ) AS PTO,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'K'
+            ) AS FLOAT,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'S'
+            ) AS SICK,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'R'
+            ) AS GRANDFATHERED
+            FROM TIMEOFF_REQUESTS request
+            WHERE request.REQUEST_ID = '" . $requestId . "'";
+        
+        $requestData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->adapter, $rawSql);
+
+        return $requestData;
+    }
+    
+    public function findTimeOffEmployeeData($employeeNumber = null, $includeHourTotals = "Y", $includeOnlyFields = "*")
+    {
+        $rawSql = "select " . $includeOnlyFields . " from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data";
         $statement = $this->adapter->query($rawSql);
         $result = $statement->execute();
         
@@ -182,13 +227,26 @@ class Employee extends BaseDB
         return \Request\Helper\Format::trimData( $this->employeeData );
     }
     
+    public function submitApprovalResponse($action = null, $requestId = null, $reviewRequestReason = null, $employeeData = null)
+    {
+        $requestReturnData = ['request_id' => null];
+        $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
+        $employeeData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);
+        $requestReturnData['request_id'] = $requestId;
+        
+        // Send calendar invites for this time off to appropriate individual(s)
+        
+
+        return $requestReturnData;
+    }
+    
     public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null)
     {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
         $where = "WHERE (
+            " . $this->getExcludedLevel2() . "
             employee.PRER = '002' and
             employee.PRTEDH = 0 and
-            employee.PRL02 <> 'DRV' and
             trim(employee.PREN) LIKE '" . strtoupper($search) . "%' OR
             trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%' OR
             trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper($search) . "%'
@@ -406,8 +464,9 @@ class Employee extends BaseDB
         return $array;
     }
     
-    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)
+    public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null, $employeeData = null)
     {
+//        var_dump(json_encode($employeeData));die('^');
         $requestReturnData = ['request_id' => null];
 
         /** Insert record into TIMEOFF_REQUESTS * */
@@ -416,7 +475,8 @@ class Employee extends BaseDB
             'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad($employeeNumber),
             'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
             'CREATE_USER' => \Request\Helper\Format::rightPad($requesterEmployeeNumber),
-            'REQUEST_REASON' => $requestReason
+            'REQUEST_REASON' => $requestReason, 
+            'EMPLOYEE_DATA' => $employeeData
         ]);
         $sql = new Sql($this->adapter);
         $stmt = $sql->prepareStatementForSqlObject($action);
@@ -448,6 +508,23 @@ class Employee extends BaseDB
         $requestReturnData['request_id'] = $requestId;
 
         return $requestReturnData;
+    }
+    
+    public function logEntry($requestId = null, $employeeNumber = null, $comment = null)
+    {
+        $logEntry = new Insert('timeoff_request_log');
+        $logEntry->values([
+            'REQUEST_ID' => $requestId,
+            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'COMMENT' => $comment
+        ]);
+        $sql = new Sql($this->adapter);
+        $stmt = $sql->prepareStatementForSqlObject($logEntry);
+        try {
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
     }
     
     public function trimData($object)
