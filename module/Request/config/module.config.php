@@ -100,6 +100,14 @@ $config = $route->addNewRoute(
 );
 $config = $route->addNewRoute(
     $config,
+    ['type' => 'segment',
+     'route' => '/request/build-papaa-test/[:request_id]',
+     'controller' => 'RequestController',
+     'action' => 'buildPapaaTest'
+    ]
+);
+$config = $route->addNewRoute(
+    $config,
     ['route' => '/request/approved-request',
      'controller' => 'RequestController',
      'action' => 'approvedRequest'

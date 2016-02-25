@@ -417,7 +417,7 @@ class RequestController extends AbstractActionController
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
-        return new ViewModel(array(
+        return new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
             'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
@@ -425,18 +425,34 @@ class RequestController extends AbstractActionController
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
-        ));
+        ]);
     }
     
     public function viewMyRequestsAction()
     {
-        return new ViewModel(array(
+        $startDate = date("Y") . "-" . date("m") . "-01";
+        $endDate = date("Y-m-t", strtotime($startDate));
+        $employeeNumber = trim($this->employeeNumber);
+        \Request\Helper\Calendar::setCalendarHeadings(['S','M','T','W','T','F','S']);
+        \Request\Helper\Calendar::setBeginWeekOne('<tr class="calendar-row" style="height:40px;">');
+        \Request\Helper\Calendar::setBeginCalendarRow('<tr class="calendar-row" style="height:40px;">');
+        \Request\Helper\Calendar::setInvalidRequestDates($this->invalidRequestDates);
+        $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars(date("Y"), date("m"));
+
+        $Employee = new \Request\Model\Employee();
+        $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+        $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
+        
+        var_dump($this->layout()->employeeData);
+        return new ViewModel([
+            'employeeData' => $employeeData,
+            'requestData' => $requestData,
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
-        ));
+        ]);
     }
     
     public function viewMyTeamCalendarAction()
@@ -453,6 +469,17 @@ class RequestController extends AbstractActionController
     {
         $this->flashMessenger()->addSuccessMessage('Request has been submitted successfully.');
         return $this->redirect()->toRoute('create');
+    }
+    
+    public function buildPapaaTestAction()
+    {
+        $requestId = $this->params()->fromRoute('request_id');
+        
+        echo '<pre>';
+        print_r( $requestId );
+        echo '</pre>';
+        
+        die("------------------");
     }
     
     public function reviewRequestAction()

@@ -41,5 +41,10 @@ if (php_sapi_name() === 'cli-server') {
 // Setup autoloading
 require 'init_autoloader.php';
 
+//require zend_deployment_library_path('SwiftUtils') . '/Logging/Logger.php';
+
+// USE:
+// \SwiftIT\Logging\Logger::logError("NO MORE TACOS", "error", "/path/to/some/file/somewhere.log");
+
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();

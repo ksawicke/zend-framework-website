@@ -195,6 +195,8 @@ var timeOffViewRequestHandler = new function ()
             timeOffViewRequestHandler.fadeOutFlashMessage();
 
 //        	timeOffViewRequestHandler.checkLocalStorage();
+
+            console.log("TESTING PHP VARS PASSED IN", phpVars);
         });
     }
 

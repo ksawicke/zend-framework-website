@@ -425,7 +425,7 @@ class Employee extends BaseDB
         $sql = new Sql($this->adapter);
         if($startDate==null || $endDate==null) {
             $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
-                ->columns($this->timeoffRequestEntryColumns)
+                ->columns(['EMPLOYEE_NUMBER' => 'PREN']) // $this->timeoffRequestEntryColumns
                 ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
                 ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
                 ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber),
@@ -558,5 +558,34 @@ class Employee extends BaseDB
 //        }
 //        return $data;
      */
+    
+    /**
+     * Do a subquery
+     * 
+     * /**
+         * instantiate new SQL adapter
+         */
+//        $sql = new Sql($this->adapter);
+
+        /**
+         * prepare new SQL Select
+         */
+//        $select = $sql->select();
+
+        /**
+         * define sql FROM
+         */
+//        $select->from('HOTEL_MANAGER_ROOMS');
+
+        /**
+         * create sub-query
+         */
+//        $subQry = $sql->select()
+//                      ->from('HOTEL_MANAGER_GUESTS')
+//                      ->columns(array('OCCUPIED_BEDS' => new \Zend\Db\Sql\Expression('COUNT(*)')))
+//                      ->where('GUEST_HOTEL_ROOM = HOTEL_MANAGER_ROOMS.IDENTITY_ID AND');
+
+//        $select->columns(array('IDENTITY_ID', 'ROOM_NUMBER', 'ROOM_CAPACITY', 'ROOMS_OCCUPIED' => new \Zend\Db\Sql\Expression('?', array($subQry))));
+
     
 }

@@ -17,8 +17,11 @@ class Module //implements AutoloaderProviderInterface, ConfigProviderInterface
         $moduleRouteListener->attach($eventManager);
 
         // tell the ServiceManager to get the adapter, as configured in global.php
-        $serviveManager = $e->getApplication()->getServiceManager();
-        $serviveManager->get('Zend\Db\Adapter\Adapter');
+        $serviceManager = $e->getApplication()->getServiceManager();
+        $serviceManager->get('Zend\Db\Adapter\Adapter');
+        
+//        $Employee = $serviceManager->get('Request\Service\Employee');
+//        $viewModel->employeeData = $Employee->findTimeOffEmployeeData("49499", "Y");
     }
     
     /**

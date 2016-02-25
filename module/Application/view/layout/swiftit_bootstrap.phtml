@@ -1,3 +1,17 @@
+<?php
+$welcomeMessage = '';
+$employeeNumber = '';
+
+if( isset($_SESSION['Timeoff_'.ENVIRONMENT]) ) {
+    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
+        $_SESSION['Timeoff_'.ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_'.ENVIRONMENT]['LAST_NAME'] .
+        '!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout</a>)';
+    $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
+}
+
+//var_dump($employeeData);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -44,8 +58,6 @@
         ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'))
         ->appendFile($this->basePath('js/jqueryui/jquery-ui.js'));
       
-      // 12/15/2015 sawik - Hackish? Doing a conditional to load js based on page.
-      // will update with better solution if poss
       if(strpos($_SERVER['REDIRECT_URL'], '/request/create') !== false) {
           $this->headScript()
             ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
@@ -53,6 +65,8 @@
             ->appendFile($this->basePath('js/select2/select2.min.js'));
       }
       if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-requests') !== false) {
+          $this->headScript()
+            ->appendScript('var phpVars='.json_encode(['employee_number' => $employeeNumber]));
           $this->headScript()
             ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
             ->appendFile($this->basePath('js/request/timeOffViewMyRequestHandler.js'))
@@ -111,7 +125,7 @@
                 Time Off
                 <?php /***&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">***/ ?>
                 <?php /***&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">MGR: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_MANAGER'] . ' | PAYROLL: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_PAYROLL'] . '</span>***/ ?>
-                <?php echo (isset($_SESSION['Timeoff_'.ENVIRONMENT])?'&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, '.$_SESSION['Timeoff_'.ENVIRONMENT]['COMMON_NAME'].' '.$_SESSION['Timeoff_'.ENVIRONMENT]['LAST_NAME'].'!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout</a>)':''); ?>
+                <?php echo $welcomeMessage; ?>
               </div>
           </div>
           <div class="visible-xs visible-sm">
