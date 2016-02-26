@@ -412,14 +412,57 @@ class RequestController extends AbstractActionController
 
     public function viewEmployeeRequestsAction()
     {
-        $isLoggedInUserManager = $this->requestService->isManager($this->employeeNumber);
+        $Employee = new \Request\Model\Employee();
+        $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         if($isLoggedInUserManager!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
+        
+        $RequestEntry = new \Request\Model\RequestEntry();
+        $Papaa = new \Request\Model\Papaa();
+        
+        $dateRequestBlocks = $RequestEntry->getRequestBlocks( 10516 );
+        
+//        foreach( $dateRequestBlocks as $ctr => $requestBlock ) {
+//            echo '<pre>';
+//            print_r( $requestBlock );
+//            echo '</pre>';
+//        }
+//        die("exit");
+        
+        foreach( $dateRequestBlocks as $ctr => $requestBlock )
+        {
+            $Papaa->SaveDates( $requestBlock );
+            echo '<pre>';
+            print_r( $Papaa->collection );
+            echo '</pre>';
+        }
+        
+        die(".....");
+        
+        echo '<pre>';
+        print_r( $dates );
+        echo '</pre>';
+        
+        die(".....");
+        
+        $Papaa->SaveDates( ['1', '2', '3'] );
+        echo '<pre>';
+        print_r( $Papaa->collection );
+        echo '</pre>';
+        
+        die(".....");
+        
+        
+//        $Helper->papaa();
+//        $Helper->getPapaaVars();
+        
+        die("<br /><br />.");
+        
         return new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
-            'managerReportsData' => $this->requestService->findQueuesByManager($this->employeeNumber),
+            'managerReportsData' => $Employee->findQueuesByManager($this->employeeNumber),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
@@ -443,7 +486,7 @@ class RequestController extends AbstractActionController
         $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
         
-        var_dump($this->layout()->employeeData);
+//        var_dump($this->layout()->employeeData);
         return new ViewModel([
             'employeeData' => $employeeData,
             'requestData' => $requestData,

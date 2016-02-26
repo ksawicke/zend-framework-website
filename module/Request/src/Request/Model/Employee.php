@@ -167,6 +167,72 @@ class Employee extends BaseDB
         $this->excludeLevel2 = ['DRV'];
     }
     
+    public function findQueuesByManager($managerEmployeeNumber = null)
+    {
+        $rawSql = "SELECT
+            request.REQUEST_ID AS REQUEST_ID,
+            request.EMPLOYEE_NUMBER,
+            request.REQUEST_REASON AS REQUEST_REASON,
+            request.REQUEST_STATUS AS REQUEST_STATUS,
+            (
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+            ) AS requested_hours,
+            (
+                    SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+            ) AS MIN_REQUEST_DATE,
+            (
+                    SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+            ) AS MAX_REQUEST_DATE,
+
+            employee.PRLNM AS EMPLOYEE_LAST_NAME, employee.PRFNM AS EMPLOYEE_FIRST_NAME, employee.PRMNM AS EMPLOYEE_MIDDLE_NAME,
+
+            manager_addons.PRER AS MANAGER_EMPLOYER_NUMBER, manager_addons.PREN AS MANAGER_EMPLOYEE_NUMBER,
+            manager_addons.PRFNM AS MANAGER_FIRST_NAME, manager_addons.PRMNM AS MANAGER_MIDDLE_INITIAL,
+            manager_addons.PRLNM AS MANAGER_LAST_NAME, manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
+        
+        FROM TIMEOFF_REQUESTS request
+        INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+        INNER JOIN table (
+            SELECT
+                trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+                TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                DIRECT_INDIRECT,
+                MANAGER_LEVEL
+            FROM table (
+                CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'D')
+            ) as data
+        ) hierarchy
+            ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+        WHERE request.REQUEST_STATUS = 'P'
+        ORDER BY MIN_REQUEST_DATE ASC";
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
+
+        return $employeeData;
+    }
+    
+    public function isManager($employeeNumber = null)
+    {
+        $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
+
+        return $isSupervisorData[0]->IS_MANAGER;
+    }
+
+    public function isPayroll($employeeNumber = null)
+    {
+        $rawSql = "SELECT
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL
+            FROM PRPMS
+            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
+
+        return $isSupervisorData[0]->IS_MANAGER;
+    }
+    
     public function getExcludedLevel2()
     {
         $where = '';
