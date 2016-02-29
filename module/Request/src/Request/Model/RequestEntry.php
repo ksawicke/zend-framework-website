@@ -8,15 +8,57 @@
 
 namespace Request\Model;
 
+use Zend\Db\Sql\Delete;
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Update;
+use Zend\Db\Sql\Expression;
+use Zend\Db\Adapter\Driver\ResultInterface;
+use Zend\Db\ResultSet\ResultSet;
+use Request\Model\BaseDB;
+
 /**
  * Description of RequestEntry
  *
  * @author sawik
  */
-class RequestEntry {
+class RequestEntry extends BaseDB {
+    
+    public function __construct()
+    {
+        parent::__construct();
+    }
     
     public static function getRequestBlocks( $requestId )
     {
+        /**
+         * TIMEOFF_REQUEST_ENTRIES
+         *      REQUEST_ID
+         *      REQUEST_DATE
+         *      REQUESTED_HOURS
+         *      REQUEST_CODE
+         * 
+         * TIMEOFF_REQUESTS
+         *      REQUEST_ID
+         *      EMPLOYEE_NUMBER
+         *      REQUEST_REASON
+         */
+        
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+                ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_CODE' => 'REQUEST_CODE' ])
+                ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID',
+                       ['EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_REASON' => 'REQUEST_REASON'])
+                ->where(['request.REQUEST_ID' => $requestId])
+                ->order(['entry.REQUEST_DATE ASC']);
+        $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        
+        echo '<pre>';
+        print_r( $return );
+        echo '</pre>';
+        
+        die( "STOP" );
+        
         $request = ['id' => '123495',
                     'for' => ['employee_number' => '49499', 'level1' => '1234', 'level2' => '2424', 'level3' => '3224', 'level4' => '3434'],
                     'dates' => [ ['hours' => '8.00', 'type' => 'P', 'date' => '2016-02-14'], /** Record 1 (14 days) **/
