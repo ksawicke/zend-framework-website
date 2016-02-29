@@ -413,27 +413,27 @@ class RequestController extends AbstractActionController
     public function viewEmployeeRequestsAction()
     {
         $Employee = new \Request\Model\Employee();
+        $RequestEntry = new \Request\Model\RequestEntry();
+        $Papaa = new \Request\Model\Papaa();
+        
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         if($isLoggedInUserManager!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
         
-        $RequestEntry = new \Request\Model\RequestEntry();
-        $Papaa = new \Request\Model\Papaa();
-        
         $dateRequestBlocks = $RequestEntry->getRequestBlocks( 10516 );
+        $employeeData = $Employee->findTimeOffEmployeeData( "49499", "Y",
+            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4" );
         
-//        foreach( $dateRequestBlocks as $ctr => $requestBlock ) {
-//            echo '<pre>';
-//            print_r( $requestBlock );
+//        echo '<pre>';
+//            print_r( $employeeData );
 //            echo '</pre>';
-//        }
-//        die("exit");
+//            die("............");
         
-        foreach( $dateRequestBlocks as $ctr => $requestBlock )
+        foreach( $dateRequestBlocks as $ctr => $dateCollection )
         {
-            $Papaa->SaveDates( $requestBlock );
+            $Papaa->SaveDates( $employeeData, $dateCollection );
             echo '<pre>';
             print_r( $Papaa->collection );
             echo '</pre>';

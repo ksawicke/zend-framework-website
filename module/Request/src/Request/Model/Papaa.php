@@ -1,15 +1,13 @@
 <?php
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Output Papaa data object
  */
 
 namespace Request\Model;
 
 /**
- * Description of Papaa
+ * Build Objects for tables: PAPAATMP, HRLYPAPAATMP
  *
  * @author sawik
  */
@@ -22,53 +20,45 @@ class Papaa {
         $this->collection = [];
     }
     
-    public function SaveDates( $dateCollection = [] )
+    public function SaveDates( $employeeData = [], $dateCollection = [] )
     {
-//        $startDate = $dateCollection[0]['date'];
-//        
-//        $startDateObject = new \DateTime( $dateCollection[0]['date'] );
-//        $endDate = $startDateObject->add(new \DateInterval('P13D'));
-//        $endDate = $endDate->format( "Y-m-d" );
-        
-//        for( $i = 1; $i <= 14; $i++ ) {
-//            
-//        }
-//        
-//        for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
-//            
-//        }
-//        
-//        echo "$startDate to $endDate<br /><br />";
-//        echo '<pre>';
-//        print_r( $dateCollection );
-//        echo '</pre>';
-//        exit();
-        
-        call_user_func_array( array( __NAMESPACE__ ."\Papaa", "EmployeeData" ), array( '002', '   229589', '34100', 'IT', 'DV00X', '92510', '09252016', '2016', '09', '25', '42636' ) );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "EmployeeData" ], [ $employeeData ] );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "WeekEndingData" ], [ $dateCollection ] );
                 
         for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
             $date = new \DateTime( $dateCollection[$i-1]['date'] );
             $weekdayAbbr = strtoupper( $date->format( "D" ) );
             $dateFormat = $date->format( "mdY" );
            
-            call_user_func_array( array( __NAMESPACE__ ."\Papaa", "Day$i" ), array(
-                $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', ''
-            ) );
+            call_user_func_array(
+                [ __NAMESPACE__ ."\Papaa", "Day$i" ],
+                [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ] 
+            );
         }
     }
     
-    public function EmployeeData( $employerNumber, $employeeNumber, $level1, $level2, $level3, $level4,
-        $weekEndingDate, $weekEndingYear, $weekEndingMonth, $weekEndingDay, $weekEndingHY ) {
-        $this->collection['AAER'] = $employerNumber;
-        $this->collection['AACLK#'] = $employeeNumber;
-        $this->collection['AALVL1'] = $level1;
-        $this->collection['AALVL2'] = $level2;
-        $this->collection['AALVL3'] = $level3;
-        $this->collection['AALVL4'] = $level4;
-        $this->collection['AAWEND'] = $weekEndingDate;
-        $this->collection['AAWEYR'] = $weekEndingYear;
-        $this->collection['AAWEMO'] = $weekEndingMonth;
-        $this->collection['AAWEDA'] = $weekEndingDay;
+    public function EmployeeData( $employeeData = [] )
+    {        
+        $this->collection['AAER'] = $employeeData['EMPLOYER_NUMBER'];
+        $this->collection['AACLK#'] = $employeeData['EMPLOYEE_NUMBER'];
+        $this->collection['AALVL1'] = $employeeData['LEVEL_1'];
+        $this->collection['AALVL2'] = $employeeData['LEVEL_2'];
+        $this->collection['AALVL3'] = $employeeData['LEVEL_3'];
+        $this->collection['AALVL4'] = $employeeData['LEVEL_4'];
+    }
+    
+    public function WeekEndingData( $dateCollection = [] )
+    {
+        $Date = new \Request\Helper\Date();
+        
+        $lastDate = $dateCollection[ count( $dateCollection ) - 1 ]['date'];
+        $dateEnding  = new \DateTime( $lastDate );
+        $weekEndingHY = $Date->convertToHYD( $lastDate );
+        
+        $this->collection['AAWEND'] = $dateEnding->format( "mdY" );
+        $this->collection['AAWEYR'] = $dateEnding->format( "Y" );
+        $this->collection['AAWEMO'] =  $dateEnding->format( "m" );
+        $this->collection['AAWEDA'] = $dateEnding->format( "d" );
         $this->collection['AAWENDH'] = $weekEndingHY;
     }
     

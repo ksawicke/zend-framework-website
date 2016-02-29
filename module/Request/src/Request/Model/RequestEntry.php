@@ -51,18 +51,7 @@ class RequestEntry {
                               ]
                ];
 		
-        $request = self::sortRequestDates( $request );
-        
-//        $test = self::buildDateMatrix( $request );
-//        
-//        echo '<pre>';
-//        print_r( $test );
-//        echo '</pre>';
-////        
-//        die("STOP");
-//        
-//        $requestBlocks = self::parseRequestBlocks( $request );
-        
+        $request = self::sortRequestDates( $request );        
         $requestBlocks = self::buildDateMatrix( $request );
 
         return $requestBlocks;
