@@ -412,6 +412,9 @@ class RequestController extends AbstractActionController
 
     public function viewEmployeeRequestsAction()
     {
+        /**
+         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
+         */
         $Employee = new \Request\Model\Employee();
         $RequestEntry = new \Request\Model\RequestEntry();
         $Papaa = new \Request\Model\Papaa();
@@ -435,10 +438,10 @@ class RequestController extends AbstractActionController
         
         foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
             $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
-            echo '<pre>';
-            print_r( $Papaa->collection );
-            echo '</pre>';
         }
+        /**
+         * END : Save record(s) to PAPAATMP / HRLYPAPAATMP
+         */
         
 //        die("...");
 //        
