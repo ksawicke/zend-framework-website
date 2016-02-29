@@ -197,9 +197,9 @@ class RequestController extends AbstractActionController
                     $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
                     $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
                     
-                    var_dump($requestData);
-                    var_dump($employeeData);
-                    die("#");
+//                    var_dump($requestData);
+//                    var_dump($employeeData);
+//                    die("#");
                     
 //                    var_dump($requestData);die("@@@");
                     
@@ -242,6 +242,30 @@ class RequestController extends AbstractActionController
                             ' for ' . trim(ucwords(strtolower($employeeData['COMMON_NAME']))) . " " . trim(ucwords(strtolower($employeeData['LAST_NAME']))));
 
                         $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                        
+                        /** Do the PAPAA.. */
+                        /**
+                         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
+                         */
+                        $RequestEntry = new \Request\Model\RequestEntry();
+                        $Papaa = new \Request\Model\Papaa();
+                        $dateRequestBlocks = $RequestEntry->getRequestObject( $request->getPost()->request_id );
+                        $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
+                            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
+                        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
+                        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
+                        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
+                        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
+                        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
+                        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
+
+                        foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
+                            $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
+                        }
+                        /**
+                         * END : Save record(s) to PAPAATMP / HRLYPAPAATMP
+                         */
                     }
                     
                     if($requestReturnData['request_id']!=null) {
@@ -302,6 +326,13 @@ class RequestController extends AbstractActionController
                     }
                     
                     $Employee = new \Request\Model\Employee();
+                    $employeeSchedule = $Employee->findEmployeeSchedule( $employeeNumber );
+                    
+                    if( !$employeeSchedule ) {
+                        $Employee->makeDefaultEmployeeSchedule( $employeeNumber );
+                        $employeeSchedule = $Employee->findEmployeeSchedule( $employeeNumber );
+                    }
+                    
                     $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y",
                         "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS, " .
                         "MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_EMAIL_ADDRESS, " .
@@ -416,29 +447,33 @@ class RequestController extends AbstractActionController
          * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
          */
         $Employee = new \Request\Model\Employee();
-        $RequestEntry = new \Request\Model\RequestEntry();
-        $Papaa = new \Request\Model\Papaa();
-        
+
+//        
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         if($isLoggedInUserManager!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
-        
-        $dateRequestBlocks = $RequestEntry->getRequestObject( 100555 );
-        $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
-            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-
-        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
-        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
-        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
-        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
-        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
-        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-        
-        foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
-            $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
-        }
+//        
+        /**
+         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
+         */
+//        $RequestEntry = new \Request\Model\RequestEntry();
+//        $Papaa = new \Request\Model\Papaa();
+//        $dateRequestBlocks = $RequestEntry->getRequestObject( 100555 );
+//        $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
+//            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+//
+//        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
+//        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
+//        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
+//        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
+//        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
+//        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
+//        
+//        foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
+//            $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
+//        }
         /**
          * END : Save record(s) to PAPAATMP / HRLYPAPAATMP
          */
@@ -553,56 +588,20 @@ class RequestController extends AbstractActionController
     
     public function reviewRequestAction()
     {
+        $Employee = new \Request\Model\Employee();
         $requestId = $this->params()->fromRoute('request_id');
-        $pendingRequestData = $this->requestService->findTimeOffPendingRequestsByEmployee($this->employeeNumber, 'managerQueue', $requestId);
+        $TimeoffRequests = new \Request\Model\TimeoffRequests();
         
-//         echo '<pre>';
-//         print_r($pendingRequestData);
-//         echo '</pre>';
-//         die("@@@");
+        $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
         
-        $calendarFirstDate = \DateTime::createFromFormat('Y-m-d', trim($pendingRequestData[$requestId]['FIRST_DATE_REQUESTED']));
-        $calendarLastDate = \DateTime::createFromFormat('Y-m-d', $pendingRequestData[$requestId]['LAST_DATE_REQUESTED']);
-        
-        $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'] = $calendarFirstDate->format('Y-m-01');
-        $pendingRequestData[$requestId]['CALENDAR_LAST_DATE'] = $calendarLastDate->format('Y-m-t');
-        
-        $teamCalendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, $pendingRequestData[$requestId]['CALENDAR_FIRST_DATE'], $pendingRequestData[$requestId]['CALENDAR_LAST_DATE']);
-        
-//         $teamCalendarByDate = [];
-//         foreach($teamCalendarData as $key => $calendarData) {
-//             $date = $calendarData['REQUEST_DATE'];
-//             $teamCalendarByDate[$date][] = [
-//                 'EMPLOYEE_NUMBER' => trim($calendarData['EMPLOYEE_NUMBER']),
-//                 'NAME' => trim($calendarData['FIRST_NAME']) . ' ' . trim($calendarData['LAST_NAME']),
-//                 'REQUEST_TYPE' => $calendarData['REQUEST_TYPE'],
-//                 'REQUESTED_HOURS' => $calendarData['REQUESTED_HOURS']
-//             ];
-//         }
-        
-        $teamCalendarByDate = [];
-        foreach($teamCalendarData as $key => $calendarData) {
-            $date = \DateTime::createFromFormat('Y-m-d', $calendarData['REQUEST_DATE']);
-            $date = $date->format('m/d/Y');
-            $stuff = trim($calendarData['FIRST_NAME']) . ' ' . trim($calendarData['LAST_NAME']) . ' - ' .
-                $calendarData['REQUESTED_HOURS'] . ' ' . $calendarData['REQUEST_TYPE'] . '<br />';
-            if(array_key_exists($date, $teamCalendarByDate)) {
-                $teamCalendarByDate[$date] .= $stuff;
-            } else {
-                $teamCalendarByDate[$date] = $stuff;
-            }
-        }
-        
-        $pendingRequestData[$requestId]['TEAM_CALENDAR'] = $teamCalendarByDate;
-        
-//         echo '<pre>TEAM CALENDAR';
-//         print_r($teamCalendarByDate);
-//         echo '</pre>';
-//         die("@@@");
+//        echo '<pre> ' . $requestId . ' ';
+//        print_r( $timeoffRequestData );
+//        echo '</pre>';
+//        
+//        die("...");
         
         return new ViewModel(array(
-            'requestId' => $requestId,
-            'pendingRequestData' => $pendingRequestData[$requestId]
+            'timeoffRequestData' => $timeoffRequestData
         ));
     }
     

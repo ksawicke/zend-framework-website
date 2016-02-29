@@ -191,12 +191,12 @@ class Employee extends BaseDB
             manager_addons.PRLNM AS MANAGER_LAST_NAME, manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
         
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
         INNER JOIN table (
             SELECT
-                trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+                EMPLOYEE_ID AS EMPLOYEE_NUMBER,
                 TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL
@@ -204,7 +204,7 @@ class Employee extends BaseDB
                 CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'D')
             ) as data
         ) hierarchy
-            ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
         WHERE request.REQUEST_STATUS = 'P'
         ORDER BY MIN_REQUEST_DATE ASC";
 
@@ -386,6 +386,55 @@ class Employee extends BaseDB
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
 
         return $employeeData;
+    }
+    
+    public function findEmployeeSchedule( $employeeNumber = null )
+    {
+        $sql = new Sql($this->adapter);
+        $select = $sql->select(['schedule' => 'TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES'])
+                ->columns(['SCHEDULE_MON' => 'SCHEDULE_MON',
+                           'SCHEDULE_TUE' => 'SCHEDULE_TUE',
+                           'SCHEDULE_WED' => 'SCHEDULE_WED',
+                           'SCHEDULE_THU' => 'SCHEDULE_THU',
+                           'SCHEDULE_FRI' => 'SCHEDULE_FRI',
+                           'SCHEDULE_SAT' => 'SCHEDULE_SAT',
+                           'SCHEDULE_SUN' => 'SCHEDULE_SUN'
+                          ])
+                ->where(['schedule.EMPLOYEE_NUMBER' => $employeeNumber]);
+        
+        $scheduleData = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        if(!$scheduleData) {
+            $scheduleData = false;
+        }
+
+        return $scheduleData;
+    }
+    
+    public function makeDefaultEmployeeSchedule( $employeeNumber = null )
+    {
+        $action = new Insert('timeoff_request_employee_schedules');
+        $action->values([
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad($employeeNumber),
+            'SCHEDULE_MON' => '8.00',
+            'SCHEDULE_TUE' => '8.00',
+            'SCHEDULE_WED' => '8.00',
+            'SCHEDULE_THU' => '8.00',
+            'SCHEDULE_FRI' => '8.00',
+            'SCHEDULE_SAT' => '0.00',
+            'SCHEDULE_SUN' => '0.00'
+        ]);
+        $sql = new Sql($this->adapter);
+        $stmt = $sql->prepareStatementForSqlObject($action);
+        try {
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            throw new \Exception("Can't execute statement: " . $e->getMessage());
+        }
+        
+        if($result) {
+            return true;
+        }
+        return false;
     }
     
     public function appendAllRequestsJsonArray($request)
