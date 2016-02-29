@@ -6,22 +6,47 @@
 
 namespace Request\Model;
 
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Expression;
+use Zend\Db\Adapter\Driver\ResultInterface;
+use Zend\Db\ResultSet\ResultSet;
+use Request\Model\BaseDB;
+
 /**
  * Build Objects for tables: PAPAATMP, HRLYPAPAATMP
  *
  * @author sawik
  */
-class Papaa {
+class Papaa extends BaseDB {
     
     public $collection;
+    public $table;
     
     public function __construct()
     {
+        parent::__construct();
         $this->collection = [];
+        $this->table = "PAPAATMP";
     }
     
-    public function SaveDates( $employeeData = [], $dateCollection = [] )
+    public function insertPapaaRecord()
     {
+        $action = new Insert( $this->table );
+        $action->values( $this->collection );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+        } catch ( Exception $e ) {
+            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
+        }
+    }
+    
+    public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [] )
+    {
+        $this->table = ( ( $employeeData['salary_type']==="H" ? "HRLYPAPAATMP" : "PAPAATMP" ) );
+        
         call_user_func_array( [ __NAMESPACE__ ."\Papaa", "EmployeeData" ], [ $employeeData ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaa", "WeekEndingData" ], [ $dateCollection ] );
                 
@@ -35,16 +60,20 @@ class Papaa {
                 [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ] 
             );
         }
+        
+        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "Reason" ], [ $reason ] );
+        
+        $this->insertPapaaRecord();
     }
     
     public function EmployeeData( $employeeData = [] )
     {        
-        $this->collection['AAER'] = $employeeData['EMPLOYER_NUMBER'];
-        $this->collection['AACLK#'] = $employeeData['EMPLOYEE_NUMBER'];
-        $this->collection['AALVL1'] = $employeeData['LEVEL_1'];
-        $this->collection['AALVL2'] = $employeeData['LEVEL_2'];
-        $this->collection['AALVL3'] = $employeeData['LEVEL_3'];
-        $this->collection['AALVL4'] = $employeeData['LEVEL_4'];
+        $this->collection['AAER'] = $employeeData['employer_number'];
+        $this->collection['AACLK#'] = $employeeData['employee_number'];
+        $this->collection['AALVL1'] = $employeeData['level1'];
+        $this->collection['AALVL2'] = $employeeData['level2'];
+        $this->collection['AALVL3'] = $employeeData['level3'];
+        $this->collection['AALVL4'] = $employeeData['level4'];
     }
     
     public function WeekEndingData( $dateCollection = [] )
@@ -200,6 +229,11 @@ class Papaa {
         $this->collection['AAWK2RC7A'] = $typeSplitA;
         $this->collection['AAWK2HR7B'] = $numHoursSplitB;
         $this->collection['AAWK2RC7B'] = $typeSplitB;
+    }
+    
+    public function Reason( $reason )
+    {
+        $this->collection['AACOMM'] = $reason;
     }
     
 }

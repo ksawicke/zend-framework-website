@@ -422,43 +422,66 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('create');
         }
         
-        $dateRequestBlocks = $RequestEntry->getRequestBlocks( 10516 );
-        $employeeData = $Employee->findTimeOffEmployeeData( "49499", "Y",
-            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4" );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( 100555 );
+        $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
+            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
+        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
+        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
+        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
+        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
+        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
+        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
         
-//        echo '<pre>';
-//            print_r( $employeeData );
-//            echo '</pre>';
-//            die("............");
-        
-        foreach( $dateRequestBlocks as $ctr => $dateCollection )
-        {
-            $Papaa->SaveDates( $employeeData, $dateCollection );
+        foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
+            $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
             echo '<pre>';
             print_r( $Papaa->collection );
             echo '</pre>';
         }
         
-        die(".....");
-        
-        echo '<pre>';
-        print_r( $dates );
-        echo '</pre>';
-        
-        die(".....");
-        
-        $Papaa->SaveDates( ['1', '2', '3'] );
-        echo '<pre>';
-        print_r( $Papaa->collection );
-        echo '</pre>';
-        
-        die(".....");
+//        die("...");
+//        
+////        $Papaa->SaveDates( $dateRequestBlocks );
+//        
+////        echo '<pre>dateRequestBlocks';
+////        print_r( $dateRequestBlocks );
+////        echo '</pre>';
+////        
+////        echo '<pre>employeeData';
+////        print_r( $employeeData );
+////        echo '</pre>';
+////        
+//        die("............");
+//        
+//        foreach( $dateRequestBlocks as $ctr => $dateCollection )
+//        {
+//            $Papaa->SaveDates( $employeeData, $dateCollection );
+//            echo '<pre>';
+//            print_r( $Papaa->collection );
+//            echo '</pre>';
+//        }
+//        
+//        die(".....");
+//        
+//        echo '<pre>';
+//        print_r( $dates );
+//        echo '</pre>';
+//        
+//        die(".....");
+//        
+//        $Papaa->SaveDates( ['1', '2', '3'] );
+//        echo '<pre>';
+//        print_r( $Papaa->collection );
+//        echo '</pre>';
+//        
+//        die(".....");
         
         
 //        $Helper->papaa();
 //        $Helper->getPapaaVars();
         
-        die("<br /><br />.");
+//        die("<br /><br />.");
         
         return new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
