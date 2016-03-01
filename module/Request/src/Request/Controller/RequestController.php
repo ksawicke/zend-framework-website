@@ -198,14 +198,6 @@ class RequestController extends AbstractActionController
                     $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
                     $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
                     
-//                    var_dump($requestData);
-//                    echo '<pre>';
-//                    print_r($employeeData);
-//                    echo '</pre>';
-//                    die("#");
-                    
-//                    var_dump($requestData);die("@@@");
-                    
                     $validationHelper = new \Request\Helper\ValidationHelper();
                     $payrollReviewRequired = $validationHelper->isPayrollReviewRequired($requestData, $employeeData);
                     
@@ -222,8 +214,7 @@ class RequestController extends AbstractActionController
                         $requestReturnData = $this->requestService->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     } else {
                         $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
-                        $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id); 
-                        $employeeData = $Employee->findTimeOffEmployeeData( trim( $calendarInviteData['for']['EMPLOYEE_NUMBER'] ) );
+                        $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id);
                         $requestObject = [
                             'datesRequested' => $calendarInviteData['datesRequested'],
                             'for' =>            $employeeData,
