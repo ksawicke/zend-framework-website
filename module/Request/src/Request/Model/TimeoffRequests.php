@@ -183,11 +183,6 @@ class TimeoffRequests extends BaseDB {
             var_dump( $e );
         }
 
-//        echo '<pre>';
-//        print_r( $request );
-//        echo '</pre>';
-//        die(".");
-
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
 

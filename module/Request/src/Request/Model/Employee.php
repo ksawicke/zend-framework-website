@@ -400,13 +400,9 @@ class Employee extends BaseDB
                            'SCHEDULE_SAT' => 'SCHEDULE_SAT',
                            'SCHEDULE_SUN' => 'SCHEDULE_SUN'
                           ])
-                ->where(['schedule.EMPLOYEE_NUMBER' => $employeeNumber]);
+                ->where(['schedule.EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad( $employeeNumber )]);
         
         $scheduleData = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
-        if(!$scheduleData) {
-            $scheduleData = false;
-        }
-
         return $scheduleData;
     }
     

@@ -195,6 +195,7 @@ class RequestController extends AbstractActionController
                 case 'submitApprovalResponse':
                     $Employee = new \Request\Model\Employee();
                     $TimeoffRequests = new \Request\Model\TimeOffRequests();
+                    $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
                     $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
                     $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
                     
@@ -202,33 +203,23 @@ class RequestController extends AbstractActionController
                     $payrollReviewRequired = $validationHelper->isPayrollReviewRequired($requestData, $employeeData);
                     
                     if($payrollReviewRequired) {
-                        $this->requestService->logEntry(
+                        $TimeoffRequestLog->logEntry(
                             $request->getPost()->request_id,
                             \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
                             'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
-                            ' for ' . trim(ucwords(strtolower($employeeData['COMMON_NAME']))) . " " . trim(ucwords(strtolower($employeeData['LAST_NAME']))));
+                            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME']))));
 
-                        $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                        $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                         
-                        $this->requestService->logEntry($request->getPost()->request_id, \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'), 'Payroll review required because of insufficient hours');
-                        $requestReturnData = $this->requestService->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                        $TimeoffRequestLog->logEntry($request->getPost()->request_id, \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'), 'Payroll review required because of insufficient hours');
+                        $requestReturnData = $Employee->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     } else {
-                        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
-                        $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id);
-                        $requestObject = [
-                            'datesRequested' => $calendarInviteData['datesRequested'],
-                            'for' =>            $employeeData,
-    //                        'subject' =>        '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF',
-    //                        'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that ' . ucwords(strtolower($for)) . ' is taking off the following time off: ' . $descriptionString,
-                            'organizer' =>      [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ], // 'name' => ucwords(strtolower($for)), 'email' => $forEmail
-                            'to' =>             'kevin_sawicke@swifttrans.com', // ,'.$forEmail.",".$managerEmail
-                            'participants' =>   [ [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ] ]/*[ ['name' => ucwords(strtolower($for)), 'email' => $forEmail ],
-                                                  ['name' => ucwords(strtolower($manager)), 'email' => $managerEmail ]
-                                                ]*/
-                        ];
+                        $OutlookHelper = new \Request\Helper\OutlookHelper();
+                        $RequestEntry = new \Request\Model\RequestEntry();
+                        $Papaa = new \Request\Model\Papaa();
                         
-                        $outlookHelper = new \Request\Helper\OutlookHelper();
-                        $isSent = $outlookHelper->addToCalendar($requestObject);
+                        $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id);
+                        $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
 
                         $TimeoffRequestLog->logEntry(
                             $request->getPost()->request_id,
@@ -238,12 +229,6 @@ class RequestController extends AbstractActionController
 
                         $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                         
-                        /** Do the PAPAA.. */
-                        /**
-                         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
-                         */
-                        $RequestEntry = new \Request\Model\RequestEntry();
-                        $Papaa = new \Request\Model\Papaa();
                         $dateRequestBlocks = $RequestEntry->getRequestObject( $request->getPost()->request_id );
                         $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
                             "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
@@ -254,13 +239,15 @@ class RequestController extends AbstractActionController
                         $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
                         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
                         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
+                        
+//                        echo '<pre>@@@@@@@@@@@@@@@@@';
+//                        print_r( $dateRequestBlocks );
+//                        echo '</pre>';
+//                        die("....");
 
                         foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
                             $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
                         }
-                        /**
-                         * END : Save record(s) to PAPAATMP / HRLYPAPAATMP
-                         */
                     }
                     
                     if($requestReturnData['request_id']!=null) {
@@ -305,7 +292,7 @@ class RequestController extends AbstractActionController
                     $result = new JsonModel($return);
                     break;
                     
-                case 'submitTimeoffRequest':                    
+                case 'submitTimeoffRequest':        
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));
                     $requesterEmployeeNumber = trim($request->getPost()->loggedInUserData['EMPLOYEE_NUMBER']);
                     
@@ -323,7 +310,7 @@ class RequestController extends AbstractActionController
                     $Employee = new \Request\Model\Employee();
                     $employeeSchedule = $Employee->findEmployeeSchedule( $employeeNumber );
                     
-                    if( !$employeeSchedule ) {
+                    if( $employeeSchedule===false ) {
                         $Employee->makeDefaultEmployeeSchedule( $employeeNumber );
                         $employeeSchedule = $Employee->findEmployeeSchedule( $employeeNumber );
                     }

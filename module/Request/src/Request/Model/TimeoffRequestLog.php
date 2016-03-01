@@ -32,7 +32,7 @@ class TimeoffRequestLog extends BaseDB {
         $logEntry = new Insert( 'timeoff_request_log' );
         $logEntry->values( [
             'REQUEST_ID' => $requestId,
-            'EMPLOYEE_NUMBER' => $employeeNumber,
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $employeeNumber ),
             'COMMENT' => $comment
         ] );
         $sql = new Sql( $this->adapter );

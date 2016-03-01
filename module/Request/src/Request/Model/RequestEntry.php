@@ -109,9 +109,10 @@ class RequestEntry extends BaseDB {
 //    }
     
     public function buildDateMatrix( $request ) {
+        $endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
         $startDate = $request['dates'][0]['date'];
         $startDateObject = new \DateTime( $startDate );
-        $endDate = $request['dates'][count($request['dates'])-1]['date'];
+        $endDate = $request['dates'][$endCounter]['date'];
         $endDateObject = new \DateTime( $endDate );
         
         /**
@@ -125,6 +126,11 @@ class RequestEntry extends BaseDB {
         $period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
         
         $data = [];
+        
+//        echo '<pre>PERIOD';
+//        print_r( $period );
+//        echo '</pre>';
+//        exit();
         
         foreach( $period as $chunk ) {
             // Check if any have hours, if so:
