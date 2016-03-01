@@ -15,7 +15,7 @@ class ValidationHelper {
         if($requestData['SICK'] > ($employeeData['SICK_EARNED'] - $employeeData['SICK_TAKEN'])) {
             return true;
         }
-        if($requestData['GRANDFATHERED'] > ($employeeData['GRANDFATHERED_EARNED'] - $employeeData['GRANDFATHERED_TAKEN'])) {
+        if($requestData['GRANDFATHERED'] > ($employeeData['GF_EARNED'] - $employeeData['GF_TAKEN'])) {
             return true;
         }
         

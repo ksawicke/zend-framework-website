@@ -194,11 +194,14 @@ class RequestController extends AbstractActionController
             switch($request->getPost()->action) {
                 case 'submitApprovalResponse':
                     $Employee = new \Request\Model\Employee();
+                    $TimeoffRequests = new \Request\Model\TimeOffRequests();
                     $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
                     $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
                     
 //                    var_dump($requestData);
-//                    var_dump($employeeData);
+//                    echo '<pre>';
+//                    print_r($employeeData);
+//                    echo '</pre>';
 //                    die("#");
                     
 //                    var_dump($requestData);die("@@@");
@@ -218,8 +221,9 @@ class RequestController extends AbstractActionController
                         $this->requestService->logEntry($request->getPost()->request_id, \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'), 'Payroll review required because of insufficient hours');
                         $requestReturnData = $this->requestService->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     } else {
-                        $calendarInviteData = $this->requestService->findRequestCalendarInviteData($request->getPost()->request_id); 
-                        $employeeData = $this->requestService->findTimeOffBalancesByEmployee(trim($calendarInviteData['for']['EMPLOYEE_NUMBER']));
+                        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
+                        $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id); 
+                        $employeeData = $Employee->findTimeOffEmployeeData( trim( $calendarInviteData['for']['EMPLOYEE_NUMBER'] ) );
                         $requestObject = [
                             'datesRequested' => $calendarInviteData['datesRequested'],
                             'for' =>            $employeeData,
@@ -235,13 +239,13 @@ class RequestController extends AbstractActionController
                         $outlookHelper = new \Request\Helper\OutlookHelper();
                         $isSent = $outlookHelper->addToCalendar($requestObject);
 
-                        $this->requestService->logEntry(
+                        $TimeoffRequestLog->logEntry(
                             $request->getPost()->request_id,
                             \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
                             'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
-                            ' for ' . trim(ucwords(strtolower($employeeData['COMMON_NAME']))) . " " . trim(ucwords(strtolower($employeeData['LAST_NAME']))));
+                            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME']))));
 
-                        $requestReturnData = $this->requestService->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                        $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                         
                         /** Do the PAPAA.. */
                         /**

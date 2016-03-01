@@ -135,9 +135,14 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
      */
     public function addToCalendar($requestObject)
     {        
-        $for = trim($requestObject['for']['COMMON_NAME']) . " " . trim($requestObject['for']['LAST_NAME']);
+//        echo '<pre>';
+//        print_r( $requestObject );
+//        echo '</pre>';
+//        die('...');
+        
+        $for = trim($requestObject['for']['EMPLOYEE_NAME']);
         $forEmail = trim($requestObject['for']['EMAIL_ADDRESS']);
-        $manager = trim($requestObject['for']['MANAGER_FIRST_NAME']) . " " . trim($requestObject['for']['MANAGER_LAST_NAME']);
+        $manager = trim($requestObject['for']['MANAGER_NAME']);
         $managerEmail = trim($requestObject['for']['MANAGER_EMAIL_ADDRESS']);
         $subject = '[DEVELOPMENT] ' . strtoupper($for) . ' - APPROVED TIME OFF';
 
