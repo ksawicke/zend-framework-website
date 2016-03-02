@@ -1206,8 +1206,8 @@ var timeOffCreateRequestHandler = new function ()
                     };
                 },
 //    			 cache: true,
-                allowClear: true
             },
+            allowClear: true,
 //    		escapeMarkup: function(markup) {
 //    			return markup;
 //    		},
