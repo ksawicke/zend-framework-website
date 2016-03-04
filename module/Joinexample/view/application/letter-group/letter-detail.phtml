@@ -1,0 +1,53 @@
+<div class="row">
+<?php
+    if ($letterDetail->getAffectedRows()) {
+        $headerGenerated = false;
+        echo '<table>';
+
+        $letterCount1 = 0;
+        $letterCount2 = 0;
+        $letterCount3 = 0;
+
+        foreach ($letterDetail as $letter) {
+            if (! $headerGenerated) {
+                $headerGenerated = true;
+                $columns = array_keys($letter);
+                echo '<tr>';
+                foreach ($columns as $column) {
+                    echo '<th>' . $this->escapehtml(trim($column)) . '</th>';
+                }
+                echo '</tr>';
+                unset($columns);
+            }
+
+            echo '<tr style="background-color:'
+               . $this->cycle(array('#F0F0F0', '#FFFFFF'))->next()
+               . '">';
+
+            foreach ($letter as $key => $column) {
+                if ($key === 'LETTER_1') {
+                    $letterCount1 += $column !== '0001-01-01' ? 1 : 0;
+                    $letter[$key] = ($column === '0001-01-01' ? '&nbsp;' : $column);
+                }
+
+                if ($key === 'LETTER_2' && $column !== '0001-01-01') {
+                    $letterCount2 += $column !== '0001-01-01' ? 1 : 0;
+                    $letter[$key] = ($column === '0001-01-01'? '&nbsp;' : $column);
+                }
+
+                if ($key === 'LETTER_3' && $column !== '0001-01-01') {
+                    $letterCount3 += $column !== '0001-01-01' ? 1 : 0;
+                    $letter[$key] = ($column === '0001-01-01'? '&nbsp;' : $column);
+                }
+
+                echo '<td>' . $this->escapehtml(trim($column)) . '</td>';
+            }
+            echo '</tr>';
+        }
+        ?>
+        <tr><td colspan="3"><?= $letterCount1 ?></td><td colspan="3"><?= $letterCount2 ?></td><td colspan="3"><?= $letterCount3 ?></td></tr>
+        <?php
+        echo '</table>';
+    }
+?>
+</div>

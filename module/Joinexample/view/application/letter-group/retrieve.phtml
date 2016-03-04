@@ -1,0 +1,37 @@
+<p>Retrieve Letter Groups</p>
+<div class="row">
+<?php
+    $this->searchForm->setAttribute('action', $this->basepath() . '/lettergroup/retrieve');
+    $this->searchForm->prepare();
+    echo $this->form()->openTag($this->searchForm)
+       . $this->formText($this->searchForm->get('groupnumber')) . '<br>'
+       . $this->formSubmit($this->searchForm->get('searchsubmit'))
+       . $this->form()->closeTag();
+?>
+</div>
+<div class="row">
+<?php
+    if (!empty($letterGroups[0])) {
+        echo '<table>';
+
+        $columns = array_keys($letterGroups[0]);
+        echo '<tr>';
+        foreach ($columns as $column) {
+            echo '<th>' . $this->escapehtml(trim($column)) . '</th>';
+        }
+        echo '</tr>';
+
+        foreach ($letterGroups as $customer) {
+            echo '<tr style="background-color:'
+               . $this->cycle(array('#F0F0F0', '#FFFFFF'))->next()
+               . '">';
+            foreach ($customer as $column) {
+                echo '<td>' . $this->escapehtml(trim($column)) . '</td>';
+            }
+            echo '</tr>';
+        }
+
+        echo '</table>';
+    }
+?>
+</div>

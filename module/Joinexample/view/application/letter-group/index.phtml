@@ -1,0 +1,51 @@
+<div class="row">
+<?php
+    $this->searchForm->setAttribute('action', $this->basepath() . '/lettergroup/retrieve');
+    $this->searchForm->prepare();
+    echo $this->form()->openTag($this->searchForm)
+       . $this->formLabel($this->searchForm->get('groupnumber')) . '<br>'
+       . $this->formText($this->searchForm->get('groupnumber')) . '<br>'
+       . $this->formLabel($this->searchForm->get('sectionnumber')) . '<br>'
+       . $this->formText($this->searchForm->get('sectionnumber')) . '<br>'
+       . $this->formSubmit($this->searchForm->get('searchsubmit'))
+       . $this->form()->closeTag();
+?>
+</div>
+<div class="row">
+<?php
+    if (!empty($letterGroups[0])) {
+        echo '<table>';
+
+        $columns = array_keys($letterGroups[0]);
+        echo '<tr>';
+        foreach ($columns as $column) {
+            echo '<th>' . $this->escapehtml(trim($column)) . '</th>';
+        }
+        echo '</tr>';
+
+        foreach ($letterGroups as $customer) {
+            echo '<tr style="background-color:'
+               . $this->cycle(array('#F0F0F0', '#FFFFFF'))->next()
+               . '">';
+            foreach ($customer as $column) {
+                echo '<td>' . $this->escapehtml(trim($column)) . '</td>';
+            }
+            echo '</tr>';
+        }
+
+        echo '</table>';
+    }
+?>
+</div>
+<div class="row">
+    <div class="span5">
+        <h2><?php echo $this->translate('Letter Group Maintenance') ?></h2>
+        <p><?php echo 'Put some explanatory text here...' ?></p>
+        <ol>
+            <li>Create/Add a new Letter Group</li>
+            <li>Retrieve/View a detail record</li>
+            <li>Update/Edit a Letter Group</li>
+            <li>Delete/Remove a Letter Group</li>
+        </ol>
+    </div>
+</div>

@@ -1,0 +1,232 @@
+<?php
+$welcomeMessage = '';
+$employeeNumber = '';
+
+if( isset($_SESSION['Timeoff_'.ENVIRONMENT]) ) {
+    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
+        $_SESSION['Timeoff_'.ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_'.ENVIRONMENT]['LAST_NAME'] .
+        '!&nbsp;&nbsp;&nbsp;(<a href="'.$this->basepath().'/login/logout">Logout</a>)';
+    $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
+}
+
+//var_dump($employeeData);
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Swift - Time Off</title>
+
+    <?php
+
+        $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'));
+
+    ?>
+
+    <link href="<?php echo $this->basePath('templates/swiftit/css/bootstrap.min.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/bootstrap_swift_custom.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/custom_dropzone.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/navbar-fixed-top.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('templates/swiftit/css/parsley.css'); ?>" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.css"/>
+    <link href="<?php echo $this->basePath('css/select2/select2.min.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('css/select2/select2-flat-design.css'); ?>" rel="stylesheet">
+    <link href="<?php echo $this->basePath('css/jqueryui/jquery-ui.css'); ?>" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	
+    <?php
+      /**
+       * jQueryUI Link for custom download:
+       * http://jqueryui.com/download/#!zThemeParams=5d00000100ed05000000000000003d8888d844329a8dfe02723de3e5701fa198449035fc0613ff729a37dd818cf92b1f6938fefa90282d04ae436bb72367f5909357c629e832248af2c086db4ab730aa4cced933a88449eca604ecf7f3b23d47f58a712d809b6088edfb34a7c4b4485bb70a6b5bab2aa88599fe813c4eac9111ca183b9cbd670b92610627b7461a92f016d62cde911f90c3eee5eab6fc4ddbd8423cc60683a384ee868d9dc477fbbfffa31e229afac7d6aa31f80dece0332505800c80dc69c44a9c0fac5fdf2f09da23632d935c6cc54e24e6c09b33c6ec74cdca5d0ea07a9be3e3d31fb5be7b7d3c8967a9b74b9aff18d48635d1cfae92df865625215e950a2a5daaae0104f3382ce869d4c29bfa6d30a097db80e2f84e7dee81592ab3ab441ec14570c264ed3d9fc81b7c778c6ff9ff276906ea690ac2783eaa1a779b83241a8071209f2bafadba14f9422e17aa688202ba353f933e7b3c6d75e8d23d56934199434a6b23a876ab1d20e806140710d27d5d1e4bfe43daddd91d963b0969f01628d9d412725d0405f4c84e1a231336c5a681fd3d86541d1b1e2393911a33ed1a5dc589aba98461689e80a0a34152aa3b7075729dcc7a4f8d75275c9ef951be64
+       */
+      $this->headScript()
+        ->prependFile($this->basePath('templates/swiftit/js/jquery/1.11.2/jquery.min.js'));
+      $this->headScript()
+        ->appendFile($this->basePath('templates/swiftit/js/parsley.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/parsley.remote.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/bootstrap.min.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/ckeditor/ckeditor.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/dropzone.js'))
+        ->appendFile($this->basePath('templates/swiftit/js/ckeditor/adapters/jquery.js'))
+        ->appendFile($this->basePath('js/jqueryui/jquery-ui.js'));
+      
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/create') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
+            ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
+            ->appendFile($this->basePath('js/select2/select2.min.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-requests') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/bootstrap-typeahead.js'))
+            ->appendFile($this->basePath('js/request/timeOffViewMyRequestHandler.js'))
+            ->appendFile($this->basePath('js/select2/select2.min.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar') !== false) {
+        $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-employee-requests') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
+            ->appendFile($this->basePath('js/request/timeOffQueueHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/review-request') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffApproveRequestHandler.js'));
+      }
+      
+      $this->headScript()
+          ->appendScript('var phpVars='.json_encode(['employee_number' => $employeeNumber]));
+      
+      echo $this->headScript();
+    ?>
+    <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.js"></script>
+  </head>
+
+  <body>
+  
+  <?php
+  /**
+   * $_SESSION['User']
+   *    EMPLOYEE_NUMBER
+   *    FIRST_NAME
+   *    LAST_NAME
+   *    USERNAME
+   *    POSITION_TITLE
+   */
+//    echo '<pre>';
+//    print_r($_SESSION['User']);
+//    echo '</pre>';
+  ?>
+  
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="visible-md visible-lg">
+              <div class="swift-header-item">
+                <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo"></a>
+              </div>
+              <div class="swift-header-item swift-site-name">
+                Time Off
+                <?php /***&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">***/ ?>
+                <?php /***&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">MGR: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_MANAGER'] . ' | PAYROLL: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_PAYROLL'] . '</span>***/ ?>
+                <?php echo $welcomeMessage; ?>
+              </div>
+          </div>
+          <div class="visible-xs visible-sm">
+              <div class="swift-header-item-sm">
+                <a class="navbar-brand-sm" href="<?php echo $this->basePath('/request/create'); ?>"><img src="<?php echo $this->basePath('templates/swiftit/img/swift_logo_50h.png'); ?>" class="swiftlogo" style="width:50%;"></a>
+              </div>
+              <div class="swift-header-item swift-site-name-sm">
+                Time Off&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">
+              </div>
+          </div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="<?php echo $this->basepath(); ?>/request/create">Home</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Page Links <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">View My Requests</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/create">Request Time Off</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/view-employee-requests">View Manager Employee Requests</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/view-my-team-calendar">View My Team Calendar</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="well well-sm">
+          
+          <?php
+          $alertType = '';
+          switch($alertType) {
+              case 'success':
+              default:
+                  $alertIcon = 'check-square-o';
+                  break;
+              
+              case 'info':
+                  $alertIcon = 'info-circle';
+                  break;
+              
+              case 'warning':
+                  $alertIcon = 'warning';
+                  break;
+              
+              case 'danger':
+                  $alertIcon = 'exclamation-circle';
+                  break;
+          }
+          ?>
+      
+      	  <?php
+      	  /** Out put any flash messages **/
+      	  $children = $this->viewModel()->getCurrent()->getChildren();
+      	  $ourView  = $children[0];
+      	  
+      	  if (isset($ourView->flashMessages) && count($ourView->flashMessages)) {
+      	      foreach($ourView->flashMessages as $alertType => $messages) {
+      	        if(!empty($messages)) {
+      	        ?>
+      	        <div id="applicationFlashMessage" class="alert alert-<?php echo $alertType; ?>" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <i class="fa fa-<?php echo $alertIcon; ?>"></i> <strong><?php foreach($messages as $mk => $message) { echo $message . '<br />'; } ?></strong><br />
+                    <div class="autoCloseMessage">This message will auto close in <span class="autoCloseMessage">10</span> seconds.</div>
+                </div>
+      	        <?php
+      	        }
+      	      }
+      	  } ?>
+      	  
+          <?php echo $this->content; ?>
+
+          <br />
+          <br />
+          <br />
+
+      </div>
+
+      <br /><br />
+
+      <span class="copyright">Copyright &copy; <?php echo date("Y"); ?> Swift Transportation.</span>
+    </div> <!-- /container -->
+
+    <script>
+//     $(document).ready(function() {
+//         function createAutoClosingAlert(selector, delay) {
+//           var alert = $(selector).alert();
+//           window.setTimeout(function() { alert.alert('close') }, delay);
+//        }
+//     });
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!--script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
+
+  </body>
+</html>
