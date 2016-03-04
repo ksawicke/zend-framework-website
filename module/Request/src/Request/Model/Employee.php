@@ -186,17 +186,18 @@ class Employee extends BaseDB {
         ) hierarchy
             ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
         
-        if( !$isFiltered ) {
-            $where = [];
-            $where[] = "request.REQUEST_STATUS = 'P'";
+        $where = [];
+        $where[] = "request.REQUEST_STATUS = 'P'";
+            
+        if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
                             )";
             }
-            $rawSql .=  " WHERE " . implode( " AND ", $where );
         }
+        $rawSql .=  " WHERE " . implode( " AND ", $where );
         
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
@@ -255,10 +256,14 @@ class Employee extends BaseDB {
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
 
-        if( $data !== null ) {
-//            $sortColumn = $data['order'][0]['column'];
-//            $sortColumnName = $data['columns'][$sortColumn]['data'];
-        }
+        $columns = [ "EMPLOYEE_DESCRIPTION",
+                     "APPROVER_QUEUE",
+                     "REQUEST_STATUS_DESCRIPTION",
+                     "REQUESTED_HOURS",
+                     "REQUEST_REASON",
+                     "MIN_DATE_REQUESTED",
+                     "ACTIONS"
+                   ];
         
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {

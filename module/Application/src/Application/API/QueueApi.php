@@ -83,7 +83,7 @@ class QueueApi extends ApiController {
             "draw" => $draw,
             "data" => $data,
             "recordsTotal" => $recordsTotal,
-            "recordsFiltered" => $recordsTotal // count of what is actually being searched on
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
         );
 
         /**
