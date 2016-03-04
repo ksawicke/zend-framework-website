@@ -423,7 +423,7 @@ class RequestController extends AbstractActionController
         }
     }
 
-    public function viewEmployeeRequestsAction()
+    public function viewPendingManagerApprovalQueueAction()
     {
         $Employee = new \Request\Model\Employee();
         $managerReportsData = [];
