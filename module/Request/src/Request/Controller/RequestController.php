@@ -425,87 +425,20 @@ class RequestController extends AbstractActionController
 
     public function viewEmployeeRequestsAction()
     {
-        /**
-         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
-         */
         $Employee = new \Request\Model\Employee();
-
-//        
+        $managerReportsData = [];
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         if($isLoggedInUserManager!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
-//        
-        /**
-         * BEGIN : Save record(s) to PAPAATMP / HRLYPAPAATMP
-         */
-//        $RequestEntry = new \Request\Model\RequestEntry();
-//        $Papaa = new \Request\Model\Papaa();
-//        $dateRequestBlocks = $RequestEntry->getRequestObject( 100555 );
-//        $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
-//            "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-//
-//        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
-//        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
-//        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
-//        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
-//        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
-//        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-//        
-//        foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
-//            $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
-//        }
-        /**
-         * END : Save record(s) to PAPAATMP / HRLYPAPAATMP
-         */
         
-//        die("...");
-//        
-////        $Papaa->SaveDates( $dateRequestBlocks );
-//        
-////        echo '<pre>dateRequestBlocks';
-////        print_r( $dateRequestBlocks );
-////        echo '</pre>';
-////        
-////        echo '<pre>employeeData';
-////        print_r( $employeeData );
-////        echo '</pre>';
-////        
-//        die("............");
-//        
-//        foreach( $dateRequestBlocks as $ctr => $dateCollection )
-//        {
-//            $Papaa->SaveDates( $employeeData, $dateCollection );
-//            echo '<pre>';
-//            print_r( $Papaa->collection );
-//            echo '</pre>';
-//        }
-//        
-//        die(".....");
-//        
-//        echo '<pre>';
-//        print_r( $dates );
-//        echo '</pre>';
-//        
-//        die(".....");
-//        
-//        $Papaa->SaveDates( ['1', '2', '3'] );
-//        echo '<pre>';
-//        print_r( $Papaa->collection );
-//        echo '</pre>';
-//        
-//        die(".....");
-        
-        
-//        $Helper->papaa();
-//        $Helper->getPapaaVars();
-        
-//        die("<br /><br />.");
+//        $managerReportsData = $Employee->findQueuesByManager( $this->employeeNumber );
         
         return new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
-            'managerReportsData' => $Employee->findQueuesByManager($this->employeeNumber),
+//            'managerReportsData' => $managerReportsData,
+            'employeeNumber' => $this->employeeNumber,
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),

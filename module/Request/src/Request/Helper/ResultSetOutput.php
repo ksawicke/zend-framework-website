@@ -46,18 +46,16 @@ class ResultSetOutput
         return $array;
     }
     
-    public static function getResultArrayFromRawSql($dbAdapter, $rawSql)
+    public static function getResultArrayFromRawSql( $dbAdapter, $rawSql )
     {
         try {
-            $statement = $dbAdapter->createStatement($rawSql);
-        } catch(Exception $e) {
-            var_dump($e);
+            $statement = $dbAdapter->createStatement( $rawSql );
+            $result = $statement->execute();            
+            $resultSet = new ResultSet;
+            $resultSet->initialize( $result );
+        } catch( Exception $ex ) {
+            var_dump( $ex );
         }
-        
-        $result = $statement->execute();
-        
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
         
         $array = [];
         foreach($resultSet as $row) {

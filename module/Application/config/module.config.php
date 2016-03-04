@@ -10,8 +10,18 @@
 namespace Application;
 
 return [
-//    'router' => [
-//        'routes' => [
+    'router' => [
+        'routes' => [
+            'getManagerQueue' => [
+                'type' => 'Segment',
+                'options' => [
+                    'route' => '/api/queue[/:type][/:status]',
+                    'defaults' => [
+                        'controller' => 'Application\API\QueueApi',
+                        'action' => 'getManagerQueue'
+                    ],
+                ],
+            ],
 //            'home' => [
 //                'type' => 'Zend\Mvc\Router\Http\Literal',
 //                'options' => [
@@ -21,7 +31,7 @@ return [
 //                        'action'     => 'index',
 //                    ],
 //                ],
-//            ],
+            ],
             // The following is a route to simplify getting started creating
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
@@ -53,7 +63,12 @@ return [
 //                ],
 //            ],
 //        ],
-//    ],
+    ],
+    'controllers' => [
+        'invokables' => [
+            'Application\API\QueueApi' => API\QueueApi::class
+        ]
+    ],
     'service_manager' => [
         'abstract_factories' => [
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
