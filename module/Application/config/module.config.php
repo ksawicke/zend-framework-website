@@ -12,13 +12,23 @@ namespace Application;
 return [
     'router' => [
         'routes' => [
-            'getManagerQueue' => [
+            'getPendingManagerApprovalQueue' => [
                 'type' => 'Segment',
                 'options' => [
-                    'route' => '/api/queue[/:type][/:status]',
+                    'route' => '/api/queue/manager/p',
                     'defaults' => [
                         'controller' => 'Application\API\QueueApi',
-                        'action' => 'getManagerQueue'
+                        'action' => 'getPendingManagerApprovalQueue'
+                    ],
+                ],
+            ],
+            'getPayrollUpdateChecksQueue' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/api/queue/payroll/update-checks',
+                    'defaults' => [
+                        'controller' => 'Application\API\QueueApi',
+                        'action' => 'getPayrollUpdateChecksQueue'
                     ],
                 ],
             ],

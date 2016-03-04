@@ -432,12 +432,29 @@ class RequestController extends AbstractActionController
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
-        
-//        $managerReportsData = $Employee->findQueuesByManager( $this->employeeNumber );
-        
+
         return new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
-//            'managerReportsData' => $managerReportsData,
+            'employeeNumber' => $this->employeeNumber,
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
+    
+    public function viewUpdateChecksQueueAction()
+    {
+        $Employee = new \Request\Model\Employee();
+        $isLoggedInUserPayroll = $Employee->isPayroll( $this->employeeNumber );
+        if($isLoggedInUserPayroll!=="Y") {
+            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+            return $this->redirect()->toRoute('create');
+        }
+
+        return new ViewModel([
+            'isLoggedInUserPayroll' => $isLoggedInUserPayroll,
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),

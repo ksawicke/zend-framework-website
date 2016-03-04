@@ -364,13 +364,13 @@ class Employee extends BaseDB {
 
     public function isPayroll( $employeeNumber = null ) {
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL
             FROM PRPMS
             WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
 
         $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
-
-        return $isSupervisorData[0]->IS_MANAGER;
+        
+        return $isSupervisorData[0]->IS_PAYROLL;
     }
 
     public function getExcludedLevel2() {

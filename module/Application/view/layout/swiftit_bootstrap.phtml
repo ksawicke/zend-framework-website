@@ -74,10 +74,14 @@ if( isset($_SESSION['Timeoff_'.ENVIRONMENT]) ) {
         $this->headScript()
             ->appendFile($this->basePath('js/request/timeOffTeamCalendarHandler.js'));
       }
-      if(strpos($_SERVER['REDIRECT_URL'], '/request/view-employee-requests') !== false) {
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/queue/view/pending-manager-approval') !== false) {
           $this->headScript()
             ->appendFile($this->basePath('js/request/timeOffCreateRequestHandler.js'))
-            ->appendFile($this->basePath('js/request/timeOffQueueHandler.js'));
+            ->appendFile($this->basePath('js/request/timeOffPendingManagerApprovalQueueHandler.js'));
+      }
+      if(strpos($_SERVER['REDIRECT_URL'], '/request/queue/view/update-checks') !== false) {
+          $this->headScript()
+            ->appendFile($this->basePath('js/request/timeOffUpdateChecksQueueHandler.js'));
       }
       if(strpos($_SERVER['REDIRECT_URL'], '/request/review-request') !== false) {
           $this->headScript()
@@ -146,7 +150,8 @@ if( isset($_SESSION['Timeoff_'.ENVIRONMENT]) ) {
               <ul class="dropdown-menu" role="menu">
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">View My Requests</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/create">Request Time Off</a></li>
-                <li><a href="<?php echo $this->basepath(); ?>/request/view-employee-requests">View Manager Employee Requests</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/queue/view/pending-manager-approval">View Pending Manager Approval Queue</a></li>
+                <li><a href="<?php echo $this->basepath(); ?>/request/queue/view/update-checks">View PAYROLL Update Checks Queue</a></li>
                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-team-calendar">View My Team Calendar</a></li>
               </ul>
             </li>

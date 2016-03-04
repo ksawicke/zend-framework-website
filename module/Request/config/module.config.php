@@ -115,6 +115,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'viewUpdateChecksQueue' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/queue/view/update-checks',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'viewUpdateChecksQueue'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'viewMyRequests' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
