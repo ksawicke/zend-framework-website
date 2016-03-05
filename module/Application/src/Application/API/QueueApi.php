@@ -32,7 +32,7 @@ use Request\Model\Employee;
 class QueueApi extends ApiController {
 
     /**
-     * POST request from datatable UI
+     * POST request from datatable UI to load Manager Queue.
      *
      * @api
      * @return \Zend\View\Model\JsonModel
@@ -47,6 +47,12 @@ class QueueApi extends ApiController {
         }
     }
     
+    /**
+     * POST request from datatable UI to load Payroll Queue.
+     *
+     * @api
+     * @return \Zend\View\Model\JsonModel
+     */
     public function getPayrollQueueAction()
     {
         switch( $this->params()->fromRoute('payroll-queue') ) {
@@ -69,10 +75,10 @@ class QueueApi extends ApiController {
     }
 
     /**
-     * Get data for the Ma
+     * Get data for the Pending Manager Approval Queue datatable.
      * 
-     * @param type $data
-     * @return type
+     * @param array $data
+     * @return array
      */
     public function getPendingManagerApprovalQueueDatatable( $data = null ) {
         /**
@@ -125,6 +131,12 @@ class QueueApi extends ApiController {
         return $result;
     }
     
+    /**
+     * Get data for the Update Checks Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
     public function getPayrollUpdateChecksQueueDatatable( $data = null )
     {
         /**
@@ -181,6 +193,12 @@ class QueueApi extends ApiController {
         return $result;
     }
     
+    /**
+     * Get data for the Pending Payroll Approval Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
     public function getPayrollPendingPayrollApprovalQueueDatatable( $data = null )
     {
         /**
@@ -237,6 +255,12 @@ class QueueApi extends ApiController {
         return $result;
     }
 
+    /**
+     * Get data for the Completed PAFs Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
     public function getPayrollCompletedPAFsQueueDatatable( $data = null )
     {
         /**
@@ -293,6 +317,12 @@ class QueueApi extends ApiController {
         return $result;
     }
     
+    /**
+     * Get data for the Pending AS400 Upload Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
     public function getPayrollPendingAS400UploadQueueDatatable( $data = null )
     {
         /**
