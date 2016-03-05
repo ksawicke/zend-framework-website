@@ -24,6 +24,17 @@ class RequestController extends AbstractActionController
         'individual' => []
     ];
     
+    public $managerViewName = [
+        'pending-manager-approval' => 'Pending Manager Approval'
+    ];
+    
+    public $payrollViewName = [
+        'update-checks' => 'Update Checks',
+        'pending-payroll-approval' => 'Pending Payroll Approval',
+        'completed-pafs' => 'Completed PAFs',
+        'pending-as400-upload' => 'Pending AS400 Upload'
+    ];
+    
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
@@ -87,79 +98,19 @@ class RequestController extends AbstractActionController
         ];
     }
 
-    public function outlookAction()
-    {
-        $employeeSchedules = new \Request\Model\EmployeeSchedules();
-        $employeeSchedules->getAll(['test'=>'ww']);
-        die('@@');
-        
-        $description = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 01/25/2016 8.00 PTO; 01/26/2016 8.00 PTO; 01/27/2016 8.00 PTO; 01/28/2016 8.00 PTO; 01/29/2016 8.00 PTO';
-        
-        $requestObject = [
-            'datesRequested' => [ ['start' => '20160125', 'end' => '20160129' ],
-                                  ['start' => '20160201', 'end' => '20160205' ]
-                                ],
-            'subject' =>        '[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF',
-            'description' =>    '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 01/25/2016 8.00 PTO; 01/26/2016 8.00 PTO; 01/27/2016 8.00 PTO; 01/28/2016 8.00 PTO; 01/29/2016 8.00 PTO',
-            'organizer' =>      [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ],
-            'to' =>             'kevin_sawicke@swifttrans.com',
-            'participants' =>   [ ['name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ],
-                                  ['name' => 'Mary Jackson', 'email' => 'mary_jackson@swifttrans.com' ]
-                                ]
-        ];
-        
-        echo '<pre>requestObject';
-        print_r($requestObject);
-        echo '</pre>';
-        die("@@");
-        
-        $outlookHelper = new \Request\Helper\OutlookHelper();
-        $outlookHelper->setStartDate('20160125'); // date in yyyymmdd format
-        $outlookHelper->setEndDate('20160129'); // date in yyyymmdd format
-        $outlookHelper->setSubject('[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF');
-        $outlookHelper->setOrganizerName('Kevin Sawicke'); // Employee name
-        $outlookHelper->setOrganizerEmail('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setToEmail('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setParticipantName1('Kevin Sawicke'); // Employee name
-        $outlookHelper->setParticipantEmail1('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setParticipantName2('Mary Jackson'); // Manager name
-        $outlookHelper->setParticipantEmail2('mary_jackson@swifttrans.com'); // Manager email
-        $outlookHelper->setDescription($description); // date in mm/dd/yyyy format; 2nd line should be request i.e. 6.00 PTO + 2.00 Sick
-        
-        $isSent = $outlookHelper->addToCalendar();
-        
-        var_dump($isSent);
-        
-        
-        
-        $description2 = '[DEVELOPMENT] This is a reminder from the Time Off system that Kevin Sawicke is taking off the following time off: 02/01/2016 8.00 PTO; 02/02/2016 8.00 PTO; 02/03/2016 8.00 PTO; 02/04/2016 8.00 PTO; 02/05/2016 8.00 PTO';
-        
-        $outlookHelper->setStartDate('20160201'); // date in yyyymmdd format
-        $outlookHelper->setEndDate('20160205'); // date in yyyymmdd format
-        $outlookHelper->setSubject('[DEVELOPMENT] KEVIN SAWICKE - APPROVED TIME OFF');
-        $outlookHelper->setOrganizerName('Kevin Sawicke'); // Employee name
-        $outlookHelper->setOrganizerEmail('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setToEmail('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setParticipantName1('Kevin Sawicke'); // Employee name
-        $outlookHelper->setParticipantEmail1('kevin_sawicke@swifttrans.com'); // Employee email
-        $outlookHelper->setParticipantName2('Mary Jackson'); // Manager name
-        $outlookHelper->setParticipantEmail2('mary_jackson@swifttrans.com'); // Manager email
-        $outlookHelper->setDescription($description2); // date in mm/dd/yyyy format; 2nd line should be request i.e. 6.00 PTO + 2.00 Sick
-        
-        $isSent2 = $outlookHelper->addToCalendar();
-        
-        var_dump($isSent2);
-        
-        die("@@@");
-    }
-    
+    /**
+     * Allows an employee to submit a new time off request for themselves.
+     * In addition, a manager may submit time off requests for their direct reports,
+     * and Payroll may submit time off requests for anyone.
+     * 
+     * @return ViewModel
+     */
     public function createAction()
     {
         $Employee = new \Request\Model\Employee();
         
         return new ViewModel([
             'employeeData' => $Employee->findTimeOffEmployeeData($this->employeeNumber, "Y"),
-//             'managerEmployees' => $this->requestService->findManagerEmployees($this->employeeNumber, 'sena'),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
@@ -169,16 +120,37 @@ class RequestController extends AbstractActionController
         ]);
     }
     
+    /**
+     * Return a session message that the request was approved successfully.
+     * 
+     * @return string
+     */
     public function approvedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
         return $this->redirect()->toRoute('viewEmployeeRequests');
     }
     
+    /**
+     * Return a session message that the request was denied successfully.
+     * 
+     * @return string
+     */
     public function deniedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You denied the request succesfully.');
         return $this->redirect()->toRoute('viewEmployeeRequests');
+    }
+    
+    /**
+     * Return a session message that the request was submitted successfully.
+     * 
+     * @return string
+     */
+    public function submittedForApprovalAction()
+    {
+        $this->flashMessenger()->addSuccessMessage('Request has been submitted successfully.');
+        return $this->redirect()->toRoute('create');
     }
     
     /**
@@ -239,11 +211,6 @@ class RequestController extends AbstractActionController
                         $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
                         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
                         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-                        
-//                        echo '<pre>@@@@@@@@@@@@@@@@@';
-//                        print_r( $dateRequestBlocks );
-//                        echo '</pre>';
-//                        die("....");
 
                         foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
                             $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
@@ -423,29 +390,42 @@ class RequestController extends AbstractActionController
         }
     }
 
-    public function viewPendingManagerApprovalQueueAction()
+    /**
+     * Allow managers to view timeoff requests in status Pending Manager Approval.
+     * 
+     * @return ViewModel
+     */
+    public function viewManagerQueueAction()
     {
+        $managerView = $this->params()->fromRoute('manager-view');
         $Employee = new \Request\Model\Employee();
-        $managerReportsData = [];
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         if($isLoggedInUserManager!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
 
-        return new ViewModel([
+        $this->layout()->setVariable( 'managerView', $managerView );
+        
+        $view = new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
+            'managerView' => $managerView,
+            'managerViewName' => $this->managerViewName[$managerView],
             'employeeNumber' => $this->employeeNumber,
-            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
-                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
-                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
-                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
-                               ]
+            'flashMessages' => $this->getFlashMessages()
         ]);
+        $view->setTemplate( 'request/manager-queues/manager-queue.phtml' );
+        return $view;
     }
     
-    public function viewUpdateChecksQueueAction()
+    /**
+     * Allow payroll to view requests in the Pending Checks status.
+     * 
+     * @return ViewModel
+     */
+    public function viewPayrollQueueAction()
     {
+        $payrollView = $this->params()->fromRoute('payroll-view');
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserPayroll = $Employee->isPayroll( $this->employeeNumber );
         if($isLoggedInUserPayroll!=="Y") {
@@ -453,15 +433,17 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('create');
         }
 
-        return new ViewModel([
+        $this->layout()->setVariable( 'payrollView', $payrollView );
+        
+        $view = new ViewModel([
             'isLoggedInUserPayroll' => $isLoggedInUserPayroll,
+            'payrollView' => $payrollView,
+            'payrollViewName' => $this->payrollViewName[$payrollView],
             'employeeNumber' => $this->employeeNumber,
-            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
-                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
-                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
-                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
-                               ]
+            'flashMessages' => $this->getFlashMessages()
         ]);
+        $view->setTemplate( 'request/payroll-queues/payroll-queue.phtml' );
+        return $view;
     }
     
     public function viewMyRequestsAction()
@@ -483,11 +465,7 @@ class RequestController extends AbstractActionController
         return new ViewModel([
             'employeeData' => $employeeData,
             'requestData' => $requestData,
-            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
-                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
-                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
-                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
-                               ]
+            'flashMessages' => $this->getFlashMessages()
         ]);
     }
     
@@ -501,27 +479,10 @@ class RequestController extends AbstractActionController
         ));
     }
     
-    public function submittedForApprovalAction()
-    {
-        $this->flashMessenger()->addSuccessMessage('Request has been submitted successfully.');
-        return $this->redirect()->toRoute('create');
-    }
-    
-    public function buildPapaaTestAction()
-    {
-        $requestId = $this->params()->fromRoute('request_id');
-        
-        echo '<pre>';
-        print_r( $requestId );
-        echo '</pre>';
-        
-        die("------------------");
-    }
-    
     public function reviewRequestAction()
     {
-        $Employee = new \Request\Model\Employee();
         $requestId = $this->params()->fromRoute('request_id');
+        $Employee = new \Request\Model\Employee();
         $TimeoffRequests = new \Request\Model\TimeoffRequests();
         
         $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
@@ -542,157 +503,18 @@ class RequestController extends AbstractActionController
         $this->employeeNumber = $employeeNumber;
     }
     
-    // http://r2d2.cc/2014/01/27/create-outlook-meeting-request-php/
-    protected function testUpdateCal() {
-        $to = 'kevin_sawicke@swifttrans.com';
-        $subject = "TEST Meeting";
-
-        $organizer = 'Kevin Sawicke';
-        $organizer_email = 'kevin_sawicke@swifttrans.com';
-
-        $participant_name_1 = 'Kevin Sawicke';
-        $participant_email_1 = 'kevin_sawicke@swifttrans.com';
-
-        $participant_name_2 = 'Kevin Sawicke';
-        $participant_email_2 = 'kevin_sawicke@swifttrans.com';
-
-        $location = "Sample location here";
-        $date = '20160114';
-        $startTime = '0800';
-        $endTime = '1300';
-        $subject = 'Is this the subject';
-        $desc = 'The purpose of the meeting is to discuss something.';
-
-        $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-        $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
-
-        $message = "BEGIN:VCALENDAR\r\n
-    VERSION:2.0\r\n
-    PRODID:-//Timeoff-mailer//timeoff/NONSGML v1.0//EN\r\n
-    METHOD:REQUEST\r\n
-    BEGIN:VEVENT\r\n
-    UID:" . md5(uniqid(mt_rand(), true)) . "swifttrans.com\r\n
-    DTSTAMP:" . gmdate('Ymd') . 'T' . gmdate('His') . "Z\r\n
-    DTSTART:" . $date . "T" . $startTime . "00Z\r\n
-    DTEND:" . $date . "T" . $endTime . "00Z\r\n
-    SUMMARY:" . $subject . "\r\n
-    ORGANIZER;CN=" . $organizer . ":mailto:" . $organizer_email . "\r\n
-    LOCATION:" . $location . "\r\n
-    DESCRIPTION:" . $desc . "\r\n
-    ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN" . $participant_name_1 . ";X-NUM-GUESTS=0:MAILTO:" . $participant_email_1 . "\r\n
-    ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN" . $participant_name_2 . ";X-NUM-GUESTS=0:MAILTO:" . $participant_email_2 . "\r\n
-    END:VEVENT\r\n
-    END:VCALENDAR\r\n";
-
-        $headers .= $message;
-        $mailsent = mail($to, $subject, $message, $headers);
-
-        return ($mailsent) ? (true) : (false);
-
-//        $from_name = "Kevin";        
-//        $from_address = "kevin_sawicke@swifttrans.com";        
-//        $to_name = "Kevin";        
-//        $to_address = "kevin_sawicke@swifttrans.com";        
-//        $startTime = "01/15/2016 08:00:00";        
-//        $endTime = "01/15/2016 13:00:00";        
-//        $subject = "My Test Subject";        
-//        $description = "My Awesome Description";        
-//        $location = "TESTING LOCATION";
-//        $this->sendIcalEvent($from_name, $from_address, $to_name, $to_address, $startTime, $endTime, $subject, $description, $location);
-    }
-
-    protected function sendIcalEvent($from_name, $from_address, $to_name, $to_address, $startTime, $endTime, $subject, $description, $location) {
-        $domain = 'swifttrans.com';
-
-        //Create Email Headers
-        $mime_boundary = "----Meeting Booking----" . MD5(TIME());
-
-        $headers = "From: " . $from_name . " <" . $from_address . ">\n";
-        $headers .= "Reply-To: " . $from_name . " <" . $from_address . ">\n";
-        $headers .= "MIME-Version: 1.0\n";
-        $headers .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
-        $headers .= "Content-class: urn:content-classes:calendarmessage\n";
-
-        //Create Email Body (HTML)
-        $message = "--$mime_boundary\r\n";
-        $message .= "Content-Type: text/html; charset=UTF-8\n";
-        $message .= "Content-Transfer-Encoding: 8bit\n\n";
-        $message .= "<html>\n";
-        $message .= "<body>\n";
-        $message .= '<p>Dear ' . $to_name . ',</p>';
-        $message .= '<p>' . $description . '</p>';
-        $message .= "</body>\n";
-        $message .= "</html>\n";
-        $message .= "--$mime_boundary\r\n";
-
-        $ical = 'BEGIN:VCALENDAR' . "\r\n" .
-                'PRODID:-//Microsoft Corporation//Outlook 10.0 MIMEDIR//EN' . "\r\n" .
-                'VERSION:2.0' . "\r\n" .
-                'METHOD:REQUEST' . "\r\n" .
-                'BEGIN:VTIMEZONE' . "\r\n" .
-                'TZID:Eastern Time' . "\r\n" .
-                'BEGIN:STANDARD' . "\r\n" .
-                'DTSTART:20091101T020000' . "\r\n" .
-                'RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=11' . "\r\n" .
-                'TZOFFSETFROM:-0400' . "\r\n" .
-                'TZOFFSETTO:-0500' . "\r\n" .
-                'TZNAME:EST' . "\r\n" .
-                'END:STANDARD' . "\r\n" .
-                'BEGIN:DAYLIGHT' . "\r\n" .
-                'DTSTART:20090301T020000' . "\r\n" .
-                'RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=2SU;BYMONTH=3' . "\r\n" .
-                'TZOFFSETFROM:-0500' . "\r\n" .
-                'TZOFFSETTO:-0400' . "\r\n" .
-                'TZNAME:EDST' . "\r\n" .
-                'END:DAYLIGHT' . "\r\n" .
-                'END:VTIMEZONE' . "\r\n" .
-                'BEGIN:VEVENT' . "\r\n" .
-                'ORGANIZER;CN="' . $from_name . '":MAILTO:' . $from_address . "\r\n" .
-                'ATTENDEE;CN="' . $to_name . '";ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:' . $to_address . "\r\n" .
-                'LAST-MODIFIED:' . date("Ymd\TGis") . "\r\n" .
-                'UID:' . date("Ymd\TGis", strtotime($startTime)) . rand() . "@" . $domain . "\r\n" .
-                'DTSTAMP:' . date("Ymd\TGis") . "\r\n" .
-                'DTSTART;TZID="Eastern Time":' . date("Ymd\THis", strtotime($startTime)) . "\r\n" .
-                'DTEND;TZID="Eastern Time":' . date("Ymd\THis", strtotime($endTime)) . "\r\n" .
-                'TRANSP:OPAQUE' . "\r\n" .
-                'SEQUENCE:1' . "\r\n" .
-                'SUMMARY:' . $subject . "\r\n" .
-                'LOCATION:' . $location . "\r\n" .
-                'CLASS:PUBLIC' . "\r\n" .
-                'PRIORITY:5' . "\r\n" .
-                'BEGIN:VALARM' . "\r\n" .
-                'TRIGGER:-PT15M' . "\r\n" .
-                'ACTION:DISPLAY' . "\r\n" .
-                'DESCRIPTION:Reminder' . "\r\n" .
-                'END:VALARM' . "\r\n" .
-                'END:VEVENT' . "\r\n" .
-                'END:VCALENDAR' . "\r\n";
-        $message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST' . "\n";
-        $message .= "Content-Transfer-Encoding: 8bit\n\n";
-        $message .= $ical;
-
-        $mailsent = mail($to_address, $subject, $message, $headers);
-
-        return ($mailsent) ? (true) : (false);
-    }
-    
-    public function testAction()
-    {   
-        $employeeNumber = $this->params()->fromRoute('employee_number');
-        $employeeData = $this->requestService->findTimeOffEmployeeData($employeeNumber, "Y");
-        
-        echo '<pre>TEST 1';
-        print_r($employeeData);
-        echo '</pre>';
-        
-        $Employee = new \Request\Model\Employee();
-        $employeeData2 = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
-        
-        echo '<pre>TEST 2';
-        print_r($employeeData2);
-        echo '</pre>';
-        
-        die('@@@');
+    /**
+     * Returns any set flash messages
+     * 
+     * @return array
+     */
+    private function getFlashMessages()
+    {
+        return ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+               ];
     }
 
 }

@@ -2,14 +2,14 @@
  * Javascript timeOffQueueHandler 'class'
  *
  */
-var timeOffPendingManagerApprovalQueueHandler = new function ()
+var timeOffManagerQueueHandler = new function ()
 {
     /**
      * Initializes binding
      */
     this.initialize = function () {
         $(document).ready(function () {
-            $('#pendingManagerApprovalQueue').DataTable({
+            $('#pending-manager-approval').DataTable({
                 dom: 'fltirp',
                 searching: true,
                 processing: true,
@@ -49,4 +49,4 @@ var timeOffPendingManagerApprovalQueueHandler = new function ()
 };
 
 // Initialize the class
-timeOffPendingManagerApprovalQueueHandler.initialize();
+timeOffManagerQueueHandler.initialize();

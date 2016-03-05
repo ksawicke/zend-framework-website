@@ -103,25 +103,25 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            'viewPendingManagerApprovalQueue' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+            'viewManagerQueue' => [
+                'type' => 'segment',
                 'options' => [
-                    'route' => '/request/queue/view/pending-manager-approval',
+                    'route' => '/request/view-manager-queue/[:manager-view]',
                     'defaults' => [
                         'controller' => 'RequestController',
-                        'action' => 'viewPendingManagerApprovalQueue'
+                        'action' => 'viewManagerQueue'
                     ]
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            'viewUpdateChecksQueue' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+            'viewPayrollQueue' => [
+                'type' => 'segment',
                 'options' => [
-                    'route' => '/request/queue/view/update-checks',
+                    'route' => '/request/view-payroll-queue/[:payroll-view]',
                     'defaults' => [
                         'controller' => 'RequestController',
-                        'action' => 'viewUpdateChecksQueue'
+                        'action' => 'viewPayrollQueue'
                     ]
                 ],
                 'may_terminate' => 1,
