@@ -1,338 +1,218 @@
 <h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
 
-<form class="form-horizontal">
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="panel panel-default">
+            
+            <div class="panel-heading clearfix">
+                <i class="icon-calendar"></i>
+                <h3 class="panel-title">Request for</h3>
+            </div>
 
-    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
-        <h5>Request For</h5>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Name</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Hire Date</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['EMPLOYEE_HIRE_DATE']; ?>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Email</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMAIL_ADDRESS; ?>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Schedule</label>
-        <div class="col-sm-9">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>SUN</th>
-                        <th>MON</th>
-                        <th>TUE</th>
-                        <th>WED</th>
-                        <th>THU</th>
-                        <th>FRI</th>
-                        <th>SAT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_SUN, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_MON, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_TUE, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_WED, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_THU, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_FRI, 2); ?></td>
-                        <td><?php echo number_format($timeoffRequestData->SCHEDULE_SAT, 2); ?></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    
-    
-    
-    
-    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
-        <h5>Requested By</h5>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Name</label>
-        <div class="col-sm-9">
-            CREATOR, REQUEST&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Email</label>
-        <div class="col-sm-9">
-            someemail@swift_trans.com
-        </div>
-    </div>
-    
-    
-    
-    
-    
-    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
-        <h5>Supervisor</h5>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Name</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMPLOYEE_NUMBER; ?>)
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Email</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMAIL_ADDRESS; ?>
-        </div>
-    </div>
-    
+            <div class="panel-body">
 
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
 
+                    </div>
+                    <div class="col-lg-8 col-md-8">
 
-    
-    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
-        <h5>Request</h5>
-    </div>
-    
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Total Hours Requested</label>
-        <div class="col-sm-9">
-            <?php echo $totalHoursRequested . ' hr' . ( ( $totalHoursRequested > 1 ) ? 's' : '' ); ?>
-        </div>
-    </div>
+                        <?php /*** BEGIN REQUEST FOR ***/ ?>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Name</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
+                            </div>
+                        </div>
 
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Reason</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['REQUEST_REASON']; ?>
-        </div>
-    </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Email Address</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo strtolower( $timeoffRequestData['EMPLOYEE_DATA']->EMAIL_ADDRESS ); ?>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Supervisor</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                SUPERVISOR, MY (777777) - PHOAZ-SOME FANCY TITLE
+                            </div>
+                        </div>
 
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Time Off Requested</label>
-        <div class="col-sm-9">
-            <?php echo $hoursRequestedHtml; ?>
-        </div>
-    </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Schedule</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <table class="employeeSchedule">
+                                    <thead>
+                                        <tr>
+                                            <th>SUN</th>
+                                            <th>MON</th>
+                                            <th>TUE</th>
+                                            <th>WED</th>
+                                            <th>THU</th>
+                                            <th>FRI</th>
+                                            <th>SAT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_SUN, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_MON, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_TUE, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_WED, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_THU, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_FRI, 2); ?></td>
+                                            <td><?php echo number_format($timeoffRequestData->SCHEDULE_SAT, 2); ?></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Hire Date</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $timeoffRequestData['EMPLOYEE_HIRE_DATE']; ?>
+                            </div>
+                        </div>
+                        <?php /*** END REQUEST FOR ***/ ?>
+                        
+                    </div>
+                    <div class="col-lg-2 col-md-2">
 
-    <?php /******
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Team Approved Requests<br />(Same Period)</label>
-        <div class="col-sm-9">
-            <?php
-            if ( count( $pendingRequestData['TEAM_CALENDAR'] ) === 0 ) {
-                ?>
-
-                <div class="alert alert-warning" role="alert">
-                    <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
-                    No team members have requested time off during this period.
+                    </div>
                 </div>
-
-                <?php
-            } else {
-                ?>
-
-                <?php
-                foreach ( $pendingRequestData['TEAM_CALENDAR'] as $date => $teamData ) {
-                    echo $date . "<br />";
-                    echo '<div style="padding-left:30px;padding-bottom:15px;">';
-                    echo $teamData;
-                    echo '</div>';
-                }
-            }
-            ?>
+                
+            </div>
+            
         </div>
     </div>
-    ****/ ?>
+</div>
 
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="panel panel-default">
+            
+            <div class="panel-heading clearfix">
+                <i class="icon-calendar"></i>
+                <h3 class="panel-title">Requested by</h3>
+            </div>
 
+            <div class="panel-body">
 
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Approval Actions</label>
-        <div class="col-sm-9">
-            <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
-            <?php //echo (($timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] === 'approved') ? ' disabled' : ''); ?>
-            <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
-            <p>
-                <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest">Approve</button> <?php //echo (($pendingRequestData['REQUEST_STATUS_TEXT'] === 'approved') ? ' disabled' : ''); ?>
-                <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest">Deny</button><?php //echo (($pendingRequestData['REQUEST_STATUS_TEXT'] === 'approved') ? ' disabled' : ''); ?>
-            </p>
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
+
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+
+                        <?php /*** BEGIN REQUESTED BY ***/ ?>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Name</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                PLACEHOLDER, REQUESTOR (999999)
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Email Address</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                requestor_placeholder@swifttrans.com
+                            </div>
+                        </div>
+                        <?php /*** END REQUESTED BY ***/ ?>
+                        
+                    </div>
+                </div>
+            
+            </div>
         </div>
     </div>
+</div>
 
-</form>
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="panel panel-default">
+            
+            <div class="panel-heading clearfix">
+                <i class="icon-calendar"></i>
+                <h3 class="panel-title">Request Details</h3>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-lg-2 col-md-2">
+
+                    </div>
+                    <div class="col-lg-8 col-md-8">
+
+                        <?php /*** BEGIN REQUEST DETAIL ***/ ?>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Total Hours Requested</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $totalHoursRequested . ' hr' . ( ( $totalHoursRequested > 1 ) ? 's' : '' ); ?>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Reason</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $timeoffRequestData['REQUEST_REASON']; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Time Off Requested</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $hoursRequestedHtml; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-lg-3 col-md-3 text-right">Approval Actions</label>
+                            <div class="ccol-lg-9 col-md-9">
+                                <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
+                                <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
+                                <p>
+                                    <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest">Approve</button>
+                                    <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest">Deny</button>
+                                </p>
+                            </div>
+                        </div>
+                        <?php /*** BEGIN REQUEST DETAIL ***/ ?>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+</div>
 
 <?php
-/**
- *
-
-ArrayObject Object
-(
-    [storage:ArrayObject:private] => Array
-        (
-            [REQUEST_ID] => 100558
-            [EMPLOYEE_NUMBER] =>    366099
-            [REQUEST_STATUS] => P
-            [CREATE_USER] =>    366099
-            [REQUEST_REASON] => I am going to Canada somewhere
-            [EMPLOYEE_DATA] => stdClass Object
-                (
-                    [EMPLOYEE_NUMBER] => 366099
-                    [EMPLOYEE_NAME] => FAECKE, GUIDO
-                    [EMAIL_ADDRESS] => guido_faecke@swifttrans.com
-                    [MANAGER_EMPLOYEE_NUMBER] => 229589
-                    [MANAGER_NAME] => JACKSON, MARY
-                    [MANAGER_EMAIL_ADDRESS] => Mary_Jackson@swifttrans.com
-                    [PTO_EARNED] => 106.66
-                    [PTO_TAKEN] => 32.00
-                    [PTO_UNAPPROVED] => .00
-                    [PTO_PENDING] => 24.00
-                    [PTO_PENDING_TMP] => .00
-                    [PTO_PENDING_TOTAL] => 24.00
-                    [PTO_AVAILABLE] => 50.66
-                    [FLOAT_EARNED] => 8.00
-                    [FLOAT_TAKEN] => .00
-                    [FLOAT_UNAPPROVED] => .00
-                    [FLOAT_PENDING] => .00
-                    [FLOAT_PENDING_TMP] => .00
-                    [FLOAT_PENDING_TOTAL] => .00
-                    [FLOAT_AVAILABLE] => 8.00
-                    [SICK_EARNED] => .00
-                    [SICK_TAKEN] => .00
-                    [SICK_UNAPPROVED] => .00
-                    [SICK_PENDING] => .00
-                    [SICK_PENDING_TMP] => .00
-                    [SICK_PENDING_TOTAL] => .00
-                    [SICK_AVAILABLE] => .00
-                    [GF_EARNED] => .00
-                    [GF_TAKEN] => .00
-                    [GF_UNAPPROVED] => .00
-                    [GF_PENDING] => .00
-                    [GF_PENDING_TMP] => .00
-                    [GF_PENDING_TOTAL] => .00
-                    [GF_AVAILABLE] => .00
-                    [UNEXCUSED_UNAPPROVED] => .00
-                    [UNEXCUSED_PENDING] => .00
-                    [UNEXCUSED_PENDING_TMP] => .00
-                    [UNEXCUSED_PENDING_TOTAL] => .00
-                    [BEREAVEMENT_UNAPPROVED] => .00
-                    [BEREAVEMENT_PENDING] => .00
-                    [BEREAVEMENT_PENDING_TMP] => .00
-                    [BEREAVEMENT_PENDING_TOTAL] => .00
-                    [CIVIC_DUTY_UNAPPROVED] => .00
-                    [CIVIC_DUTY_PENDING] => .00
-                    [CIVIC_DUTY_PENDING_TMP] => .00
-                    [CIVIC_DUTY_PENDING_TOTAL] => .00
-                    [UNPAID_UNAPPROVED] => .00
-                    [UNPAID_PENDING] => .00
-                    [UNPAID_PENDING_TMP] => .00
-                    [UNPAID_PENDING_TOTAL] => .00
-                )
-
-            [CREATE_TIMESTAMP] => 2016-02-29-11.45.21.655590
-            [LEVEL1] => 10100
-            [LEVEL2] => IT   
-            [LEVEL03] => DV00X
-            [LEVEL4] => 92510
-            [POSITION] => AZSDA3
-            [EMAIL_ADDRESS] => guido_faecke@swifttrans.com                                                
-            [EMPLOYEE_HIRE_DATE] =>  1/12/2015
-            [POSITION_TITLE] => PHOAZ-SOFTWARE DEV/ANALYST III
-            [DESCRIPTION] => Pending Manager Approval
-            [SCHEDULE_MON] => 8.0
-            [SCHEDULE_TUE] => 8.0
-            [SCHEDULE_WED] => 8.0
-            [SCHEDULE_THU] => 8.0
-            [SCHEDULE_FRI] => 8.0
-            [SCHEDULE_SAT] => .0
-            [SCHEDULE_SUN] => .0
-            [ENTRIES] => Array
-                (
-                    [0] => ArrayObject Object
-                        (
-                            [storage:ArrayObject:private] => Array
-                                (
-                                    [REQUEST_DATE] => 2016-03-07
-                                    [REQUESTED_HOURS] => 8.00
-                                    [REQUEST_CODE] => P
-                                    [DESCRIPTION] => PTO
-                                )
-
-                        )
-
-                    [1] => ArrayObject Object
-                        (
-                            [storage:ArrayObject:private] => Array
-                                (
-                                    [REQUEST_DATE] => 2016-03-08
-                                    [REQUESTED_HOURS] => 8.00
-                                    [REQUEST_CODE] => P
-                                    [DESCRIPTION] => PTO
-                                )
-
-                        )
-
-                    [2] => ArrayObject Object
-                        (
-                            [storage:ArrayObject:private] => Array
-                                (
-                                    [REQUEST_DATE] => 2016-03-21
-                                    [REQUESTED_HOURS] => 8.00
-                                    [REQUEST_CODE] => P
-                                    [DESCRIPTION] => PTO
-                                )
-
-                        )
-
-                    [3] => ArrayObject Object
-                        (
-                            [storage:ArrayObject:private] => Array
-                                (
-                                    [REQUEST_DATE] => 2016-04-11
-                                    [REQUESTED_HOURS] => 8.00
-                                    [REQUEST_CODE] => P
-                                    [DESCRIPTION] => PTO
-                                )
-
-                        )
-
-                    [4] => ArrayObject Object
-                        (
-                            [storage:ArrayObject:private] => Array
-                                (
-                                    [REQUEST_DATE] => 2016-04-12
-                                    [REQUESTED_HOURS] => 8.00
-                                    [REQUEST_CODE] => P
-                                    [DESCRIPTION] => PTO
-                                )
-
-                        )
-
-                )
-
-        )
-
-)
-...
-
- */
 
 echo '<pre>';
 print_r( $timeoffRequestData );
 echo '</pre>';
-?>

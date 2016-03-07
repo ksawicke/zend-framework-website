@@ -186,17 +186,19 @@ class TimeoffRequests extends BaseDB {
     }
     
     public function drawHoursRequested( $entries )
-    {
-        $htmlData = '';
+    {        
+        $htmlData = '<table class="hoursRequested"><thead><tr><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
         foreach( $entries as $ctr => $data ) {
             $code = $data['REQUEST_CODE'];
             $date = new \DateTime( $data['REQUEST_DATE'] );
             $date = $date->format( "m-d-Y" );
-            $htmlData .= $date . "&nbsp;&nbsp;&nbsp;&nbsp;" .
-                $data['REQUESTED_HOURS'] . '&nbsp;&nbsp;&nbsp;&nbsp;' .
-                '<span class="badge ' . $this->codesToClass[$code] . '">' .
-                $this->codesToCategory[$code] . '</span><br />';
+            $htmlData .= '<tr>' .
+                '<td>' . $date . '</td>' . 
+                '<td>' . $data['REQUESTED_HOURS'] . '</td>' .
+                '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
+                '</tr>';
         }
+        $htmlData .= '</tbody></table>';
         
         return $htmlData;
     }

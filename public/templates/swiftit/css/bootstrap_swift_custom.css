@@ -1068,18 +1068,35 @@ button .full-width {
     display:none;
 }
 
-
-
-.bs-callout-info {
-    border-left-color: #1b809e !important;
+/** Employee Schedule **/
+/** http://www.textfixer.com/tutorials/css-tables.php **/
+table.employeeSchedule,
+table.hoursRequested {
+    font-family: verdana,arial,sans-serif;
+    font-size:11px;
+    color:#333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
 }
-.bs-callout {
+table.employeeSchedule th,
+table.hoursRequested th {
+    border-width: 1px;
     padding: 8px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin: 8px 0;
-    border: 1px solid #eee;
-    border-left-width: 5px;
-    border-radius: 3px;
-    background-color: #EFF0EF;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #dedede;
+}
+table.employeeSchedule td,
+table.hoursRequested td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #ffffff;
+}
+
+/*** Review Request ***/
+div.panel.panel-default div.panel-body div.row div.col-lg-8 div.row {
+    padding:5px;
 }
