@@ -37,13 +37,14 @@ class ResultSetOutput
 
         $resultSet = new ResultSet();
         $resultSet->initialize($result);
+        return $resultSet->toArray();
 
-        $array = [];
-        foreach($resultSet as $row) {
-            $array[] = $row;
-        }
-
-        return $array;
+//        $array = [];
+//        foreach($resultSet as $row) {
+//            $array[] = $row;
+//        }
+//
+//        return $array;
     }
     
     public static function getResultArrayFromRawSql( $dbAdapter, $rawSql )

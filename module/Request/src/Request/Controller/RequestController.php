@@ -128,7 +128,11 @@ class RequestController extends AbstractActionController
     public function approvedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
-        return $this->redirect()->toRoute('viewEmployeeRequests');
+        $this->redirect()->toRoute('viewManagerQueue', array(
+            'controller' => 'request',
+            'action' =>  'view-manager-queue',
+            'manager-view' => 'pending-manager-approval'
+        ));
     }
     
     /**
@@ -139,7 +143,11 @@ class RequestController extends AbstractActionController
     public function deniedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You denied the request succesfully.');
-        return $this->redirect()->toRoute('viewEmployeeRequests');
+        $this->redirect()->toRoute('viewManagerQueue', array(
+            'controller' => 'request',
+            'action' =>  'view-manager-queue',
+            'manager-view' => 'pending-manager-approval'
+        ));
     }
     
     /**
@@ -484,17 +492,20 @@ class RequestController extends AbstractActionController
         $requestId = $this->params()->fromRoute('request_id');
         $Employee = new \Request\Model\Employee();
         $TimeoffRequests = new \Request\Model\TimeoffRequests();
-        
         $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
+        $totalHoursRequested = $TimeoffRequests->countTimeoffRequested( $requestId );
         
-//        echo '<pre> ' . $requestId . ' ';
-//        print_r( $timeoffRequestData );
+//        echo '<pre>';
+//        print_r( $timeoffRequestData['ENTRIES'] );
 //        echo '</pre>';
-//        
-//        die("...");
+//        exit();
+        
+        $hoursRequestedHtml = $TimeoffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] );
         
         return new ViewModel(array(
-            'timeoffRequestData' => $timeoffRequestData
+            'timeoffRequestData' => $timeoffRequestData,
+            'totalHoursRequested' => $totalHoursRequested,
+            'hoursRequestedHtml' => $hoursRequestedHtml
         ));
     }
     

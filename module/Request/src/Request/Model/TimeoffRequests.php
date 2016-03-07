@@ -153,6 +153,28 @@ class TimeoffRequests extends BaseDB {
             'ApprovedNoPay' => 'timeOffApprovedNoPay'
         ];
         
+        $this->codesToClass = [
+            'P' => 'timeOffPTO',
+            'K' => 'timeOffFloat',
+            'S' => 'timeOffSick',
+            'X' => 'timeOffUnexcusedAbsence',
+            'B' => 'timeOffBereavement',
+            'J' => 'timeOffCivicDuty',
+            'R' => 'timeOffGrandfathered',
+            'A' => 'timeOffApprovedNoPay'
+        ];
+        
+        $this->codesToCategory = [
+            'P' => 'PTO',
+            'K' => 'Float',
+            'S' => 'Sick',
+            'X' => 'Unexcused',
+            'B' => 'Bereavement',
+            'J' => 'Civic Duty',
+            'R' => 'Grandfathered',
+            'A' => 'Unpaid Time Off'
+        ];
+        
         $this->codesToKronos = [
             'P' => 'PTO',
             'R' => 'GFVAC',
@@ -161,6 +183,22 @@ class TimeoffRequests extends BaseDB {
             'S' => 'SK',
             'V' => 'VA'
         ];
+    }
+    
+    public function drawHoursRequested( $entries )
+    {
+        $htmlData = '';
+        foreach( $entries as $ctr => $data ) {
+            $code = $data['REQUEST_CODE'];
+            $date = new \DateTime( $data['REQUEST_DATE'] );
+            $date = $date->format( "m-d-Y" );
+            $htmlData .= $date . "&nbsp;&nbsp;&nbsp;&nbsp;" .
+                $data['REQUESTED_HOURS'] . '&nbsp;&nbsp;&nbsp;&nbsp;' .
+                '<span class="badge ' . $this->codesToClass[$code] . '">' .
+                $this->codesToCategory[$code] . '</span><br />';
+        }
+        
+        return $htmlData;
     }
 
     public function findRequest( $requestId ) {
@@ -203,6 +241,22 @@ class TimeoffRequests extends BaseDB {
         }
 
         return $entries;
+    }
+    
+    /**
+     * Get count of Entries by Request ID
+     * 
+     * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
+     * @return int
+     */
+    public function countTimeoffRequested( $requestId = null )
+    {
+        $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS       
+        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId;
+        
+        $timeoffData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+        
+        return $timeoffData['TOTAL_REQUESTED_HOURS'];
     }
 
     public function findRequestCalendarInviteData( $requestId = null ) {

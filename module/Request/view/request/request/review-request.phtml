@@ -2,31 +2,28 @@
 
 <form class="form-horizontal">
 
+    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
+        <h5>Request For</h5>
+    </div>
+    
     <div class="form-group">
-        <label class="col-sm-3 control-label">For</label>
+        <label class="col-sm-3 control-label">Name</label>
         <div class="col-sm-9">
             <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
         </div>
     </div>
-
+    
     <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Requested By</label>
+        <label class="col-sm-3 control-label">Hire Date</label>
         <div class="col-sm-9">
-            CREATOR, REQUEST&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)&nbsp;-&nbsp;<?php //echo $timeoffRequestData['POSITION_TITLE']; ?>
+            <?php echo $timeoffRequestData['EMPLOYEE_HIRE_DATE']; ?>
         </div>
     </div>
-
+    
     <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Total Hours Requested</label>
+        <label class="col-sm-3 control-label">Email</label>
         <div class="col-sm-9">
-            <?php //echo $pendingRequestData['TOTALS']['Grand']; ?>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Reason</label>
-        <div class="col-sm-9">
-            <?php echo $timeoffRequestData['REQUEST_REASON']; ?>
+            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMAIL_ADDRESS; ?>
         </div>
     </div>
     
@@ -59,20 +56,77 @@
             </table>
         </div>
     </div>
+    
+    
+    
+    
+    
+    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
+        <h5>Requested By</h5>
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Name</label>
+        <div class="col-sm-9">
+            CREATOR, REQUEST&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Email</label>
+        <div class="col-sm-9">
+            someemail@swift_trans.com
+        </div>
+    </div>
+    
+    
+    
+    
+    
+    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
+        <h5>Supervisor</h5>
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Name</label>
+        <div class="col-sm-9">
+            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMPLOYEE_NUMBER; ?>)
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="col-sm-3 control-label">Email</label>
+        <div class="col-sm-9">
+            <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMAIL_ADDRESS; ?>
+        </div>
+    </div>
+    
+
+
+
+    
+    <div class="bs-callout bs-callout-info" id="callout-type-dl-truncate">
+        <h5>Request</h5>
+    </div>
+    
+    <div class="form-group">
+        <label for="inputPassword3" class="col-sm-3 control-label">Total Hours Requested</label>
+        <div class="col-sm-9">
+            <?php echo $totalHoursRequested . ' hr' . ( ( $totalHoursRequested > 1 ) ? 's' : '' ); ?>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="inputPassword3" class="col-sm-3 control-label">Reason</label>
+        <div class="col-sm-9">
+            <?php echo $timeoffRequestData['REQUEST_REASON']; ?>
+        </div>
+    </div>
 
     <div class="form-group">
         <label for="inputPassword3" class="col-sm-3 control-label">Time Off Requested</label>
         <div class="col-sm-9">
-            <?php
-            /**
-            foreach ( $pendingRequestData['DETAILS'] as $key => $requestDetail ) {
-                $requestDate = \DateTime::createFromFormat( 'Y-m-d', trim( $requestDetail['REQUEST_DATE'] ) );
-                echo $requestDate->format( 'm/d/Y' ) . '<br />';
-                echo '<div style="padding-left:30px;padding-bottom:15px;">';
-                echo $requestDetail['REQUESTED_HOURS'] . ' ' . $requestDetail['REQUEST_TYPE'];
-                echo '</div>';
-            }**/
-            ?>
+            <?php echo $hoursRequestedHtml; ?>
         </div>
     </div>
 
@@ -106,26 +160,7 @@
     </div>
     ****/ ?>
 
-    <div class="form-group">
-        <label for="inputPassword3" class="col-sm-3 control-label">Message</label>
-        <div class="col-sm-9">
-            <?php /****if ( $pendingRequestData['REQUEST_STATUS_TEXT'] === 'approved' ) { ?>
 
-                <div class="alert alert-success" role="alert">
-                    <span class="glyphicon glyphicon-thumbs-up pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
-                    This request has been approved.
-                </div>
-
-            <?php } else { ?>
-
-                <div class="alert alert-info" role="alert">
-                    <span class="glyphicon glyphicon-exclamation-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
-                    Note: If you approve this request, this employee has <strong><?php echo $pendingRequestData['EMPLOYEE']['BALANCES']['Grand']; ?></strong> hours pending in other requests.
-                </div>
-
-            <?php }****/ ?>
-        </div>
-    </div>
 
     <div class="form-group">
         <label for="inputPassword3" class="col-sm-3 control-label">Approval Actions</label>
