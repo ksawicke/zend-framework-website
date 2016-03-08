@@ -138,6 +138,18 @@ $config = [
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
+            ],
+            'submittedForApproval' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/submitted-for-approval',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'submittedForApproval'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
             ]
         ]
     ],

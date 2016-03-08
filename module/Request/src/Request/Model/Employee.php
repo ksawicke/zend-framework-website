@@ -426,8 +426,10 @@ class Employee extends BaseDB {
         } else {
             $this->employeeData = [ ];
         }
+        
+        $this->employeeData = \Request\Helper\Format::trimData( $this->employeeData );
 
-        return \Request\Helper\Format::trimData( $this->employeeData );
+        return $this->employeeData;
     }
 
     public function submitApprovalResponse( $action = null, $requestId = null, $reviewRequestReason = null, $employeeData = null ) {

@@ -1070,7 +1070,8 @@ button .full-width {
 
 /** Employee Schedule **/
 /** http://www.textfixer.com/tutorials/css-tables.php **/
-table.employeeSchedule,
+/** Try maybe also https://github.com/geon/geon.github.com/blob/master/_posts/2016-03-03-dsxyliea.md **/
+/*table.employeeSchedule,
 table.hoursRequested {
     font-family: verdana,arial,sans-serif;
     font-size:11px;
@@ -1094,9 +1095,24 @@ table.hoursRequested td {
     border-style: solid;
     border-color: #666666;
     background-color: #ffffff;
+}*/
+
+table.employeeSchedule,
+table.hoursRequested {
+    font-size: 12px;
+    line-height: 1;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+table.employeeSchedule th,
+table.hoursRequested th,
+table.employeeSchedule td,
+table.hoursRequested td{
+    padding: 6px 13px;
+    border: 1px solid #ddd;
 }
 
 /*** Review Request ***/
 div.panel.panel-default div.panel-body div.row div.col-lg-8 div.row {
-    padding:5px;
+    padding:8px;
 }

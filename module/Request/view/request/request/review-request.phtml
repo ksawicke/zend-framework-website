@@ -1,4 +1,4 @@
-<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
+<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4><br />
 
 <div class="row">
     <div class="col-lg-12 col-md-12">
@@ -41,7 +41,7 @@
                                 <strong>Supervisor</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                SUPERVISOR, MY (777777) - PHOAZ-SOME FANCY TITLE
+                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMPLOYEE_NUMBER; ?>)
                             </div>
                         </div>
 
@@ -122,7 +122,7 @@
                                 <strong>Name</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                PLACEHOLDER, REQUESTOR (999999)
+                                <?php echo $timeoffRequestData['CREATOR_LAST_NAME']; ?>, <?php echo $timeoffRequestData['CREATOR_FIRST_NAME']; ?>&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['CREATOR_POSITION_TITLE']; ?>
                             </div>
                         </div>
                         
@@ -131,7 +131,7 @@
                                 <strong>Email Address</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                requestor_placeholder@swifttrans.com
+                                <?php echo strtolower( $timeoffRequestData['CREATOR_EMAIL_ADDRESS'] ); ?>
                             </div>
                         </div>
                         <?php /*** END REQUESTED BY ***/ ?>
@@ -213,6 +213,6 @@
 
 <?php
 
-echo '<pre>';
-print_r( $timeoffRequestData );
-echo '</pre>';
+//echo '<pre>';
+//print_r( $timeoffRequestData );
+//echo '</pre>';
