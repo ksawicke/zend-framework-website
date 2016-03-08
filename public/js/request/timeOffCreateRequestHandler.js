@@ -220,10 +220,7 @@ var timeOffCreateRequestHandler = new function ()
 
             timeOffCreateRequestHandler.loadCalendars();
 
-            /**
-             * Fade out flash messages automatically.
-             */
-            timeOffCreateRequestHandler.fadeOutFlashMessage();
+            
 
 //        	timeOffCreateRequestHandler.checkLocalStorage();
         });
@@ -1183,14 +1180,14 @@ var timeOffCreateRequestHandler = new function ()
         $("#requestFor").select2({
             //data: data
             ajax: {
-                url: timeOffLoadCalendarUrl,
+                url: '/sawik/timeoff/public/api/employee/search',
                 method: 'post',
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
                     return {
                         search: params.term,
-                        action: 'getEmployeeList',
+//                        action: 'getEmployeeList',
                         directReportFilter: directReportFilter,
                         page: params.page
                     };
@@ -1298,17 +1295,6 @@ var timeOffCreateRequestHandler = new function ()
         } else if (action === 'hide') {
             $('#enableTimeOffCalendar').remove();
         }
-    }
-
-    this.fadeOutFlashMessage = function () {
-        var sec = 10;
-        var timer = setInterval(function () {
-            $('#applicationFlashMessage span').text(sec--);
-            if (sec == -1) {
-                $('#applicationFlashMessage').fadeOut('fast');
-                clearInterval(timer);
-            }
-        }, 1000);
     }
 
     this.selectCategory = function (categoryButton) {

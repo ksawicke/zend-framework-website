@@ -189,10 +189,6 @@ var timeOffViewRequestHandler = new function ()
             timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();
 
-            /**
-             * Fade out flash messages automatically.
-             */
-            timeOffViewRequestHandler.fadeOutFlashMessage();
 
 //        	timeOffViewRequestHandler.checkLocalStorage();
 
@@ -1268,18 +1264,7 @@ var timeOffViewRequestHandler = new function ()
         }
     }
 
-    this.fadeOutFlashMessage = function () {
-        var sec = 10;
-        var timer = setInterval(function () {
-            $('#applicationFlashMessage span').text(sec--);
-            if (sec == -1) {
-                $('#applicationFlashMessage').fadeOut('fast');
-                clearInterval(timer);
-            }
-        }, 1000);
-    }
-
-    this.selectCategory = function (categoryButton) {
+   this.selectCategory = function (categoryButton) {
         if (!categoryButton.hasClass('disableTimeOffCategorySelection')) {
             timeOffViewRequestHandler.resetTimeoffCategory(categoryButton);
             timeOffViewRequestHandler.setTimeoffCategory(categoryButton);

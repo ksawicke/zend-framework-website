@@ -12,6 +12,16 @@ namespace Application;
 return [
     'router' => [
         'routes' => [
+            'getEmployeeSearch' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/api/employee/search',
+                    'defaults' => [
+                        'controller' => 'Application\API\EmployeeApi',
+                        'action' => 'getEmployeeSearch'
+                    ],
+                ],
+            ],
             'getManagerQueue' => [
                 'type' => 'segment',
                 'options' => [

@@ -240,7 +240,8 @@ class RequestController extends AbstractActionController
                     break;
                     
                 case 'submitDenyResponse':
-                    $requestReturnData = $this->requestService->submitApprovalResponse('D', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+                    $Employee = new \Request\Model\Employee();
+                    $requestReturnData = $Employee->submitApprovalResponse('D', $request->getPost()->request_id, $request->getPost()->review_request_reason);
                     if($requestReturnData['request_id']!=null) {
                         $result = new JsonModel([
                             'success' => true,
@@ -330,37 +331,6 @@ class RequestController extends AbstractActionController
                     }
                     break;
                     
-                case 'loadTeamCalendar':
-                    $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
-                    $endDate = date("Y-m-t", strtotime($startDate));
-                    
-                    $time = strtotime($startDate);
-                    $prev = date("Y-m-d", strtotime("-1 month", $time));
-                    $current = date("Y-m-d", strtotime("+0 month", $time));
-                    $one = date("Y-m-d", strtotime("+1 month", $time));
-                    $oneMonthBack = new \DateTime($prev);
-                    $currentMonth = new \DateTime($current);
-                    $oneMonthOut = new \DateTime($one);
-                    
-                    $isLoggedInUserManager = $this->requestService->isManager($this->employeeNumber);
-                    $employeeNumber = ( ($isLoggedInUserManager==="Y") ? $this->employeeNumber : $this->managerEmployeeNumber );
-                    
-                    $calendarData = $this->requestService->findTimeOffCalendarByManager($employeeNumber, $startDate, $endDate);
-                    
-                    $result = new JsonModel([
-                        'success' => true,
-                        'calendars' => [
-                            1 => [ 'header' => '<span class="teamCalendarHeader">' . $currentMonth->format('M') . ' ' . $currentMonth->format('Y') . '</span>',
-                                'data' => \Request\Helper\Calendar::drawCalendar($request->getPost()->startMonth, $request->getPost()->startYear, $calendarData)
-                            ]
-                        ],
-                        'prevButton' => '<span class="glyphicon-class glyphicon glyphicon-chevron-left calendarNavigation" data-month="' . $oneMonthBack->format('m') . '" data-year="' . $oneMonthBack->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-                        'nextButton' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon-class glyphicon glyphicon-chevron-right calendarNavigation" data-month="' . $oneMonthOut->format('m') . '" data-year="' . $oneMonthOut->format('Y') . '"> </span>',
-                        'openHeader' => '<strong>',
-                        'closeHeader' => '</strong><br /><br />'
-                    ]);
-                    break;
-
                 case 'loadCalendar':
                     $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
                     $endDate = date("Y-m-t", strtotime($startDate));

@@ -52,7 +52,8 @@ $this->headScript()
         ->appendFile( $this->basePath( 'templates/swiftit/js/ckeditor/ckeditor.js' ) )
         ->appendFile( $this->basePath( 'templates/swiftit/js/dropzone.js' ) )
         ->appendFile( $this->basePath( 'templates/swiftit/js/ckeditor/adapters/jquery.js' ) )
-        ->appendFile( $this->basePath( 'js/jqueryui/jquery-ui.js' ) );
+        ->appendFile( $this->basePath( 'js/jqueryui/jquery-ui.js' ) )
+        ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) );
 
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
     $this->headScript()

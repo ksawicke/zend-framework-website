@@ -9,7 +9,7 @@
  *
  * PHP version 5
  *
- * @package    Application\API\HotelApi
+ * @package    Application\API\QueueApi
  * @author     Guido Faecke <guido_faecke@swifttrans.com>
  * @author     Kevin Sawicke <kevin_sawicke@swifttrans.com>
  * @copyright  2016 Swift Transportation
