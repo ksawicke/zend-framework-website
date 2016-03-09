@@ -300,12 +300,12 @@ class Calendar
     public static function isDateValidToSelect($thisDay)
     {
         $return = true;
-//        if( ( !empty(self::$invalidRequestDates['before']) && strtotime($thisDay) < strtotime(self::$invalidRequestDates['before']) ) ||
-//            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) ) ||
-//            in_array($thisDay, self::$invalidRequestDates['individual'])
-//          ) {
-//            $return = false;
-//        }
+        if( ( !empty(self::$invalidRequestDates['before']) && strtotime($thisDay) < strtotime(self::$invalidRequestDates['before']) ) ||
+            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) ) ||
+            in_array($thisDay, self::$invalidRequestDates['individual'])
+          ) {
+            $return = false;
+        }
         
         return $return;
     }

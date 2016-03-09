@@ -35,21 +35,21 @@ class CalendarApi extends ApiController {
 
     public function __construct() {
         // Disable dates starting with one month ago and any date before.
-        $this->invalidRequestDates['before'] = date( "m/d/Y", strtotime( "-1 month", strtotime( date( "m/d/Y" ) ) ) );
+        $this->invalidRequestDates['before'] = date( "Y-m-d", strtotime( "-1 month", strtotime( date( "m/d/Y" ) ) ) );
 
         // Disable dates starting with the following date.
-        $this->invalidRequestDates['after'] = date( "m/d/Y", strtotime( "+1 year", strtotime( date( "m/d/Y" ) ) ) );
+        $this->invalidRequestDates['after'] = date( "Y-m-d", strtotime( "+1 year", strtotime( date( "m/d/Y" ) ) ) );
 
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = [
-            '12/25/2015',
-            '01/01/2016',
-            '05/30/2016',
-            '07/04/2016',
-            '09/05/2016',
-            '11/24/2016',
-            '12/26/2016',
-            '01/02/2017'
+            '2015-12-25',
+            '2016-01-01',
+            '2016-05-30',
+            '2016-07-04',
+            '2016-09-05',
+            '2016-11-24',
+            '2016-12-26',
+            '2017-01-02'
         ];
     }
 
@@ -75,10 +75,6 @@ class CalendarApi extends ApiController {
         }
         
         $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( $employeeNumber, $startDate, $dates['twoMonthsOut'] );
-//                    echo '<pre>';
-//                    print_r($calendarData);
-//                    echo '</pre>';
-//                    die("@@@");
 
         $result = new JsonModel( [
             'success' => true,
