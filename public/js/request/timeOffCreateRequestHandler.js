@@ -1180,15 +1180,15 @@ var timeOffCreateRequestHandler = new function ()
         $("#requestFor").select2({
             //data: data
             ajax: {
-                url: '/sawik/timeoff/public/api/employee/search',
+                url: '/sawik/timeoff/public/api/search/employees',
                 method: 'post',
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
                     return {
                         search: params.term,
-//                        action: 'getEmployeeList',
                         directReportFilter: directReportFilter,
+                        employeeNumber: phpVars.employee_number,
                         page: params.page
                     };
                 },
