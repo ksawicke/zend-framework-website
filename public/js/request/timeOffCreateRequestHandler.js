@@ -83,6 +83,8 @@ var timeOffCreateRequestHandler = new function ()
                 requestForEmployeeNumber = selectedEmployee.id;
                 requestForEmployeeName = selectedEmployee.text;
 //                console.log("WWWWWW 1199");
+                console.log(requestForEmployeeNumber);
+                console.log(requestForEmployeeName);
                 timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
                 //            console.log('983');
                 $('.requestIsForMe').show();
@@ -315,7 +317,7 @@ var timeOffCreateRequestHandler = new function ()
                 action: 'loadCalendar',
                 startMonth: month,
                 startYear: year,
-                employeeNumber: phpVars.employee_number
+                employeeNumber: ( (typeof employeeNumber==="string") ? employeeNumber : phpVars.employee_number )
             },
             dataType: 'json'
         })

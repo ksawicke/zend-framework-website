@@ -74,7 +74,7 @@ class CalendarApi extends ApiController {
             $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
         }
         
-        $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( $employeeNumber, $startDate, $dates['twoMonthsOut'] );
+        $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( $employeeNumber, $startDate, $dates['threeMonthsOut'] );
 
         $result = new JsonModel( [
             'success' => true,

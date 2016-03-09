@@ -329,6 +329,11 @@ class Calendar
             $calendarClassesByDate[$data['REQUEST_DATE']] = $data['CALENDAR_DAY_CLASS'] . ( ($data['REQUEST_STATUS']==='P') ? ' requestPending' : '' );
         }
         
+//        echo '<pre>';
+//        print_r( $calendarClassesByDate );
+//        echo '<pre>';
+//        exit();
+        
         $calendarTemp = '';
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
             // $invalidRequestDates

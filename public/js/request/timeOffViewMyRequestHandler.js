@@ -4,7 +4,7 @@
  */
 var timeOffViewRequestHandler = new function ()
 {
-    var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+    var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/api/calendar/get',
         timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
         timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
         employeePTOAvailable = 0,
@@ -110,7 +110,7 @@ var timeOffViewRequestHandler = new function ()
              * Handle clicking previous or next buttons on calendars
              */
             $(document).on('click', '.calendarNavigation', function () {
-                timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+                timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year") );
             });
             
             $(document).on('click', '.toggleLegend', function() {
@@ -185,7 +185,7 @@ var timeOffViewRequestHandler = new function ()
 //                directReportFilter = $('input[name="directReportFilter"]:checked', '#directReportForm').val();
 //            });
 
-            timeOffViewRequestHandler.loadCalendars();
+            timeOffViewRequestHandler.loadCalendars( phpVars.employee_number );
             timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();
 
@@ -276,9 +276,8 @@ var timeOffViewRequestHandler = new function ()
         var month = (new Date()).getMonth() + 1;
         var year = (new Date()).getFullYear();
 
-//        timeOffViewRequestHandler.clearSelectedDates();
+        timeOffViewRequestHandler.clearSelectedDates();
 
-        console.log("HIC");
         $.ajax({
             url: timeOffLoadCalendarUrl,
             type: 'POST',
@@ -294,6 +293,8 @@ var timeOffViewRequestHandler = new function ()
 //                    console.log("### 289");
             if (requestForEmployeeNumber === '') {
                 loggedInUserData = json.employeeData;
+                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
+                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
@@ -307,11 +308,6 @@ var timeOffViewRequestHandler = new function ()
                     json.calendarData.closeHeader +
                     thisCalendarHtml.data);
             });
-                    
-            // Take the JSON data and use it for highlighting dates
-//                    selectedDatesApproved = json.requestData.json.approved;
-//                    selectedDatesPendingApproval = json.requestData.json.pending;
-//                    selectedDates = json.requestData.json.all;
 
             timeOffViewRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
             timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
@@ -337,42 +333,22 @@ var timeOffViewRequestHandler = new function ()
 //        	timeOffViewRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
             timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-            timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-            timeOffViewRequestHandler.highlightDates();
+//            timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+//            timeOffViewRequestHandler.highlightDates();
 
             // $(this).hasClass('disableTimeOffCategorySelection')
             if (json.employeeData.GF_AVAILABLE > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
 
-            requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            console.log("FROG", json.employeeData);
+            requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
-//                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.LAST_NAME) + ", " +
-//                            timeOffViewRequestHandler.capitalizeFirstLetter(json.employeeData.COMMON_NAME) +
-//                            ' (' + requestForEmployeeNumber + ') - ' + json.employeeData.POSITION_TITLE;
 
             console.log('json.employeeData', json.employeeData);
-//            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-//            console.log('requestForEmployeeName', requestForEmployeeName);
-
-//                    $("#requestFor")
-//                        .empty()
-//                        .append('<option value="' + requestForEmployeeNumber + '">' + requestForEmployeeName + '</option>')
-//                        .val(requestForEmployeeNumber).trigger('change');
-
-//                    timeOffViewRequestHandler.checkAllowRequestOnBehalfOf();
-
-            showCurrentRequestsOnOrAfter = json.calendarData.showCurrentRequestsOnOrAfter;
-            showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
-            
-            // YO DUDE
-            selectedDates = json.requestData.json.all; //json.requestData.json.all;
-            timeOffViewRequestHandler.drawHoursRequested();
-
-            console.log(json.calendarData.showCurrentRequestsOnOrAfter + ' :: ' + json.calendarData.showCurrentRequestsBefore);
-
-            console.log("json", json);
+            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
+            console.log('requestForEmployeeName', requestForEmployeeName);
 
             return;
         })
@@ -424,7 +400,7 @@ var timeOffViewRequestHandler = new function ()
                 action: 'loadCalendar',
                 startMonth: startMonth,
                 startYear: startYear,
-                employeeNumber: requestForEmployeeNumber
+                employeeNumber: phpVars.employee_number
             },
             dataType: 'json'
         })
@@ -441,15 +417,15 @@ var timeOffViewRequestHandler = new function ()
                             thisCalendarHtml.data);
                     });
 
-                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-                    timeOffViewRequestHandler.highlightDates();
+//                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+//                    timeOffViewRequestHandler.highlightDates();
                     
                     //selectedDates = json.requestData.all;
-                    showCurrentRequestsOnOrBefore = json.calendarData.showCurrentRequestsOnOrAfter;
-                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
+//                    showCurrentRequestsOnOrBefore = json.calendarData.showCurrentRequestsOnOrAfter;
+//                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
                     
-                    selectedDates = json.requestData.json.all; //json.requestData.json.all;
-                    timeOffViewRequestHandler.drawHoursRequested();
+//                    selectedDates = json.requestData.json.all; //json.requestData.json.all;
+//                    timeOffViewRequestHandler.drawHoursRequested();
                     return;
                 })
                 .error(function () {
@@ -974,6 +950,7 @@ var timeOffViewRequestHandler = new function ()
      * Draws form fields we can submit for the user.
      */
     this.drawHoursRequested = function () {
+        console.log("ROOTIN TOOTIN");
         timeOffViewRequestHandler.sortDatesSelected();
         var datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>' +
                 '<br style="clear:both;"/><br style="clear:both;"/>';
