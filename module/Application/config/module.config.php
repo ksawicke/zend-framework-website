@@ -13,6 +13,19 @@ return [
     'router' => [
         'routes' => [
             
+            'loadCalendar' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/calendar/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\CalendarApi',
+                        'action' => 'loadCalendar'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'getSearchResults' => [
                 'type' => 'segment',
                 'options' => [
@@ -51,7 +64,8 @@ return [
     'controllers' => [
         'invokables' => [
             'Application\API\QueueApi' => API\QueueApi::class,
-            'Application\API\SearchApi' => API\SearchApi::class
+            'Application\API\SearchApi' => API\SearchApi::class,
+            'Application\API\CalendarApi' => API\CalendarApi::class,
         ]
     ],
     'service_manager' => [

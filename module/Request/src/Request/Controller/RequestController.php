@@ -255,18 +255,6 @@ class RequestController extends AbstractActionController
                         ]);
                     }
                     break;
-                
-                case 'getEmployeeList':
-                    $return = [];
-                    $Employee = new \Request\Model\Employee();
-                    $managerEmployees = $Employee->findManagerEmployees($this->employeeNumber, $request->getPost()->search, $request->getPost()->directReportFilter);
-                    foreach($managerEmployees as $id => $data) {
-                        $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
-                                      'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE
-                                    ];
-                    }
-                    $result = new JsonModel($return);
-                    break;
                     
                 case 'submitTimeoffRequest':        
                     $employeeNumber = (is_null($request->getPost()->employeeNumber) ? trim($this->employeeNumber) : trim($request->getPost()->employeeNumber));

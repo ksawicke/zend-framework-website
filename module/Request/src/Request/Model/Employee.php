@@ -448,11 +448,11 @@ class Employee extends BaseDB {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
-            employee.PRER = '002' and
-            employee.PRTEDH = 0 and
-            trim(employee.PREN) LIKE '" . strtoupper( $search ) . "%' OR
-            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper( $search ) . "%' OR
-            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '" . strtoupper( $search ) . "%'
+            employee.PRER = '002' AND employee.PRTEDH = 0 AND
+            ( trim(employee.PREN) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRLNM) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
+            )
         )";
 
         if ( $isPayroll === "N" ) {
@@ -517,8 +517,6 @@ class Employee extends BaseDB {
                 " . $where . "
                 ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
         }
-
-//        die($rawSql);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
@@ -636,17 +634,22 @@ class Employee extends BaseDB {
      * 
      */
     public function findTimeOffCalendarByEmployeeNumber( $employeeNumber = null, $startDate = null, $endDate = null ) {
-        $rawSql = "SELECT entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS
+        $startDate = new \Datetime( $startDate );
+        $startDate = $startDate->format( "Y-m-d" );
+        $endDate = new \Datetime( $endDate );
+        $endDate = $endDate->format( "Y-m-d" );
+        
+        $rawSql = "SELECT entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
             FROM TIMEOFF_REQUEST_ENTRIES entry
             INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             WHERE
-               request.REQUEST_STATUS = 'A' AND
+               request.REQUEST_STATUS IN('A', 'P') AND
                trim(employee.PREN) = '" . $employeeNumber . "' AND
                entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'
             ORDER BY REQUEST_DATE ASC";
-        die( $rawSql );
+//        die( $rawSql );
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 

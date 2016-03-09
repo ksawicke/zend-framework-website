@@ -4,7 +4,7 @@
  */
 var timeOffCreateRequestHandler = new function ()
 {
-    var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+    var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/api/calendar/get',
             timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
             timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
             employeePTOAvailable = 0,
@@ -315,7 +315,7 @@ var timeOffCreateRequestHandler = new function ()
                 action: 'loadCalendar',
                 startMonth: month,
                 startYear: year,
-                employeeNumber: employeeNumber
+                employeeNumber: phpVars.employee_number
             },
             dataType: 'json'
         })
@@ -363,8 +363,8 @@ var timeOffCreateRequestHandler = new function ()
 //        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
-            timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-            timeOffCreateRequestHandler.highlightDates();
+//            timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+//            timeOffCreateRequestHandler.highlightDates();
 
             // $(this).hasClass('disableTimeOffCategorySelection')
             if (json.employeeData.GF_AVAILABLE > 0) {
@@ -453,8 +453,8 @@ var timeOffCreateRequestHandler = new function ()
                             thisCalendarHtml.data);
                     });
 
-                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-                    timeOffCreateRequestHandler.highlightDates();
+//                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
+//                    timeOffCreateRequestHandler.highlightDates();
                     return;
                 })
                 .error(function () {
