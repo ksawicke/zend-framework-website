@@ -80,13 +80,13 @@ class RequestApi extends ApiController {
 
         $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber, json_encode($employeeData));
         $requestId = $requestReturnData['request_id'];
-        $comment = 'Created by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME');
+        $comment = 'Created by ' . \Login\Helper\UserSession::getFullUserInfo();
         $Employee->logEntry($requestId, $requesterEmployeeNumber, $comment);
 
         $Employee->logEntry(
             $requestId,
             $requesterEmployeeNumber,
-            'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData->MANAGER_NAME)))
+            'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData->MANAGER_NAME))) . ' (' . trim($employeeData->MANAGER_EMPLOYEE_NUMBER) . ')'
         );
         $requestReturnData = $Employee->submitApprovalResponse('P', $requestReturnData['request_id'], $request->getPost()->requestReason, json_encode($employeeData));
 
@@ -117,12 +117,17 @@ class RequestApi extends ApiController {
         $validationHelper = new \Request\Helper\ValidationHelper();
         $payrollReviewRequired = $validationHelper->isPayrollReviewRequired($requestData, $employeeData);
         
+//        die( 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
+//             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . '(' . trim($employeeData['EMPLOYEE_NUMBER']) . ')') .
+//             ( (!empty($request->getPost()->review_request_reason)) ? ' with the comment: ' . $request->getPost()->review_request_reason : '') );
+        
         if($payrollReviewRequired===true) {
             $TimeoffRequestLog->logEntry(
                 $request->getPost()->request_id,
                 \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-                'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
-                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME']))));
+                'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
+                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . '(' . trim($employeeData['EMPLOYEE_NUMBER']) . ')') .
+                ( (!empty($request->getPost()->review_request_reason)) ? ' with the comment: ' . $request->getPost()->review_request_reason : '') );
 
             $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
 
@@ -133,6 +138,9 @@ class RequestApi extends ApiController {
             $RequestEntry = new \Request\Model\RequestEntry();
             $Papaa = new \Request\Model\Papaa();
 
+//            die( 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
+//                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')') );
+            
             $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id);
             
             $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
@@ -140,8 +148,9 @@ class RequestApi extends ApiController {
             $TimeoffRequestLog->logEntry(
                 $request->getPost()->request_id,
                 \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-                'Time off request approved by ' . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') . ' '  . \Login\Helper\UserSession::getUserSessionVariable('LAST_NAME') .
-                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME']))));
+                'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
+                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
+                ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
 
             $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
 
@@ -181,6 +190,21 @@ class RequestApi extends ApiController {
     {
         $request = $this->getRequest();
         $Employee = new \Request\Model\Employee();
+        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
+        $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
+        $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
+        
+//        die( 'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+//            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
+//            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )) );
+        
+        $TimeoffRequestLog->logEntry(
+            $request->getPost()->request_id,
+            \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+            'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
+            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
+        
         $requestReturnData = $Employee->submitApprovalResponse('D', $request->getPost()->request_id, $request->getPost()->review_request_reason);
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([

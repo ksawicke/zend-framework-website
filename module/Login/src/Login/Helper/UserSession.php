@@ -37,6 +37,12 @@ class UserSession {
         return $session;
     }
 
+    public static function getFullUserInfo()
+    {
+        return self::getUserSessionVariable('LAST_NAME') . ', '  . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') .
+               ' (' . self::getUserSessionVariable('EMPLOYEE_NUMBER') . ')';
+    }
+    
     /**
      * Ends a user session.
      */
