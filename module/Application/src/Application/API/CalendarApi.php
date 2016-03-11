@@ -57,7 +57,7 @@ class CalendarApi extends ApiController {
         $request = $this->getRequest();
         $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
-        $employeeNumber = (is_null( $request->getPost()->employeeNumber ) ? trim( $this->employeeNumber ) : trim( $request->getPost()->employeeNumber ));
+        $employeeNumber = $request->getPost()->employeeNumber;
 
         \Request\Helper\Calendar::setCalendarHeadings( ['S', 'M', 'T', 'W', 'T', 'F', 'S' ] );
         \Request\Helper\Calendar::setBeginWeekOne( '<tr class="calendar-row" style="height:40px;">' );

@@ -26,6 +26,45 @@ return [
                 'child_routes' => []
             ],
             
+            'submitTimeoffRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitTimeoffRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitApprovalResponse' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/approve',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitApprovalResponse'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitDenyResponse' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/deny',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitDenyResponse'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'getSearchResults' => [
                 'type' => 'segment',
                 'options' => [
@@ -66,6 +105,7 @@ return [
             'Application\API\QueueApi' => API\QueueApi::class,
             'Application\API\SearchApi' => API\SearchApi::class,
             'Application\API\CalendarApi' => API\CalendarApi::class,
+            'Application\API\RequestApi' => API\RequestApi::class
         ]
     ],
     'service_manager' => [

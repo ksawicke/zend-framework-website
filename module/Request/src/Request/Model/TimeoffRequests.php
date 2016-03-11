@@ -227,6 +227,7 @@ class TimeoffRequests extends BaseDB {
 
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
+        $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
         $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m-d-Y" );
         
@@ -249,6 +250,44 @@ class TimeoffRequests extends BaseDB {
         }
 
         return $entries;
+    }
+    
+    public function findRequestLogEntries( $requestId = null ) {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'log' => 'TIMEOFF_REQUEST_LOG' ] )
+                ->columns( [ 'COMMENT' => 'COMMENT', 'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP' ] )
+                ->where( [ ' log.REQUEST_ID' => $requestId ] )
+                ->order( ['log.CREATE_TIMESTAMP DESC' ] );
+
+        try {
+            $logEntries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
+//            foreach( $logEntries as $key => $entry ) {
+//                $dateObject = date_create_from_format( 'Y-m-d-h.i.s.u', $logEntries[$key]['CREATE_TIMESTAMP'] );
+//                $dateObject2 = date_create_from_format( 'Y-m-d-h.i.s.u', '2010-12-15-10.23.22.716000' );
+//                $logEntries[$key]['CREATE_TIMESTAMP2'] = $dateObject;
+//                $logEntries[$key]['CREATE_TIMESTAMP3'] = $dateObject2->date;
+//                $logEntries[$key]['CREATE_TIMESTAMP'] = $dateObject['date'];
+//                echo '2010-12-15-10.23.22.716000<br />';
+//                echo $entry['CREATE_TIMESTAMP'] . "<br />";
+//                exit();
+                
+//                $time = date_create_from_format('Y-m-d-h.i.s.u', '2010-12-15-10.23.22.716000');
+//                var_dump($time);
+//                $time = date_create_from_format( 'Y-m-d-h.i.s.u', "2016-03-09-16.59.27.701757" );
+//                var_dump( $time );
+                //  $logEntries[$key]['TEST']
+//            }
+        } catch ( Exception $e ) {
+            var_dump( $e );
+        }
+        
+//        echo '<pre>';
+//        print_r( $logEntries );
+//        echo '</pre>';
+//        
+//        die();
+
+        return $logEntries;
     }
     
     /**

@@ -5,7 +5,7 @@
 var timeOffCreateRequestHandler = new function ()
 {
     var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/api/calendar/get',
-            timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
+            timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/api/request',
             timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
             employeePTOAvailable = 0,
             employeeFloatAvailable = 0,

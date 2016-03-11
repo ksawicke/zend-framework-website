@@ -164,6 +164,15 @@
                         <?php /*** BEGIN REQUEST DETAIL ***/ ?>
                         <div class="row">
                             <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Status</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <?php echo $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
                                 <strong>Total Hours Requested</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
@@ -186,6 +195,32 @@
                             </div>
                             <div class="col-lg-9 col-md-9">
                                 <?php echo $hoursRequestedHtml; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>History</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                <table class="employeeSchedule">
+                                    <thead>
+                                        <tr>
+                                            <th>DATE/TIME</th>
+                                            <th>COMMENT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        foreach( $timeoffRequestData['LOG_ENTRIES'] as $ctr => $entry ) {
+                                            echo '<tr>';
+                                            echo '<td>' . $entry['CREATE_TIMESTAMP'] . '</td>';
+                                            echo '<td>' . $entry['COMMENT'] . '</td>';
+                                            echo '</tr>';
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         
