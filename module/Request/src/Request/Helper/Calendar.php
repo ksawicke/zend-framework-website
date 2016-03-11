@@ -121,22 +121,23 @@ class Calendar
     
     public static function getfastRewindButtonForThreeCalendars($dates)
     {
-        return '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"> </span>';
+        return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-double-arrow calendarNavigation" title="Go back 6 months" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"></span></button>';
+        //return '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"> </span>';
     }
     
     public static function getprevButtonForThreeCalendars($dates)
     {
-        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go back 3 months" class="glyphicon-class glyphicon glyphicon-step-backward calendarNavigation" data-month="' . $dates['threeMonthsBack']->format('m') . '" data-year="' . $dates['threeMonthsBack']->format('Y') . '"> </span>&nbsp;&nbsp;&nbsp;&nbsp;';
+        return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 3 months" data-month="' . $dates['threeMonthsBack']->format('m') . '" data-year="' . $dates['threeMonthsBack']->format('Y') . '"></span></button>&nbsp;&nbsp;&nbsp;&nbsp;';
     }
     
     public static function getNextButtonForThreeCalendars($dates)
     {
-        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 3 months" class="glyphicon-class glyphicon glyphicon-step-forward calendarNavigation" data-month="' . $dates['threeMonthsOut']->format('m') . '" data-year="' . $dates['threeMonthsOut']->format('Y') . '"> </span>';
+        return '&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 3 months" data-month="' . $dates['threeMonthsOut']->format('m') . '" data-year="' . $dates['threeMonthsOut']->format('Y') . '"></span></button>';
     }
     
     public static function getfastForwardButtonForThreeCalendars($dates)
     {
-        return '&nbsp;&nbsp;&nbsp;&nbsp;<span title="Go forward 6 months" class="glyphicon-class glyphicon glyphicon-fast-forward calendarNavigation" data-month="' . $dates['sixMonthsOut']->format('m') . '" data-year="' . $dates['sixMonthsOut']->format('Y') . '"> </span>';
+        return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 6 months" data-month="' . $dates['sixMonthsOut']->format('m') . '" data-year="' . $dates['sixMonthsOut']->format('Y') . '"></span></button>';
     }
     
     public static function getDatesForThreeCalendars($startYear = null, $startMonth = null)

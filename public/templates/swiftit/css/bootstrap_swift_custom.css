@@ -455,6 +455,10 @@ td.calendar-day, td.calendar-day-np {
 	border-right: 1px solid #999;
 }
 
+#calendar2Html {
+    margin-top:4px;
+}
+
 /**
  * Color schemes for time off
  *
