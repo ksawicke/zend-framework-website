@@ -110,7 +110,7 @@ class RequestController extends AbstractActionController
         $Employee = new \Request\Model\Employee();
         
         return new ViewModel([
-            'employeeData' => $Employee->findTimeOffEmployeeData($this->employeeNumber, "Y"),
+            'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
@@ -229,7 +229,7 @@ class RequestController extends AbstractActionController
         $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars(date("Y"), date("m"));
 
         $Employee = new \Request\Model\Employee();
-        $employeeData = $Employee->findTimeOffEmployeeData($employeeNumber, "Y");
+        $employeeData = $Employee->findEmployeeTimeOffData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
         
 //        var_dump($this->layout()->employeeData);

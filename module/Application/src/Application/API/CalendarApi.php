@@ -54,19 +54,22 @@ class CalendarApi extends ApiController {
     }
 
     public function loadCalendarAction() {
-        $request = $this->getRequest();
-        $startDate = $request->getPost()->startYear . "-" . $request->getPost()->startMonth . "-01";
+        $post = $this->getRequest()->getPost();
+//        $request = $this->getRequest();
+        $startDate = $post->startYear . "-" . $post->startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
-        $employeeNumber = $request->getPost()->employeeNumber;
+        $employeeNumber = $post->employeeNumber;
 
         \Request\Helper\Calendar::setCalendarHeadings( ['S', 'M', 'T', 'W', 'T', 'F', 'S' ] );
         \Request\Helper\Calendar::setBeginWeekOne( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setBeginCalendarRow( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setInvalidRequestDates( $this->invalidRequestDates );
-        $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $request->getPost()->startYear, $request->getPost()->startMonth );
+        $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $post->startYear, $post->startMonth );
 
         $Employee = new \Request\Model\Employee();
-        $employeeData = $Employee->findTimeOffEmployeeData( $employeeNumber, "Y" );
+        $Employee->ensureEmployeeScheduleIsDefined( $employeeNumber );
+        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber, "Y" );
+        
         $requestData = $Employee->findTimeOffRequestData( $employeeNumber, $calendarDates );
         
         $dates = [];
@@ -78,7 +81,7 @@ class CalendarApi extends ApiController {
 
         $result = new JsonModel( [
             'success' => true,
-            'calendarData' => \Request\Helper\Calendar::getThreeCalendars( $request->getPost()->startYear, $request->getPost()->startMonth, $calendarData ),
+            'calendarData' => \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $calendarData ),
             'employeeData' => $employeeData,
             'requestData' => $requestData,
             'test' => $calendarData,

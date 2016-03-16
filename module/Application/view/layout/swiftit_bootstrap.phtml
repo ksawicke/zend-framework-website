@@ -21,12 +21,13 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <meta name="author" content="">
         <link rel="icon" href="favicon.ico">
 
-        <title>Swift - Time Off</title>
+        <title>Swift - Time Off Requests</title>
 
         <?php
         $this->headLink( array( 'rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico' ) );
         ?>
 
+        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap.min.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap_swift_custom.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/custom_dropzone.css' ); ?>" rel="stylesheet">
@@ -38,7 +39,6 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <link href="<?php echo $this->basePath( 'css/fullcalendar.min.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'css/jqueryui/jquery-ui.css' ); ?>" rel="stylesheet">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
 <?php
 /**
  * jQueryUI Link for custom download:
@@ -54,7 +54,8 @@ $this->headScript()
         ->appendFile( $this->basePath( 'templates/swiftit/js/dropzone.js' ) )
         ->appendFile( $this->basePath( 'templates/swiftit/js/ckeditor/adapters/jquery.js' ) )
         ->appendFile( $this->basePath( 'js/jqueryui/jquery-ui.js' ) )
-        ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) );
+        ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) )
+        ->appendFile( $this->basePath( 'js/moment/moment.min.js' ) );
 
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
     $this->headScript()
@@ -90,12 +91,16 @@ $phpVars = [ 'employee_number' => $employeeNumber ];
 if( isset( $this->managerView ) ) {
     $phpVars['manager_view'] = $this->managerView;
     $this->headScript()
+            ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
+            ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
             ->appendFile( $this->basePath( 'js/request/timeOffManagerQueueHandler.js' ) );
 }
 if( isset( $this->payrollView ) ) {
     $phpVars['payroll_view'] = $this->payrollView;
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/request/timeOffPayrollQueueHandler.js' ) );
+            ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
+            ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
+            ->appendFile( $this->basePath( 'js/request/timeOffManagerQueueHandler.js' ) );
 }
 
 $this->headScript()
@@ -103,7 +108,7 @@ $this->headScript()
 
 echo $this->headScript();
 ?>
-        <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.js"></script>
+    <?php /*** <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.js"></script> ***/ ?>
     </head>
 
     <body>
@@ -137,7 +142,7 @@ echo $this->headScript();
                             <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_logo_50h.png' ); ?>" class="swiftlogo"></a>
                         </div>
                         <div class="swift-header-item swift-site-name">
-                            Time Off
+                            Time Off Requests
 <?php /* * *&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">** */ ?>
 <?php /* * *&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">MGR: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_MANAGER'] . ' | PAYROLL: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_PAYROLL'] . '</span>** */ ?>
                             <?php echo $welcomeMessage; ?>

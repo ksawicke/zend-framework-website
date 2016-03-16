@@ -15,19 +15,23 @@
  *
  **/
 body {
-	background: #005590;
-	margin-top: 30px;
-	font-size: 14px;
-	min-height: 1px !important;
+    font-family:'Montserrat', sans-serif;
+    font-weight:300;
+    background: #005590;
+    margin-top: 30px;
+    font-size: 14px;
+    min-height: 1px !important;
 }
 
 html {
-	overflow-y: scroll;
+    overflow-y: scroll;
 }
 
 * {
-  border-radius: 0 !important;
+    border-radius: 0 !important;
 }
+
+
 
 /* 10px gutter */
 .gutter-10.row {
@@ -80,8 +84,9 @@ html {
 }
 
 .swift-site-name, .swift-site-name-sm {
-	color: #00467E;
-	font-weight: bold;
+    color: #00467E;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(85, 85, 85, 0.3);
 }
 
 .swift-site-name {
@@ -1119,4 +1124,9 @@ table.hoursRequested td{
 /*** Review Request ***/
 div.panel.panel-default div.panel-body div.row div.col-lg-8 div.row {
     padding:8px;
+}
+
+/** Request Screen **/
+.selectedDateHours {
+    width: 60px;
 }

@@ -37,6 +37,7 @@ var timeOffCreateRequestHandler = new function ()
             loggedInUserData = [],
             requestForEmployeeNumber = '',
             requestForEmployeeName = '',
+            requestForEmployeeObject = [],
             requestReason = '',
             /** Dates selected for this request **/
 
@@ -64,7 +65,7 @@ var timeOffCreateRequestHandler = new function ()
                 'timeOffCivicDuty': 'Civic Duty',
                 'timeOffApprovedNoPay': 'Approved No Pay'
             },
-    directReportFilter = 'B';
+            directReportFilter = 'B';
 
     /**
      * Initializes binding
@@ -79,18 +80,17 @@ var timeOffCreateRequestHandler = new function ()
              */
             $requestForEventSelect.on("select2:select", function (e) {
                 var selectedEmployee = e.params.data;
-                //            console.log("SELECTED EMPLOYEE", selectedEmployee);
                 requestForEmployeeNumber = selectedEmployee.id;
                 requestForEmployeeName = selectedEmployee.text;
-//                console.log("WWWWWW 1199");
                 console.log(requestForEmployeeNumber);
                 console.log(requestForEmployeeName);
                 timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-                //            console.log('983');
                 $('.requestIsForMe').show();
             })
             .on("select2:open", function (e) {
-                //console.log("SELECT2 OPENED");
+                /**
+                 * SELECT2 is opened
+                 */
                 if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
                     $("span").remove(".select2CustomTag");
                     var $filter =
@@ -103,7 +103,9 @@ var timeOffCreateRequestHandler = new function ()
                 }
             })
             .on("select2:close", function (e) {
-                //console.log("SELECT2 CLOSED");
+                /**
+                 * SELECT2 is closed
+                 */
             });
 
             /**
@@ -115,7 +117,6 @@ var timeOffCreateRequestHandler = new function ()
             
             $(document).on('click', '.toggleLegend', function() {
                 timeOffCreateRequestHandler.toggleLegend();
-//                console.log("TOGGLE");
             });
 
             /**
@@ -129,60 +130,20 @@ var timeOffCreateRequestHandler = new function ()
              * Handle clicking a calendar date
              */
             $(document).on('click', '.calendar-day', function () {
-//                    timeOffCreateRequestHandler.selectCalendarDay($(this));
-//                    var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-//                    console.log("TEST");
-//                    console.log("this", $(this));
-//                    console.log("selectedDate", selectedDate);
-//                    if(selectedTimeoffCategory != null) {
-//                        timeOffCreateRequestHandler.toggleDateFromRequest($(this));
-//                    }
-
-//                    var obj1 = { category: "timeOffPTO", date: "02/22/2016", hours: "8.00" };
-//                    var obj2 = { category: "timeOffPTO", date: "02/23/2016", hours: "8.00" };
-//                    var obj3 = { category: "timeOffPTO", date: "02/24/2016", hours: "8.00" };
-//                    var obj4 = { category: "timeOffPTO", date: "02/25/2016", hours: "8.00" };
-//                    var obj5 = { category: "timeOffPTO", date: "02/26/2016", hours: "8.00" };
-//                    var arr = [];
-//                    arr.push(obj1);
-//                    arr.push(obj2);
-//                    arr.push(obj3);
-//                    arr.push(obj4);
-//                    arr.push(obj5);
-
-                // Split example
-                //var obj6 = { category: "timeOffSick", date: "02/25/2016" };
-
-                // Delete example
-                //var obj6 = { category: "timeOffPTO", date: "02/25/2016" };
-
-                // Add example
-//                    var obj6 = { category: "timeOffPTO", date: "02/29/2016" };
-
-                var obj6 = {category: selectedTimeoffCategory, date: $(this).data('date')};
-                if (selectedTimeoffCategory !== null && "undefined" !== typeof obj6.date) {
-                    timeOffCreateRequestHandler.updateRequestDates(obj6, $(this));
+                var dateObject = { category: selectedTimeoffCategory, date: $(this).data('date') };
+                if ( selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date ) {
+                    timeOffCreateRequestHandler.updateRequestDates( dateObject, $(this));
                 }
-
-                console.log("selectedDatesNew", selectedDatesNew);
             });
 
             /**
              * Handle removing a date from request
              */
             $(document).on('click', '.remove-date-requested', function () {
-//                    timeOffCreateRequestHandler.toggleDateFromRequest($(this));
-//                    var selectedDate = timeOffCreateRequestHandler.isSelected($(this));
-//                    if(selectedTimeoffCategory != null) {
-//                        timeOffCreateRequestHandler.toggleDateFromRequest($(this));
-//                    }
-
-                var obj6 = {category: $(this).attr('data-category'), date: $(this).data('date')};
-                if (selectedTimeoffCategory !== null && "undefined" !== typeof obj6.date) {
-                    timeOffCreateRequestHandler.updateRequestDates(obj6, $(this));
+                var dateObject = { category: $(this).attr('data-category'), date: $(this).data('date') };
+                if ( selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date ) {
+                    timeOffCreateRequestHandler.updateRequestDates( dateObject, $(this) );
                 }
-
-                console.log("selectedDatesNew", selectedDatesNew);
             });
 
             /**
@@ -201,19 +162,16 @@ var timeOffCreateRequestHandler = new function ()
                 requestReason = $("#requestReason").val();
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             });
-
-
-
+            
             /**
              * Handle splitting a date into two categories
              */
             $(document).on('click', '.split-date-requested', function () {
-                timeOffCreateRequestHandler.splitDateRequested($(this));
+                timeOffCreateRequestHandler.splitDateRequested( $(this) );
             });
 
             $(document).on('click', '.changerequestForEmployeeNumber', function () {
 //                    timeOffCreateRequestHandler.loadCalendars($(this).attr("data-employee-number"));
-//                    console.log('138');
             });
 
             $(document).on('change', '#directReportForm input', function () {
@@ -221,39 +179,47 @@ var timeOffCreateRequestHandler = new function ()
             });
 
             timeOffCreateRequestHandler.loadCalendars();
-
-            
-
-//        	timeOffCreateRequestHandler.checkLocalStorage();
         });
     }
 
+    /**
+     * Checks if date is disabled
+     * 
+     * @param {type} object
+     * @returns {Boolean}
+     */
     this.isDateDisabled = function (object) {
         return (object.hasClass("calendar-day-disabled") ? true : false);
     }
 
+    /**
+     * Gets the text description of the category passed in.
+     * 
+     * @param {type} category
+     * @returns {timeOffCreateRequestHandler.timeOffCreateRequestHandler_L5.categoryText|categoryText}
+     */
     this.getCategoryText = function (category) {
         return categoryText[category];
     }
 
-    this.checkLocalStorage = function () {
-        if (typeof (Storage) !== "undefined") {
-            // Code for localStorage/sessionStorage.
-            console.log("local storage support enabled");
-            var testObject = {'one': 1, 'two': 2, 'three': 3};
-
-            // Put the object into storage
-            localStorage.setItem('testObject', JSON.stringify(testObject));
-
-            // Retrieve the object from storage
-            var retrievedObject = localStorage.getItem('testObject');
-
-            console.log('retrievedObject: ', JSON.parse(retrievedObject));
-        } else {
-            // Sorry! No Web Storage support..
-            console.log("NO local storage support enabled");
-        }
-    }
+//    this.checkLocalStorage = function () {
+//        if (typeof (Storage) !== "undefined") {
+//            // Code for localStorage/sessionStorage.
+//            console.log("local storage support enabled");
+//            var testObject = {'one': 1, 'two': 2, 'three': 3};
+//
+//            // Put the object into storage
+//            localStorage.setItem('testObject', JSON.stringify(testObject));
+//
+//            // Retrieve the object from storage
+//            var retrievedObject = localStorage.getItem('testObject');
+//
+//            console.log('retrievedObject: ', JSON.parse(retrievedObject));
+//        } else {
+//            // Sorry! No Web Storage support..
+//            console.log("NO local storage support enabled");
+//        }
+//    }
 
     /**
      * Resets the Available sick time for selected employee.
@@ -278,27 +244,17 @@ var timeOffCreateRequestHandler = new function ()
             object.removeClass("categorySelected");
             $('.' + object.attr("data-category") + 'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
             timeOffCreateRequestHandler.setStep('1');
-//    		$('.timeOffCalendarWrapper').hide();
         } else {
             selectedTimeoffCategory = object.attr("data-category");
             object.addClass("categorySelected");
             object.addClass(selectedTimeoffCategory);
-
-//	    	for(category in categoryText) {
-//	    		if(selectedTimeoffCategory!=category) {
-//	    			$('.buttonDisappear'+category.substr(7)).hide();
-//	    		}
-//	    	}
-
             if (selectedDatesNew.length > 0) {
                 timeOffCreateRequestHandler.setStep('3');
             } else {
                 timeOffCreateRequestHandler.setStep('2');
             }
             $('.' + selectedTimeoffCategory + 'CloseIcon').addClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
-//	    	$('.timeOffCalendarWrapper').show();
         }
-//    	$('.timeOffCalendarWrapper').show();
     }
 
     /**
@@ -322,7 +278,6 @@ var timeOffCreateRequestHandler = new function ()
             dataType: 'json'
         })
         .success(function (json) {
-//                    console.log("### 289");
             if (requestForEmployeeNumber === '') {
                 loggedInUserData = json.employeeData;
                 loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
@@ -330,7 +285,12 @@ var timeOffCreateRequestHandler = new function ()
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
-//        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
+            requestForEmployeeObject = json.employeeData;
+            
+            console.log( "=========" );
+            console.log( "requestForEmployeeObject", requestForEmployeeObject );
+            console.log( "=========" );
+            
             var calendarHtml = '';
             $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
                 $("#calendar" + index + "Html").html(
@@ -343,44 +303,23 @@ var timeOffCreateRequestHandler = new function ()
 
             timeOffCreateRequestHandler.setEmployeePTOAvailable(json.employeeData.PTO_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
-
             timeOffCreateRequestHandler.setEmployeeFloatAvailable(json.employeeData.FLOAT_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
-
             timeOffCreateRequestHandler.setEmployeeSickAvailable(json.employeeData.SICK_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
-
-//        	timeOffCreateRequestHandler.setEmployeeUnexcusedAbsenceAvailable(json.employeeData.UNEXCUSED_ABSENCE_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
-
-//        	timeOffCreateRequestHandler.setEmployeeBereavementAvailable(json.employeeData.BEREAVEMENT_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
-
-//        	timeOffCreateRequestHandler.setEmployeeCivicDutyAvailable(json.employeeData.CIVIC_DUTY_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
-
             timeOffCreateRequestHandler.setEmployeeGrandfatheredAvailable(json.employeeData.GF_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
-
-//        	timeOffCreateRequestHandler.setEmployeeApprovedNoPayAvailable(json.employeeData.APPROVED_NO_PAY_AVAILABLE);
             timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
-
-//            timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-//            timeOffCreateRequestHandler.highlightDates();
-
-            // $(this).hasClass('disableTimeOffCategorySelection')
             if (json.employeeData.GF_AVAILABLE > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
 
-            console.log("FROG", json.employeeData);
-            requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
-            requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
-                ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
-
-            console.log('json.employeeData', json.employeeData);
-            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-            console.log('requestForEmployeeName', requestForEmployeeName);
+            requestForEmployeeNumber = $.trim(requestForEmployeeObject.EMPLOYEE_NUMBER);
+            requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_NAME +
+                ' (' + requestForEmployeeObject.EMPLOYEE_NUMBER + ') - ' + requestForEmployeeObject.POSITION_TITLE;
 
             $("#requestFor")
                     .empty()
@@ -397,6 +336,12 @@ var timeOffCreateRequestHandler = new function ()
         });
     }
 
+    /**
+     * Marks the appropriate step the user is on for this request.
+     * 
+     * @param {type} step
+     * @returns {undefined}
+     */
     this.setStep = function (step) {
         $(".step1").removeClass("active");
         $(".step2").removeClass("active");
@@ -404,12 +349,16 @@ var timeOffCreateRequestHandler = new function ()
         $(".step" + step).addClass("active");
     }
 
+    /**
+     * Submit the user request for time off.
+     * 
+     * @returns {undefined}
+     */
     this.submitTimeOffRequest = function () {
         $.ajax({
             url: timeOffSubmitTimeOffRequestUrl,
             type: 'POST',
             data: {
-                action: 'submitTimeoffRequest',
                 selectedDatesNew: selectedDatesNew,
                 requestReason: requestReason,
                 employeeNumber: requestForEmployeeNumber,
@@ -417,18 +366,18 @@ var timeOffCreateRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
-                    if (json.success == true) {
-                        window.location.href = timeOffSubmitTimeOffSuccessUrl;
-                    } else {
-                        alert(json.message);
-                    }
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+        .success(function (json) {
+            if (json.success == true) {
+                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     };
 
     this.loadNewCalendars = function (startMonth, startYear) {
@@ -443,26 +392,26 @@ var timeOffCreateRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
-                    console.log("@@@@ 410");
-                    var calendarHtml = '';
-                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                        $("#calendar" + index + "Html").html(
-                            json.calendarData.openHeader +
-                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
-                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
-                            json.calendarData.closeHeader +
-                            thisCalendarHtml.data);
-                    });
+        .success(function (json) {
+            console.log("function loadNewCalendars accessed");
+            var calendarHtml = '';
+            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
+                $("#calendar" + index + "Html").html(
+                    json.calendarData.openHeader +
+                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
+                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
+                    json.calendarData.closeHeader +
+                    thisCalendarHtml.data);
+            });
 
 //                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
 //                    timeOffCreateRequestHandler.highlightDates();
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     }
 
     /**
@@ -473,6 +422,9 @@ var timeOffCreateRequestHandler = new function ()
         timeOffCreateRequestHandler.printEmployeePTOAvailable();
     }
 
+    /**
+     * Prints the Pending PTO time for selected employee.
+     */
     this.setEmployeePTOPending = function (ptoPending) {
         employeePTOPending = ptoPending;
         timeOffCreateRequestHandler.printEmployeePTOPending();
@@ -486,29 +438,41 @@ var timeOffCreateRequestHandler = new function ()
         timeOffCreateRequestHandler.printEmployeeFloatAvailable();
     }
 
+    /**
+     * Sets the Pending Float time for selected employee.
+     */
     this.setEmployeeFloatPending = function (floatPending) {
         employeeFloatPending = floatPending;
         timeOffCreateRequestHandler.printEmployeeFloatPending();
     }
 
     /**
-     * Sets the Available sick time for selected employee.
+     * Sets the Available Sick time for selected employee.
      */
     this.setEmployeeSickAvailable = function (sickAvailable) {
         employeeSickAvailable = sickAvailable;
         timeOffCreateRequestHandler.printEmployeeSickAvailable();
     }
 
+    /**
+     * Sets the Pending Sick time for selected employee.
+     */
     this.setEmployeeSickPending = function (sickPending) {
         var employeeSickPending = sickPending;
         timeOffCreateRequestHandler.printEmployeeSickPending();
     }
 
+    /**
+     * Sets the Available Grandfathered time for selected employee.
+     */
     this.setEmployeeGrandfatheredAvailable = function (grandfatheredAvailable) {
         employeeGrandfatheredAvailable = grandfatheredAvailable;
         timeOffCreateRequestHandler.printEmployeeGrandfatheredAvailable();
     }
 
+    /**
+     * Sets the Pending Grandfathered time for selected employee.
+     */
     this.setEmployeeGrandfatheredPending = function (grandfatheredPending) {
         var employeeGrandfatheredPending = grandfatheredPending;
         timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
@@ -519,6 +483,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	timeOffCreateRequestHandler.printEmployeeUnexcusedAbsenceAvailable();
 //    }
 
+    /**
+     * Sets the Pending Unexcused Absence time for selected employee.
+     */
     this.setEmployeeUnexcusedAbsencePending = function (unexcusedAbsencePending) {
         var employeeUnexcusedAbsencePending = unexcusedAbsencePending;
         timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
@@ -529,6 +496,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	timeOffCreateRequestHandler.printEmployeeBereavementAvailable();
 //    }
 
+    /**
+     * Sets the Pending Bereavement time for selected employee.
+     */
     this.setEmployeeBereavementPending = function (bereavementPending) {
         var employeeBereavementPending = bereavementPending;
         timeOffCreateRequestHandler.printEmployeeBereavementPending();
@@ -539,6 +509,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	timeOffCreateRequestHandler.printEmployeeCivicDutyAvailable();
 //    }
 
+    /**
+     * Sets the Pending Civic Duty time for selected employee.
+     */
     this.setEmployeeCivicDutyPending = function (civicDutyPending) {
         employeeCivicDutyPending = civicDutyPending;
         timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
@@ -549,6 +522,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	timeOffCreateRequestHandler.printEmployeeApprovedNoPayAvailable();
 //    }
 
+    /**
+     * Sets the Pending Approved No Pay time for selected employee.
+     */
     this.setEmployeeApprovedNoPayPending = function (approvedNoPayPending) {
         employeeApprovedNoPayPending = approvedNoPayPending;
         timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
@@ -558,7 +534,6 @@ var timeOffCreateRequestHandler = new function ()
      * Prints the Available PTO time for selected employee.
      */
     this.printEmployeePTOAvailable = function () {
-//    	console.log("WHOOOOOOOOOOOOA", employeePTOAvailable);
         $("#employeePTOAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable) + " hours");
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOAvailable) <= 0) {
             $('.buttonDisappearPTO').addClass('hidden');
@@ -567,6 +542,9 @@ var timeOffCreateRequestHandler = new function ()
         }
     }
 
+    /**
+     * Prints the Pending PTO time for selected employee.
+     */
     this.printEmployeePTOPending = function () {
         $("#employeePTOPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOPending) + " hours");
     }
@@ -583,6 +561,9 @@ var timeOffCreateRequestHandler = new function ()
         }
     }
 
+    /**
+     * Prints the Pending Float time for selected employee.
+     */
     this.printEmployeeFloatPending = function () {
         $("#employeeFloatPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatPending) + " hours");
     }
@@ -599,10 +580,16 @@ var timeOffCreateRequestHandler = new function ()
         }
     }
 
+    /**
+     * Prints the Pending Sick time for selected employee.
+     */
     this.printEmployeeSickPending = function () {
         $("#employeeSickPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickPending) + " hours");
     }
 
+    /**
+     * Prints the Available Grandfathered time for selected employee.
+     */
     this.printEmployeeGrandfatheredAvailable = function () {
         $("#employeeGrandfatheredAvailableHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredAvailable) + " hours");
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredAvailable) <= 0) {
@@ -611,6 +598,9 @@ var timeOffCreateRequestHandler = new function ()
         console.log("employeeGrandfatheredAvailable", employeeGrandfatheredAvailable);
     }
 
+    /**
+     * Prints the Pending Grandfathered time for selected employee.
+     */
     this.printEmployeeGrandfatheredPending = function () {
         $("#employeeGrandfatheredPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredPending) + " hours");
     }
@@ -622,6 +612,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	}
 //    }
 
+    /**
+     * Prints the Pending Unexcused Absence time for selected employee.
+     */
     this.printEmployeeUnexcusedAbsencePending = function () {
         $("#employeeUnexcusedAbsencePendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsencePending) + " hours");
     }
@@ -633,6 +626,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	}
 //    }
 
+    /**
+     * Prints the Pending Bereavement time for selected employee.
+     */
     this.printEmployeeBereavementPending = function () {
         $("#employeeBereavementPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementPending) + " hours");
     }
@@ -644,6 +640,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	}
 //    }
 
+    /**
+     * Prints the Pending Civic Duty time for selected employee.
+     */
     this.printEmployeeCivicDutyPending = function () {
         $("#employeeCivicDutyPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyPending) + " hours");
     }
@@ -655,6 +654,9 @@ var timeOffCreateRequestHandler = new function ()
 //    	}
 //    }
 
+    /**
+     * Prints the Pending Approved No Pay time for selected employee.
+     */
     this.printEmployeeApprovedNoPayPending = function () {
         $("#employeeApprovedNoPayPendingHours").html(timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayPending) + " hours");
     }
@@ -678,11 +680,6 @@ var timeOffCreateRequestHandler = new function ()
                 employeeSickAvailable -= hours;
                 timeOffCreateRequestHandler.printEmployeeSickAvailable();
                 break;
-
-//	    	case 'timeOffGrandfathered':
-//	    		employeeGrandfatheredAvailable -= defaultHours;
-//	    		timeOffCreateRequestHandler.printEmployeeGrandfatheredAvailable();
-//	    		break;
         }
     }
 
@@ -708,6 +705,12 @@ var timeOffCreateRequestHandler = new function ()
         }
     }
 
+    /**
+     * 
+     * @param {type} approvedRequests
+     * @param {type} pendingRequests
+     * @returns {undefined}
+     */
     this.setSelectedDates = function (approvedRequests, pendingRequests) {
         selectedDatesApproved = [];
         selectedDatesPendingApproval = [];
@@ -783,6 +786,7 @@ var timeOffCreateRequestHandler = new function ()
      */
     this.isSelected = function (object) {
         console.log('object', object);
+        console.log('boo ya check', j)
         var thisDate = object.data('date');
         var thisCategory = selectedTimeoffCategory;
         var thisHours = defaultHours;
@@ -963,6 +967,7 @@ var timeOffCreateRequestHandler = new function ()
 
     /**
      * Removes a date from the request.
+     * 
      * @param {type} dateRequestObject
      * @returns {undefined}     */
     this.selectCalendarDay = function (dateRequestObject) {
@@ -1510,15 +1515,41 @@ var timeOffCreateRequestHandler = new function ()
         timeOffCreateRequestHandler.drawHoursRequested();
     }
 
+    /**
+     * Add date requested to the array
+     *
+     * @param {object} calendarDateObject
+     * @param {object} object
+     * @returns {none}     */
     this.addDataToRequest = function (calendarDateObject, object) {
-        object.hours = "8.00";
-
+        object = timeOffCreateRequestHandler.formatDayRequested( object );
         timeOffCreateRequestHandler.addDateToRequest(object);
         timeOffCreateRequestHandler.addTime(object.category, object.hours);
-
-        calendarDateObject.addClass(object.category + "Selected");
+        timeOffCreateRequestHandler.highlightDates();
+    }
+    
+    /**
+     * Add the following to the day requested:
+     * 1. Day of week (i.e. MON, TUE)
+     * 2. Default hours for this employee's schedule.
+     *
+     * @param {string} object
+     * @returns {object}     */
+    this.formatDayRequested = function ( object ) {
+        object.dow = moment( object.date, "MM/DD/YYYY" ).format( "ddd" ).toUpperCase();
+        var scheduleDay = "SCHEDULE_" + object.dow;
+        object.hours = requestForEmployeeObject[scheduleDay];
+        
+        return object;
     }
 
+    /**
+     * Deletes a day from the request.
+     *
+     * @param {type} calendarDateObject
+     * @param {type} deleteKey
+     * @param {type} object
+     * @returns {undefined} */
     this.deleteDataFromRequest = function (calendarDateObject, deleteKey, object) {
         timeOffCreateRequestHandler.subtractTime(selectedDatesNew[deleteKey].category, Number(selectedDatesNew[deleteKey].hours));
         timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
@@ -1549,6 +1580,10 @@ var timeOffCreateRequestHandler = new function ()
         calendarDateObject.addClass(newOne.category + "Selected");
     }
     
+    /**
+     * Toggle the calendar legend showing the wonderful color system for categories. 
+     *
+     * @returns {undefined}     */
     this.toggleLegend = function() {
         $("#calendarLegend").toggle();
     }

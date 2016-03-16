@@ -414,8 +414,13 @@ class Employee extends BaseDB {
         return $requestData;
     }
 
-    public function findTimeOffEmployeeData( $employeeNumber = null, $includeHourTotals = "Y", $includeOnlyFields = "*" ) {
-        $rawSql = "select " . $includeOnlyFields . " from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data";
+    public function findEmployeeTimeOffData( $employeeNumber = null, $includeHourTotals = "Y", $includeOnlyFields = "*" ) {
+        $rawSql = "select data.*, sch.schedule_mon, sch.schedule_tue, sch.schedule_wed,
+                   sch.schedule_thu, sch.schedule_fri, sch.schedule_sat, sch.schedule_sun
+                   from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data
+                   left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
+                   on sch.employee_number = data.employee_number";
+        
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
@@ -437,9 +442,6 @@ class Employee extends BaseDB {
         $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         $requestReturnData['request_id'] = $requestId;
-
-        // Send calendar invites for this time off to appropriate individual(s)
-
 
         return $requestReturnData;
     }
@@ -522,7 +524,24 @@ class Employee extends BaseDB {
 
         return $employeeData;
     }
+    
+    /**
+     * Ensures the employee has a schedule saved.
+     * 
+     * @param type $employeeNumber
+     */
+    public function ensureEmployeeScheduleIsDefined( $employeeNumber = null ) {
+        if( $this->findEmployeeSchedule( $employeeNumber )===false ) {
+            $this->makeDefaultEmployeeSchedule( $employeeNumber );
+        }
+    }
 
+    /**
+     * Finds the employee schedule.
+     * 
+     * @param type $employeeNumber
+     * @return type
+     */
     public function findEmployeeSchedule( $employeeNumber = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( ['schedule' => 'TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES' ] )
@@ -537,6 +556,7 @@ class Employee extends BaseDB {
                 ->where( ['schedule.EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad( $employeeNumber ) ] );
 
         $scheduleData = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+        
         return $scheduleData;
     }
 
@@ -708,7 +728,6 @@ class Employee extends BaseDB {
     }
 
     public function submitRequestForApproval( $employeeNumber = null, $requestData = [ ], $requestReason = null, $requesterEmployeeNumber = null, $employeeData = null ) {
-//        var_dump(json_encode($employeeData));die('^');
         $requestReturnData = ['request_id' => null ];
 
         /** Insert record into TIMEOFF_REQUESTS * */
