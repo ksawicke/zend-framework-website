@@ -202,10 +202,10 @@ class RequestApi extends ApiController {
         //      to:   [ 'date' => 'YYYY-mm-dd', 'type' => 'C', 'hours' => '8.00' ]
         
         
-        echo '<pre>';
-        print_r( $post );
-        echo '</pre>';
-        die("....");
+//        echo '<pre>';
+//        print_r( $post );
+//        echo '</pre>';
+//        die("....");
         
 //        $request = $this->getRequest();
 //        $employeeNumber = $request->getPost()->employeeNumber;
@@ -238,7 +238,7 @@ class RequestApi extends ApiController {
             "CIVIC_DUTY_PENDING, CIVIC_DUTY_PENDING_TMP, CIVIC_DUTY_PENDING_TOTAL, UNPAID_UNAPPROVED, " .
             "UNPAID_PENDING, UNPAID_PENDING_TMP, UNPAID_PENDING_TOTAL");
 
-        $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $request->getPost()->requestReason, $requesterEmployeeNumber, json_encode($employeeTimeOffData));
+        $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $post->requestReason, $requesterEmployeeNumber, json_encode($employeeTimeOffData));
         $requestId = $requestReturnData['request_id'];
         $comment = 'Created by ' . \Login\Helper\UserSession::getFullUserInfo();
         $Employee->logEntry($requestId, $requesterEmployeeNumber, $comment);
@@ -246,10 +246,10 @@ class RequestApi extends ApiController {
         $Employee->logEntry(
             $requestId,
             $requesterEmployeeNumber,
-            'Sent for manager approval to ' . trim(ucwords(strtolower($employeeData->MANAGER_NAME))) . ' (' . trim($employeeData->MANAGER_EMPLOYEE_NUMBER) . ')'
+            'Sent for manager approval to ' . trim(ucwords(strtolower($employeeTimeOffData->MANAGER_NAME))) . ' (' . trim($employeeTimeOffData->MANAGER_EMPLOYEE_NUMBER) . ')'
         );
         /** Change status to "Pending Manager Approval" **/
-        $requestReturnData = $Employee->submitApprovalResponse('P', $requestReturnData['request_id'], $request->getPost()->requestReason, json_encode($employeeData));
+        $requestReturnData = $Employee->submitApprovalResponse('P', $requestReturnData['request_id'], $post->requestReason, json_encode($employeeTimeOffData));
 
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([
