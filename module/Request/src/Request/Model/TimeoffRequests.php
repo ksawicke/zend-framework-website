@@ -255,7 +255,7 @@ class TimeoffRequests extends BaseDB {
     public function findRequestLogEntries( $requestId = null ) {
         // varchar_format (create_timestamp, 'dd/mm/yyyy HH12:MI:SS PM')
         
-        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'dd/mm/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
         

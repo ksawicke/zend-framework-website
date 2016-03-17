@@ -79,11 +79,10 @@ var timeOffCreateRequestHandler = new function ()
              * for form submission, and refresh the calendars.
              */
             $requestForEventSelect.on("select2:select", function (e) {
+                timeOffCreateRequestHandler.resetCategorySelection();
                 var selectedEmployee = e.params.data;
                 requestForEmployeeNumber = selectedEmployee.id;
                 requestForEmployeeName = selectedEmployee.text;
-                console.log(requestForEmployeeNumber);
-                console.log(requestForEmployeeName);
                 timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
                 $('.requestIsForMe').show();
             })
@@ -318,8 +317,9 @@ var timeOffCreateRequestHandler = new function ()
             }
 
             requestForEmployeeNumber = $.trim(requestForEmployeeObject.EMPLOYEE_NUMBER);
-            requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_NAME +
-                ' (' + requestForEmployeeObject.EMPLOYEE_NUMBER + ') - ' + requestForEmployeeObject.POSITION_TITLE;
+            requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_DESCRIPTION + ' - ' + requestForEmployeeObject.POSITION_TITLE;
+            //requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_NAME +
+            //    ' (' + requestForEmployeeObject.EMPLOYEE_NUMBER + ') - ' + requestForEmployeeObject.POSITION_TITLE;
 
             $("#requestFor")
                     .empty()
@@ -359,10 +359,11 @@ var timeOffCreateRequestHandler = new function ()
             url: timeOffSubmitTimeOffRequestUrl,
             type: 'POST',
             data: {
-                selectedDatesNew: selectedDatesNew,
-                requestReason: requestReason,
-                employeeNumber: requestForEmployeeNumber,
-                loggedInUserData: loggedInUserData
+                request: { forEmployee: { EMPLOYEE_NUMBER: requestForEmployeeNumber },
+                           byEmployee: loggedInUserData,
+                           dates: selectedDatesNew,
+                           reason: requestReason
+                         }
             },
             dataType: 'json'
         })
@@ -1303,7 +1304,27 @@ var timeOffCreateRequestHandler = new function ()
             $('#enableTimeOffCalendar').remove();
         }
     }
+    
+    /**
+     * Reset category selection
+     * 
+     * @returns {undefined}
+     */
+    this.resetCategorySelection = function() {
+        selectedTimeoffCategory = null;
+        $(".selectTimeOffCategory").removeClass('categorySelected');
+        for( categoryClass in categoryText ) {
+            $(".selectTimeOffCategory").removeClass( categoryClass );
+        }
+        timeOffCreateRequestHandler.maskCalendars('hide');
+    }
 
+    /**
+     * Select category
+     * 
+     * @param {type} categoryButton
+     * @returns {undefined}
+     */
     this.selectCategory = function (categoryButton) {
         if (!categoryButton.hasClass('disableTimeOffCategorySelection')) {
             timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);

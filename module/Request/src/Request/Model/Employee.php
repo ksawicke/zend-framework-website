@@ -231,7 +231,7 @@ class Employee extends BaseDB {
                     SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
                 ) AS MAX_DATE_REQUESTED,
 
-                TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
+                TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
 		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
@@ -420,6 +420,11 @@ class Employee extends BaseDB {
                    from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data
                    left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
                    on sch.employee_number = data.employee_number";
+        
+//        echo '<pre>';
+//        print_r( $rawSql );
+//        echo '</pre>';
+//        die("?");
         
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();

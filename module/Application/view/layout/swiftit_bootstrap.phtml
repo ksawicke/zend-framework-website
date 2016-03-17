@@ -1,12 +1,18 @@
 <?php
 $welcomeMessage = '';
 $employeeNumber = '';
+$loggedIn = 'N';
+$isManager = 'N';
+$isPayroll = 'N';
 
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
-            $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
-            '!&nbsp;&nbsp;&nbsp;(<a href="' . $this->basepath() . '/login/logout">Logout</a>)';
+        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
+        '!&nbsp;&nbsp;&nbsp;(<a href="' . $this->basepath() . '/login/logout">Logout</a>)';
     $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
+    $loggedIn = 'Y';
+    $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
+    $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
 }
 
 ?>
@@ -108,28 +114,22 @@ $this->headScript()
 
 echo $this->headScript();
 ?>
-    <?php /*** <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10,r-2.0.0,sc-1.4.0/datatables.js"></script> ***/ ?>
+
     </head>
 
     <body>
 
-<?php
-/**
- * $_SESSION['User']
- *    EMPLOYEE_NUMBER
- *    FIRST_NAME
- *    LAST_NAME
- *    USERNAME
- *    POSITION_TITLE
- */
-//    echo '<pre>';
-//    print_r($_SESSION['User']);
-//    echo '</pre>';
-?>
-
+        <?php
+        /**
+         * Navigation bar idea:
+         * https://www.template.net/web-templates/bootstrap/bootstrap-application-template/
+         */
+        ?>
+        
         <!-- Fixed navbar -->
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
+                
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                         <span class="sr-only">Toggle navigation</span>
@@ -143,8 +143,6 @@ echo $this->headScript();
                         </div>
                         <div class="swift-header-item swift-site-name">
                             Time Off Requests
-<?php /* * *&nbsp;&nbsp;&nbsp;&nbsp;<img style="width:7%;height:7%;" src="<?php echo $this->basePath('templates/swiftit/img/charlie.jpg'); ?>">** */ ?>
-<?php /* * *&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">MGR: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_MANAGER'] . ' | PAYROLL: ' . $_SESSION['Timeoff_'.ENVIRONMENT]['IS_PAYROLL'] . '</span>** */ ?>
                             <?php echo $welcomeMessage; ?>
                         </div>
                     </div>
@@ -157,52 +155,68 @@ echo $this->headScript();
                         </div>
                     </div>
                 </div>
+                
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="<?php echo $this->basepath(); ?>/request/create">Home</a></li>
+                        <?php /**<li class="active"><a href="<?php echo $this->basepath(); ?>/request/create">Home</a></li> **/ ?>
+                        <?php if( $loggedIn==='Y' ) { ?>
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Page Links <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Requests <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">View My Requests</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/create">Request Time Off</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/pending-manager-approval">View Pending Manager Approval Queue</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/update-checks">View PAYROLL Update Checks Queue</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-payroll-approval">View PAYROLL Pending Payroll Approval Queue</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/completed-pafs">View PAYROLL Completed PAFs Queue</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-as400-upload">View PAYROLL Pending AS400 Upload Queue</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">My Requests</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/create">New</a></li>
                             </ul>
                         </li>
+                        <?php
+                        }
+                        if( $isManager==="Y" || $isPayroll==="Y" ) { ?>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Queues <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php if( $isManager==="Y" ) { ?>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/pending-manager-approval">Pending Manager Approval</a></li>
+                                <?php
+                                }
+                                if( $isPayroll==="Y" ) {
+                                ?>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/update-checks">Update Checks</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-payroll-approval">Pending Payroll Approval</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/completed-pafs">Completed PAFs</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-as400-upload">Pending AS400 Upload</a></li>
+                                <?php } ?>
+                            </ul>
+                        </li>
+                        <?php } ?>
                     </ul>
                 </div><!--/.nav-collapse -->
+                
             </div>
         </nav>
 
         <div class="container">
             <div class="well well-sm">
 
-<?php
-$alertType = '';
-switch ( $alertType ) {
-    case 'success':
-    default:
-        $alertIcon = 'check-square-o';
-        break;
-
-    case 'info':
-        $alertIcon = 'info-circle';
-        break;
-
-    case 'warning':
-        $alertIcon = 'warning';
-        break;
-
-    case 'danger':
-        $alertIcon = 'exclamation-circle';
-        break;
-}
-?>
-
                 <?php
+                $alertType = '';
+                switch ( $alertType ) {
+                    case 'success':
+                    default:
+                        $alertIcon = 'check-square-o';
+                        break;
+
+                    case 'info':
+                        $alertIcon = 'info-circle';
+                        break;
+
+                    case 'warning':
+                        $alertIcon = 'warning';
+                        break;
+
+                    case 'danger':
+                        $alertIcon = 'exclamation-circle';
+                        break;
+                }
+ 
                 /** Out put any flash messages * */
                 $children = $this->viewModel()->getCurrent()->getChildren();
                 $ourView = $children[0];

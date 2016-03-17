@@ -7,6 +7,11 @@ var timeOffCommon = new function ()
     this.initialize = function () {
         $(document).ready(function () {
             timeOffCommon.fadeOutFlashMessage();
+            timeOffCommon.autoOpenDropdownOnHover();
+            
+            $("#navbar > ul > li > ul > li > a").on( 'click', function() {
+                $(this).addClass( "active" );
+            });
         });
     }
     
@@ -22,6 +27,20 @@ var timeOffCommon = new function ()
                 clearInterval(timer);
             }
         }, 1000);
+    }
+    
+    this.autoOpenDropdownOnHover = function() {
+        $(".dropdown").hover(            
+            function() {
+                $('.dropdown-menu', this).stop( true, true ).fadeIn("fast");
+                $(this).toggleClass('open');
+                $('b', this).toggleClass("caret caret-up");                
+            },
+            function() {
+                $('.dropdown-menu', this).stop( true, true ).fadeOut("fast");
+                $(this).toggleClass('open');
+                $('b', this).toggleClass("caret caret-up");                
+            });
     }
 }
 
