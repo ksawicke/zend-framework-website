@@ -185,14 +185,21 @@ class TimeoffRequests extends BaseDB {
         ];
     }
     
+    /**
+     * Draws a nicely formatted table of the requested days to display on the review request screen.
+     * 
+     * @param array $entries    Array of requested days.
+     * @return string
+     */
     public function drawHoursRequested( $entries )
     {        
-        $htmlData = '<table class="hoursRequested"><thead><tr><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
+        $htmlData = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
         foreach( $entries as $ctr => $data ) {
             $code = $data['REQUEST_CODE'];
             $date = new \DateTime( $data['REQUEST_DATE'] );
             $date = $date->format( "m-d-Y" );
             $htmlData .= '<tr>' .
+                '<td>' . $data['REQUEST_DAY_OF_WEEK'] . '</td>' . 
                 '<td>' . $date . '</td>' . 
                 '<td>' . $data['REQUESTED_HOURS'] . '</td>' .
                 '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
@@ -203,6 +210,12 @@ class TimeoffRequests extends BaseDB {
         return $htmlData;
     }
 
+    /**
+     * Returns the data associated with a single request for time off.
+     * 
+     * @param integer $requestId    Request ID
+     * @return array
+     */
     public function findRequest( $requestId ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
@@ -236,10 +249,18 @@ class TimeoffRequests extends BaseDB {
         return $request;
     }
 
+    /**
+     * Returns the individual entries associated with a single request.
+     * 
+     * @param integer $requestId    Request ID
+     * @return array
+     */
     public function findRequestEntries( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
-                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE' ] )
+                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
+                             'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
+                           ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
                 ->where( [ ' entry.REQUEST_ID' => $requestId ] );
 
@@ -252,9 +273,13 @@ class TimeoffRequests extends BaseDB {
         return $entries;
     }
     
+    /**
+     * Returns the log entries associated with a single request.
+     * 
+     * @param integer $requestId   Request ID
+     * @return array
+     */
     public function findRequestLogEntries( $requestId = null ) {
-        // varchar_format (create_timestamp, 'dd/mm/yyyy HH12:MI:SS PM')
-        
         $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
@@ -265,10 +290,10 @@ class TimeoffRequests extends BaseDB {
     }
     
     /**
-     * Get count of Entries by Request ID
+     * Get count of Entries by Request ID.
      * 
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
-     * @return int
+     * @return integer
      */
     public function countTimeoffRequested( $requestId = null )
     {
