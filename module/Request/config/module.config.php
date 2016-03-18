@@ -103,13 +103,25 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            'viewPendingManagerApprovalQueue' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+            'viewManagerQueue' => [
+                'type' => 'segment',
                 'options' => [
-                    'route' => '/request/queue/view/pending-manager-approval',
+                    'route' => '/request/view-manager-queue/[:manager-view]',
                     'defaults' => [
                         'controller' => 'RequestController',
-                        'action' => 'viewPendingManagerApprovalQueue'
+                        'action' => 'viewManagerQueue'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            'viewPayrollQueue' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/request/view-payroll-queue/[:payroll-view]',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'viewPayrollQueue'
                     ]
                 ],
                 'may_terminate' => 1,
@@ -122,6 +134,18 @@ $config = [
                     'defaults' => [
                         'controller' => 'RequestController',
                         'action' => 'viewMyRequests'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            'submittedForApproval' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/submitted-for-approval',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'submittedForApproval'
                     ]
                 ],
                 'may_terminate' => 1,

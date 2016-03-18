@@ -31,24 +31,6 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Write the Papaatmp/Hpapaatmp object to the appropriate table.
-     * 
-     * @throws \Exception
-     */
-    protected function insertPapaaRecord()
-    {
-        $action = new Insert( $this->table );
-        $action->values( $this->collection );
-        $sql = new Sql( $this->adapter );
-        $stmt = $sql->prepareStatementForSqlObject( $action );
-        try {
-            $result = $stmt->execute();
-        } catch ( Exception $e ) {
-            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
-        }
-    }
-    
-    /**
      * Build the Hpapaatmp/papaatmp object.
      * 
      * @param type $employeeData
@@ -79,6 +61,24 @@ class Papaa extends BaseDB {
     }
     
     /**
+     * Write the Papaatmp/Hpapaatmp object to the appropriate table.
+     * 
+     * @throws \Exception
+     */
+    protected function insertPapaaRecord()
+    {
+        $action = new Insert( $this->table );
+        $action->values( $this->collection );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+        } catch ( Exception $e ) {
+            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
+        }
+    }
+    
+    /**
      * Append employee data to the papaa object.
      * 
      * @param type $employeeData
@@ -86,7 +86,7 @@ class Papaa extends BaseDB {
     public function EmployeeData( $employeeData = [] )
     {        
         $this->collection['AAER'] = $employeeData['employer_number'];
-        $this->collection['AACLK#'] = $employeeData['employee_number'];
+        $this->collection['AACLK#'] = \Request\Helper\Format::rightPadEmployeeNumber( $employeeData['employee_number'] );
         $this->collection['AALVL1'] = $employeeData['level1'];
         $this->collection['AALVL2'] = $employeeData['level2'];
         $this->collection['AALVL3'] = $employeeData['level3'];

@@ -4,9 +4,10 @@
  */
 var timeOffApproveRequestHandler = new function ()
 {
-    var timeOffApiUrl = 'http://swift:10080/sawik/timeoff/public/request/api',
-            timeOffApprovedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/approved-request',
-            timeOffDeniedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/denied-request';
+    var timeOffApiSubmitApprovalUrl = 'http://swift:10080/sawik/timeoff/public/api/request/approve',
+        timeOffApiSubmitDenyUrl = 'http://swift:10080/sawik/timeoff/public/api/request/deny',
+        timeOffApprovedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/approved-request',
+        timeOffDeniedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/denied-request';
 
     /**
      * Initializes binding
@@ -35,11 +36,15 @@ var timeOffApproveRequestHandler = new function ()
     }
 
     this.submitApprovalResponse = function (action) {
+        url = timeOffApiSubmitApprovalUrl;
+        if( action==='submitDenyResponse' ) {
+            url = timeOffApiSubmitDenyUrl;
+        }
+        
         $.ajax({
-            url: timeOffApiUrl,
+            url: url,
             type: 'POST',
             data: {
-                action: action,
                 request_id: $("#requestId").val(),
                 review_request_reason: $("#reviewRequestReason").val()
             },

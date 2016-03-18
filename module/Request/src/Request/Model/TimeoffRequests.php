@@ -153,6 +153,28 @@ class TimeoffRequests extends BaseDB {
             'ApprovedNoPay' => 'timeOffApprovedNoPay'
         ];
         
+        $this->codesToClass = [
+            'P' => 'timeOffPTO',
+            'K' => 'timeOffFloat',
+            'S' => 'timeOffSick',
+            'X' => 'timeOffUnexcusedAbsence',
+            'B' => 'timeOffBereavement',
+            'J' => 'timeOffCivicDuty',
+            'R' => 'timeOffGrandfathered',
+            'A' => 'timeOffApprovedNoPay'
+        ];
+        
+        $this->codesToCategory = [
+            'P' => 'PTO',
+            'K' => 'Float',
+            'S' => 'Sick',
+            'X' => 'Unexcused',
+            'B' => 'Bereavement',
+            'J' => 'Civic Duty',
+            'R' => 'Grandfathered',
+            'A' => 'Unpaid Time Off'
+        ];
+        
         $this->codesToKronos = [
             'P' => 'PTO',
             'R' => 'GFVAC',
@@ -162,7 +184,38 @@ class TimeoffRequests extends BaseDB {
             'V' => 'VA'
         ];
     }
+    
+    /**
+     * Draws a nicely formatted table of the requested days to display on the review request screen.
+     * 
+     * @param array $entries    Array of requested days.
+     * @return string
+     */
+    public function drawHoursRequested( $entries )
+    {        
+        $htmlData = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
+        foreach( $entries as $ctr => $data ) {
+            $code = $data['REQUEST_CODE'];
+            $date = new \DateTime( $data['REQUEST_DATE'] );
+            $date = $date->format( "m-d-Y" );
+            $htmlData .= '<tr>' .
+                '<td>' . $data['REQUEST_DAY_OF_WEEK'] . '</td>' . 
+                '<td>' . $date . '</td>' . 
+                '<td>' . $data['REQUESTED_HOURS'] . '</td>' .
+                '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
+                '</tr>';
+        }
+        $htmlData .= '</tbody></table>';
+        
+        return $htmlData;
+    }
 
+    /**
+     * Returns the data associated with a single request for time off.
+     * 
+     * @param integer $requestId    Request ID
+     * @return array
+     */
     public function findRequest( $requestId ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
@@ -171,6 +224,8 @@ class TimeoffRequests extends BaseDB {
                 ->join( [ 'employee' => 'PRPMS' ], 'employee.PREN = request.EMPLOYEE_NUMBER', [ 'LEVEL1' => 'PRL01', 'LEVEL2' => 'PRL02', 'LEVEL03' => 'PRL03', 'LEVEL4' => 'PRL04',
                     'POSITION' => 'PRPOS', 'EMAIL_ADDRESS' => 'PREML1',
                     'EMPLOYEE_HIRE_DATE' => 'PRDOHE', 'POSITION_TITLE' => 'PRTITL' ] )
+                ->join( [ 'creator' => 'PRPMS' ], 'creator.PREN = request.CREATE_USER', [ 'CREATOR_POSITION' => 'PRPOS', 'CREATOR_EMAIL_ADDRESS' => 'PREML1', 'CREATOR_POSITION_TITLE' => 'PRTITL',
+                    'CREATOR_LAST_NAME' => 'PRLNM', 'CREATOR_FIRST_NAME' => 'PRFNM' ] )
                 ->join( [ 'status' => 'TIMEOFF_REQUEST_STATUSES' ], 'status.REQUEST_STATUS = request.REQUEST_STATUS', [ 'REQUEST_STATUS_DESCRIPTION' => 'DESCRIPTION' ] )
                 ->join( [ 'schedule' => 'TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES' ], 'schedule.EMPLOYEE_NUMBER = request.EMPLOYEE_NUMBER', [ 'SCHEDULE_MON' => 'SCHEDULE_MON', 'SCHEDULE_TUE' => 'SCHEDULE_TUE', 'SCHEDULE_WED' => 'SCHEDULE_WED',
                     'SCHEDULE_THU' => 'SCHEDULE_THU', 'SCHEDULE_FRI' => 'SCHEDULE_FRI', 'SCHEDULE_SAT' => 'SCHEDULE_SAT',
@@ -185,14 +240,27 @@ class TimeoffRequests extends BaseDB {
 
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
-
+        $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
+        $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
+        $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m-d-Y" );
+        
+        $this->employeeData = \Request\Helper\Format::trimData( $request );
+                
         return $request;
     }
 
+    /**
+     * Returns the individual entries associated with a single request.
+     * 
+     * @param integer $requestId    Request ID
+     * @return array
+     */
     public function findRequestEntries( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
-                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE' ] )
+                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
+                             'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
+                           ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
                 ->where( [ ' entry.REQUEST_ID' => $requestId ] );
 
@@ -203,6 +271,38 @@ class TimeoffRequests extends BaseDB {
         }
 
         return $entries;
+    }
+    
+    /**
+     * Returns the log entries associated with a single request.
+     * 
+     * @param integer $requestId   Request ID
+     * @return array
+     */
+    public function findRequestLogEntries( $requestId = null ) {
+        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+                   TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
+                   BY log.CREATE_TIMESTAMP DESC";
+        
+        $logEntries = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+
+        return $logEntries;
+    }
+    
+    /**
+     * Get count of Entries by Request ID.
+     * 
+     * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
+     * @return integer
+     */
+    public function countTimeoffRequested( $requestId = null )
+    {
+        $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS       
+        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId;
+        
+        $timeoffData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+        
+        return $timeoffData['TOTAL_REQUESTED_HOURS'];
     }
 
     public function findRequestCalendarInviteData( $requestId = null ) {

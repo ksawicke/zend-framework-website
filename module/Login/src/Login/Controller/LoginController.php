@@ -36,7 +36,7 @@ class LoginController extends AbstractActionController
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
             
             if(count($result)==1) {
-                $session = \Login\Helper\UserSession::createUserSession($result);
+                $session = \Login\Helper\UserSession::createUserSession($result[0]);
                 
                 $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
                 $isManager = $this->authenticationService->isManager($employeeNumber);

@@ -26,7 +26,7 @@ class Format
     
     public static function rightPadEmployeeNumber( $employeeNumber )
     {
-        return str_pad( $employeeNumber, 9, " ", STR_PAD_LEFT );
+        return str_pad( trim( $employeeNumber ), 9, " ", STR_PAD_LEFT );
     }
     
     public static function rightPad($string)

@@ -1,0 +1,28 @@
+<h4><?php echo $managerViewName; ?> Queue</h4>
+
+<br />
+
+<?php if($isLoggedInUserManager==="Y") { ?>
+
+<table id="<?php echo $this->managerView; ?>" class="display" style="width:100%;">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Approver queue</th>
+            <th>Request Status</th>
+            <th>Hours Requested</th>
+            <th>Request Reason</th>
+            <th>First Day<br />Requested</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+</table>
+
+<?php } else { ?>
+
+<div class="alert alert-danger" role="alert">
+	<span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+	<strong>You do not have access to this page.</strong>
+</div>
+
+<?php } ?>

@@ -12,61 +12,100 @@ namespace Application;
 return [
     'router' => [
         'routes' => [
-            'getManagerQueue' => [
-                'type' => 'Segment',
+            
+            'loadCalendar' => [
+                'type' => 'segment',
                 'options' => [
-                    'route' => '/api/queue[/:type][/:status]',
+                    'route' => '/api/calendar/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\CalendarApi',
+                        'action' => 'loadCalendar'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitTimeoffRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitTimeoffRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitApprovalResponse' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/approve',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitApprovalResponse'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitDenyResponse' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/deny',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitDenyResponse'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'getSearchResults' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/search/[:search-type]',
+                    'defaults' => [
+                        'controller' => 'Application\API\SearchApi',
+                        'action' => 'getSearchResults'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'getManagerQueue' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/queue/manager/[:manager-queue]',
                     'defaults' => [
                         'controller' => 'Application\API\QueueApi',
                         'action' => 'getManagerQueue'
                     ],
                 ],
             ],
-//            'home' => [
-//                'type' => 'Zend\Mvc\Router\Http\Literal',
-//                'options' => [
-//                    'route'    => '/',
-//                    'defaults' => [
-//                        'controller' => 'Application\Controller\Index',
-//                        'action'     => 'index',
-//                    ],
-//                ],
+            'getPayrollQueue' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/queue/payroll/[:payroll-queue]',
+                    'defaults' => [
+                        'controller' => 'Application\API\QueueApi',
+                        'action' => 'getPayrollQueue'
+                    ],
+                ],
             ],
-            // The following is a route to simplify getting started creating
-            // new controllers and actions without needing to create a new
-            // module. Simply drop new controllers in, and you can access them
-            // using the path /application/:controller/:action
-//            'application' => [
-//                'type'    => 'Literal',
-//                'options' => [
-//                    'route'    => '/application',
-//                    'defaults' => [
-//                        '__NAMESPACE__' => 'Application\Controller',
-//                        'controller'    => 'Index',
-//                        'action'        => 'index',
-//                    ],
-//                ],
-//                'may_terminate' => true,
-//                'child_routes' => [
-//                    'default' => [
-//                        'type'    => 'Segment',
-//                        'options' => [
-//                            'route'    => '/[:controller[/:action]]',
-//                            'constraints' => [
-//                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                            ],
-//                            'defaults' => [
-//                            ],
-//                        ],
-//                    ],
-//                ],
-//            ],
-//        ],
+        ],
     ],
     'controllers' => [
         'invokables' => [
-            'Application\API\QueueApi' => API\QueueApi::class
+            'Application\API\QueueApi' => API\QueueApi::class,
+            'Application\API\SearchApi' => API\SearchApi::class,
+            'Application\API\CalendarApi' => API\CalendarApi::class,
+            'Application\API\RequestApi' => API\RequestApi::class
         ]
     ],
     'service_manager' => [
