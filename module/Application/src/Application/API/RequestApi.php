@@ -21,7 +21,8 @@ use Zend\View\Model\JsonModel;
 use Request\Model\Employee;
 
 /**
- *
+ * Handles API requests for the Time Off application.
+ * 
  * @author sawik
  *
  */
@@ -38,13 +39,17 @@ class RequestApi extends ApiController {
         'timeOffApprovedNoPay' => 'A'
     ];
     
-    public $collection;
-    
     public function __construct()
     {
-        $this->collection = [];
+        
     }
     
+    /**
+     * Cleans up the POST from a new Time Off request.
+     * 
+     * @param array $post
+     * @return array
+     */
     protected function cleanUpRequestedDates( $post )
     {
         $selectedDatesNew = [];
@@ -53,7 +58,7 @@ class RequestApi extends ApiController {
             $date = \DateTime::createFromFormat( 'm/d/Y', $post->request['dates'][$key]['date'] );
             $post->request['dates'][$key] = [
                 'date' => $date->format('Y-m-d'),
-                'dow' => strtoupper( $date->format('D') ),
+                'day_of_week' => strtoupper( $date->format('D') ),
                 'type' => self::$typesToCodes[$post->request['dates'][$key]['category']],
                 'hours' => number_format( $post->request['dates'][$key]['hours'], 2 )
             ];
@@ -62,6 +67,12 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    /**
+     * Adds the current Employee Time Off information to the POST so we can save it with the request.
+     * 
+     * @param type $post
+     * @return type
+     */
     protected function addRequestForEmployeeData( $post )
     {
         $Employee = new \Request\Model\Employee();
@@ -69,12 +80,12 @@ class RequestApi extends ApiController {
             "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS, " .
             "MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_EMAIL_ADDRESS, " .
             "PTO_EARNED, PTO_TAKEN, PTO_UNAPPROVED, " .
-            "PTO_PENDING, PTO_PENDING_TMP, PTO_PENDING_TOTAL, PTO_AVAILABLE, " .
+            "PTO_PENDING, PTO_PENDING_TMP, PTO_PENDING_TOTAL, PTO_REMAINING, " .
             "FLOAT_EARNED, FLOAT_TAKEN, FLOAT_UNAPPROVED, " .
-            "FLOAT_PENDING, FLOAT_PENDING_TMP, FLOAT_PENDING_TOTAL, FLOAT_AVAILABLE, " .
+            "FLOAT_PENDING, FLOAT_PENDING_TMP, FLOAT_PENDING_TOTAL, FLOAT_REMAINING, " .
             "SICK_EARNED, SICK_TAKEN, SICK_UNAPPROVED, SICK_PENDING, SICK_PENDING_TMP, SICK_PENDING_TOTAL, " .
-            "SICK_AVAILABLE, GF_EARNED, GF_TAKEN, GF_UNAPPROVED, GF_PENDING, GF_PENDING_TMP, " . 
-            "GF_PENDING_TOTAL, GF_AVAILABLE, UNEXCUSED_UNAPPROVED, UNEXCUSED_PENDING, " .
+            "SICK_REMAINING, GF_EARNED, GF_TAKEN, GF_UNAPPROVED, GF_PENDING, GF_PENDING_TMP, " . 
+            "GF_PENDING_TOTAL, GF_REMAINING, UNEXCUSED_UNAPPROVED, UNEXCUSED_PENDING, " .
             "UNEXCUSED_PENDING_TMP, UNEXCUSED_PENDING_TOTAL, BEREAVEMENT_UNAPPROVED, " .
             "BEREAVEMENT_PENDING, BEREAVEMENT_PENDING_TMP, BEREAVEMENT_PENDING_TOTAL, CIVIC_DUTY_UNAPPROVED, ".
             "CIVIC_DUTY_PENDING, CIVIC_DUTY_PENDING_TMP, CIVIC_DUTY_PENDING_TOTAL, UNPAID_UNAPPROVED, " .
@@ -83,41 +94,38 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    /**
+     * Submits the new Time Off Request for an employee.
+     * 
+     * @return JsonModel
+     */
     public function submitTimeoffRequestAction()
     {
+        $Employee = new \Request\Model\Employee();
+        
+        /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
         $post = $this->cleanUpRequestedDates( $post );
         $post = $this->addRequestForEmployeeData( $post );
         
-        $Employee = new \Request\Model\Employee();
+        /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
-
-        echo '<pre>';
-        print_r( $post );
-        echo '</pre>';
         
-        die();
-        
-        $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $post->requestReason, $requesterEmployeeNumber, json_encode($employeeTimeOffData));
-        
-        die();
-        
-        
-        
-        $requestReturnData = $Employee->submitRequestForApproval($employeeNumber, $requestData, $post->requestReason, $requesterEmployeeNumber, json_encode($employeeTimeOffData));
+        /** Submit the request to employee's manager; get the Request ID **/
+        $requestReturnData = $Employee->submitRequestForManagerApproval( $post );
         $requestId = $requestReturnData['request_id'];
-        $comment = 'Created by ' . \Login\Helper\UserSession::getFullUserInfo();
-        $Employee->logEntry($requestId, $requesterEmployeeNumber, $comment);
-
-        $Employee->logEntry(
-            $requestId,
-            $requesterEmployeeNumber,
-            'Sent for manager approval to ' . trim(ucwords(strtolower($employeeTimeOffData->MANAGER_NAME))) . ' (' . trim($employeeTimeOffData->MANAGER_EMPLOYEE_NUMBER) . ')'
-        );
-        /** Change status to "Pending Manager Approval" **/
-        $requestReturnData = $Employee->submitApprovalResponse('P', $requestReturnData['request_id'], $post->requestReason, json_encode($employeeTimeOffData));
-
-        if($requestReturnData['request_id']!=null) {
+        
+        /** Log creation of this request **/
+        $Employee->logEntry( $requestId,
+                             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
+                             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
+        
+        /** Log setting request to Pending Manager Approval **/
+        $Employee->logEntry( $requestId,
+                             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
+                             'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
+        
+        if( $requestReturnData['request_id']!=null ) {
             $result = new JsonModel([
                 'success' => true,
                 'request_id' => $requestReturnData['request_id']
