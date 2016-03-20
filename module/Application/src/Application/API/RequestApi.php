@@ -125,6 +125,15 @@ class RequestApi extends ApiController {
                              $post->request['byEmployee']['EMPLOYEE_NUMBER'],
                              'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
         
+        /** Send email to employee and manager **/
+        $Email = new \Application\Factory\EmailFactory(
+            'New time off request submitted',
+            'Body of the email',
+            'kevin_sawicke@swifttrans.com', // $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'],
+            'kevin_sawicke@swifttrans.com' // $post->request['forEmployee']['EMAIL_ADDRESS']
+        );
+        $Email->send();
+        
         if( $requestReturnData['request_id']!=null ) {
             $result = new JsonModel([
                 'success' => true,

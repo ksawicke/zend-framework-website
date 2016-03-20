@@ -262,7 +262,8 @@ class TimeoffRequests extends BaseDB {
                              'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
                            ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
-                ->where( [ ' entry.REQUEST_ID' => $requestId ] );
+                ->where( [ ' entry.REQUEST_ID' => $requestId ] )
+                ->order( ['entry.REQUEST_DATE ASC' ] );
 
         try {
             $entries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
