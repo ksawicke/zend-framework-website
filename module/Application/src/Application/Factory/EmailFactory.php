@@ -12,6 +12,8 @@ use Zend\Mime\Part;
 use Zend\Mime\Mime;
 use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
+use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Resolver\TemplateMapResolver;
 
 /**
  * Sends emails
@@ -25,6 +27,8 @@ class EmailFactory {
     public $applicationFromName;
     
     public $applicationReplyToEmail;
+    
+    public $applicationEmailTemplate;
     
     public $testSubjectPrefix;
     
@@ -41,6 +45,7 @@ class EmailFactory {
         $this->applicationFromName = 'Time Off Requests Administrator';
         $this->applicationReplyToEmail = 'DO_NOT_REPLY@SWIFT_TRANS.COM';
         $this->testSubjectPrefix = '[ DEVELOPMENT - Time Off Requests ] - ';
+        $this->applicationEmailTemplate = dirname(dirname(dirname(__DIR__))) . '/view/email/timeoffRequestTemplate.phtml';
         
         $this->mailName = 'mailrelay';
         $this->mailHost = 'mailrelay.swifttrans.com';
@@ -57,19 +62,18 @@ class EmailFactory {
      * Send an email from the Time Off Request system.
      */
     public function send() {
-        $text = new Part( $this->emailBody );
-        $text->type = Mime::TYPE_TEXT;
-        $mailBodyParts = new MimeMessage();
-        $mailBodyParts->addPart( $text );
-
+        $buildEmail = false;
         $options = new SmtpOptions( array(
             "name" => $this->mailName,
             "host" => $this->mailHost,
             "port" => $this->mailPort
         ) );
-
-        $buildEmail = false;
-
+        
+        $text = new Part( $this->appendBodyToApplicationEmailTemplate() );
+        $text->type = Mime::TYPE_TEXT;
+        $mailBodyParts = new MimeMessage();
+        $mailBodyParts->addPart( $text );
+        
         $mail = new Message();
         $mail->setBody( $mailBodyParts );
         $mail->setFrom( $this->applicationFromEmail, $this->applicationFromName );
@@ -96,6 +100,11 @@ class EmailFactory {
             //error_log(__CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $ex->getLine() . '] ' . $ex->getMessage());
         }
         die("Why did we stop here?");
+    }
+    
+    protected function appendBodyToApplicationEmailTemplate()
+    {
+        return str_replace( "{emailBody}", $this->emailBody, file_get_contents( $this->applicationEmailTemplate ) );
     }
 
 }
