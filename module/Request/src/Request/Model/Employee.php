@@ -675,22 +675,6 @@ class Employee extends BaseDB {
         return $requestReturnData;
     }
 
-    public function logEntry( $requestId = null, $employeeNumber = null, $comment = null ) {
-        $logEntry = new Insert( 'timeoff_request_log' );
-        $logEntry->values( [
-            'REQUEST_ID' => $requestId,
-            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $employeeNumber ),
-            'COMMENT' => $comment
-        ] );
-        $sql = new Sql( $this->adapter );
-        $stmt = $sql->prepareStatementForSqlObject( $logEntry );
-        try {
-            $result = $stmt->execute();
-        } catch ( Exception $e ) {
-            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
-        }
-    }
-
     public function trimData( $object ) {
         array_walk_recursive( $object, function( &$value, $key ) {
             /**

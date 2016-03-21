@@ -31,6 +31,26 @@ class Papaa extends BaseDB {
     }
     
     /**
+     * Prepare the data to write records to PAPAATMP or HPAPAATMP.
+     * 
+     * @param array $employeeData
+     * @param array $dateRequestBlocks
+     */
+    public function prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks )
+    {
+        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
+        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
+        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
+        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
+        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
+        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
+
+        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
+            $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
+        }
+    }
+    
+    /**
      * Build the Hpapaatmp/papaatmp object.
      * 
      * @param type $employeeData
