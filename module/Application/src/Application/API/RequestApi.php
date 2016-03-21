@@ -19,8 +19,14 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\Employee;
-use \Request\Model\TimeoffRequestLog;
+use \Request\Model\TimeOffRequestLog;
 use \Request\Model\TimeoffRequests;
+use \Request\Model\RequestEntry;
+use \Request\Model\Papaatmp;
+use \Request\Helper\OutlookHelper;
+use \Request\Helper\ValidationHelper;
+use \Login\Helper\UserSession;
+use \Application\Factory\EmailFactory;
 
 /**
  * Handles API requests for the Time Off application.
@@ -106,7 +112,7 @@ class RequestApi extends ApiController {
     public function submitTimeoffRequestAction()
     {
         $Employee = new Employee();
-        $TimeoffRequestLog = new TimeoffRequestLog();
+        $TimeOffRequestLog = new TimeOffRequestLog();
         
         /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
@@ -117,16 +123,16 @@ class RequestApi extends ApiController {
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
         
         /** Submit the request to employee's manager; get the Request ID **/
-        $requestReturnData = $Employee->submitRequestForManagerApproval( $post );
+        $requestReturnData = $TimeOffRequests->submitRequestForManagerApproval( $post );
         $requestId = $requestReturnData['request_id'];
         
         /** Log creation of this request **/
-        $TimeoffRequestLog->logEntry( $requestId,
+        $TimeOffRequestLog->logEntry( $requestId,
                                       $post->request['byEmployee']['EMPLOYEE_NUMBER'],
                                       'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
         
         /** Log change in status to Pending Manager Approval **/
-        $TimeoffRequestLog->logEntry( $requestId,
+        $TimeOffRequestLog->logEntry( $requestId,
                                       $post->request['byEmployee']['EMPLOYEE_NUMBER'],
                                       'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
         
@@ -157,11 +163,11 @@ class RequestApi extends ApiController {
      */
     protected function getEmailRequestVariables( $requestId )
     {
-        $TimeoffRequests = new TimeoffRequests();
-        $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
+        $TimeOffRequests = new TimeoffRequests();
+        $timeoffRequestData = $TimeOffRequests->findRequest( $requestId );
         
-        return [ 'totalHoursRequested' => $TimeoffRequests->countTimeoffRequested( $requestId ),
-                 'hoursRequestedHtml' => $TimeoffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] )
+        return [ 'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
+                 'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] )
                ];
     }
     
@@ -173,7 +179,7 @@ class RequestApi extends ApiController {
     protected function emailRequestToEmployee( $requestId )
     {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
-        $Email = new \Application\Factory\EmailFactory(
+        $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
@@ -195,7 +201,7 @@ class RequestApi extends ApiController {
     protected function emailRequestToManager( $requestId )
     {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
-        $Email = new \Application\Factory\EmailFactory(
+        $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
@@ -218,29 +224,28 @@ class RequestApi extends ApiController {
     {
         $post = $this->getRequest()->getPost();
         
-        $Employee = new \Request\Model\Employee();
-        $TimeoffRequests = new \Request\Model\TimeOffRequests();
-        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $Employee->checkHoursRequestedPerCategory( $post->request_id );
         $employeeData = $Employee->findTimeOffEmployeeData( $requestData['EMPLOYEE_NUMBER'] );
-        $validationHelper = new \Request\Helper\ValidationHelper();
+        $validationHelper = new ValidationHelper();
         $payrollReviewRequired = $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
         if ( $payrollReviewRequired === true ) {
-            $TimeoffRequestLog->logEntry(
-                    $post->request_id, \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
+            $TimeOffRequestLog->logEntry(
+                    $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
                     ' for ' . trim( ucwords( strtolower( $employeeData['EMPLOYEE_NAME'] ) ) . '(' . trim( $employeeData['EMPLOYEE_NUMBER'] ) . ')' ) .
                     ( (!empty( $request->getPost()->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '') );
 
-            $requestReturnData = $Employee->submitApprovalResponse( 'A', $post->request_id, $post->review_request_reason );
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse( 'A', $post->request_id, $post->review_request_reason );
 
-            $TimeoffRequestLog->logEntry( $post->request_id, \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Payroll review required because of insufficient hours' );
-            $requestReturnData = $Employee->submitApprovalResponse( 'Y', $post->request_id, $post->review_request_reason );
+            $TimeOffRequestLog->logEntry( $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Payroll review required because of insufficient hours' );
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse( 'Y', $post->request_id, $post->review_request_reason );
         } else {
-            // $post, $employeeData
-            $OutlookHelper = new \Request\Helper\OutlookHelper();
-            $RequestEntry = new \Request\Model\RequestEntry();
-            $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData( $post->request_id );
+            $OutlookHelper = new OutlookHelper();
+            $RequestEntry = new RequestEntry();
+            $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
             $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
             
@@ -248,22 +253,22 @@ class RequestApi extends ApiController {
             $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
 
             /** Change status to Pending AS400 Upload */
-            $requestReturnData = $Employee->submitApprovalResponse( 'A', $post->request_id, $post->review_request_reason );
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse( 'A', $post->request_id, $post->review_request_reason );
 
             /** Log supervisor approval with reason **/
-            $Employee->logEntry( $post->request_id,
-                                 \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                                 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
-                                 ' for ' . trim( ucwords( strtolower( $employeeData['EMPLOYEE_NAME'] ) ) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
-                                 (!empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ) ) );
+            $TimeOffRequestLog->logEntry( $post->request_id,
+                                          UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                                          'Time off request approved by ' . UserSession::getFullUserInfo() .
+                                          ' for ' . trim( ucwords( strtolower( $employeeData['EMPLOYEE_NAME'] ) ) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
+                                          (!empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ) ) );
             
             /** Log status change to Pending AS400 Upload **/
-            $Employee->logEntry( $post->request_id,
-                                 \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                                 'Status changed to Pending AS400 Upload' );
+            $TimeOffRequestLog->logEntry( $post->request_id,
+                                          UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                                          'Status changed to Pending AS400 Upload' );
             
             /** Write record(s) to HPAPAATMP or PAPAATMP **/
-            $Papaa = new \Request\Model\Papaa();
+            $Papaa = new Papaatmp();
             $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks );
         }
 
@@ -291,19 +296,19 @@ class RequestApi extends ApiController {
     public function submitDenyResponseAction()
     {
         $request = $this->getRequest();
-        $Employee = new \Request\Model\Employee();
-        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
+        $Employee = new Employee();
+        $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
         $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
         
-//        die( 'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+//        die( 'Time off request denied by ' . UserSession::getFullUserInfo() .
 //            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
 //            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )) );
         
-        $TimeoffRequestLog->logEntry(
+        $TimeOffRequestLog->logEntry(
             $request->getPost()->request_id,
-            \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-            'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+            UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+            'Time off request denied by ' . UserSession::getFullUserInfo() .
             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
             ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
         
