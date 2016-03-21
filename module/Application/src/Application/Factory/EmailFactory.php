@@ -70,7 +70,7 @@ class EmailFactory {
         ) );
         
         $text = new Part( $this->appendBodyToApplicationEmailTemplate() );
-        $text->type = Mime::TYPE_TEXT;
+        $text->type = Mime::TYPE_HTML;
         $mailBodyParts = new MimeMessage();
         $mailBodyParts->addPart( $text );
         
@@ -91,7 +91,6 @@ class EmailFactory {
 
         try {
             $transport->send( $mail );
-            die("Mail sent successfully.");
         } catch ( Zend_Exception $ex ) {
             echo '<pre>';
             print_r( $ex );
@@ -99,7 +98,6 @@ class EmailFactory {
             die("...");
             //error_log(__CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $ex->getLine() . '] ' . $ex->getMessage());
         }
-        die("Why did we stop here?");
     }
     
     protected function appendBodyToApplicationEmailTemplate()

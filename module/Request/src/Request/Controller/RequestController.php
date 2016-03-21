@@ -109,16 +109,6 @@ class RequestController extends AbstractActionController
     {
         $Employee = new \Request\Model\Employee();
         
-        $Email = new \Application\Factory\EmailFactory(
-            'This is a test subject',
-            'Body of the email',
-            'kevinsawicke@gmail.com'
-//            'kevin_sawicke@swifttrans.com'
-        );
-        $Email->send();
-        
-        die('<br /><br />email test complete');
-        
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),

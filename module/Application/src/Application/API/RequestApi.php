@@ -39,9 +39,11 @@ class RequestApi extends ApiController {
         'timeOffApprovedNoPay' => 'A'
     ];
     
+    public $developmentEmailAddressList = null;
+    
     public function __construct()
     {
-        
+        $this->developmentEmailAddressList = 'kevin_sawicke@swifttrans.com';
     }
     
     /**
@@ -102,6 +104,7 @@ class RequestApi extends ApiController {
     public function submitTimeoffRequestAction()
     {
         $Employee = new \Request\Model\Employee();
+        $TimeoffRequests = new \Request\Model\TimeoffRequests();
         
         /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
@@ -126,11 +129,22 @@ class RequestApi extends ApiController {
                              'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
         
         /** Send email to employee and manager **/
+        /** Grab data to email out **/
+        $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
+        $totalHoursRequested = $TimeoffRequests->countTimeoffRequested( $requestId );        
+        $hoursRequestedHtml = $TimeoffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] );
         $Email = new \Application\Factory\EmailFactory(
-            'New time off request submitted',
-            'Body of the email',
-            'kevin_sawicke@swifttrans.com', // $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'],
-            'kevin_sawicke@swifttrans.com' // $post->request['forEmployee']['EMAIL_ADDRESS']
+            'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
+            'A total of ' . $totalHoursRequested . ' hours were requested off for ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
+                $hoursRequestedHtml . '<br /><br />' .
+                'If you are a Supervisor, please review this request at the following URL:<br /><br />' .
+                '<a href="http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId .
+                '">http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId . '</a>',
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            //'kevin_sawicke@swifttrans.com', // $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'],
+            //'kevin_sawicke@swifttrans.com' // $post->request['forEmployee']['EMAIL_ADDRESS']
         );
         $Email->send();
         
