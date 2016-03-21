@@ -14,11 +14,11 @@ use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 
 /**
- * Build Objects for tables: PAPAATMP, HRLYPAPAATMP
+ * Build and save bjects for tables: PAPAATMP, HPAPAATMP
  *
  * @author sawik
  */
-class Papaa extends BaseDB {
+class Papaatmp extends BaseDB {
     
     public $collection;
     public $table;
@@ -31,7 +31,27 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Build the Hpapaatmp/papaatmp object.
+     * Prepare the data to write records to HPAPAATMP/PAPAATMP.
+     * 
+     * @param array $employeeData
+     * @param array $dateRequestBlocks
+     */
+    public function prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks )
+    {
+        $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
+        $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
+        $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
+        $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
+        $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
+        $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
+
+        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
+            $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
+        }
+    }
+    
+    /**
+     * Build the HPAPAATMP/PAPAATMP object.
      * 
      * @param type $employeeData
      * @param type $reason
@@ -41,31 +61,30 @@ class Papaa extends BaseDB {
     {
         $this->table = ( ( $employeeData['salary_type']==="H" ? "HPAPAATMP" : "PAPAATMP" ) );
         
-        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "EmployeeData" ], [ $employeeData ] );
-        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "WeekEndingData" ], [ $dateCollection ] );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "WeekEndingData" ], [ $dateCollection ] );
                 
         for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
             $date = new \DateTime( $dateCollection[$i-1]['date'] );
             $weekdayAbbr = strtoupper( $date->format( "D" ) );
             $dateFormat = $date->format( "mdY" );
-           
             call_user_func_array(
-                [ __NAMESPACE__ . "\Papaa", "Day$i" ],
+                [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
                 [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ] 
             );
         }
         
-        call_user_func_array( [ __NAMESPACE__ ."\Papaa", "Reason" ], [ $reason ] );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "Reason" ], [ $reason ] );
         
-        $this->insertPapaaRecord();
+        $this->insertPapaatmpRecord();
     }
     
     /**
-     * Write the Papaatmp/Hpapaatmp object to the appropriate table.
+     * Write the HPAPAATMP/PAPAATMP object to the appropriate table.
      * 
      * @throws \Exception
      */
-    protected function insertPapaaRecord()
+    protected function insertPapaatmpRecord()
     {
         $action = new Insert( $this->table );
         $action->values( $this->collection );
@@ -79,7 +98,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append employee data to the papaa object.
+     * Append employee data to the PAPAA object.
      * 
      * @param type $employeeData
      */
@@ -94,7 +113,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append week ending data to the papaa object.
+     * Append week ending data to the PAPAA object.
      * 
      * @param type $dateCollection
      */
@@ -114,7 +133,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 1 to the papaa object.
+     * Append Day 1 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -134,7 +153,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 2 to the papaa object.
+     * Append Day 2 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -154,7 +173,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 3 to the papaa object.
+     * Append Day 3 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -174,7 +193,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 4 to the papaa object.
+     * Append Day 4 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -194,7 +213,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 5 to the papaa object.
+     * Append Day 5 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -214,7 +233,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 6 to the papaa object.
+     * Append Day 6 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -234,7 +253,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 7 to the papaa object.
+     * Append Day 7 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -254,7 +273,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 8 to the papaa object.
+     * Append Day 8 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -274,7 +293,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 9 to the papaa object.
+     * Append Day 9 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -294,7 +313,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 10 to the papaa object.
+     * Append Day 10 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -314,7 +333,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 11 to the papaa object.
+     * Append Day 11 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -334,7 +353,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 12 to the papaa object.
+     * Append Day 12 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -354,7 +373,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 13 to the papaa object.
+     * Append Day 13 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
@@ -374,7 +393,7 @@ class Papaa extends BaseDB {
     }
     
     /**
-     * Append Day 14 to the papaa object.
+     * Append Day 14 to the PAPAA object.
      * 
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD

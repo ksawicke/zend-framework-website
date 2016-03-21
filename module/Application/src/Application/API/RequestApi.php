@@ -18,7 +18,15 @@
 namespace Application\API;
 
 use Zend\View\Model\JsonModel;
-use Request\Model\Employee;
+use \Request\Model\Employee;
+use \Request\Model\TimeOffRequestLog;
+use \Request\Model\TimeoffRequests;
+use \Request\Model\RequestEntry;
+use \Request\Model\Papaatmp;
+use \Request\Helper\OutlookHelper;
+use \Request\Helper\ValidationHelper;
+use \Login\Helper\UserSession;
+use \Application\Factory\EmailFactory;
 
 /**
  * Handles API requests for the Time Off application.
@@ -39,9 +47,11 @@ class RequestApi extends ApiController {
         'timeOffApprovedNoPay' => 'A'
     ];
     
+    public $developmentEmailAddressList = null;
+    
     public function __construct()
     {
-        
+        $this->developmentEmailAddressList = 'kevin_sawicke@swifttrans.com';
     }
     
     /**
@@ -75,7 +85,7 @@ class RequestApi extends ApiController {
      */
     protected function addRequestForEmployeeData( $post )
     {
-        $Employee = new \Request\Model\Employee();
+        $Employee = new Employee();
         $post->request['forEmployee'] = (array) $Employee->findEmployeeTimeOffData( $post->request['forEmployee']['EMPLOYEE_NUMBER'], "Y",
             "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS, " .
             "MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_EMAIL_ADDRESS, " .
@@ -101,7 +111,9 @@ class RequestApi extends ApiController {
      */
     public function submitTimeoffRequestAction()
     {
-        $Employee = new \Request\Model\Employee();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
         
         /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
@@ -112,19 +124,25 @@ class RequestApi extends ApiController {
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
         
         /** Submit the request to employee's manager; get the Request ID **/
-        $requestReturnData = $Employee->submitRequestForManagerApproval( $post );
+        $requestReturnData = $TimeOffRequests->submitRequestForManagerApproval( $post );
         $requestId = $requestReturnData['request_id'];
         
         /** Log creation of this request **/
-        $Employee->logEntry( $requestId,
-                             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
-                             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
+        $TimeOffRequestLog->logEntry(
+            $requestId,
+            $post->request['byEmployee']['EMPLOYEE_NUMBER'],
+            'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
         
-        /** Log setting request to Pending Manager Approval **/
-        $Employee->logEntry( $requestId,
-                             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
-                             'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
+        /** Log change in status to Pending Manager Approval **/
+        $TimeOffRequestLog->logEntry(
+            $requestId,
+            $post->request['byEmployee']['EMPLOYEE_NUMBER'],
+            'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
         
+        /** Send email to employee and manager; grab data to email out **/
+        $this->emailRequestToEmployee( $requestId, $post );
+        $this->emailRequestToManager( $requestId, $post );
+                
         if( $requestReturnData['request_id']!=null ) {
             $result = new JsonModel([
                 'success' => true,
@@ -140,103 +158,181 @@ class RequestApi extends ApiController {
         return $result;
     }
     
+    /**
+     * Get the total hours requested and block of HTML to insert into emails regarding the request.
+     * 
+     * @param integer $requestId
+     * @return array
+     */
+    protected function getEmailRequestVariables( $requestId )
+    {
+        $TimeOffRequests = new TimeoffRequests();
+        $timeoffRequestData = $TimeOffRequests->findRequest( $requestId );
+        
+        return [ 'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
+                 'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] )
+               ];
+    }
+    
+    /**
+     * Send the employee an email confirming their request.
+     * 
+     * @param integer $requestId
+     */
+    protected function emailRequestToEmployee( $requestId, $post )
+    {
+        $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $Email = new EmailFactory(
+            'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
+            'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
+                $emailVariables['hoursRequestedHtml'],
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+        );
+        $Email->send();
+    }
+    
+    /**
+     * Send the employee's manager an email confriming the request.
+     * 
+     * @param integer $requestId
+     */
+    protected function emailRequestToManager( $requestId, $post )
+    {
+        $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $Email = new EmailFactory(
+            'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
+            'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
+                $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
+                'Please review this request at the following URL:<br /><br />' .
+                '<a href="http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId .
+                '">http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId . '</a>',
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
+            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+        );
+        $Email->send();
+    }
+    
+    /**
+     * Handles the manager approval process.
+     * 
+     * @return JsonModel
+     */
     public function submitApprovalResponseAction()
     {
-        $request = $this->getRequest();
-        $Employee = new \Request\Model\Employee();
-        $TimeoffRequests = new \Request\Model\TimeOffRequests();
-        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
-        $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
-        $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
-
-        $validationHelper = new \Request\Helper\ValidationHelper();
-        $payrollReviewRequired = $validationHelper->isPayrollReviewRequired($requestData, $employeeData);
+        $post = $this->getRequest()->getPost();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $validationHelper = new ValidationHelper();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
         
-//        die( 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
-//             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . '(' . trim($employeeData['EMPLOYEE_NUMBER']) . ')') .
-//             ( (!empty($request->getPost()->review_request_reason)) ? ' with the comment: ' . $request->getPost()->review_request_reason : '') );
-        
-        if($payrollReviewRequired===true) {
-            $TimeoffRequestLog->logEntry(
-                $request->getPost()->request_id,
-                \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-                'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
-                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . '(' . trim($employeeData['EMPLOYEE_NUMBER']) . ')') .
-                ( (!empty($request->getPost()->review_request_reason)) ? ' with the comment: ' . $request->getPost()->review_request_reason : '') );
+        $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
-            $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
-
-            $TimeoffRequestLog->logEntry($request->getPost()->request_id, \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'), 'Payroll review required because of insufficient hours');
-            $requestReturnData = $Employee->submitApprovalResponse('Y', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+        if ( $isPayrollReviewRequired === true ) {
+            /** Log supervisor approval with comment **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
+                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+            
+            /** Change status to Approved */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'approved' ),
+                $post->request_id,
+                $post->review_request_reason );
+            
+            /** Log request as having insufficient hours **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Payroll review required because of insufficient hours' );
+            
+            /** Change status to Pending Payroll Approval */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'pendingPayrollApproval' ),
+                $post->request_id,
+                $post->review_request_reason );
         } else {
-            $OutlookHelper = new \Request\Helper\OutlookHelper();
-            $RequestEntry = new \Request\Model\RequestEntry();
-            $Papaa = new \Request\Model\Papaa();
-
-//            die( 'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
-//                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')') );
+            $OutlookHelper = new OutlookHelper();
+            $RequestEntry = new RequestEntry();
+            $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+            $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
             
-            $calendarInviteData = $TimeoffRequests->findRequestCalendarInviteData($request->getPost()->request_id);
-            
+            /** Send calendar invites for this request **/
             $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
 
-            $TimeoffRequestLog->logEntry(
-                $request->getPost()->request_id,
-                \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-                'Time off request approved by ' . \Login\Helper\UserSession::getFullUserInfo() .
-                ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
-                ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
+            /** Log supervisor approval with comment **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Approved by ' . UserSession::getFullUserInfo() .
+                (!empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+            
+            /** Change status to Approved */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'approved' ),
+                $post->request_id,
+                $post->review_request_reason );
 
-            $requestReturnData = $Employee->submitApprovalResponse('A', $request->getPost()->request_id, $request->getPost()->review_request_reason);
-
-            $dateRequestBlocks = $RequestEntry->getRequestObject( $request->getPost()->request_id );
-            $employeeData = $Employee->findTimeOffEmployeeData( $dateRequestBlocks['for']['employee_number'], "Y",
-                "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-
-            $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
-            $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
-            $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
-            $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
-            $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
-            $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-
-            foreach( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
-                $Papaa->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
-            }
+            /** Log status change to Pending AS400 Upload **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Status changed to Pending AS400 Upload' );
+            
+            /** Change status to Pending AS400 Upload */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'pendingAS400Upload' ),
+                $post->request_id,
+                $post->review_request_reason );
+                                    
+            /** Write record(s) to HPAPAATMP or PAPAATMP **/
+            $Papaa = new Papaatmp();
+            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks );
         }
-        
-        if($requestReturnData['request_id']!=null) {
-            $result = new JsonModel([
+
+        if ( $requestReturnData['request_id'] != null ) {
+            $result = new JsonModel( [
                 'success' => true,
                 'request_id' => $requestReturnData['request_id'],
                 'action' => 'A'
-            ]);
+            ] );
         } else {
-            $result = new JsonModel([
+            $result = new JsonModel( [
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
-            ]);
+            ] );
         }
-        
+
         return $result;
     }
-    
+ 
+    /**
+     * Handles the manager deny process.
+     * 
+     * @return JsonModel
+     */
     public function submitDenyResponseAction()
     {
         $request = $this->getRequest();
-        $Employee = new \Request\Model\Employee();
-        $TimeoffRequestLog = new \Request\Model\TimeoffRequestLog();
+        $Employee = new Employee();
+        $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
         $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
         
-//        die( 'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+//        die( 'Time off request denied by ' . UserSession::getFullUserInfo() .
 //            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
 //            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )) );
         
-        $TimeoffRequestLog->logEntry(
+        /** Log supervisor deny with comment **/
+        $TimeOffRequestLog->logEntry(
             $request->getPost()->request_id,
-            \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-            'Time off request denied by ' . \Login\Helper\UserSession::getFullUserInfo() .
+            UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+            'Time off request denied by ' . UserSession::getFullUserInfo() .
             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
             ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
         

@@ -326,15 +326,6 @@ class Employee extends BaseDB {
         return $this->employeeData;
     }
 
-    public function submitApprovalResponse( $action = null, $requestId = null, $reviewRequestReason = null, $employeeData = null ) {
-        $requestReturnData = ['request_id' => null ];
-        $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
-        $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
-        $requestReturnData['request_id'] = $requestId;
-
-        return $requestReturnData;
-    }
-
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null ) {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
         $where = "WHERE (
@@ -621,74 +612,6 @@ class Employee extends BaseDB {
         }
 
         return $array;
-    }
-
-    /**
-     * Records a new Time Off request for an employee.
-     * 
-     * @param array $post
-     * @return array    Return the Request ID generated.
-     * @throws \Exception
-     */
-    public function submitRequestForManagerApproval( $post = [] ) {
-        $requestReturnData = ['request_id' => null ];
-
-        /** Insert record into TIMEOFF_REQUESTS * */
-        $action = new Insert( 'timeoff_requests' );
-        $action->values( [
-            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad( $post->request['forEmployee']['EMPLOYEE_NUMBER'] ),
-            'REQUEST_STATUS' => self::$requestStatuses['pendingApproval'],
-            'CREATE_USER' => \Request\Helper\Format::rightPad( $post->request['byEmployee']['EMPLOYEE_NUMBER'] ),
-            'REQUEST_REASON' => $post->request['reason'],
-            'EMPLOYEE_DATA' => json_encode( $post->request['forEmployee'] )
-        ] );
-        $sql = new Sql( $this->adapter );
-        $stmt = $sql->prepareStatementForSqlObject( $action );
-        try {
-            $result = $stmt->execute();
-        } catch ( Exception $e ) {
-            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
-        }
-
-        $requestId = $result->getGeneratedValue();
-
-        /** Insert record(s) into TIMEOFF_REQUEST_ENTRIES * */
-        foreach ( $post->request['dates'] as $key => $request ) {
-            $action = new Insert( 'timeoff_request_entries' );
-            $action->values( [
-                'REQUEST_ID' => $requestId,
-                'REQUEST_DATE' => $request['date'],
-                'REQUEST_DAY_OF_WEEK' => $request['day_of_week'],
-                'REQUESTED_HOURS' => $request['hours'],
-                'REQUEST_CODE' => $request['type']
-            ] );
-            $sql = new Sql( $this->adapter );
-            $stmt = $sql->prepareStatementForSqlObject( $action );
-            try {
-                $result = $stmt->execute();
-            } catch ( Exception $e ) {
-                throw new \Exception( "Can't execute statement: " . $e->getMessage() );
-            }
-        }
-        $requestReturnData['request_id'] = $requestId;
-
-        return $requestReturnData;
-    }
-
-    public function logEntry( $requestId = null, $employeeNumber = null, $comment = null ) {
-        $logEntry = new Insert( 'timeoff_request_log' );
-        $logEntry->values( [
-            'REQUEST_ID' => $requestId,
-            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $employeeNumber ),
-            'COMMENT' => $comment
-        ] );
-        $sql = new Sql( $this->adapter );
-        $stmt = $sql->prepareStatementForSqlObject( $logEntry );
-        try {
-            $result = $stmt->execute();
-        } catch ( Exception $e ) {
-            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
-        }
     }
 
     public function trimData( $object ) {

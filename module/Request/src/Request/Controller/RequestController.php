@@ -7,6 +7,9 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Zend\Session\Container;
+use \Request\Model\Employee;
+use \Request\Model\TimeOffRequests;
+use \Request\Helper\ValidationHelper;
 
 class RequestController extends AbstractActionController
 {
@@ -253,23 +256,17 @@ class RequestController extends AbstractActionController
     public function reviewRequestAction()
     {
         $requestId = $this->params()->fromRoute('request_id');
-        $Employee = new \Request\Model\Employee();
-        $TimeoffRequests = new \Request\Model\TimeoffRequests();
-        $timeoffRequestData = $TimeoffRequests->findRequest( $requestId );
-        $totalHoursRequested = $TimeoffRequests->countTimeoffRequested( $requestId );
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $ValidationHelper = new ValidationHelper();
+        $timeOffRequestData = $TimeOffRequests->findRequest( $requestId );
         
-//        echo '<pre>';
-//        print_r( $timeoffRequestData );
-//        echo '</pre>';
-//        exit();
-        
-        $hoursRequestedHtml = $TimeoffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] );
-        
-        return new ViewModel(array(
-            'timeoffRequestData' => $timeoffRequestData,
-            'totalHoursRequested' => $totalHoursRequested,
-            'hoursRequestedHtml' => $hoursRequestedHtml
-        ));
+        return new ViewModel( [
+            'timeoffRequestData' => $timeOffRequestData,
+            'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
+            'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
+            'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] )
+        ] );
     }
     
     protected function setEmployeeNumber($employeeNumber)

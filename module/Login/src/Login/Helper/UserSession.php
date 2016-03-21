@@ -39,7 +39,8 @@ class UserSession {
 
     public static function getFullUserInfo()
     {
-        return self::getUserSessionVariable('LAST_NAME') . ', '  . \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') .
+        return strtoupper( \Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME') ) . ' '  .
+               strtoupper( self::getUserSessionVariable('LAST_NAME') ) .
                ' (' . self::getUserSessionVariable('EMPLOYEE_NUMBER') . ')';
     }
     
