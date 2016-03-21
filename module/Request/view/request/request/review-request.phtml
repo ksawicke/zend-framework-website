@@ -227,11 +227,25 @@
                         <div class="form-group">
                             <label for="inputPassword3" class="col-lg-3 col-md-3 text-right">Approval Actions</label>
                             <div class="ccol-lg-9 col-md-9">
+                                <?php if( $isPayrollReviewRequired ) { ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="fa fa-exclamation-circle"></i> <strong>Payroll Approval Required</strong><br /><br />
+                                    This request exceeded the employee's remaining time in certain category/ies and requires Payroll Approval.
+                                </div>
+                                <?php } ?>
+                                
+                                <?php
+                                $buttonDisabled = "";
+                                if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Manager Approval" ) {
+                                    $buttonDisabled = " disabled";
+                                }
+                                ?>
+                                
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
                                 <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
                                 <p>
-                                    <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest">Approve</button>
-                                    <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest">Deny</button>
+                                    <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest<?php echo $buttonDisabled; ?>">Approve</button>
+                                    <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest<?php echo $buttonDisabled; ?>">Deny</button>
                                 </p>
                             </div>
                         </div>
