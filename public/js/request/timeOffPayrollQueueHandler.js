@@ -15,7 +15,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -51,7 +51,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -87,7 +87,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -123,7 +123,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},

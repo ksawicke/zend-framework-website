@@ -54,7 +54,7 @@ $this->headScript()
         ->prependFile( $this->basePath( 'templates/swiftit/js/jquery/1.11.2/jquery.min.js' ) );
 
 $phpVars = [ 'employee_number' => $employeeNumber,
-    'basePath' => ( ENVIRONMENT==='development' ? 'http://swift:10080' . $this->basepath() : 'http://aswift:10080' . $this->basepath() )
+             'basePath' => ( ENVIRONMENT==='development' ? 'http://swift:10080' . $this->basepath() : 'http://aswift:10080' . $this->basepath() )
 ];
         
 $this->headScript()
@@ -73,19 +73,19 @@ $this->headScript()
 
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
-            ->appendFile( $this->basePath( 'js/request/timeOffCreateRequestHandler.js' ) )
-            ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
+        ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
+        ->appendFile( $this->basePath( 'js/request/timeOffCreateRequestHandler.js' ) )
+        ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
 }
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-requests' ) !== false ) {
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
-            ->appendFile( $this->basePath( 'js/request/timeOffViewMyRequestHandler.js' ) )
-            ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
+        ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
+        ->appendFile( $this->basePath( 'js/request/timeOffViewMyRequestHandler.js' ) )
+        ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
 }
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar' ) !== false ) {
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
+        ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
 }
 //if ( strpos( $_SERVER['REDIRECT_URL'], '/request/queue/view/pending-manager-approval' ) !== false ) {
 //    $this->headScript()
@@ -104,16 +104,16 @@ if ( strpos( $_SERVER['REDIRECT_URL'], '/request/review-request' ) !== false ) {
 if( isset( $this->managerView ) ) {
     $phpVars['manager_view'] = $this->managerView;
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
-            ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
-            ->appendFile( $this->basePath( 'js/request/timeOffManagerQueueHandler.js' ) );
+        ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
+        ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
+        ->appendFile( $this->basePath( 'js/request/timeOffManagerQueueHandler.js' ) );
 }
 if( isset( $this->payrollView ) ) {
     $phpVars['payroll_view'] = $this->payrollView;
     $this->headScript()
-            ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
-            ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
-            ->appendFile( $this->basePath( 'js/request/timeOffPayrollQueueHandler.js' ) );
+        ->appendFile( $this->basePath( 'js/datatables/datatables.js' ) )
+        ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
+        ->appendFile( $this->basePath( 'js/request/timeOffPayrollQueueHandler.js' ) );
 }
 
 echo $this->headScript();

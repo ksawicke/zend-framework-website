@@ -9,13 +9,13 @@ var timeOffManagerQueueHandler = new function ()
      */
     this.initialize = function () {
         $(document).ready(function () {
-            $('#pending-manager-approval').DataTable({
+        	$('#pending-manager-approval').DataTable({
                 dom: 'fltirp',
                 searching: true,
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='" . phpVars.basePath +  "/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" + phpVars.basePath +  "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
