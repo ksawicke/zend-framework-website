@@ -200,6 +200,9 @@ class RequestApi extends ApiController {
      */
     protected function emailRequestToManager( $requestId, $post )
     {
+        $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
+        $reviewUrl = ( ( ENVIRONMENT==='development' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+            $renderer->basePath( '/request/review-request/' . $requestId );
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
@@ -207,8 +210,7 @@ class RequestApi extends ApiController {
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'Please review this request at the following URL:<br /><br />' .
-                '<a href="http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId .
-                '">http://swift:10080/sawik/timeoff/public/request/review-request/' . $requestId . '</a>',
+                '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
             ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
             ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
         );
@@ -318,25 +320,27 @@ class RequestApi extends ApiController {
      */
     public function submitDenyResponseAction()
     {
-        $request = $this->getRequest();
+        $post = $this->getRequest()->getPost();
         $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
-        $requestData = $Employee->checkHoursRequestedPerCategory($request->getPost()->request_id);
-        $employeeData = $Employee->findTimeOffEmployeeData($requestData['EMPLOYEE_NUMBER']);
-        
-//        die( 'Time off request denied by ' . UserSession::getFullUserInfo() .
-//            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
-//            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )) );
-        
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $employeeData = $Employee->findEmployeeTimeOffData( $requestData['EMPLOYEE_NUMBER'] );
+
         /** Log supervisor deny with comment **/
         $TimeOffRequestLog->logEntry(
-            $request->getPost()->request_id,
+            $post->request_id,
             UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
             'Time off request denied by ' . UserSession::getFullUserInfo() .
             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' . 
-            ( !empty($request->getPost()->review_request_reason) ? ' with the comment: ' . $request->getPost()->review_request_reason : '' )));
+            ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' )));
         
-        $requestReturnData = $Employee->submitApprovalResponse('D', $request->getPost()->request_id, $request->getPost()->review_request_reason);
+        /** Change status to Denied */
+        $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+            $TimeOffRequests->getRequestStatusCode( 'denied' ),
+            $post->request_id,
+            $post->review_request_reason );
+        
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([
                 'success' => true,
