@@ -5,67 +5,68 @@
 var timeOffCreateRequestHandler = new function ()
 {
     var timeOffLoadCalendarUrl = phpVars.basePath + '/api/calendar/get', // http://swift:10080/sawik/timeoff/public
-            timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request',
-            timeOffSubmitTimeOffSuccessUrl = phpVars.basePath + '/request/submitted-for-approval',
-            employeePTORemaining = 0,
-            employeeFloatRemaining = 0,
-            employeeSickRemaining = 0,
-            employeeUnexcusedAbsenceRemaining = 0,
-            employeeBereavementRemaining = 0,
-            employeeCivicDutyRemaining = 0,
-            employeeGrandfatheredRemaining = 0,
-            employeeApprovedNoPayRemaining = 0,
-            employeePTOPending = 0,
-            employeeFloatPending = 0,
-            employeeSickPending = 0,
-            employeeUnexcusedAbsencePending = 0,
-            employeeBereavementPending = 0,
-            employeeCivicDutyPending = 0,
-            employeeGrandfatheredPending = 0,
-            employeeApprovedNoPayPending = 0,
-            totalPTORequested = 0,
-            totalFloatRequested = 0,
-            totalSickRequested = 0,
-            totalUnexcusedAbsenceRequested = 0,
-            totalBereavementRequested = 0,
-            totalCivicDutyRequested = 0,
-            totalGrandfatheredRequested = 0,
-            totalApprovedNoPayRequested = 0,
-            defaultHours = 8,
-            defaultSplitHours = 4,
-            selectedTimeoffCategory = null,
-            loggedInUserData = [],
-            requestForEmployeeNumber = '',
-            requestForEmployeeName = '',
-            requestForEmployeeObject = [],
-            requestReason = '',
-            /** Dates selected for this request **/
+        timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request',
+        timeOffSubmitTimeOffSuccessUrl = phpVars.basePath + '/request/submitted-for-approval',
+        timeOffEmployeeSearchUrl = phpVars.basePath + '/api/search/employees',
+        employeePTORemaining = 0,
+        employeeFloatRemaining = 0,
+        employeeSickRemaining = 0,
+        employeeUnexcusedAbsenceRemaining = 0,
+        employeeBereavementRemaining = 0,
+        employeeCivicDutyRemaining = 0,
+        employeeGrandfatheredRemaining = 0,
+        employeeApprovedNoPayRemaining = 0,
+        employeePTOPending = 0,
+        employeeFloatPending = 0,
+        employeeSickPending = 0,
+        employeeUnexcusedAbsencePending = 0,
+        employeeBereavementPending = 0,
+        employeeCivicDutyPending = 0,
+        employeeGrandfatheredPending = 0,
+        employeeApprovedNoPayPending = 0,
+        totalPTORequested = 0,
+        totalFloatRequested = 0,
+        totalSickRequested = 0,
+        totalUnexcusedAbsenceRequested = 0,
+        totalBereavementRequested = 0,
+        totalCivicDutyRequested = 0,
+        totalGrandfatheredRequested = 0,
+        totalApprovedNoPayRequested = 0,
+        defaultHours = 8,
+        defaultSplitHours = 4,
+        selectedTimeoffCategory = null,
+        loggedInUserData = [],
+        requestForEmployeeNumber = '',
+        requestForEmployeeName = '',
+        requestForEmployeeObject = [],
+        requestReason = '',
+        /** Dates selected for this request **/
 
-            selectedDatesNew = [],
-            selectedDatesApproved = [],
-            selectedDatesPendingApproval = [],
-            selectedDates = [],
-            selectedDateCategories = [],
-            selectedDateHours = [],
-            /** Dates selected for approved requests **/
-            selectedDatesApproved = [],
-            selectedDateCategoriesApproved = [],
-            selectedDateHoursApproved = [],
-            /** Dates selected for pending approval requests **/
-            selectedDatesPendingApproval = [],
-            selectedDateCategoriesPendingApproval = [],
-            selectedDateHoursPendingApproval = [],
-            categoryText = {
-                'timeOffPTO': 'PTO',
-                'timeOffFloat': 'Float',
-                'timeOffSick': 'Sick',
-                'timeOffGrandfathered': 'Grandfathered',
-                'timeOffUnexcusedAbsence': 'Unexcused',
-                'timeOffBereavement': 'Bereavement',
-                'timeOffCivicDuty': 'Civic Duty',
-                'timeOffApprovedNoPay': 'Approved No Pay'
-            },
-            directReportFilter = 'B';
+        selectedDatesNew = [],
+        selectedDatesApproved = [],
+        selectedDatesPendingApproval = [],
+        selectedDates = [],
+        selectedDateCategories = [],
+        selectedDateHours = [],
+        /** Dates selected for approved requests **/
+        selectedDatesApproved = [],
+        selectedDateCategoriesApproved = [],
+        selectedDateHoursApproved = [],
+        /** Dates selected for pending approval requests **/
+        selectedDatesPendingApproval = [],
+        selectedDateCategoriesPendingApproval = [],
+        selectedDateHoursPendingApproval = [],
+        categoryText = {
+            'timeOffPTO': 'PTO',
+            'timeOffFloat': 'Float',
+            'timeOffSick': 'Sick',
+            'timeOffGrandfathered': 'Grandfathered',
+            'timeOffUnexcusedAbsence': 'Unexcused',
+            'timeOffBereavement': 'Bereavement',
+            'timeOffCivicDuty': 'Civic Duty',
+            'timeOffApprovedNoPay': 'Approved No Pay'
+        },
+        directReportFilter = 'B';
 
     /**
      * Initializes binding
@@ -1181,7 +1182,7 @@ var timeOffCreateRequestHandler = new function ()
         $("#requestFor").select2({
             //data: data
             ajax: {
-                url: '/sawik/timeoff/public/api/search/employees',
+                url: timeOffEmployeeSearchUrl,
                 method: 'post',
                 dataType: 'json',
                 delay: 250,
@@ -1292,7 +1293,7 @@ var timeOffCreateRequestHandler = new function ()
      */
     this.maskCalendars = function (action) {
         if (!action || action === 'show') {
-            $('body').append('<link href="/sawik/timeoff/public/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
+            $('body').append('<link href="' + phpVars.basePath + '/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
         } else if (action === 'hide') {
             $('#enableTimeOffCalendar').remove();
         }
