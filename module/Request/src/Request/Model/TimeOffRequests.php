@@ -117,7 +117,7 @@ class TimeOffRequests extends BaseDB {
         ];
         
         $this->requestStatuses = [
-            'rejected' => 'R',
+            'denied' => 'D',
             'approved' => 'A',
             'cancelled' => 'C',
             'pendingManagerApproval' => 'P',
@@ -128,7 +128,7 @@ class TimeOffRequests extends BaseDB {
         ];
         
         $this->requestStatusText = [
-            'R' => 'rejected',
+            'D' => 'denied',
             'A' => 'approved',
             'C' => 'cancelled',
             'P' => 'pendingManagerApproval',
@@ -432,6 +432,12 @@ class TimeOffRequests extends BaseDB {
         return [ 'datesRequested' => $datesRequested, 'for' => $result2 ];
     }
     
+    /**
+     * Get the one character abbreviated Status
+     * 
+     * @param string $shortname Camelcase queue name (i.e. pendingManagerApproval)
+     * @return NULL|string
+     */
     public function getRequestStatusCode( $shortname = null )
     {
         return ( array_key_exists( $shortname, $this->requestStatuses ) ? $this->requestStatuses[$shortname] : null );

@@ -13,8 +13,8 @@ $currentPath = getcwd();
 
 if (trim($currentSystem) == 'swift') {
     switch ($currentPath) {
-        case '/www/zendsvr6/htdocs/timeoff':
-        case '/www/zendsvr6/htdocs/sawik/timeoff':
+        case '/www/zendsvr6/htdocs/sawik/timeoff/uat':
+        case '/www/zendsvr6/htdocs/sawik/timeoff/dev':
 //             define('ENVIRONMENT', 'production');
 //             break;
         default:
