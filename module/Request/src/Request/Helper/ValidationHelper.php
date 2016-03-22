@@ -18,7 +18,17 @@ class ValidationHelper {
         $Employee = new Employee();
         
         $requestData = $Employee->checkHoursRequestedPerCategory( $requestId );
-        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
+        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber, "N" );
+        
+//         echo '<pre>';
+//         print_r( $requestData );
+//         echo '</pre>';
+        
+//         echo '<pre>';
+//         print_r( $employeeData );
+//         echo '</pre>';
+        
+//         exit();
         
         if($requestData['PTO'] > $employeeData['PTO_REMAINING']) {
             return true;

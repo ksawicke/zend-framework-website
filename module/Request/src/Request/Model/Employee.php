@@ -326,6 +326,14 @@ class Employee extends BaseDB {
         return $this->employeeData;
     }
 
+    /**
+     * Find manager's employees
+     * 
+     * @param integer $managerEmployeeNumber
+     * @param string $search
+     * @param string $directReportFilter
+     * @return \Zend\Db\ResultSet\ResultSet[]
+     */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null ) {
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
         $where = "WHERE (

@@ -4,10 +4,10 @@
  */
 var timeOffApproveRequestHandler = new function ()
 {
-    var timeOffApiSubmitApprovalUrl = 'http://swift:10080/sawik/timeoff/public/api/request/approve',
-        timeOffApiSubmitDenyUrl = 'http://swift:10080/sawik/timeoff/public/api/request/deny',
-        timeOffApprovedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/approved-request',
-        timeOffDeniedRequestSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/denied-request';
+    var timeOffApiSubmitApprovalUrl = phpVars.basePath + '/api/request/approve',
+        timeOffApiSubmitDenyUrl = phpVars.basePath + '/api/request/deny',
+        timeOffApprovedRequestSuccessUrl = phpVars.basePath + '/request/approved-request',
+        timeOffDeniedRequestSuccessUrl = phpVars.basePath + '/request/denied-request';
 
     /**
      * Initializes binding

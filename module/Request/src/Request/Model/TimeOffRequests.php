@@ -126,6 +126,7 @@ class TimeOffRequests extends BaseDB {
             'pendingPayrollApproval' => 'Y',
             'updateChecks' => 'U'
         ];
+        
         $this->requestStatusText = [
             'R' => 'rejected',
             'A' => 'approved',
@@ -295,7 +296,7 @@ class TimeOffRequests extends BaseDB {
         } catch ( Exception $e ) {
             var_dump( $e );
         }
-
+        
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
@@ -318,7 +319,7 @@ class TimeOffRequests extends BaseDB {
      */
     public function submitApprovalResponse( $status = null, $requestId = null, $reviewRequestReason = null, $employeeData = null ) {
         $requestReturnData = ['request_id' => null ];
-        $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
+        $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $status . "' WHERE REQUEST_ID = '" . $requestId . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         $requestReturnData['request_id'] = $requestId;
 
@@ -429,6 +430,11 @@ class TimeOffRequests extends BaseDB {
         }
 
         return [ 'datesRequested' => $datesRequested, 'for' => $result2 ];
+    }
+    
+    public function getRequestStatusCode( $shortname = null )
+    {
+        return ( array_key_exists( $shortname, $this->requestStatuses ) ? $this->requestStatuses[$shortname] : null );
     }
 
 }
