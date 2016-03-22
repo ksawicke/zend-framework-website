@@ -71,25 +71,11 @@ $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) )
         ->appendFile( $this->basePath( 'js/moment/moment.min.js' ) );
 
-if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-requests' ) !== false ) {
-    $this->headScript()
-        ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
-        ->appendFile( $this->basePath( 'js/request/timeOffViewMyRequestHandler.js' ) )
-        ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
-}
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar' ) !== false ) {
     $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
 }
-//if ( strpos( $_SERVER['REDIRECT_URL'], '/request/queue/view/pending-manager-approval' ) !== false ) {
-//    $this->headScript()
-//            ->appendFile( $this->basePath( 'js/request/timeOffCreateRequestHandler.js' ) )
-//            ->appendFile( $this->basePath( 'js/request/timeOffPendingManagerApprovalQueueHandler.js' ) );
-//}
-//if ( strpos( $_SERVER['REDIRECT_URL'], '/request/queue/view/update-checks' ) !== false ) {
-//    $this->headScript()
-//            ->appendFile( $this->basePath( 'js/request/timeOffUpdateChecksQueueHandler.js' ) );
-//}
+
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/review-request' ) !== false ) {
     $this->headScript()
             ->appendFile( $this->basePath( 'js/request/timeOffApproveRequestHandler.js' ) );
