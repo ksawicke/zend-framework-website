@@ -71,12 +71,6 @@ $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) )
         ->appendFile( $this->basePath( 'js/moment/moment.min.js' ) );
 
-if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
-    $this->headScript()
-        ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )
-        ->appendFile( $this->basePath( 'js/request/timeOffCreateRequestHandler.js' ) )
-        ->appendFile( $this->basePath( 'js/select2/select2.min.js' ) );
-}
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-requests' ) !== false ) {
     $this->headScript()
         ->appendFile( $this->basePath( 'js/bootstrap-typeahead.js' ) )

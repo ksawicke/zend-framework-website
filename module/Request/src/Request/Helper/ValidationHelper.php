@@ -18,7 +18,7 @@ class ValidationHelper {
         $Employee = new Employee();
         
         $requestData = $Employee->checkHoursRequestedPerCategory( $requestId );
-        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber, "N" );
+        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
         
 //         echo '<pre>';
 //         print_r( $requestData );
