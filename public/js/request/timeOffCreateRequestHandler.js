@@ -4,9 +4,9 @@
  */
 var timeOffCreateRequestHandler = new function ()
 {
-    var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/api/calendar/get',
-            timeOffSubmitTimeOffRequestUrl = 'http://swift:10080/sawik/timeoff/public/api/request',
-            timeOffSubmitTimeOffSuccessUrl = 'http://swift:10080/sawik/timeoff/public/request/submitted-for-approval',
+    var timeOffLoadCalendarUrl = phpVars.basePath + '/api/calendar/get', // http://swift:10080/sawik/timeoff/public
+            timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request',
+            timeOffSubmitTimeOffSuccessUrl = phpVars.basePath + '/request/submitted-for-approval',
             employeePTORemaining = 0,
             employeeFloatRemaining = 0,
             employeeSickRemaining = 0,

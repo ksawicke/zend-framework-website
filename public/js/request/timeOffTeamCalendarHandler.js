@@ -4,7 +4,7 @@
  */
 var timeOffTeamCalendarHandler = new function()
 {
-	var timeOffLoadCalendarUrl = 'http://swift:10080/sawik/timeoff/public/request/api';
+	var timeOffLoadCalendarUrl = phpVars.basePath + '/request/api';
 	
 	/**
      * Initializes binding

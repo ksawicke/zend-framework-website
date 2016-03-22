@@ -15,7 +15,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='/sawik/timeoff/public/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -32,7 +32,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: "/sawik/timeoff/public/api/queue/payroll/pending-payroll-approval",
+                    url: phpVars.basePath + "/api/queue/payroll/pending-payroll-approval",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number
@@ -51,7 +51,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='/sawik/timeoff/public/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -68,7 +68,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: "/sawik/timeoff/public/api/queue/payroll/update-checks",
+                    url: phpVars.basePath + "/api/queue/payroll/update-checks",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number
@@ -87,7 +87,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='/sawik/timeoff/public/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -104,7 +104,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: "/sawik/timeoff/public/api/queue/payroll/completed-pafs",
+                    url: phpVars.basePath + "/queue/payroll/completed-pafs",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number
@@ -123,7 +123,7 @@ var timeOffPayrollQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='/sawik/timeoff/public/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" . phpVars.basePath + "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -140,7 +140,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: "/sawik/timeoff/public/api/queue/payroll/pending-as400-upload",
+                    url: phpVars.basePath + "/queue/payroll/pending-as400-upload",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number

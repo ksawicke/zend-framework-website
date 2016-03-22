@@ -20,7 +20,7 @@ namespace Application\API;
 use Zend\View\Model\JsonModel;
 use \Request\Model\Employee;
 use \Request\Model\TimeOffRequestLog;
-use \Request\Model\TimeoffRequests;
+use \Request\Model\TimeOffRequests;
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
 use \Request\Helper\OutlookHelper;

@@ -15,7 +15,7 @@ var timeOffManagerQueueHandler = new function ()
                 processing: true,
                 serverSide: true,
                 oLanguage: {
-                    sProcessing: "<img src='/sawik/timeoff/public/img/loading/clock.gif'>"
+                    sProcessing: "<img src='" . phpVars.basePath +  "/img/loading/clock.gif'>"
                 },
                 columns: [
                     {"data": "EMPLOYEE_DESCRIPTION"},
@@ -32,7 +32,7 @@ var timeOffManagerQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: "/sawik/timeoff/public/api/queue/manager/p",
+                    url: phpVars.basePath + "/api/queue/manager/p",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number

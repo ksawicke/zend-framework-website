@@ -52,6 +52,14 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
  */
 $this->headScript()
         ->prependFile( $this->basePath( 'templates/swiftit/js/jquery/1.11.2/jquery.min.js' ) );
+
+$phpVars = [ 'employee_number' => $employeeNumber,
+    'basePath' => ( ENVIRONMENT==='development' ? 'http://swift:10080' . $this->basepath() : 'http://aswift:10080' . $this->basepath() )
+];
+        
+$this->headScript()
+        ->prependScript( 'var phpVars=' . json_encode( $phpVars ) );        
+        
 $this->headScript()
         ->appendFile( $this->basePath( 'templates/swiftit/js/parsley.min.js' ) )
         ->appendFile( $this->basePath( 'templates/swiftit/js/parsley.remote.min.js' ) )
@@ -93,7 +101,6 @@ if ( strpos( $_SERVER['REDIRECT_URL'], '/request/review-request' ) !== false ) {
             ->appendFile( $this->basePath( 'js/request/timeOffApproveRequestHandler.js' ) );
 }
 
-$phpVars = [ 'employee_number' => $employeeNumber ];
 if( isset( $this->managerView ) ) {
     $phpVars['manager_view'] = $this->managerView;
     $this->headScript()
@@ -108,9 +115,6 @@ if( isset( $this->payrollView ) ) {
             ->appendFile( $this->basePath( 'js/datatables/datatables.bootstrap.js' ) )
             ->appendFile( $this->basePath( 'js/request/timeOffPayrollQueueHandler.js' ) );
 }
-
-$this->headScript()
-        ->appendScript( 'var phpVars=' . json_encode( $phpVars ) );
 
 echo $this->headScript();
 ?>

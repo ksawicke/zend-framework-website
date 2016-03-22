@@ -6,7 +6,7 @@ RewriteCond %{REQUEST_FILENAME} -l [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^.*$ - [NC,L]
 
-RewriteBase /sawik/timeoff/public/
+#RewriteBase /timeoff/public/
 RewriteRule ^.*$ index.php [NC,L]
 
 #RewriteRule ^(.*) - [E=BASE:%1]
