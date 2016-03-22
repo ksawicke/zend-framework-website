@@ -104,7 +104,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: phpVars.basePath + "/queue/payroll/completed-pafs",
+                    url: phpVars.basePath + "/api/queue/payroll/completed-pafs",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number
@@ -140,7 +140,7 @@ var timeOffPayrollQueueHandler = new function ()
                     }
                 ],
                 ajax: {
-                    url: phpVars.basePath + "/queue/payroll/pending-as400-upload",
+                    url: phpVars.basePath + "/api/queue/payroll/pending-as400-upload",
                     data: function (d) {
                         return $.extend({}, d, {
                             "employeeNumber": phpVars.employee_number
