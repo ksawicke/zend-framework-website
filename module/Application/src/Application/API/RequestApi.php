@@ -51,7 +51,11 @@ class RequestApi extends ApiController {
     
     public function __construct()
     {
-        $this->developmentEmailAddressList = 'kevin_sawicke@swifttrans.com';
+        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+                                               'sarah_koogle@swifttrans.com',
+                                               'heather_baehr@swifttrans.com',
+                                               'jessica_yanez@swifttrans.com'
+        ];
     }
     
     /**
@@ -188,7 +192,7 @@ class RequestApi extends ApiController {
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'],
             ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
         );
         $Email->send();
     }
@@ -212,7 +216,7 @@ class RequestApi extends ApiController {
                 'Please review this request at the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
             ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
         );
         $Email->send();
     }
