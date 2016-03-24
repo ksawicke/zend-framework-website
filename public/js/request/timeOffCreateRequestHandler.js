@@ -383,6 +383,8 @@ var timeOffCreateRequestHandler = new function ()
     	$("#calendar1Body").html( calendarData.calendars[1] );
     	$("#calendar2Body").html( calendarData.calendars[2] );
     	$("#calendar3Body").html( calendarData.calendars[3] );
+    	
+    	timeOffCreateRequestHandler.highlightDates();
     }
     
     /**
