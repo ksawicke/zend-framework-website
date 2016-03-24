@@ -106,12 +106,7 @@ var timeOffViewRequestHandler = new function ()
                         //console.log("SELECT2 CLOSED");
                     });
 
-            /**
-             * Handle clicking previous or next buttons on calendars
-             */
-            $(document).on('click', '.calendarNavigation', function () {
-                timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year") );
-            });
+            timeOffViewRequestHandler.handleCalendarNavigation();
             
             $(document).on('click', '.toggleLegend', function() {
                 timeOffViewRequestHandler.toggleLegend();
@@ -186,7 +181,7 @@ var timeOffViewRequestHandler = new function ()
 //            });
 
             timeOffViewRequestHandler.loadCalendars( phpVars.employee_number );
-            timeOffViewRequestHandler.maskCalendars('show');
+//            timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();
 
 
@@ -270,6 +265,87 @@ var timeOffViewRequestHandler = new function ()
     }
 
     /**
+     * Update buttons with hour data.
+     */
+    this.setHours = function( employeeData ) {
+    	timeOffViewRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
+    	timeOffViewRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
+        timeOffViewRequestHandler.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
+        timeOffViewRequestHandler.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+        timeOffViewRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
+        timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
+    }
+    
+    this.handleCalendarNavigation = function() {
+    	/**
+         * Handle clicking previous or next buttons on calendars
+         */
+    	//.calendarNavigation
+//        $('#timeOffCalendarWrapper').on('click', 'button', function (e) {
+//        	console.log( e );
+//        	$.each( e , function( key, value ) {
+//                console.log( key + " :: " + value );
+//                if( key==="target" ) {
+//                	$.each( value , function( key2, value2 ) {
+//                		if( key2==="attributes" ) {
+//                        	$.each( value , function( key3, value3 ) {
+//                        		console.log( key3[2] );
+//                        		//console.log( "####  " + key3 + " :: " + value3 );
+//                        	});
+//                        }
+//                	});
+//                }
+//            });
+//        	var dataMonth = e.target.attributes[2].value;
+//        	var dataYear = e.target.attributes[3].value;
+//        	timeOffCreateRequestHandler.loadNewCalendars( dataMonth, dataYear );
+//        });
+//    	$('body').on('click', '#calendarNavigationFastRewind', function(e) {
+//    		console.log( "MONTH TEST: " + $(this).attr('data-month') );
+//    		console.log( "YEAR TEST: " + $(this).attr('data-year') );
+//    	});
+        $('body').on('click', '.calendarNavigation', function (e) {
+//        	console.log( "calendar navigation clicked" );
+//        	console.log( "this", $(this) );
+//        	console.log( $(this).attr("data-month") );
+//        	console.log( $(this).attr("data-year") );
+        	timeOffViewRequestHandler.loadNewCalendars( $(this).attr("data-month"), $(this).attr("data-year") );
+        });
+    }
+    
+    /**
+     */
+    this.drawThreeCalendars = function( calendarData ) {
+    	/** Update navigation button data **/
+    	$("#calendarNavigationFastRewind").attr( "data-month", calendarData.navigation.calendarNavigationFastRewind.month );
+    	$("#calendarNavigationFastRewind").attr( "data-year", calendarData.navigation.calendarNavigationFastRewind.year );
+    	$("#calendarNavigationRewind").attr( "data-month", calendarData.navigation.calendarNavigationRewind.month );
+    	$("#calendarNavigationRewind").attr( "data-year", calendarData.navigation.calendarNavigationRewind.year );
+    	$("#calendarNavigationFastForward").attr( "data-month", calendarData.navigation.calendarNavigationFastForward.month );
+    	$("#calendarNavigationFastForward").attr( "data-year", calendarData.navigation.calendarNavigationFastForward.year );
+    	$("#calendarNavigationForward").attr( "data-month", calendarData.navigation.calendarNavigationForward.month );
+    	$("#calendarNavigationForward").attr( "data-year", calendarData.navigation.calendarNavigationForward.year );    	
+    	
+    	/** Draw calendar labels **/
+    	$("#calendar1Label").html( calendarData.headers[1] );
+    	$("#calendar2Label").html( calendarData.headers[2] );
+    	$("#calendar3Label").html( calendarData.headers[3] );
+    	
+    	/** Draw calendars **/
+    	$("#calendar1Body").html( calendarData.calendars[1] );
+    	$("#calendar2Body").html( calendarData.calendars[2] );
+    	$("#calendar3Body").html( calendarData.calendars[3] );
+    	
+    	timeOffViewRequestHandler.highlightDates();
+    }
+    
+    /**
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadCalendars = function (employeeNumber) {
@@ -298,40 +374,42 @@ var timeOffViewRequestHandler = new function ()
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
+            timeOffViewRequestHandler.setHours( json.employeeData );
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
-            var calendarHtml = '';
-            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                $("#calendar" + index + "Html").html(
-                    json.calendarData.openHeader +
-                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
-                    json.calendarData.closeHeader +
-                    thisCalendarHtml.data);
-            });
-
-            timeOffViewRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
-            timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
-
-            timeOffViewRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
-            timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
-
-            timeOffViewRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
-            timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
-
-//        	timeOffViewRequestHandler.setEmployeeUnexcusedAbsenceRemaining(json.employeeData.UNEXCUSED_ABSENCE_REMAINING);
-            timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
-
-//        	timeOffViewRequestHandler.setEmployeeBereavementRemaining(json.employeeData.BEREAVEMENT_REMAINING);
-            timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
-
-//        	timeOffViewRequestHandler.setEmployeeCivicDutyRemaining(json.employeeData.CIVIC_DUTY_REMAINING);
-            timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
-
-            timeOffViewRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GF_REMAINING);
-            timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
-
-//        	timeOffViewRequestHandler.setEmployeeApprovedNoPayRemaining(json.employeeData.APPROVED_NO_PAY_REMAINING);
-            timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
+//            var calendarHtml = '';
+//            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
+//                $("#calendar" + index + "Html").html(
+//                    json.calendarData.openHeader +
+//                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
+//                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
+//                    json.calendarData.closeHeader +
+//                    thisCalendarHtml.data);
+//            });
+//
+//            timeOffViewRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
+//            timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
+//
+//            timeOffViewRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
+//
+//            timeOffViewRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
+//
+////        	timeOffViewRequestHandler.setEmployeeUnexcusedAbsenceRemaining(json.employeeData.UNEXCUSED_ABSENCE_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
+//
+////        	timeOffViewRequestHandler.setEmployeeBereavementRemaining(json.employeeData.BEREAVEMENT_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
+//
+////        	timeOffViewRequestHandler.setEmployeeCivicDutyRemaining(json.employeeData.CIVIC_DUTY_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
+//
+//            timeOffViewRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GF_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
+//
+////        	timeOffViewRequestHandler.setEmployeeApprovedNoPayRemaining(json.employeeData.APPROVED_NO_PAY_REMAINING);
+//            timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
 
 //            timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
 //            timeOffViewRequestHandler.highlightDates();
@@ -341,14 +419,14 @@ var timeOffViewRequestHandler = new function ()
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
 
-            console.log("FROG", json.employeeData);
+//            console.log("FROG", json.employeeData);
             requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
 
-            console.log('json.employeeData', json.employeeData);
-            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-            console.log('requestForEmployeeName', requestForEmployeeName);
+//            console.log('json.employeeData', json.employeeData);
+//            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
+//            console.log('requestForEmployeeName', requestForEmployeeName);
 
             return;
         })
@@ -405,27 +483,8 @@ var timeOffViewRequestHandler = new function ()
             dataType: 'json'
         })
                 .success(function (json) {
-//                    timeOffViewRequestHandler.clearSelectedDates();
-                    console.log("@@@@ 410");
-                    var calendarHtml = '';
-                    $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                        $("#calendar" + index + "Html").html(
-                            json.calendarData.openHeader +
-                            ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
-                            thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
-                            json.calendarData.closeHeader +
-                            thisCalendarHtml.data);
-                    });
-
-//                    timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-//                    timeOffViewRequestHandler.highlightDates();
-                    
-                    //selectedDates = json.requestData.all;
-//                    showCurrentRequestsOnOrBefore = json.calendarData.showCurrentRequestsOnOrAfter;
-//                    showCurrentRequestsBefore = json.calendarData.showCurrentRequestsBefore;
-                    
-//                    selectedDates = json.requestData.json.all; //json.requestData.json.all;
-//                    timeOffViewRequestHandler.drawHoursRequested();
+                	timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
+                    timeOffViewRequestHandler.setHours( json.employeeData );
                     return;
                 })
                 .error(function () {
@@ -1235,7 +1294,7 @@ var timeOffViewRequestHandler = new function ()
      */
     this.maskCalendars = function (action) {
         if (!action || action === 'show') {
-            $('body').append('<link href="/sawik/timeoff/public/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
+            $('body').append('<link href="' + phpVars.basePath + '/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
         } else if (action === 'hide') {
             $('#enableTimeOffCalendar').remove();
         }
