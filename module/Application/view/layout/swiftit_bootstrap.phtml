@@ -79,6 +79,11 @@ if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar' ) !== fa
         ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
 }
 
+if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
+    $this->headScript()
+        ->appendFile( $this->basePath( 'js/fullcalendar.min.js' ) );
+}
+
 if( isset( $this->managerView ) ) {
     $phpVars['manager_view'] = $this->managerView;
     $this->headScript()

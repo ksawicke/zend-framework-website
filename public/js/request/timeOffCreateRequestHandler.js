@@ -108,13 +108,8 @@ var timeOffCreateRequestHandler = new function ()
                  */
             });
 
-            /**
-             * Handle clicking previous or next buttons on calendars
-             */
-            $(document).on('click', '.calendarNavigation', function () {
-            	console.log( "calendar navigation clicked" );
-                timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
-            });
+            // handle calendar navigation
+            timeOffCreateRequestHandler.handleCalendarNavigation();
             
             $(document).on('click', '.toggleLegend', function() {
                 timeOffCreateRequestHandler.toggleLegend();
@@ -183,6 +178,43 @@ var timeOffCreateRequestHandler = new function ()
         });
     }
 
+    this.handleCalendarNavigation = function() {
+    	/**
+         * Handle clicking previous or next buttons on calendars
+         */
+    	//.calendarNavigation
+//        $('#timeOffCalendarWrapper').on('click', 'button', function (e) {
+//        	console.log( e );
+//        	$.each( e , function( key, value ) {
+//                console.log( key + " :: " + value );
+//                if( key==="target" ) {
+//                	$.each( value , function( key2, value2 ) {
+//                		if( key2==="attributes" ) {
+//                        	$.each( value , function( key3, value3 ) {
+//                        		console.log( key3[2] );
+//                        		//console.log( "####  " + key3 + " :: " + value3 );
+//                        	});
+//                        }
+//                	});
+//                }
+//            });
+//        	var dataMonth = e.target.attributes[2].value;
+//        	var dataYear = e.target.attributes[3].value;
+//        	timeOffCreateRequestHandler.loadNewCalendars( dataMonth, dataYear );
+//        });
+//    	$('body').on('click', '#calendarNavigationFastRewind', function(e) {
+//    		console.log( "MONTH TEST: " + $(this).attr('data-month') );
+//    		console.log( "YEAR TEST: " + $(this).attr('data-year') );
+//    	});
+        $('body').on('click', '.calendarNavigation', function (e) {
+//        	console.log( "calendar navigation clicked" );
+//        	console.log( "this", $(this) );
+//        	console.log( $(this).attr("data-month") );
+//        	console.log( $(this).attr("data-year") );
+            timeOffCreateRequestHandler.loadNewCalendars( $(this).attr("data-month"), $(this).attr("data-year") );
+        });
+    }
+    
     /**
      * Checks if date is disabled
      * 
@@ -271,7 +303,7 @@ var timeOffCreateRequestHandler = new function ()
             url: timeOffLoadCalendarUrl,
             type: 'POST',
             data: {
-                action: 'loadCalendar',
+//                action: 'loadCalendars',
                 startMonth: month,
                 startYear: year,
                 employeeNumber: ( (typeof employeeNumber==="string") ? employeeNumber : phpVars.employee_number )
@@ -287,41 +319,15 @@ var timeOffCreateRequestHandler = new function ()
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
             requestForEmployeeObject = json.employeeData;
+            timeOffCreateRequestHandler.drawThreeCalendars( json.newCalendarData );
+            timeOffCreateRequestHandler.setHours( json.employeeData );
             
-            console.log( "=========" );
-            console.log( "requestForEmployeeObject", requestForEmployeeObject );
-            console.log( "=========" );
-            
-            var calendarHtml = '';
-            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                $("#calendar" + index + "Html").html(
-                    json.calendarData.openHeader +
-                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
-                    json.calendarData.closeHeader +
-                    thisCalendarHtml.data);
-            });
-
-            timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
-            timeOffCreateRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
-            timeOffCreateRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
-            timeOffCreateRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GF_REMAINING);
-            timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
-            timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
 
             requestForEmployeeNumber = $.trim(requestForEmployeeObject.EMPLOYEE_NUMBER);
             requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_DESCRIPTION + ' - ' + requestForEmployeeObject.POSITION_TITLE;
-            //requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_NAME +
-            //    ' (' + requestForEmployeeObject.EMPLOYEE_NUMBER + ') - ' + requestForEmployeeObject.POSITION_TITLE;
 
             $("#requestFor")
                     .empty()
@@ -329,7 +335,6 @@ var timeOffCreateRequestHandler = new function ()
                     .val(requestForEmployeeNumber).trigger('change');
 
             timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
-
             return;
         })
         .error(function () {
@@ -337,7 +342,49 @@ var timeOffCreateRequestHandler = new function ()
             return;
         });
     }
+    
+    /**
+     * Update buttons with hour data.
+     */
+    this.setHours = function( employeeData ) {
+    	timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
+        timeOffCreateRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
+        timeOffCreateRequestHandler.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
+        timeOffCreateRequestHandler.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+        timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
+    }
 
+    /**
+     */
+    this.drawThreeCalendars = function( calendarData ) {
+    	/** Update navigation button data **/
+    	$("#calendarNavigationFastRewind").attr( "data-month", calendarData.navigation.calendarNavigationFastRewind.month );
+    	$("#calendarNavigationFastRewind").attr( "data-year", calendarData.navigation.calendarNavigationFastRewind.year );
+    	$("#calendarNavigationRewind").attr( "data-month", calendarData.navigation.calendarNavigationRewind.month );
+    	$("#calendarNavigationRewind").attr( "data-year", calendarData.navigation.calendarNavigationRewind.year );
+    	$("#calendarNavigationFastForward").attr( "data-month", calendarData.navigation.calendarNavigationFastForward.month );
+    	$("#calendarNavigationFastForward").attr( "data-year", calendarData.navigation.calendarNavigationFastForward.year );
+    	$("#calendarNavigationForward").attr( "data-month", calendarData.navigation.calendarNavigationForward.month );
+    	$("#calendarNavigationForward").attr( "data-year", calendarData.navigation.calendarNavigationForward.year );    	
+    	
+    	/** Draw calendar labels **/
+    	$("#calendar1Label").html( calendarData.headers[1] );
+    	$("#calendar2Label").html( calendarData.headers[2] );
+    	$("#calendar3Label").html( calendarData.headers[3] );
+    	
+    	/** Draw calendars **/
+    	$("#calendar1Body").html( calendarData.calendars[1] );
+    	$("#calendar2Body").html( calendarData.calendars[2] );
+    	$("#calendar3Body").html( calendarData.calendars[3] );
+    }
+    
     /**
      * Marks the appropriate step the user is on for this request.
      * 
@@ -396,19 +443,7 @@ var timeOffCreateRequestHandler = new function ()
             dataType: 'json'
         })
         .success(function (json) {
-            console.log("function loadNewCalendars accessed");
-            var calendarHtml = '';
-            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-                $("#calendar" + index + "Html").html(
-                    json.calendarData.openHeader +
-                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.prevButton : '') +
-                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + '&nbsp;&nbsp;&nbsp;' + json.calendarData.navigation.fastForwardButton : '') +
-                    json.calendarData.closeHeader +
-                    thisCalendarHtml.data);
-            });
-
-//                    timeOffCreateRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-//                    timeOffCreateRequestHandler.highlightDates();
+        	timeOffCreateRequestHandler.drawThreeCalendars( json.newCalendarData );
             return;
         })
         .error(function () {
