@@ -112,6 +112,7 @@ var timeOffCreateRequestHandler = new function ()
              * Handle clicking previous or next buttons on calendars
              */
             $(document).on('click', '.calendarNavigation', function () {
+            	console.log( "calendar navigation clicked" );
                 timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
             });
             
@@ -1475,7 +1476,7 @@ var timeOffCreateRequestHandler = new function ()
             allowSplitDate = true;
         }
 
-        return {allowSplitDate: allowSplitDate, items};
+        return {allowSplitDate: allowSplitDate, items: items};
     }
 
     /**

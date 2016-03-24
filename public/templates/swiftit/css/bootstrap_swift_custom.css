@@ -379,7 +379,7 @@ table.calendar {
 
 tr.calendar-row {
 	height:200px;
-	min-height:200px;
+	/**min-height:200px;**/
 }
 
 body > div.container > div > table > tbody > tr > div {
@@ -628,7 +628,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
  */
 .timeOffPTOSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #f57900,
 	  #f57900 10px,
 	  #ddd 10px,
@@ -637,7 +637,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffFloatSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #edd400,
 	  #edd400 10px,
 	  #ddd 10px,
@@ -646,7 +646,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffSickSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #73d216,
 	  #73d216 10px,
 	  #ddd 10px,
@@ -655,7 +655,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffUnexcusedSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #888a85,
 	  #888a85 10px,
 	  #ddd 10px,
@@ -664,7 +664,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffBereavementSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #729fcf,
 	  #729fcf 10px,
 	  #ddd 10px,
@@ -673,7 +673,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffCivicDutySelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #75507b,
 	  #75507b 10px,
 	  #ddd 10px,
@@ -682,7 +682,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffGrandfatheredSelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #c17d11,
 	  #c17d11 10px,
 	  #ddd 10px,
@@ -691,7 +691,7 @@ div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
 }
 .timeOffApprovedNoPaySelected {
 	background: repeating-linear-gradient(
-	  45deg,
+	  315deg,
 	  #cc0000,
 	  #cc0000 10px,
 	  #ddd 10px,

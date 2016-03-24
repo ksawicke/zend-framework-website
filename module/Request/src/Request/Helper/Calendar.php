@@ -22,7 +22,7 @@ class Calendar
         ]
     ];
     
-    public static $beginCalendarColumnHeaders = '<tr class="calendar-row calendar-header-adjust"><td class="calendar-day-head">';
+    public static $beginCalendarColumnHeaders = '<tr class="calendar-header-adjust"><td class="calendar-day-head">';
     
     public static $insertAfterCalendarHeading = '</td><td class="calendar-day-head">';
     
