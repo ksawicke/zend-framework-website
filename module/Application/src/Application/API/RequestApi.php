@@ -47,6 +47,11 @@ class RequestApi extends ApiController {
         'timeOffApprovedNoPay' => 'A'
     ];
     
+    /**
+     * Array of email addresses to send all emails when running on SWIFT.
+     * 
+     * @var unknown
+     */
     public $developmentEmailAddressList = null;
     
     public function __construct()

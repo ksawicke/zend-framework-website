@@ -46,7 +46,7 @@ class EmailFactory {
         $this->applicationFromName = 'Time Off Requests Administrator';
         $this->applicationReplyToEmail = 'DO_NOT_REPLY@SWIFT_TRANS.COM';
         $this->testSubjectPrefix = '[ DEVELOPMENT - Time Off Requests ] - ';
-        $this->applicationEmailTemplate = dirname(dirname(dirname(__DIR__))) . '/view/email/timeoffRequestTemplate.phtml';
+        $this->applicationEmailTemplate = dirname( dirname( dirname( __DIR__ ) ) ) . '/view/email/timeoffRequestTemplate.phtml';
         
         $this->mailName = 'mailrelay';
         $this->mailHost = 'mailrelay.swifttrans.com';
@@ -100,6 +100,9 @@ class EmailFactory {
         return false;
     }
     
+    /**
+     * Uses the template for the site when sending an email.
+     */
     protected function appendBodyToApplicationEmailTemplate()
     {
         return str_replace( "{emailBody}", $this->emailBody, file_get_contents( $this->applicationEmailTemplate ) );
