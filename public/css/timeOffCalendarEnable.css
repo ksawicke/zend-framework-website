@@ -2,25 +2,26 @@
  * Calendar mask if no category selected...
  * @see http://jsfiddle.net/5Vw8b/9/
  */
-div#timeOffCalendarWrapper {
+div#calendarWrapper {
 	position:relative;
 }
-div#timeOffCalendarWrapper >a {
+div#calendarWrapper >a {
 	display:block !important;
 }
-div#timeOffCalendarWrapper:hover >a {
+div#calendarWrapper:hover >a {
 	display:block !important;
 }
-div#timeOffCalendarWrapper:before{	
+div#calendarWrapper:before{	
 	background: none;
 	z-index: 0; /** Allows user to click on calendar navigation & select dates **/
 }
-div#timeOffCalendarWrapper:hover:before{	
-	
+div#calendarWrapper:hover .calendarMask {
+	transition:0.4s;
+	opacity:1;
 }
-div#timeOffCalendarWrapper #timeOffCalendarWarningNoCategorySelected {
+div#calendarWrapper #timeOffCalendarWarningNoCategorySelected {
 	display: none;
 }
-div#timeOffCalendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
+div#calendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
   	display:none;
 }

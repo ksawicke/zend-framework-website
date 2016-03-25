@@ -5,8 +5,8 @@
 var timeOffCreateRequestHandler = new function() {
 	var timeOffLoadCalendarUrl = phpVars.basePath + '/api/calendar/get', // http://swift:10080/sawik/timeoff/public
 	timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request', timeOffSubmitTimeOffSuccessUrl = phpVars.basePath
-			+ '/request/submitted-for-approval', timeOffEmployeeSearchUrl = phpVars.basePath
-			+ '/api/search/employees', employeePTORemaining = 0, employeeFloatRemaining = 0, employeeSickRemaining = 0, employeeUnexcusedAbsenceRemaining = 0, employeeBereavementRemaining = 0, employeeCivicDutyRemaining = 0, employeeGrandfatheredRemaining = 0, employeeApprovedNoPayRemaining = 0, employeePTOPending = 0, employeeFloatPending = 0, employeeSickPending = 0, employeeUnexcusedAbsencePending = 0, employeeBereavementPending = 0, employeeCivicDutyPending = 0, employeeGrandfatheredPending = 0, employeeApprovedNoPayPending = 0, totalPTORequested = 0, totalFloatRequested = 0, totalSickRequested = 0, totalUnexcusedAbsenceRequested = 0, totalBereavementRequested = 0, totalCivicDutyRequested = 0, totalGrandfatheredRequested = 0, totalApprovedNoPayRequested = 0, defaultHours = 8, defaultSplitHours = 4, selectedTimeoffCategory = null, loggedInUserData = [], requestForEmployeeNumber = '', requestForEmployeeName = '', requestForEmployeeObject = [], requestReason = '',
+	+ '/request/submitted-for-approval', timeOffEmployeeSearchUrl = phpVars.basePath
+	+ '/api/search/employees', employeePTORemaining = 0, employeeFloatRemaining = 0, employeeSickRemaining = 0, employeeUnexcusedAbsenceRemaining = 0, employeeBereavementRemaining = 0, employeeCivicDutyRemaining = 0, employeeGrandfatheredRemaining = 0, employeeApprovedNoPayRemaining = 0, employeePTOPending = 0, employeeFloatPending = 0, employeeSickPending = 0, employeeUnexcusedAbsencePending = 0, employeeBereavementPending = 0, employeeCivicDutyPending = 0, employeeGrandfatheredPending = 0, employeeApprovedNoPayPending = 0, totalPTORequested = 0, totalFloatRequested = 0, totalSickRequested = 0, totalUnexcusedAbsenceRequested = 0, totalBereavementRequested = 0, totalCivicDutyRequested = 0, totalGrandfatheredRequested = 0, totalApprovedNoPayRequested = 0, defaultHours = 8, defaultSplitHours = 4, selectedTimeoffCategory = null, loggedInUserData = [], requestForEmployeeNumber = '', requestForEmployeeName = '', requestForEmployeeObject = [], requestReason = '',
 	/** Dates selected for this request **/
 
 	selectedDatesNew = [], selectedDatesApproved = [], selectedDatesPendingApproval = [], selectedDates = [], selectedDateCategories = [], selectedDateHours = [],
@@ -16,14 +16,14 @@ var timeOffCreateRequestHandler = new function() {
 
 	/** Dates selected for pending approval requests **/
 	selectedDatesPendingApproval = [], selectedDateCategoriesPendingApproval = [], selectedDateHoursPendingApproval = [], categoryText = {
-		'timeOffPTO' : 'PTO',
-		'timeOffFloat' : 'Float',
-		'timeOffSick' : 'Sick',
-		'timeOffGrandfathered' : 'Grandfathered',
-		'timeOffUnexcusedAbsence' : 'Unexcused',
-		'timeOffBereavement' : 'Bereavement',
-		'timeOffCivicDuty' : 'Civic Duty',
-		'timeOffApprovedNoPay' : 'Approved No Pay'
+			'timeOffPTO' : 'PTO',
+			'timeOffFloat' : 'Float',
+			'timeOffSick' : 'Sick',
+			'timeOffGrandfathered' : 'Grandfathered',
+			'timeOffUnexcusedAbsence' : 'Unexcused',
+			'timeOffBereavement' : 'Bereavement',
+			'timeOffCivicDuty' : 'Civic Duty',
+			'timeOffApprovedNoPay' : 'Approved No Pay'
 	}, directReportFilter = 'B';
 
 	/**
@@ -31,82 +31,82 @@ var timeOffCreateRequestHandler = new function() {
 	 */
 	this.initialize = function() {
 		$(document)
-				.ready(
-						function() {
-							var $requestForEventSelect = $("#requestFor");
-							/**
-							 * When we change the for dropdown using select2,
-							 * set the employee number and name as a local variable
-							 * for form submission, and refresh the calendars.
-							 */
-							$requestForEventSelect
-									.on(
-											"select2:select",
-											function(e) {
-												timeOffCreateRequestHandler
-														.resetCategorySelection();
-												var selectedEmployee = e.params.data;
-												requestForEmployeeNumber = selectedEmployee.id;
-												requestForEmployeeName = selectedEmployee.text;
-												timeOffCreateRequestHandler
-														.loadCalendars(requestForEmployeeNumber);
-												$('.requestIsForMe').show();
-											})
-									.on(
-											"select2:open",
-											function(e) {
-												/**
-												 * SELECT2 is opened
-												 */
-												if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
-													$("span")
-															.remove(
-																	".select2CustomTag");
-													var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
-															+ '<input type="radio" name="directReportFilter" value="B"'
-															+ ((directReportFilter === 'B') ? ' checked'
-																	: '')
-															+ '> Both&nbsp;&nbsp;&nbsp;'
-															+ '<input type="radio" name="directReportFilter" value="D"'
-															+ ((directReportFilter === 'D') ? ' checked'
-																	: '')
-															+ '> Direct Reports&nbsp;&nbsp;&nbsp;'
-															+ '<input type="radio" name="directReportFilter" value="I"'
-															+ ((directReportFilter === 'I') ? ' checked'
-																	: '')
-															+ '> Indirect Reports&nbsp;&nbsp;&nbsp;'
-															+ '</form>';
-													$(
-															"<span class='select2CustomTag' style='padding-left:6px;'>"
-																	+ $filter
-																	+ "</span>")
-															.insertBefore(
-																	'.select2-results');
-												}
-											}).on("select2:close", function(e) {
+		.ready(
+				function() {
+					var $requestForEventSelect = $("#requestFor");
+					/**
+					 * When we change the for dropdown using select2,
+					 * set the employee number and name as a local variable
+					 * for form submission, and refresh the calendars.
+					 */
+					$requestForEventSelect
+					.on(
+							"select2:select",
+							function(e) {
+								timeOffCreateRequestHandler
+								.resetCategorySelection();
+								var selectedEmployee = e.params.data;
+								requestForEmployeeNumber = selectedEmployee.id;
+								requestForEmployeeName = selectedEmployee.text;
+								timeOffCreateRequestHandler
+								.loadCalendars(requestForEmployeeNumber);
+								$('.requestIsForMe').show();
+							})
+							.on(
+									"select2:open",
+									function(e) {
+										/**
+										 * SELECT2 is opened
+										 */
+										if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
+											$("span")
+											.remove(
+											".select2CustomTag");
+											var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
+												+ '<input type="radio" name="directReportFilter" value="B"'
+												+ ((directReportFilter === 'B') ? ' checked'
+														: '')
+														+ '> Both&nbsp;&nbsp;&nbsp;'
+														+ '<input type="radio" name="directReportFilter" value="D"'
+														+ ((directReportFilter === 'D') ? ' checked'
+																: '')
+																+ '> Direct Reports&nbsp;&nbsp;&nbsp;'
+																+ '<input type="radio" name="directReportFilter" value="I"'
+																+ ((directReportFilter === 'I') ? ' checked'
+																		: '')
+																		+ '> Indirect Reports&nbsp;&nbsp;&nbsp;'
+																		+ '</form>';
+											$(
+													"<span class='select2CustomTag' style='padding-left:6px;'>"
+													+ $filter
+													+ "</span>")
+													.insertBefore(
+													'.select2-results');
+										}
+									}).on("select2:close", function(e) {
 										/**
 										 * SELECT2 is closed
 										 */
 									});
 
-							timeOffCreateRequestHandler
-									.handleCalendarNavigation();
-							timeOffCreateRequestHandler.handleToggleLegend();
-							timeOffCreateRequestHandler.handleClickCategory();
-							timeOffCreateRequestHandler
-									.handleClickCalendarDate();
-							timeOffCreateRequestHandler
-									.handleRemoveDateFromRequest();
-							timeOffCreateRequestHandler
-									.handleChangeHoursForDateManually();
-							timeOffCreateRequestHandler.handleSubmitRequest();
-							timeOffCreateRequestHandler.handleSplitDate();
-							timeOffCreateRequestHandler
-									.handleChangeRequestForEmployee();
-							timeOffCreateRequestHandler
-									.handleDirectReportToggle();
-							timeOffCreateRequestHandler.loadCalendars();
-						});
+					timeOffCreateRequestHandler
+					.handleCalendarNavigation();
+					timeOffCreateRequestHandler.handleToggleLegend();
+					timeOffCreateRequestHandler.handleClickCategory();
+					timeOffCreateRequestHandler
+					.handleClickCalendarDate();
+					timeOffCreateRequestHandler
+					.handleRemoveDateFromRequest();
+					timeOffCreateRequestHandler
+					.handleChangeHoursForDateManually();
+					timeOffCreateRequestHandler.handleSubmitRequest();
+					timeOffCreateRequestHandler.handleSplitDate();
+					timeOffCreateRequestHandler
+					.handleChangeRequestForEmployee();
+					timeOffCreateRequestHandler
+					.handleDirectReportToggle();
+					timeOffCreateRequestHandler.loadCalendars();
+				});
 	}
 
 	/**
@@ -119,7 +119,7 @@ var timeOffCreateRequestHandler = new function() {
 				function() {
 					directReportFilter = $(
 							'input[name="directReportFilter"]:checked',
-							'#directReportForm').val();
+					'#directReportForm').val();
 				});
 	}
 
@@ -171,8 +171,8 @@ var timeOffCreateRequestHandler = new function() {
 				'.remove-date-requested',
 				function() {
 					var dateObject = {
-						category : $(this).attr('data-category'),
-						date : $(this).data('date')
+							category : $(this).attr('data-category'),
+							date : $(this).data('date')
 					};
 					if (selectedTimeoffCategory !== null
 							&& "undefined" !== typeof dateObject.date) {
@@ -191,8 +191,8 @@ var timeOffCreateRequestHandler = new function() {
 				'.calendar-day',
 				function() {
 					var dateObject = {
-						category : selectedTimeoffCategory,
-						date : $(this).data('date')
+							category : selectedTimeoffCategory,
+							date : $(this).data('date')
 					};
 					if (selectedTimeoffCategory !== null
 							&& "undefined" !== typeof dateObject.date) {
@@ -229,7 +229,7 @@ var timeOffCreateRequestHandler = new function() {
 				'.calendarNavigation',
 				function(e) {
 					timeOffCreateRequestHandler.loadNewCalendars($(this).attr(
-							"data-month"), $(this).attr("data-year"));
+					"data-month"), $(this).attr("data-year"));
 				});
 	}
 
@@ -261,8 +261,8 @@ var timeOffCreateRequestHandler = new function() {
 		$('.btn-requestCategory').removeClass(selectedTimeoffCategory);
 
 		for (category in categoryText) {
-			$('.' + category + 'CloseIcon').removeClass(
-					'categoryCloseIcon glyphicon glyphicon-remove-circle');
+			$('.' + category + 'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
+			// timeOffPTO
 			$('.buttonDisappear' + category.substr(7)).show();
 		}
 	}
@@ -276,7 +276,7 @@ var timeOffCreateRequestHandler = new function() {
 			selectedTimeoffCategory = null;
 			object.removeClass("categorySelected");
 			$('.' + object.attr("data-category") + 'CloseIcon').removeClass(
-					'categoryCloseIcon glyphicon glyphicon-remove-circle');
+			'categoryCloseIcon glyphicon glyphicon-remove-circle');
 			timeOffCreateRequestHandler.setStep('1');
 		} else {
 			selectedTimeoffCategory = object.attr("data-category");
@@ -288,7 +288,7 @@ var timeOffCreateRequestHandler = new function() {
 				timeOffCreateRequestHandler.setStep('2');
 			}
 			$('.' + selectedTimeoffCategory + 'CloseIcon').addClass(
-					'categoryCloseIcon glyphicon glyphicon-remove-circle');
+			'categoryCloseIcon glyphicon glyphicon-remove-circle');
 		}
 	}
 
@@ -302,19 +302,19 @@ var timeOffCreateRequestHandler = new function() {
 		timeOffCreateRequestHandler.clearSelectedDates();
 
 		$
-				.ajax(
-						{
-							url : timeOffLoadCalendarUrl,
-							type : 'POST',
-            data: {
-								//                action: 'loadCalendars',
-								startMonth : month,
-								startYear : year,
-								employeeNumber : ((typeof employeeNumber === "string") ? employeeNumber
-										: phpVars.employee_number)
-							},
-							dataType : 'json'
-						})
+		.ajax(
+				{
+					url : timeOffLoadCalendarUrl,
+					type : 'POST',
+					data: {
+						//                action: 'loadCalendars',
+						startMonth : month,
+						startYear : year,
+						employeeNumber : ((typeof employeeNumber === "string") ? employeeNumber
+								: phpVars.employee_number)
+					},
+					dataType : 'json'
+				})
 				.success(
 						function(json) {
 							if (requestForEmployeeNumber === '') {
@@ -326,35 +326,35 @@ var timeOffCreateRequestHandler = new function() {
 							requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
 							requestForEmployeeObject = json.employeeData;
 							timeOffCreateRequestHandler
-									.drawThreeCalendars(json.newCalendarData);
+							.drawThreeCalendars(json.newCalendarData);
 							timeOffCreateRequestHandler
-									.setHours(json.employeeData);
+							.setHours(json.employeeData);
 
 							if (json.employeeData.GF_REMAINING > 0) {
 								$('.categoryPTO').addClass(
-										'disableTimeOffCategorySelection');
+								'disableTimeOffCategorySelection');
 							}
 
 							requestForEmployeeNumber = $
-									.trim(requestForEmployeeObject.EMPLOYEE_NUMBER);
+							.trim(requestForEmployeeObject.EMPLOYEE_NUMBER);
 							requestForEmployeeName = requestForEmployeeObject.EMPLOYEE_DESCRIPTION
-									+ ' - '
-									+ requestForEmployeeObject.POSITION_TITLE;
+							+ ' - '
+							+ requestForEmployeeObject.POSITION_TITLE;
 
 							$("#requestFor").empty().append(
 									'<option value="'
-											+ requestForEmployeeNumber + '">'
-											+ requestForEmployeeName
-											+ '</option>').val(
-									requestForEmployeeNumber).trigger('change');
+									+ requestForEmployeeNumber + '">'
+									+ requestForEmployeeName
+									+ '</option>').val(
+											requestForEmployeeNumber).trigger('change');
 
 							timeOffCreateRequestHandler
-									.checkAllowRequestOnBehalfOf();
+							.checkAllowRequestOnBehalfOf();
 							return;
 						}).error(function() {
-					console.log('There was some error.');
-					return;
-				});
+							console.log('There was some error.');
+							return;
+						});
 	}
 
 	/**
@@ -362,29 +362,29 @@ var timeOffCreateRequestHandler = new function() {
 	 */
 	this.setHours = function(employeeData) {
 		timeOffCreateRequestHandler
-				.setEmployeePTORemaining(employeeData.PTO_REMAINING);
+		.setEmployeePTORemaining(employeeData.PTO_REMAINING);
 		timeOffCreateRequestHandler
-				.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
+		.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
+		.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
 		timeOffCreateRequestHandler
-				.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
+		.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
+		.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
 		timeOffCreateRequestHandler
-				.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
+		.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
+		.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
+		.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
+		.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+		.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
 		timeOffCreateRequestHandler
-				.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
+		.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
 		timeOffCreateRequestHandler
-				.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
+		.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
 	}
 
 	/**
@@ -481,12 +481,12 @@ var timeOffCreateRequestHandler = new function() {
 		}).success(
 				function(json) {
 					timeOffCreateRequestHandler
-							.drawThreeCalendars(json.newCalendarData);
+					.drawThreeCalendars(json.newCalendarData);
 					return;
 				}).error(function() {
-			console.log('There was some error.');
-			return;
-		});
+					console.log('There was some error.');
+					return;
+				});
 	}
 
 	/**
@@ -591,8 +591,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeePTORemaining = function() {
 		$("#employeePTORemainingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeePTORemaining)
-						+ " hours");
+				.setTwoDecimalPlaces(employeePTORemaining)
+				+ " hours");
 		if (timeOffCreateRequestHandler
 				.setTwoDecimalPlaces(employeePTORemaining) <= 0) {
 			$('.buttonDisappearPTO').addClass('hidden');
@@ -611,8 +611,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeePTOPending = function() {
 		$("#employeePTOPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeePTOPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeePTOPending)
+				+ " hours");
 	}
 
 	/**
@@ -621,8 +621,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeFloatRemaining = function() {
 		$("#employeeFloatRemainingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeFloatRemaining)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeFloatRemaining)
+				+ " hours");
 		if (timeOffCreateRequestHandler
 				.setTwoDecimalPlaces(employeeFloatRemaining) <= 0) {
 			$('.buttonDisappearFloat').addClass('hidden');
@@ -641,8 +641,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeFloatPending = function() {
 		$("#employeeFloatPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeFloatPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeFloatPending)
+				+ " hours");
 	}
 
 	/**
@@ -651,8 +651,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeSickRemaining = function() {
 		$("#employeeSickRemainingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeSickRemaining)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeSickRemaining)
+				+ " hours");
 		if (timeOffCreateRequestHandler
 				.setTwoDecimalPlaces(employeeSickRemaining) <= 0) {
 			$('.buttonDisappearSick').addClass('hidden');
@@ -671,8 +671,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeSickPending = function() {
 		$("#employeeSickPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeSickPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeSickPending)
+				+ " hours");
 	}
 
 	/**
@@ -681,8 +681,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeGrandfatheredRemaining = function() {
 		$("#employeeGrandfatheredRemainingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeGrandfatheredRemaining)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeGrandfatheredRemaining)
+				+ " hours");
 		if (timeOffCreateRequestHandler
 				.setTwoDecimalPlaces(employeeGrandfatheredRemaining) <= 0) {
 			$('.buttonDisappearGrandfathered').addClass('hidden');
@@ -697,8 +697,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeGrandfatheredPending = function() {
 		$("#employeeGrandfatheredPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeGrandfatheredPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeGrandfatheredPending)
+				+ " hours");
 	}
 
 	/**
@@ -707,8 +707,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeUnexcusedAbsencePending = function() {
 		$("#employeeUnexcusedAbsencePendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeUnexcusedAbsencePending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeUnexcusedAbsencePending)
+				+ " hours");
 	}
 
 	/**
@@ -717,8 +717,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeBereavementPending = function() {
 		$("#employeeBereavementPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeBereavementPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeBereavementPending)
+				+ " hours");
 	}
 
 	/**
@@ -727,8 +727,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeCivicDutyPending = function() {
 		$("#employeeCivicDutyPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeCivicDutyPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeCivicDutyPending)
+				+ " hours");
 	}
 
 	/**
@@ -737,8 +737,8 @@ var timeOffCreateRequestHandler = new function() {
 	this.printEmployeeApprovedNoPayPending = function() {
 		$("#employeeApprovedNoPayPendingHours").html(
 				timeOffCreateRequestHandler
-						.setTwoDecimalPlaces(employeeApprovedNoPayPending)
-						+ " hours");
+				.setTwoDecimalPlaces(employeeApprovedNoPayPending)
+				+ " hours");
 	}
 
 	/**
@@ -797,18 +797,18 @@ var timeOffCreateRequestHandler = new function() {
 
 		for (key in approvedRequests) {
 			var obj = {
-				date : approvedRequests[key].REQUEST_DATE,
-				hours : approvedRequests[key].REQUESTED_HOURS,
-				category : approvedRequests[key].REQUEST_TYPE
+					date : approvedRequests[key].REQUEST_DATE,
+					hours : approvedRequests[key].REQUESTED_HOURS,
+					category : approvedRequests[key].REQUEST_TYPE
 			};
 			selectedDatesApproved.push(obj);
 		}
 
 		for (key in pendingRequests) {
 			var obj = {
-				date : pendingRequests[key].REQUEST_DATE,
-				hours : pendingRequests[key].REQUESTED_HOURS,
-				category : pendingRequests[key].REQUEST_TYPE
+					date : pendingRequests[key].REQUEST_DATE,
+					hours : pendingRequests[key].REQUESTED_HOURS,
+					category : pendingRequests[key].REQUEST_TYPE
 			};
 			selectedDatesPendingApproval.push(obj);
 		}
@@ -829,7 +829,7 @@ var timeOffCreateRequestHandler = new function() {
 			for (var i = 0; i < selectedDatesNew.length; i++) {
 				if (selectedDatesNew[i].date
 						&& selectedDatesNew[i].date === $(this).attr(
-								"data-date")) {
+						"data-date")) {
 					thisClass = selectedDatesNew[i].category + "Selected";
 					$(this).toggleClass(thisClass);
 					break;
@@ -839,9 +839,9 @@ var timeOffCreateRequestHandler = new function() {
 			for (var i = 0; i < selectedDatesPendingApproval.length; i++) {
 				if (selectedDatesPendingApproval[i].date
 						&& selectedDatesPendingApproval[i].date === $(this)
-								.attr("data-date")) {
+						.attr("data-date")) {
 					thisClass = selectedDatesPendingApproval[i].category
-							+ " requestPending";
+					+ " requestPending";
 					$(this).toggleClass(thisClass);
 					break;
 				}
@@ -850,9 +850,9 @@ var timeOffCreateRequestHandler = new function() {
 			for (var i = 0; i < selectedDatesApproved.length; i++) {
 				if (selectedDatesApproved[i].date
 						&& selectedDatesApproved[i].date === $(this).attr(
-								"data-date")) {
+						"data-date")) {
 					thisClass = selectedDatesApproved[i].category
-							+ " requestApproved";
+					+ " requestApproved";
 					$(this).toggleClass(thisClass);
 					break;
 				}
@@ -877,9 +877,9 @@ var timeOffCreateRequestHandler = new function() {
 		var thisCategory = selectedTimeoffCategory;
 		var thisHours = defaultHours;
 		var obj = {
-			date : thisDate,
-			hours : '8.00',
-			category : selectedTimeoffCategory
+				date : thisDate,
+				hours : '8.00',
+				category : selectedTimeoffCategory
 		};
 		var isSelected = false;
 		var deleteIndex = null;
@@ -926,9 +926,9 @@ var timeOffCreateRequestHandler = new function() {
 
 		if (isSelected.isSelected === false) {
 			var obj = {
-				date : selectedDate,
-				hours : defaultHours,
-				category : selectedTimeoffCategory
+					date : selectedDate,
+					hours : defaultHours,
+					category : selectedTimeoffCategory
 			};
 			timeOffCreateRequestHandler.addDateToRequest(obj);
 		} else {
@@ -943,9 +943,9 @@ var timeOffCreateRequestHandler = new function() {
 	 * @returns {undefined}     */
 	this.selectCalendarDay = function(dateRequestObject) {
 		var selectedDate = timeOffCreateRequestHandler
-				.isSelected(dateRequestObject);
+		.isSelected(dateRequestObject);
 		var isDateDisabled = timeOffCreateRequestHandler
-				.isDateDisabled(dateRequestObject);
+		.isDateDisabled(dateRequestObject);
 		if (selectedTimeoffCategory != null && isDateDisabled === false) {
 			timeOffCreateRequestHandler.toggleDateFromRequest(selectedDate);
 		}
@@ -956,7 +956,7 @@ var timeOffCreateRequestHandler = new function() {
 	 */
 	this.drawHoursRequested = function() {
 		var datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>'
-				+ '<br style="clear:both;"/><br style="clear:both;"/>';
+			+ '<br style="clear:both;"/><br style="clear:both;"/>';
 
 		totalPTORequested = 0;
 		totalFloatRequested = 0;
@@ -969,62 +969,62 @@ var timeOffCreateRequestHandler = new function() {
 
 		for (var key = 0; key < selectedDatesNew.length; key++) {
 			datesSelectedDetailsHtml += selectedDatesNew[key].date
-					+ '&nbsp;&nbsp;&nbsp;&nbsp;'
-					+ '<input class="selectedDateHours" value="'
-					+ timeOffCreateRequestHandler
-							.setTwoDecimalPlaces(selectedDatesNew[key].hours)
-					+ '" size="2" data-key="'
-					+ key
-					+ '" disabled="disabled">'
-					+ '&nbsp;&nbsp;&nbsp;&nbsp;'
-					+ '<span class="badge '
-					+ selectedDatesNew[key].category
-					+ '">'
-					+ timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category)
-					+ '</span>' + '&nbsp;&nbsp;&nbsp;' +
-					'<span class="glyphicon glyphicon-remove-circle red remove-date-requested" '
-					+ 'data-date="' + selectedDatesNew[key].date + '" '
-					+ 'data-category="' + selectedDatesNew[key].category + '" '
-					+ 'title="Remove date from request">' + '</span>'
-					+ '<br style="clear:both;" />';
+			+ '&nbsp;&nbsp;&nbsp;&nbsp;'
+			+ '<input class="selectedDateHours" value="'
+			+ timeOffCreateRequestHandler
+			.setTwoDecimalPlaces(selectedDatesNew[key].hours)
+			+ '" size="2" data-key="'
+			+ key
+			+ '" disabled="disabled">'
+			+ '&nbsp;&nbsp;&nbsp;&nbsp;'
+			+ '<span class="badge '
+			+ selectedDatesNew[key].category
+			+ '">'
+			+ timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category)
+			+ '</span>' + '&nbsp;&nbsp;&nbsp;' +
+			'<span class="glyphicon glyphicon-remove-circle red remove-date-requested" '
+			+ 'data-date="' + selectedDatesNew[key].date + '" '
+			+ 'data-category="' + selectedDatesNew[key].category + '" '
+			+ 'title="Remove date from request">' + '</span>'
+			+ '<br style="clear:both;" />';
 
 			switch (selectedDatesNew[key].category) {
-				case 'timeOffPTO':
-					totalPTORequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffFloat':
-					totalFloatRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffSick':
-					totalSickRequested += parseInt(selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffUnexcusedAbsence':
-					totalUnexcusedAbsenceRequested += parseInt(
-							selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffBereavement':
-					totalBereavementRequested += parseInt(
-							selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffCivicDuty':
-					totalCivicDutyRequested += parseInt(
-							selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffGrandfathered':
-					totalGrandfatheredRequested += parseInt(
-							selectedDatesNew[key].hours, 10);
-					break;
-	
-				case 'timeOffApprovedNoPay':
-					totalApprovedNoPayRequested += parseInt(
-							selectedDatesNew[key].hours, 10);
-					break;
+			case 'timeOffPTO':
+				totalPTORequested += parseInt(selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffFloat':
+				totalFloatRequested += parseInt(selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffSick':
+				totalSickRequested += parseInt(selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffUnexcusedAbsence':
+				totalUnexcusedAbsenceRequested += parseInt(
+						selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffBereavement':
+				totalBereavementRequested += parseInt(
+						selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffCivicDuty':
+				totalCivicDutyRequested += parseInt(
+						selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffGrandfathered':
+				totalGrandfatheredRequested += parseInt(
+						selectedDatesNew[key].hours, 10);
+				break;
+
+			case 'timeOffApprovedNoPay':
+				totalApprovedNoPayRequested += parseInt(
+						selectedDatesNew[key].hours, 10);
+				break;
 			}
 		}
 
@@ -1033,7 +1033,7 @@ var timeOffCreateRequestHandler = new function() {
 		if (selectedDatesNew.length === 0) {
 			$('#datesSelectedDetails').hide();
 			$("#requestSubmitDetails").hide();
-			timeOffCreateRequestHandler.setStep('2');
+			timeOffCreateRequestHandler.unselectCategory();
 		} else {
 			$('#datesSelectedDetails').show();
 			$("#requestSubmitDetails").show();
@@ -1072,13 +1072,13 @@ var timeOffCreateRequestHandler = new function() {
 	 * Returns to default request for self
 	 */
 //	this.setAsRequestForMe = function() {
-//		$('.requestIsForMe').show();
-//		$('.requestIsForAnother').hide();
-//		timeOffCreateRequestHandler.clearRequestFor();
+//	$('.requestIsForMe').show();
+//	$('.requestIsForAnother').hide();
+//	timeOffCreateRequestHandler.clearRequestFor();
 //	}
-//
+
 //	this.clearRequestFor = function() {
-//		$('#demo5').val('');
+//	$('#demo5').val('');
 //	}
 
 	/**
@@ -1124,7 +1124,7 @@ var timeOffCreateRequestHandler = new function() {
 
 	this.checkAllowRequestOnBehalfOf = function() {
 		if (loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y"
-				|| loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
+			|| loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
 			console.log('1132!!!');
 			timeOffCreateRequestHandler.enableSelectRequestFor();
 			$("#requestFor").prop('disabled', false);
@@ -1176,10 +1176,10 @@ var timeOffCreateRequestHandler = new function() {
 	this.maskCalendars = function(action) {
 		if (!action || action === 'show') {
 			$('body')
-					.append(
-							'<link href="'
-									+ phpVars.basePath
-									+ '/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
+			.append(
+					'<link href="'
+					+ phpVars.basePath
+					+ '/css/timeOffCalendarEnable.css" rel="stylesheet" id="enableTimeOffCalendar" />');
 		} else if (action === 'hide') {
 			$('#enableTimeOffCalendar').remove();
 		}
@@ -1220,27 +1220,58 @@ var timeOffCreateRequestHandler = new function() {
 			timeOffCreateRequestHandler.maskCalendars('show');
 		}
 	}
+	
+	this.unselectCategory = function() {
+		$(".selectTimeOffCategory")
+			.removeClass("categorySelected")
+			.removeClass("categoryPTO")
+			.removeClass("timeOffPTO")
+			.removeClass("categoryFloat")
+			.removeClass("timeOffFloat")
+			.removeClass("categorySick")
+			.removeClass("timeOffSick")
+			.removeClass("categoryGrandfathered")
+			.removeClass("timeOffyGrandfathered")
+			.removeClass("categoryBereavement")
+			.removeClass("timeOffBereavement")
+			.removeClass("categoryCivicDuty")
+			.removeClass("timeOffCivicDuty")
+			.removeClass("categoryUnexcusedAbsence")
+			.removeClass("timeOffUnexcusedAbsence")
+			.removeClass("categoryApprovedNoPay")
+			.removeClass("timeOffApprovedNoPay");
+		
+		for (category in categoryText) {
+			console.log('.' + category + 'CloseIcon');
+			$('.' + category + 'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
+			$('.buttonDisappear' + category.substr(7)).show();
+		}
+		
+		selectedTimeoffCategory = null;
+		timeOffCreateRequestHandler.maskCalendars('hide');
+		timeOffCreateRequestHandler.setStep('1');
+	}
 
 	/**
 	 * Splits a date
 	 */
 	this.splitDateRequested = function(dateRequestObject) {
 		var selectedDate = timeOffCreateRequestHandler
-				.isSelected(dateRequestObject);
+		.isSelected(dateRequestObject);
 		if (selectedTimeoffCategory != null) {
 			/**
 			 * Let's find exact keys where the date is the date selected
 			 */
 			allowSplitDate = timeOffCreateRequestHandler
-					.allowSplitDate(selectedDate);
+			.allowSplitDate(selectedDate);
 			console.log("allowSplitDate", allowSplitDate);
 			if (allowSplitDate.allowSplitDate === true) {
 				var item = allowSplitDate.items[0];
 				var index = item.index;
-				
+
 				/** Update to number of split hours **/
 				selectedDatesNew[index].hours = 4;
-				
+
 				/** Add back the split hours to the selected category **/
 				timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, 4);
 
@@ -1248,9 +1279,9 @@ var timeOffCreateRequestHandler = new function() {
 				 * Add the date to the request object
 				 */
 				var obj = {
-					date : item.date,
-					hours : 4,
-					category : selectedTimeoffCategory
+						date : item.date,
+						hours : 4,
+						category : selectedTimeoffCategory
 				};
 				selectedDatesNew.push(obj);
 				timeOffCreateRequestHandler.addTime(selectedTimeoffCategory, 4);
@@ -1375,7 +1406,7 @@ var timeOffCreateRequestHandler = new function() {
 	 * @returns {object}     */
 	this.formatDayRequested = function(object) {
 		object.dow = moment(object.date, "MM/DD/YYYY").format("ddd")
-				.toUpperCase();
+		.toUpperCase();
 		var scheduleDay = "SCHEDULE_" + object.dow;
 		object.hours = requestForEmployeeObject[scheduleDay];
 
@@ -1432,5 +1463,5 @@ var timeOffCreateRequestHandler = new function() {
 	}
 };
 
-// Initialize the class
+//Initialize the class
 timeOffCreateRequestHandler.initialize();
