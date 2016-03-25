@@ -14,6 +14,7 @@ use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Resolver\TemplateMapResolver;
+use Application\Factory\Logger;
 
 /**
  * Sends emails
@@ -45,7 +46,7 @@ class EmailFactory {
         $this->applicationFromName = 'Time Off Requests Administrator';
         $this->applicationReplyToEmail = 'DO_NOT_REPLY@SWIFT_TRANS.COM';
         $this->testSubjectPrefix = '[ DEVELOPMENT - Time Off Requests ] - ';
-        $this->applicationEmailTemplate = dirname(dirname(dirname(__DIR__))) . '/view/email/timeoffRequestTemplate.phtml';
+        $this->applicationEmailTemplate = dirname( dirname( dirname( __DIR__ ) ) ) . '/view/email/timeoffRequestTemplate.phtml';
         
         $this->mailName = 'mailrelay';
         $this->mailHost = 'mailrelay.swifttrans.com';
@@ -74,32 +75,34 @@ class EmailFactory {
         $mailBodyParts = new MimeMessage();
         $mailBodyParts->addPart( $text );
         
-        $mail = new Message();
-        $mail->setBody( $mailBodyParts );
-        $mail->setFrom( $this->applicationFromEmail, $this->applicationFromName );
-        $mail->addTo( $this->toEmail );
-        if ( !empty( $this->ccEmail ) ) {
-            $mail->addCc( $this->ccEmail );
-        }
-//        if ( !empty( $bcc ) ) {
-//            $mail->addBcc( $bcc );
-//        }
-        $mail->setSubject( $this->emailSubject );
-
-        $transport = new SmtpTransport();
-        $transport->setOptions( $options );
-
         try {
+            $mail = new Message();
+            $mail->setBody( $mailBodyParts );
+            $mail->setFrom( $this->applicationFromEmail, $this->applicationFromName );
+            $mail->addTo( $this->toEmail );
+            if ( !empty( $this->ccEmail ) ) {
+                $mail->addCc( $this->ccEmail );
+            }
+            //        if ( !empty( $bcc ) ) {
+            //            $mail->addBcc( $bcc );
+            //        }
+            $mail->setSubject( $this->emailSubject );
+            
+            $transport = new SmtpTransport();
+            $transport->setOptions( $options );
             $transport->send( $mail );
-        } catch ( Zend_Exception $ex ) {
-            echo '<pre>';
-            print_r( $ex );
-            echo '</pre>';
-            die("...");
-            //error_log(__CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $ex->getLine() . '] ' . $ex->getMessage());
+            return true;
+        } catch ( \Exception $ex ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $ex->getLine() . '] ' . $ex->getMessage() );
         }
+        
+        return false;
     }
     
+    /**
+     * Uses the template for the site when sending an email.
+     */
     protected function appendBodyToApplicationEmailTemplate()
     {
         return str_replace( "{emailBody}", $this->emailBody, file_get_contents( $this->applicationEmailTemplate ) );

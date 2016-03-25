@@ -1,8 +1,5 @@
 <h4>Create New Time Off Request</h4>
 
-<!-- strong>For: <span class="changeRequestForEmployee" data-employee-number="296261"><?php echo $employeeData->FIRST_NAME; ?> <?php echo $employeeData->LAST_NAME; ?></strong></span>
-<br /-->
-<!-- strong><span class="changeRequestForEmployee" data-employee-number="49499">JAMES GASIOR</span></strong>&nbsp;&nbsp;&nbsp;<strong><span class="changeRequestForEmployee" data-employee-number="366099">GUIDO FAECKE</span></strong-->
 <br style="clear:both;" />
 
 <div class="tab-pane" id="tab-demo5">
@@ -11,15 +8,6 @@
     </div>
     <div class="col-md-9 col-lg-8">
         <div class="btn-group col-md-12 col-lg-12">
-            <!-- button type="button" class="btn btn-default dropdown-toggle requestIsForMe"
-             aria-haspopup="false" aria-expanded="false">
-              
-            </button><!-- Sena, Randy <span class="categoryCloseIcon glyphicon glyphicon-remove-circle red"></span> -->
-            <!-- input id="demo5" type="text" class="form-control requestIsForAnother typeahead" placeholder="Choose another employee" autocomplete="off" />
-            
-            <br style="clear:both;" />
-            <br style="clear:both;" />
-            <br style="clear:both;" /-->
             <div class="s2-event-log">
                 <ul class="js-event-log"></ul>
             </div>
@@ -162,10 +150,6 @@
                         <td style="text-align:right;font-size:10px;border:0px;">Pending</td>
                         <td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeUnexcusedAbsencePendingHours"></span></td>
                     </tr>
-                    <?php /*                     * *<tr>
-                      <td style="text-align:right;font-size:14px;border:0px;">Remaining</td>
-                      <td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeUnexcusedAbsenceRemainingHours"></span></td>
-                      </tr> ** */ ?>
                 </tbody>
             </table>
         </button>
@@ -184,10 +168,6 @@
                         <td style="text-align:right;font-size:10px;border:0px;">Pending</td>
                         <td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeBereavementPendingHours"></span></td>
                     </tr>
-                    <?php /*                     * *<tr>
-                      <td style="text-align:right;font-size:14px;border:0px;">Remaining</td>
-                      <td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeBereavementRemainingHours"></span></td>
-                      </tr> ** */ ?>
                 </tbody>
             </table>
         </button>
@@ -206,10 +186,6 @@
                         <td style="text-align:right;font-size:10px;border:0px;">Pending</td>
                         <td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeCivicDutyPendingHours"></span></td>
                     </tr>
-                    <?php /*                     * *<tr>
-                      <td style="text-align:right;font-size:14px;border:0px;">Remaining</td>
-                      <td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeCivicDutyRemainingHours"></span></td>
-                      </tr> ** */ ?>
                 </tbody>
             </table>
         </button>
@@ -228,10 +204,6 @@
                         <td style="text-align:right;font-size:10px;border:0px;">Pending</td>
                         <td style="text-align:left;font-size:10px;border:0px;"><span class="hours" id="employeeApprovedNoPayPendingHours"></span></td>
                     </tr>
-                    <?php /*                     * *<tr>
-                      <td style="text-align:right;font-size:14px;border:0px;">Remaining</td>
-                      <td style="text-align:left;font-size:14px;border:0px;"><span class="hours" id="employeeApprovedNoPayRemainingHours"></span></td>
-                      </tr> ** */ ?>
                 </tbody>
             </table>
         </button>
@@ -240,88 +212,57 @@
 
 <br style="clear:both;" />
 
-<?php /* * ***
-  <div class="row gutter-10">
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffPTO cursorHand" data-category="timeOffPTO">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffPTO">
-  PTO<br />
-  <span class="hours" id="employeePTOHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffFloat cursorHand" data-category="timeOffFloat">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffFloat">
-  Float<br />
-  <span class="hours" id="employeeFloatHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffSick cursorHand" data-category="timeOffSick">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffSick">
-  Sick<br />
-  <span class="hours" id="employeeSickHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffGrandfathered cursorHand" data-category="timeOffGrandfathered">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffGrandfathered">
-  Grandfathered<br />
-  <span class="hours" id="employeeGrandfatheredHours"></span>
-  </div>
-  </div>
-  </div>
+<div id="calendarWrapper">
+	<div id="timeOffCalendarWarningNoCategorySelected">
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+            <strong>Sorry!</strong>&nbsp;Before you select any dates, please select a category above.
+        </div>
+    </div>
+    <div class="calendarMask">
+    	<div style="width:33%;padding-right:10px;float:left;text-align:center;">
+    		<div id="calendar1Header">
+    			<span id="calendarNavigationFastRewind" class="fc-icon fc-icon-left-double-arrow calendarNavigation" title="Go back 6 months" data-month="" data-year=""></span>
+    			<span id="calendarNavigationRewind" class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 3 months" data-month="" data-year=""></span>
+    			&nbsp;&nbsp;&nbsp;
+    			<strong><span id="calendar1Label"></span></strong>
+    		</div>
+    	</div>
+        <div style="width:33%;padding-right:10px;float:left;text-align:center;">
+        	<div id="calendar2Header">
+    			<strong><span id="calendar2Label"></span></strong>
+    		</div>
+        </div>
+        <div style="width:33%;float:left;text-align:center;">
+        	<div id="calendar3Header">
+    			<strong><span id="calendar3Label"></span></strong>
+    			&nbsp;&nbsp;&nbsp;
+    			<span id="calendarNavigationFastRewind"></span>
+    			<span id="calendarNavigationRewind"></span>
+    			
+    			<span id="calendarNavigationForward" class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 3 months" data-month="" data-year=""></span>
+    			<span id="calendarNavigationFastForward" class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 6 months" data-month="" data-year=""></span>
+    		</div>
+        </div>	
+        
+        <br /><br />
+    
+    	<div style="width:33%;padding-right:10px;float:left;text-align:center;">
+    		<div id="calendar1Body"></div>
+    	</div>
+        <div style="width:33%;padding-right:10px;float:left;text-align:center;">
+        	<div id="calendar2Body"></div>
+        </div>
+        <div style="width:33%;float:left;text-align:center;">
+        	<div id="calendar3Body"></div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
 
-  <br style="clear:both;" />
-
-  <div class="row gutter-10">
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffUnexcusedAbsence cursorHand" data-category="timeOffUnexcusedAbsence">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffUnexcusedAbsence">
-  Unexcused<br />
-  <span class="hours" id="employeeUnexcusedAbsenceHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffBereavement cursorHand" data-category="timeOffBereavement">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffBereavement">
-  Bereavement<br />
-  <span class="hours" id="employeeBereavementHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffCivicDuty cursorHand" data-category="timeOffCivicDuty">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffCivicDuty">
-  Civic Duty<br />
-  <span class="hours" id="employeeCivicDutyHours"></span>
-  </div>
-  </div>
-  <div class="col-md-3">
-  <div class="selectTimeOffCategory timeOffCategoryLeft timeOffApprovedNoPay cursorHand" data-category="timeOffApprovedNoPay">
-  &nbsp;<br />&nbsp;
-  </div>
-  <div class="selectTimeOffCategory timeOffCategory cursorHand" data-category="timeOffApprovedNoPay">
-  Approved No Pay<br />
-  <span class="hours" id="employeeApprovedNoPayHours"></span>
-  </div>
-  </div>
-  </div>
- * * */ ?>
-
+<?php /***
 <div id="timeOffCalendarWrapper">
     <div id="timeOffCalendarWarningNoCategorySelected">
         <div class="alert alert-danger" role="alert">
@@ -330,16 +271,10 @@
         </div>
     </div>
     <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar1Html">
-        <?php /*         * *<strong>December 2015</strong><br /><br />
-          <?php echo $calendar1Html; * */ ?>
     </div>
     <div style="width:33%;padding-right:10px;float:left;text-align:center;" id="calendar2Html">
-        <?php /*         * *<strong>January 2016</strong><br /><br />
-          <?php echo $calendar2Html; ?> * */ ?>
     </div>
     <div style="width:33%;float:left;text-align:center;" id="calendar3Html">
-        <?php /*         * *<strong>February 2016</strong><br /><br />
-          <?php echo $calendar3Html; ?> * */ ?>
     </div>
     
     <br style="clear:both;" />
@@ -371,25 +306,42 @@
         
     </div>
 </div>
+***/ ?>
 
 <br style="clear:both;" />
+<br style="clear:both;" />
+
+<div id="calendarLegend">
+    <div class="legend-title">
+        <strong>Request Types by Color</strong><br />
+        <i>Note: Approved requests appear in a solid color.<br />
+            Pending requests appear in a lighter version of each color.</i>
+        <div class="timeOffCalendarLegend">
+            <div class="legend-scale">
+                <ul class="legend-labels">
+                    <li><span style="background:#f57900;"></span>PTO</li>
+                    <li><span style="background:#edd400;"></span>Float</li>
+                    <li><span style="background:#73d216;"></span>Sick</li>
+                    <li><span style="background:#888a85;"></span>Unexcused</li>
+                    <li><span style="background:#729fcf;"></span>Bereavement</li>
+                    <li><span style="background:#75507b;"></span>Civic Duty</li>
+                    <li><span style="background:#c17d11;"></span>Grandfathered</li>
+                    <li><span style="background:#cc0000;"></span>No Pay</li>
+                    <li><span style="background:#404040;"></span>Holiday</li>
+                </ul>
+            </div>
+        </div>
+        <br />
+        <br />
+    </div>
+    
+</div>
+
 
 <button type="button" class="btn btn-primary-form btn-xs toggleLegend">Show/hide legend</button>
 
 <br style="clear:both;" />
 <br style="clear:both;" />
-
-<!-- div class="row gutter-10 timeOffCalendarWrapper">
-    <div class="col-md-4" id="calendar1Html">
-                
-        </div>
-        <div class="col-md-4" id="calendar2Html">
-                
-        </div>
-        <div class="col-md-4" id="calendar3Html">
-                
-        </div>
-</div-->
 
 <div id="noDatesSelectedWarning" style="display:none;">
     <div class="alert alert-danger" role="alert">
@@ -397,9 +349,7 @@
     </div>
 </div>
 
-<!-- div id="datesSelectedDetails"></div-->
-
-<div class="row gutter-10 timeOffCalendarWrapper">
+<div class="row gutter-10 requestWrapper">
     <div class="col-md-4">
 
     </div>
@@ -415,6 +365,31 @@
             <textarea cols="40" rows="4" id="requestReason"></textarea>
             <br style="clear:both;"/>
             <br style="clear:both;"/>
+            
+            <div id="warnPTO" style="display:none;">
+            	<div class="alert alert-danger" role="alert">
+                    <i class="fa fa-warning"></i> <strong>PTO time remaining has been exceeded.</strong>
+                </div>
+            </div>
+            
+            <div id="warnFloat" style="display:none;">
+            	<div class="alert alert-danger" role="alert">
+                    <i class="fa fa-warning"></i> <strong>Float time remaining has been exceeded.</strong>
+                </div>
+            </div>
+            
+            <div id="warnSick" style="display:none;">
+            	<div class="alert alert-danger" role="alert">
+                    <i class="fa fa-warning"></i> <strong>PTO time remaining has been exceeded.</strong>
+                </div>
+            </div>
+            
+            <div id="warnGF" style="display:none;">
+            	<div class="alert alert-danger" role="alert">
+                    <i class="fa fa-warning"></i> <strong>Grandfathered time remaining has been exceeded.</strong>
+                </div>
+            </div>
+            
             <button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit Request</button>
             <br style="clear:both;"/>
             <br style="clear:both;"/>
@@ -434,21 +409,6 @@
         <li data-target="#step3" class="step3 last"><span class="badge">3</span>Provide a Reason & Submit</li>
     </ul>
 </div>
-
-<!-- br style="clear:both;" /><br style="clear:both;" />
-
-<div class="timeOffCategory" data-category="pto">
-        PTO<br />
-        38.66 hr
-</div>
-<div class="timeOffCategory" data-category="float">
-        Float<br />
-        8.00 hr
-</div>
-<div class="timeOffCategory" data-category="sick">
-        Sick<br />
-        0.00 hr
-</div-->
 
 <br /><br />
 

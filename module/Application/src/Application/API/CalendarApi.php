@@ -79,16 +79,36 @@ class CalendarApi extends ApiController {
         
         $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( $employeeNumber, $startDate, $dates['threeMonthsOut'] );
 
+        $threeCalendars = \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $calendarData );
+        
+        $headers = [];
+        $calendars = [];
+        $navigation = [];
+        
+        foreach( $threeCalendars['calendars'] as $key => $calendar ) {
+            $headers[$key] = $calendar['header'];
+            $calendars[$key] = $calendar['data'];
+        }
+        $navigation = [
+            'calendarNavigationFastRewind' => [ 'month' => $calendarDates['sixMonthsBack']->format( "m" ), 'year' => $calendarDates['sixMonthsBack']->format( "Y" ) ],
+            'calendarNavigationRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
+            'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
+            'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
+        ];
+        
         $result = new JsonModel( [
             'success' => true,
             'calendarData' => \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $calendarData ),
             'employeeData' => $employeeData,
-            'requestData' => $requestData,
-            'test' => $calendarData,
             'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
                 'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' )
+            ],
+            'newCalendarData' => [
+                'headers' => $headers,
+                'calendars' => $calendars,
+                'navigation' => $navigation
             ]
-                ] );
+        ] );
 
         return $result;
     }

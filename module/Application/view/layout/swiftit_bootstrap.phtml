@@ -36,6 +36,9 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap.min.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap_swift_custom.css' ); ?>" rel="stylesheet">
+        <?php /*** if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-requests' ) !== false ) { ?>
+        	<link href="<?php echo $this->basePath( 'templates/swiftit/css/view_my_requests.css' ); ?>" rel="stylesheet">
+        <?php } ***/ ?>
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/custom_dropzone.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/navbar-fixed-top.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/parsley.css' ); ?>" rel="stylesheet">
@@ -74,6 +77,11 @@ $this->headScript()
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar' ) !== false ) {
     $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
+}
+
+if ( strpos( $_SERVER['REDIRECT_URL'], '/request/create' ) !== false ) {
+    $this->headScript()
+        ->appendFile( $this->basePath( 'js/fullcalendar.min.js' ) );
 }
 
 if( isset( $this->managerView ) ) {
