@@ -580,6 +580,9 @@ var timeOffCreateRequestHandler = new function ()
         } else {
             $('.buttonDisappearPTO').removeClass('hidden');
         }
+        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) < 0) {
+        	$('#warnPTO').show();
+        }
     }
 
     /**
@@ -599,6 +602,9 @@ var timeOffCreateRequestHandler = new function ()
         } else {
             $('.buttonDisappearFloat').removeClass('hidden');
         }
+        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) < 0) {
+        	$('#warnFloat').show();
+        }
     }
 
     /**
@@ -617,6 +623,9 @@ var timeOffCreateRequestHandler = new function ()
             $('.buttonDisappearSick').addClass('hidden');
         } else {
             $('.buttonDisappearSick').removeClass('hidden');
+        }
+        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) < 0) {
+        	$('#warnSick').show();
         }
     }
 
