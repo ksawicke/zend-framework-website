@@ -373,10 +373,56 @@ class RequestApi extends ApiController {
      */
     public function submitPayrollApprovedAction()
     {
-        $result = new JsonModel([
-            'success' => false,
-            'error' => 'submitPayrollApproved'
-        ]);
+        $post = $this->getRequest()->getPost();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $validationHelper = new ValidationHelper();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $OutlookHelper = new OutlookHelper();
+        $RequestEntry = new RequestEntry();
+        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        
+        try {
+            /** Log Payroll approval with comment **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
+                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+
+            /** Change status to Completed PAFs */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
+                $post->request_id,
+                $post->review_request_reason );
+
+            /** Log status change to Pending AS400 Upload **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Status changed to Completed PAFs' );
+
+            /** Send calendar invites for this request **/
+            $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
+            
+            /** Log sending calendar invites **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Sent calendar invites of the request' );
+            
+            $result = new JsonModel([
+                'success' => true,
+                'request_id' => $post->request_id
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
         
         return $result;
     }
