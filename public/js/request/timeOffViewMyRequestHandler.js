@@ -181,6 +181,7 @@ var timeOffViewRequestHandler = new function ()
 //            });
 
             timeOffViewRequestHandler.loadCalendars( phpVars.employee_number );
+            timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();
 
@@ -282,40 +283,12 @@ var timeOffViewRequestHandler = new function ()
         timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
     }
     
+    /**
+     * Handle clicking previous or next buttons on calendars
+     */
     this.handleCalendarNavigation = function() {
-    	/**
-         * Handle clicking previous or next buttons on calendars
-         */
-    	//.calendarNavigation
-//        $('#timeOffCalendarWrapper').on('click', 'button', function (e) {
-//        	console.log( e );
-//        	$.each( e , function( key, value ) {
-//                console.log( key + " :: " + value );
-//                if( key==="target" ) {
-//                	$.each( value , function( key2, value2 ) {
-//                		if( key2==="attributes" ) {
-//                        	$.each( value , function( key3, value3 ) {
-//                        		console.log( key3[2] );
-//                        		//console.log( "####  " + key3 + " :: " + value3 );
-//                        	});
-//                        }
-//                	});
-//                }
-//            });
-//        	var dataMonth = e.target.attributes[2].value;
-//        	var dataYear = e.target.attributes[3].value;
-//        	timeOffCreateRequestHandler.loadNewCalendars( dataMonth, dataYear );
-//        });
-//    	$('body').on('click', '#calendarNavigationFastRewind', function(e) {
-//    		console.log( "MONTH TEST: " + $(this).attr('data-month') );
-//    		console.log( "YEAR TEST: " + $(this).attr('data-year') );
-//    	});
-        $('body').on('click', '.calendarNavigation', function (e) {
-//        	console.log( "calendar navigation clicked" );
-//        	console.log( "this", $(this) );
-//        	console.log( $(this).attr("data-month") );
-//        	console.log( $(this).attr("data-year") );
-        	timeOffViewRequestHandler.loadNewCalendars( $(this).attr("data-month"), $(this).attr("data-year") );
+        $('body').on('click', '.calendarNavigation', function(e) {
+            timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
         });
     }
     
@@ -456,18 +429,18 @@ var timeOffViewRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
-                    if (json.success == true) {
-                        window.location.href = timeOffSubmitTimeOffSuccessUrl;
-                    } else {
-                        alert(json.message);
-                    }
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+        .success(function (json) {
+            if (json.success == true) {
+                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     };
 
     this.loadNewCalendars = function (startMonth, startYear) {
@@ -482,15 +455,15 @@ var timeOffViewRequestHandler = new function ()
             },
             dataType: 'json'
         })
-                .success(function (json) {
-                	timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
-                    timeOffViewRequestHandler.setHours( json.employeeData );
-                    return;
-                })
-                .error(function () {
-                    console.log('There was some error.');
-                    return;
-                });
+        .success(function (json) {
+            timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
+            timeOffViewRequestHandler.setHours( json.employeeData );
+            return;
+        })
+        .error(function () {
+            console.log('There was some error.');
+            return;
+        });
     }
 
     /**
@@ -757,8 +730,8 @@ var timeOffViewRequestHandler = new function ()
         }
     }
 
-    this.highlightDates = function () {
-        $.each($(".calendar-day"), function (index, blah) {
+    this.highlightDates = function() {
+        $.each($(".calendar-day"), function(index, blah) {
             $(this).removeClass('timeOffPTOSelected');
             $(this).removeClass('timeOffFloatSelected');
             $(this).removeClass('timeOffSickSelected');
@@ -766,17 +739,10 @@ var timeOffViewRequestHandler = new function ()
             $(this).removeClass('timeOffBereavementSelected');
             $(this).removeClass('timeOffApprovedNoPaySelected');
             $(this).removeClass('timeOffCivicDutySelected');
-//            $(this).removeClass('');
         });
-
-//        console.log("highlight selectedDatesNew check", selectedDatesNew);
-//        console.log("highlight selectedDatesPendingApproval check", selectedDatesPendingApproval);
-//        console.log("highlight selectedDatesApproved check", selectedDatesApproved);
-
-        $.each($(".calendar-day"), function (index, blah) {
+        $.each($(".calendar-day"), function(index, blah) {
             for (var i = 0; i < selectedDatesNew.length; i++) {
-                if (selectedDates[i].date &&
-                        selectedDatesNew[i].date === $(this).attr("data-date")) {
+                if (selectedDatesNew[i].date && selectedDatesNew[i].date === $(this).attr("data-date")) {
                     thisClass = selectedDatesNew[i].category + "Selected";
                     $(this).toggleClass(thisClass);
                     break;
@@ -784,8 +750,7 @@ var timeOffViewRequestHandler = new function ()
             }
 
             for (var i = 0; i < selectedDatesPendingApproval.length; i++) {
-                if (selectedDatesPendingApproval[i].date &&
-                        selectedDatesPendingApproval[i].date === $(this).attr("data-date")) {
+                if (selectedDatesPendingApproval[i].date && selectedDatesPendingApproval[i].date === $(this).attr("data-date")) {
                     thisClass = selectedDatesPendingApproval[i].category + " requestPending";
                     $(this).toggleClass(thisClass);
                     break;
@@ -793,8 +758,7 @@ var timeOffViewRequestHandler = new function ()
             }
 
             for (var i = 0; i < selectedDatesApproved.length; i++) {
-                if (selectedDatesApproved[i].date &&
-                        selectedDatesApproved[i].date === $(this).attr("data-date")) {
+                if (selectedDatesApproved[i].date && selectedDatesApproved[i].date === $(this).attr("data-date")) {
                     thisClass = selectedDatesApproved[i].category + " requestApproved";
                     $(this).toggleClass(thisClass);
                     break;
