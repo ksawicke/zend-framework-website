@@ -231,7 +231,7 @@ class RequestApi extends ApiController {
      * 
      * @return JsonModel
      */
-    public function submitApprovalResponseAction()
+    public function submitManagerApprovedAction()
     {
         $post = $this->getRequest()->getPost();
         $Employee = new Employee();
@@ -323,11 +323,11 @@ class RequestApi extends ApiController {
     }
  
     /**
-     * Handles the manager deny process.
+     * Handles the manager denied process.
      * 
      * @return JsonModel
      */
-    public function submitDenyResponseAction()
+    public function submitManagerDeniedAction()
     {
         $post = $this->getRequest()->getPost();
         $Employee = new Employee();
@@ -362,6 +362,66 @@ class RequestApi extends ApiController {
                 'message' => 'There was an error submitting your request. Please try again.'
             ]);
         }
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll approval process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollApprovedAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollApproved'
+        ]);
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll denied process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollDeniedAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollDenied'
+        ]);
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll upload process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollUploadAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollUpload'
+        ]);
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll update checks process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollUpdateAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollUpdate'
+        ]);
         
         return $result;
     }
