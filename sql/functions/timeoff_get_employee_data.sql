@@ -1,3 +1,7 @@
+/**
+ * Author:  sawik
+ * Created: Mar 28, 2016
+ */
 create or replace function
     timeoff_get_employee_data
     (
@@ -109,36 +113,9 @@ Begin
            LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, POSITION_CODE, POSITION_TITLE,
            EMPLOYEE_HIRE_DATE, SALARY_TYPE,
 
--- employer_number		   char(3),
--- employee_number		   char(9),
--- employee_name              char(75),
--- employee_common_name       char(75),
--- employee_last_name         char(75),
--- employee_description	   char(100),
--- employee_description_alt   char(100),
--- email_address		   char(75),
--- level_1			   char(5),
--- level_2			   char(5),
--- level_3			   char(5),
--- level_4			   char(5),
--- position_code		   char(6),
--- position_title		   char(30),
--- employee_hire_date	   char(10),
--- salary_type		   char(1),
-
 	   MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_COMMON_NAME, MANAGER_LAST_NAME,
            MANAGER_EMAIL_ADDRESS,  
            MANAGER_POSITION_CODE, MANAGER_POSITION_TITLE,
-
--- manager_employee_number    char(9),
--- manager_name               char(75),
--- manager_common_name	   char(75),
--- manager_last_name          char(75),
--- manager_description	   char(100),
--- manager_description_alt	   char(100),
--- manager_email_address      char(75),
--- manager_position_code      char(6),
--- manager_position_title     char(30),
 
 	   PTO_EARNED, PTO_TAKEN, PTO_UNAPPROVED, PTO_PENDING, PTO_PENDING_TMP,
            FLOAT_EARNED, FLOAT_TAKEN, FLOAT_UNAPPROVED, FLOAT_PENDING, FLOAT_PENDING_TMP,
@@ -150,43 +127,16 @@ Begin
 	   CIVIC_DUTY_UNAPPROVED, CIVIC_DUTY_PENDING, CIVIC_DUTY_PENDING_TMP,
 	   UNPAID_UNAPPROVED, UNPAID_PENDING, UNPAID_PENDING_TMP
         )
-        as(
+        as (
              SELECT employee.PRER, refactor_employee_id(employee.PREN), employee.PRCKNM, employee.PRCOMN, employee.PRLNM,
 	     employee.PREML1,
              employee.PRL01, employee.PRL02, employee.PRL03, employee.PRL04, employee.PRPOS, employee.PRTITL,
 	     employee.PRDOHE, employee.PRPAY,
 
--- employer_number		   char(3),
--- employee_number		   char(9),
--- employee_name              char(75),
--- employee_common_name       char(75),
--- employee_last_name         char(75),
--- employee_description	   char(100),
--- employee_description_alt   char(100),
--- email_address		   char(75),
--- level_1			   char(5),
--- level_2			   char(5),
--- level_3			   char(5),
--- level_4			   char(5),
--- position_code		   char(6),
--- position_title		   char(30),
--- employee_hire_date	   char(10),
--- salary_type		   char(1),
-
 	     -- GET MANAGER DATA
 	     refactor_employee_id(manager_addons.PREN), manager_addons.PRCKNM, manager_addons.PRCOMN, manager_addons.PRLNM,
 	     manager_addons.PREML1,
              manager_addons.PRPOS, manager_addons.PRTITL,
-	     
--- manager_employee_number    char(9),
--- manager_name               char(75),
--- manager_common_name	   char(75),
--- manager_last_name          char(75),
--- manager_description	   char(100),
--- manager_description_alt	   char(100),
--- manager_email_address      char(75),
--- manager_position_code      char(6),
--- manager_position_title     char(30),
 	     
 	     -- GET ALL PTO DATA
 	     employee.PRVAC, employee.PRVAT,
@@ -313,7 +263,6 @@ Begin
 
              WHERE employee.PREN = refactor_employee_id(in_employee_number) and
 	     employee.PRER = in_employer_number
-	     --fetch first 1 row only
         )
 
     select a.EMPLOYER_NUMBER, a.EMPLOYEE_NUMBER, a.EMPLOYEE_NAME, a.EMPLOYEE_COMMON_NAME, a.EMPLOYEE_LAST_NAME,
@@ -323,38 +272,11 @@ Begin
     a.LEVEL_1, a.LEVEL_2, a.LEVEL_3, a.LEVEL_4, a.POSITION_CODE, TRIM(a.POSITION_TITLE),
     a.EMPLOYEE_HIRE_DATE, a.SALARY_TYPE,
 
--- employer_number		   char(3),
--- employee_number		   char(9),
--- employee_name              char(75),
--- employee_common_name       char(75),
--- employee_last_name         char(75),
--- employee_description	   char(100),
--- employee_description_alt   char(100),
--- email_address		   char(75),
--- level_1			   char(5),
--- level_2			   char(5),
--- level_3			   char(5),
--- level_4			   char(5),
--- position_code		   char(6),
--- position_title		   char(30),
--- employee_hire_date	   char(10),
--- salary_type		   char(1),
-
     a.MANAGER_EMPLOYEE_NUMBER, a.MANAGER_NAME, a.MANAGER_COMMON_NAME, a.MANAGER_LAST_NAME,
     TRIM(a.MANAGER_LAST_NAME) CONCAT ', ' CONCAT TRIM(a.MANAGER_COMMON_NAME) CONCAT ' (' CONCAT TRIM(a.MANAGER_EMPLOYEE_NUMBER) CONCAT ')',
     TRIM(a.MANAGER_COMMON_NAME) CONCAT ' ' CONCAT TRIM(a.MANAGER_LAST_NAME) CONCAT ' (' CONCAT TRIM(a.MANAGER_EMPLOYEE_NUMBER) CONCAT ')',
     TRIM(a.MANAGER_EMAIL_ADDRESS),
     a.MANAGER_POSITION_CODE, a.MANAGER_POSITION_TITLE,
-    
--- manager_employee_number    char(9),
--- manager_name               char(75),
--- manager_common_name	   char(75),
--- manager_last_name          char(75),
--- manager_description	   char(100),
--- manager_description_alt	   char(100),
--- manager_email_address      char(75),
--- manager_position_code      char(6),
--- manager_position_title     char(30),
 
     -- PTO VALUES
     a.PTO_EARNED, a.PTO_TAKEN, a.PTO_UNAPPROVED, a.PTO_PENDING, a.PTO_PENDING_TMP,
