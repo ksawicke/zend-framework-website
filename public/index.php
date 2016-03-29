@@ -11,12 +11,13 @@ chdir(dirname(__DIR__));
 $currentSystem = $_SERVER['SERVER_NAME'];
 $currentPath = getcwd();
 
-if (trim($currentSystem) == 'swift') {
+if( trim($currentSystem) == 'swift' || trim($currentSystem) == 'swift.swift.com' ) {
     switch ($currentPath) {
         case '/www/zendsvr6/htdocs/sawik/timeoff/uat':
+            define('ENVIRONMENT', 'testing');
+            break;
+        
         case '/www/zendsvr6/htdocs/sawik/timeoff/dev':
-//             define('ENVIRONMENT', 'production');
-//             break;
         default:
             define('ENVIRONMENT', 'development');
             break;

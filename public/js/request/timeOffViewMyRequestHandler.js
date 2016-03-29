@@ -347,7 +347,7 @@ var timeOffViewRequestHandler = new function ()
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
-            timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
+            timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
             timeOffViewRequestHandler.setHours( json.employeeData );
 //        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
 //            var calendarHtml = '';
@@ -456,7 +456,7 @@ var timeOffViewRequestHandler = new function ()
             dataType: 'json'
         })
         .success(function (json) {
-            timeOffViewRequestHandler.drawThreeCalendars( json.newCalendarData );
+            timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
             timeOffViewRequestHandler.setHours( json.employeeData );
             return;
         })

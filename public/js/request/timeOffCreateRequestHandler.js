@@ -322,7 +322,7 @@ var timeOffCreateRequestHandler = new function() {
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
             requestForEmployeeObject = json.employeeData;
-            timeOffCreateRequestHandler.drawThreeCalendars(json.newCalendarData);
+            timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
             timeOffCreateRequestHandler.setHours(json.employeeData);
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
@@ -451,7 +451,7 @@ var timeOffCreateRequestHandler = new function() {
             },
             dataType : 'json'
         }).success(function(json) {
-            timeOffCreateRequestHandler.drawThreeCalendars(json.newCalendarData);
+            timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
             return;
         }).error(function() {
             console.log('There was some error.');
