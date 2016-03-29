@@ -61,6 +61,7 @@ class RequestApi extends ApiController {
                                                'heather_baehr@swifttrans.com',
                                                'jessica_yanez@swifttrans.com'
         ];
+        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
     
     /**
@@ -191,13 +192,23 @@ class RequestApi extends ApiController {
     protected function emailRequestToEmployee( $requestId, $post )
     {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'],
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            $to,
+            $cc
         );
         $Email->send();
     }
@@ -210,9 +221,19 @@ class RequestApi extends ApiController {
     protected function emailRequestToManager( $requestId, $post )
     {
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
-        $reviewUrl = ( ( ENVIRONMENT==='development' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+        $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
             $renderer->basePath( '/request/review-request/' . $requestId );
         $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
@@ -220,8 +241,8 @@ class RequestApi extends ApiController {
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'Please review this request at the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            $to,
+            $cc
         );
         $Email->send();
     }

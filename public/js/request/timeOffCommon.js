@@ -10,7 +10,8 @@ var timeOffCommon = new function ()
             timeOffCommon.autoOpenDropdownOnHover();
             
             $("#navbar > ul > li > ul > li > a").on( 'click', function() {
-                $(this).addClass( "active" );
+                $('.dropdown ul').hide();
+                $('li.dropdown.open').removeClass('open');
             });
         });
     }
