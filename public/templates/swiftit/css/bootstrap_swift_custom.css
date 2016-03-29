@@ -216,7 +216,7 @@ div.container {
     vertical-align: middle;
 }
 #navbar > ul > li { /* Background color of dropdown menu parent */
-    background-color: #fff; /*rgba(22,19,12,0.8);*/
+    /*background-color: #fff; rgba(22,19,12,0.8);*/
 }
 #navbar > ul > li.dropdown.open > a { /* Background color of dropdown menu parent on hover */
     background-color: rgba(22,19,12,0.8);
@@ -234,6 +234,13 @@ div.container {
     background-color:transparent;
 }
 #navbar > ul > li.dropdown.open > ul > li a {
+    color: #fff;
+    padding:15px 15px 15px 15px;
+    margin:0px;
+    font-weight:normal;
+    background-color:transparent;
+}
+#navbar > ul > li.dropdown > ul > li a {
     color: #fff;
     padding:15px 15px 15px 15px;
     margin:0px;

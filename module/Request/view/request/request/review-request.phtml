@@ -23,7 +23,7 @@
                                 <strong>Name</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
+                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT; ?>&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
                             </div>
                         </div>
 
@@ -41,7 +41,7 @@
                                 <strong>Supervisor</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_NAME; ?>&nbsp;(<?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_EMPLOYEE_NUMBER; ?>)
+                                <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_DESCRIPTION_ALT; ?>
                             </div>
                         </div>
 
@@ -122,7 +122,7 @@
                                 <strong>Name</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                <?php echo $timeoffRequestData['CREATOR_LAST_NAME']; ?>, <?php echo $timeoffRequestData['CREATOR_FIRST_NAME']; ?>&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['CREATOR_POSITION_TITLE']; ?>
+                                <?php echo $timeoffRequestData['CREATOR_FIRST_NAME']; ?>&nbsp;<?php echo $timeoffRequestData['CREATOR_LAST_NAME']; ?>&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['CREATOR_POSITION_TITLE']; ?>
                             </div>
                         </div>
                         
@@ -198,24 +198,61 @@
                             </div>
                         </div>
                         
+                        <?php /*****************************/ ?>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 text-right">
+                                <strong>Time Off Hours</strong>
+                            </div>
+                            <div class="col-lg-9 col-md-9">
+                                
+                                <table class="employeeSchedule">
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Grandfathered</th>
+                                            <th>PTO</th>
+                                            <th>Float</th>
+                                            <th>Sick</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Pending</td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->GF_PENDING_TOTAL, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->PTO_PENDING_TOTAL, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->FLOAT_PENDING_TOTAL, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->SICK_PENDING_TOTAL, 2 ); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Remaining</td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->GF_REMAINING, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->PTO_REMAINING, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->FLOAT_REMAINING, 2 ); ?></td>
+                                            <td><?php echo number_format( $timeoffRequestData['EMPLOYEE_DATA']->SICK_REMAINING, 2 ); ?></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                            </div>
+                        </div>
+                        <?php /*****************************/ ?>
+                        
                         <div class="row">
                             <div class="col-lg-3 col-md-3 text-right">
                                 <strong>History</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
                                 <table class="employeeSchedule">
-                                    <thead>
+                                    <?php /*** <thead>
                                         <tr>
-                                            <th>DATE/TIME</th>
                                             <th>COMMENT</th>
                                         </tr>
-                                    </thead>
+                                    </thead> ***/ ?>
                                     <tbody>
                                         <?php
                                         foreach( $timeoffRequestData['LOG_ENTRIES'] as $ctr => $entry ) {
                                             echo '<tr>';
-                                            echo '<td>' . $entry['CREATE_TIMESTAMP'] . '</td>';
-                                            echo '<td>' . $entry['COMMENT'] . '</td>';
+                                            echo '<td>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
                                             echo '</tr>';
                                         }
                                         ?>
@@ -235,17 +272,27 @@
                                 <?php } ?>
                                 
                                 <?php
-                                $buttonDisabled = "";
-                                if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Manager Approval" ) {
-                                    $buttonDisabled = " disabled";
-                                }
+//                                $buttonDisabled = "";
+//                                if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Manager Approval" ) {
+//                                    $buttonDisabled = " disabled";
+//                                }
                                 ?>
                                 
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
                                 <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
                                 <p>
-                                    <button type="button" class="btn btn-form-primary btn-lg approveTimeOffRequest<?php echo $buttonDisabled; ?>">Approve</button>
-                                    <button type="button" class="btn btn-form-primary btn-lg denyTimeOffRequest<?php echo $buttonDisabled; ?>">Deny</button>
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ) { ?>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
+                                    <?php } ?>
+                                    
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) { ?>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionApproveRequest" disabled="disabled">Approve</button>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionDenyRequest" disabled="disabled">Deny</button>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionUpload" disabled="disabled">Upload</button>
+                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionUpdateOfficeChecks" disabled="disabled">Update Checks</button>
+                                    <?php } ?>
+                                        
                                 </p>
                             </div>
                         </div>

@@ -27,8 +27,8 @@ class OutlookHelper {
     public function outputBeginVCalendar() {
         return "BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//SwiftTransportation//TimeoffRequests/NONSGML v1.0//EN\r\n
-METHOD:REQUEST\r\n\r\n";
+PRODID:-//SwiftTransportation//TimeoffRequests/NONSGML v1.0//EN
+METHOD:REQUEST\r\n";
     }
 
     public function outputEndVCalendar() {
@@ -53,7 +53,7 @@ TZNAME:PST
 DTSTART:19701101T020000
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
-END:VTIMEZONE\r\n\r\n";
+END:VTIMEZONE\r\n";
     }
 
     public function outputUID() {
@@ -86,6 +86,9 @@ END:VTIMEZONE\r\n\r\n";
         $vEvents = '';
         $startDate = date( "Ymd", strtotime( $request['start'] ) );
         $endDate = date( "Ymd", strtotime( $request['end'] ) );
+        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
 
         $vEvents .= "BEGIN:VEVENT
 UID:" . $this->outputUID() . "
@@ -103,7 +106,7 @@ X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
 FBTYPE:FREE
 ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
                 $participantsText .
-                "\r\nEND:VEVENT\r\n\r\n";
+                "\r\nEND:VEVENT\r\n";
 
         return $vEvents;
     }
@@ -128,8 +131,11 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         $forEmail = trim( $calendarRequestObject['for']['EMAIL_ADDRESS'] );
         $manager = trim( $calendarRequestObject['for']['MANAGER_NAME'] );
         $managerEmail = trim( $calendarRequestObject['for']['MANAGER_EMAIL_ADDRESS'] );
-        $subject = '[DEVELOPMENT] ' . strtoupper( $for ) . ' - APPROVED TIME OFF';
-
+        $subject = strtoupper( $for ) . ' - APPROVED TIME OFF';
+        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
+        
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );
             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
@@ -142,11 +148,9 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
                     $this->outputEndVCalendar();
 
             $headers .= $message;
-//            echo $message . '<br /><br /><br />';
+            
             $mailsent = mail( $calendarRequestObject['to'], $subject, $message, $headers );
         }
-//        die("@@@@@@");
-//        die("END TEST EMAIL OUTPUT");
 
         return ($mailsent) ? (true) : (false);
     }

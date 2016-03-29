@@ -56,11 +56,12 @@ class RequestApi extends ApiController {
     
     public function __construct()
     {
-        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-                                               'sarah_koogle@swifttrans.com',
-                                               'heather_baehr@swifttrans.com',
-                                               'jessica_yanez@swifttrans.com'
+        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+                                           'sarah_koogle@swifttrans.com',
+                                           'heather_baehr@swifttrans.com',
+                                           'jessica_yanez@swifttrans.com'
         ];
+        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
     
     /**
@@ -191,13 +192,23 @@ class RequestApi extends ApiController {
     protected function emailRequestToEmployee( $requestId, $post )
     {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'],
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            $to,
+            $cc
         );
         $Email->send();
     }
@@ -210,9 +221,19 @@ class RequestApi extends ApiController {
     protected function emailRequestToManager( $requestId, $post )
     {
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
-        $reviewUrl = ( ( ENVIRONMENT==='development' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+        $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
             $renderer->basePath( '/request/review-request/' . $requestId );
         $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
@@ -220,8 +241,8 @@ class RequestApi extends ApiController {
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'Please review this request at the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
-            ( ( ENVIRONMENT==='development' ) ? $this->developmentEmailAddressList : $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] ),
-            ( ( ENVIRONMENT==='development' ) ? '' : $post->request['forEmployee']['EMAIL_ADDRESS'] )
+            $to,
+            $cc
         );
         $Email->send();
     }
@@ -231,7 +252,7 @@ class RequestApi extends ApiController {
      * 
      * @return JsonModel
      */
-    public function submitApprovalResponseAction()
+    public function submitManagerApprovedAction()
     {
         $post = $this->getRequest()->getPost();
         $Employee = new Employee();
@@ -323,11 +344,11 @@ class RequestApi extends ApiController {
     }
  
     /**
-     * Handles the manager deny process.
+     * Handles the manager denied process.
      * 
      * @return JsonModel
      */
-    public function submitDenyResponseAction()
+    public function submitManagerDeniedAction()
     {
         $post = $this->getRequest()->getPost();
         $Employee = new Employee();
@@ -362,6 +383,112 @@ class RequestApi extends ApiController {
                 'message' => 'There was an error submitting your request. Please try again.'
             ]);
         }
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll approval process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollApprovedAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $validationHelper = new ValidationHelper();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $OutlookHelper = new OutlookHelper();
+        $RequestEntry = new RequestEntry();
+        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        
+        try {
+            /** Log Payroll approval with comment **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
+                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+
+            /** Change status to Completed PAFs */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
+                $post->request_id,
+                $post->review_request_reason );
+
+            /** Log status change to Pending AS400 Upload **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Status changed to Completed PAFs' );
+
+            /** Send calendar invites for this request **/
+            $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
+            
+            /** Log sending calendar invites **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Sent calendar invites of the request' );
+            
+            $result = new JsonModel([
+                'success' => true,
+                'request_id' => $post->request_id
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll denied process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollDeniedAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollDenied'
+        ]);
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll upload process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollUploadAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollUpload'
+        ]);
+        
+        return $result;
+    }
+    
+    /**
+     * Handles the Payroll update checks process.
+     * 
+     * @return JsonModel
+     */
+    public function submitPayrollUpdateAction()
+    {
+        $result = new JsonModel([
+            'success' => false,
+            'error' => 'submitPayrollUpdate'
+        ]);
         
         return $result;
     }

@@ -55,7 +55,6 @@ class CalendarApi extends ApiController {
 
     public function loadCalendarAction() {
         $post = $this->getRequest()->getPost();
-//        $request = $this->getRequest();
         $startDate = $post->startYear . "-" . $post->startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
         $employeeNumber = $post->employeeNumber;
@@ -89,24 +88,22 @@ class CalendarApi extends ApiController {
             $headers[$key] = $calendar['header'];
             $calendars[$key] = $calendar['data'];
         }
-        $navigation = [
-            'calendarNavigationFastRewind' => [ 'month' => $calendarDates['sixMonthsBack']->format( "m" ), 'year' => $calendarDates['sixMonthsBack']->format( "Y" ) ],
-            'calendarNavigationRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
-            'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
-            'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
-        ];
         
         $result = new JsonModel( [
             'success' => true,
-            'calendarData' => \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $calendarData ),
             'employeeData' => $employeeData,
             'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
                 'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' )
             ],
-            'newCalendarData' => [
+            'calendarData' => [
                 'headers' => $headers,
                 'calendars' => $calendars,
-                'navigation' => $navigation
+                'navigation' => [
+                    'calendarNavigationFastRewind' => [ 'month' => $calendarDates['sixMonthsBack']->format( "m" ), 'year' => $calendarDates['sixMonthsBack']->format( "Y" ) ],
+                    'calendarNavigationRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
+                    'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
+                    'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
+                ]
             ]
         ] );
 

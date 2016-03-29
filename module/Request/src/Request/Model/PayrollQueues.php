@@ -174,7 +174,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+		'PAYROLL' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER

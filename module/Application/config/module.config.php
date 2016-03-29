@@ -39,26 +39,78 @@ return [
                 'child_routes' => []
             ],
             
-            'submitApprovalResponse' => [
+            'submitManagerApproved' => [
                 'type' => 'segment',
                 'options' => [
-                    'route' => '/api/request/approve',
+                    'route' => '/api/request/manager-approved',
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
-                        'action' => 'submitApprovalResponse'
+                        'action' => 'submitManagerApproved'
                     ]
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
             
-            'submitDenyResponse' => [
+            'submitManagerDenied' => [
                 'type' => 'segment',
                 'options' => [
-                    'route' => '/api/request/deny',
+                    'route' => '/api/request/manager-denied',
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
-                        'action' => 'submitDenyResponse'
+                        'action' => 'submitManagerDenied'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollApproved' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-approved',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollApproved'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollDenied' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-denied',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollDenied'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollUpload' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-upload',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollUpload'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollUpdate' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-update-checks',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollUpdate'
                     ]
                 ],
                 'may_terminate' => 1,

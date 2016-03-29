@@ -57,7 +57,9 @@ $this->headScript()
         ->prependFile( $this->basePath( 'templates/swiftit/js/jquery/1.11.2/jquery.min.js' ) );
 
 $phpVars = [ 'employee_number' => $employeeNumber,
-             'basePath' => ( ENVIRONMENT==='development' ? 'http://swift:10080' . $this->basepath() : 'http://aswift:10080' . $this->basepath() )
+             'basePath' => ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ?
+                             'http://swift:10080' . $this->basepath() :
+                             'http://aswift:10080' . $this->basepath() )
 ];
         
 $this->headScript()

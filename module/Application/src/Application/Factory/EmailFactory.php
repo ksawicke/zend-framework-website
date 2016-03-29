@@ -31,8 +31,6 @@ class EmailFactory {
     
     public $applicationEmailTemplate;
     
-    public $testSubjectPrefix;
-    
     public $mailName;
     
     public $mailHost;
@@ -45,18 +43,18 @@ class EmailFactory {
         $this->applicationFromEmail = 'ASWIFT_SYSTEM@SWIFTTRANS.COM';
         $this->applicationFromName = 'Time Off Requests Administrator';
         $this->applicationReplyToEmail = 'DO_NOT_REPLY@SWIFT_TRANS.COM';
-        $this->testSubjectPrefix = '[ DEVELOPMENT - Time Off Requests ] - ';
         $this->applicationEmailTemplate = dirname( dirname( dirname( __DIR__ ) ) ) . '/view/email/timeoffRequestTemplate.phtml';
-        
         $this->mailName = 'mailrelay';
         $this->mailHost = 'mailrelay.swifttrans.com';
         $this->mailPort = '25';
-        
         $this->emailSubject = $emailSubject;
         $this->emailBody = $emailBody;
         $this->toEmail = $toEmail;
         $this->ccEmail = $ccEmail;
 //        $this->bccEmail = $bcc;
+        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
+            $this->emailSubject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $this->emailSubject;
+        }
     }
 
     /**
