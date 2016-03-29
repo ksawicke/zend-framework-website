@@ -56,12 +56,12 @@ class RequestApi extends ApiController {
     
     public function __construct()
     {
-        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-                                               'sarah_koogle@swifttrans.com',
-                                               'heather_baehr@swifttrans.com',
-                                               'jessica_yanez@swifttrans.com'
+        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+                                           'sarah_koogle@swifttrans.com',
+                                           'heather_baehr@swifttrans.com',
+                                           'jessica_yanez@swifttrans.com'
         ];
-        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
+        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
     
     /**

@@ -86,6 +86,9 @@ END:VTIMEZONE\r\n";
         $vEvents = '';
         $startDate = date( "Ymd", strtotime( $request['start'] ) );
         $endDate = date( "Ymd", strtotime( $request['end'] ) );
+        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
 
         $vEvents .= "BEGIN:VEVENT
 UID:" . $this->outputUID() . "
@@ -128,8 +131,11 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         $forEmail = trim( $calendarRequestObject['for']['EMAIL_ADDRESS'] );
         $manager = trim( $calendarRequestObject['for']['MANAGER_NAME'] );
         $managerEmail = trim( $calendarRequestObject['for']['MANAGER_EMAIL_ADDRESS'] );
-        $subject = '[DEVELOPMENT] ' . strtoupper( $for ) . ' - APPROVED TIME OFF';
-
+        $subject = strtoupper( $for ) . ' - APPROVED TIME OFF';
+        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
+        
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );
             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';

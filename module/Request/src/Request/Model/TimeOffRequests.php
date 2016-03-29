@@ -284,7 +284,7 @@ class TimeOffRequests extends BaseDB {
                     'POSITION' => 'PRPOS', 'EMAIL_ADDRESS' => 'PREML1',
                     'EMPLOYEE_HIRE_DATE' => 'PRDOHE', 'POSITION_TITLE' => 'PRTITL' ] )
                 ->join( [ 'creator' => 'PRPMS' ], 'creator.PREN = request.CREATE_USER', [ 'CREATOR_POSITION' => 'PRPOS', 'CREATOR_EMAIL_ADDRESS' => 'PREML1', 'CREATOR_POSITION_TITLE' => 'PRTITL',
-                    'CREATOR_LAST_NAME' => 'PRLNM', 'CREATOR_FIRST_NAME' => 'PRFNM' ] )
+                    'CREATOR_LAST_NAME' => 'PRLNM', 'CREATOR_FIRST_NAME' => 'PRFNM' ] ) // employee.CREATOR_LAST_NAME CONCAT "," CONCAT employee.CREATOR_FIRST_NAME CONCAT " (" CONCAT employee.CREATE_USER CONCAT ") - " CONCAT employee.PRTITL
                 ->join( [ 'status' => 'TIMEOFF_REQUEST_STATUSES' ], 'status.REQUEST_STATUS = request.REQUEST_STATUS', [ 'REQUEST_STATUS_DESCRIPTION' => 'DESCRIPTION' ] )
                 ->join( [ 'schedule' => 'TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES' ], 'schedule.EMPLOYEE_NUMBER = request.EMPLOYEE_NUMBER', [ 'SCHEDULE_MON' => 'SCHEDULE_MON', 'SCHEDULE_TUE' => 'SCHEDULE_TUE', 'SCHEDULE_WED' => 'SCHEDULE_WED',
                     'SCHEDULE_THU' => 'SCHEDULE_THU', 'SCHEDULE_FRI' => 'SCHEDULE_FRI', 'SCHEDULE_SAT' => 'SCHEDULE_SAT',
@@ -358,7 +358,7 @@ class TimeOffRequests extends BaseDB {
      * @return array
      */
     public function findRequestLogEntries( $requestId = null ) {
-        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm-dd-yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
         
