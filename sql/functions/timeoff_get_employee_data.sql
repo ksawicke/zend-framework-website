@@ -44,7 +44,7 @@ create or replace function
 	pto_pending      	   decimal(9,2),
 	pto_pending_tmp      	   decimal(9,2),
 	pto_pending_total	   decimal(9,2),
-	pto_available		   decimal(9,2),
+	pto_remaining		   decimal(9,2),
 
 	float_earned		   decimal(9,2),
 	float_taken		   decimal(9,2),
@@ -52,7 +52,7 @@ create or replace function
 	float_pending      	   decimal(9,2),
 	float_pending_tmp      	   decimal(9,2),
 	float_pending_total	   decimal(9,2),
-	float_available		   decimal(9,2),
+	float_remaining		   decimal(9,2),
 
 	sick_earned		   decimal(9,2),
 	sick_taken		   decimal(9,2),
@@ -60,7 +60,7 @@ create or replace function
 	sick_pending      	   decimal(9,2),
 	sick_pending_tmp      	   decimal(9,2),
 	sick_pending_total	   decimal(9,2),
-	sick_available		   decimal(9,2),
+	sick_remaining		   decimal(9,2),
 
 	gf_earned		   decimal(9,2),
 	gf_taken		   decimal(9,2),
@@ -68,7 +68,7 @@ create or replace function
 	gf_pending      	   decimal(9,2),
 	gf_pending_tmp      	   decimal(9,2),
 	gf_pending_total	   decimal(9,2),
-	gf_available		   decimal(9,2),
+	gf_remaining		   decimal(9,2),
 
 	unexcused_unapproved	   decimal(9,2),
 	unexcused_pending      	   decimal(9,2),
