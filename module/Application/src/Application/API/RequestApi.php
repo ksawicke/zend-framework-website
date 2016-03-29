@@ -248,6 +248,40 @@ class RequestApi extends ApiController {
     }
     
     /**
+     * Send the employee an email about their request being denied.
+     * 
+     * @param integer $requestId
+     */
+    protected function emailDeniedNoticeToEmployee( $requestId, $post )
+    {
+        $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
+        $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+            $renderer->basePath( '/request/review-request/' . $requestId );
+        $emailVariables = $this->getEmailRequestVariables( $requestId );
+        $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
+        $Email = new EmailFactory(
+            'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' was denied',
+            'The request for ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied: <br /><br />' . 
+                $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
+                'For details please visit the following URL:<br /><br />' .
+                '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
+            $to,
+            $cc
+        );
+        $Email->send();
+    }
+    
+    /**
      * Handles the manager approval process.
      * 
      * @return JsonModel
@@ -455,10 +489,43 @@ class RequestApi extends ApiController {
      */
     public function submitPayrollDeniedAction()
     {
-        $result = new JsonModel([
-            'success' => false,
-            'error' => 'submitPayrollDenied'
-        ]);
+        $post = $this->getRequest()->getPost();
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        
+        try {
+            /** Log Payroll denied with comment **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll denied by ' . UserSession::getFullUserInfo() .
+                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+
+            /** Change status to Denied */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'denied' ),
+                $post->request_id,
+                $post->review_request_reason );
+
+            /** Log status change to Denied **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Status changed to Denied' );
+            
+            $this->emailDeniedNoticeToEmployee( $post->request_id, $post );
+            
+            $result = new JsonModel([
+                'success' => true,
+                'request_id' => $post->request_id
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
         
         return $result;
     }
