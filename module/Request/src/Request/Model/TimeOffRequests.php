@@ -204,7 +204,7 @@ class TimeOffRequests extends BaseDB {
         foreach( $entries as $ctr => $data ) {
             $code = $data['REQUEST_CODE'];
             $date = new \DateTime( $data['REQUEST_DATE'] );
-            $date = $date->format( "m-d-Y" );
+            $date = $date->format( "m/d/Y" );
             $htmlData .= '<tr>' .
                 '<td>' . $data['REQUEST_DAY_OF_WEEK'] . '</td>' . 
                 '<td>' . $date . '</td>' . 
@@ -301,7 +301,7 @@ class TimeOffRequests extends BaseDB {
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
-        $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m-d-Y" );
+        $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m/d/Y" );
         
         $this->employeeData = \Request\Helper\Format::trimData( $request );
                 
@@ -358,7 +358,7 @@ class TimeOffRequests extends BaseDB {
      * @return array
      */
     public function findRequestLogEntries( $requestId = null ) {
-        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm-dd-yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
         

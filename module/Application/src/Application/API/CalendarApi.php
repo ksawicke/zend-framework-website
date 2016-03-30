@@ -55,38 +55,37 @@ class CalendarApi extends ApiController {
 
     public function loadCalendarAction() {
         $post = $this->getRequest()->getPost();
+        $Employee = new \Request\Model\Employee();
+        $Employee->ensureEmployeeScheduleIsDefined( $post->employeeNumber );
+        $employeeData = $Employee->findEmployeeTimeOffData( $post->employeeNumber, "Y" );
         $startDate = $post->startYear . "-" . $post->startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
-        $employeeNumber = $post->employeeNumber;
+        $dates = [];
+        $headers = [];
+        $calendars = [];
 
         \Request\Helper\Calendar::setCalendarHeadings( ['S', 'M', 'T', 'W', 'T', 'F', 'S' ] );
         \Request\Helper\Calendar::setBeginWeekOne( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setBeginCalendarRow( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setInvalidRequestDates( $this->invalidRequestDates );
         $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $post->startYear, $post->startMonth );
-
-        $Employee = new \Request\Model\Employee();
-        $Employee->ensureEmployeeScheduleIsDefined( $employeeNumber );
-        $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber, "Y" );
+        $requestData = $Employee->findTimeOffRequestData( $post->employeeNumber, $calendarDates );
         
-        $requestData = $Employee->findTimeOffRequestData( $employeeNumber, $calendarDates );
-        
-        $dates = [];
         foreach( $calendarDates as $timeFrame => $timeObject ) {
             $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
         }
         
-        $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( $employeeNumber, $startDate, $dates['threeMonthsOut'] );
-
-        $threeCalendars = \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $calendarData );
-        
-        $headers = [];
-        $calendars = [];
-        $navigation = [];
+        $highlightDates = $Employee->findTimeOffCalendarByEmployeeNumber( $post->employeeNumber, $startDate, $dates['threeMonthsOut'] );
+        $threeCalendars = \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $highlightDates );
         
         foreach( $threeCalendars['calendars'] as $key => $calendar ) {
             $headers[$key] = $calendar['header'];
             $calendars[$key] = $calendar['data'];
+        }
+        
+        foreach( $highlightDates as $key => $dateObject ) {
+            // date( "m/d/Y", strtotime( $request['REQUEST_DATE'] ) )
+            $highlightDates[$key]['REQUEST_DATE'] = date( "m/d/Y", strtotime( $dateObject['REQUEST_DATE'] ) );
         }
         
         $result = new JsonModel( [
@@ -103,7 +102,8 @@ class CalendarApi extends ApiController {
                     'calendarNavigationRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
                     'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
                     'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
-                ]
+                ],
+                'highlightDates' => $highlightDates
             ]
         ] );
 
