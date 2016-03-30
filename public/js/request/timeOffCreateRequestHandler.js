@@ -389,7 +389,7 @@ var timeOffCreateRequestHandler = new function() {
         
         timeOffCreateRequestHandler.highlightDates();
     }
-
+    
     /**
      * Marks the appropriate step the user is on for this request.
      * 

@@ -564,7 +564,7 @@ class Employee extends BaseDB {
                trim(employee.PREN) = '" . $employeeNumber . "' AND
                entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'
             ORDER BY REQUEST_DATE ASC";
-//        die( $rawSql );
+        
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 

@@ -319,6 +319,34 @@ var timeOffViewRequestHandler = new function ()
     }
     
     /**
+     * Draws dates below the calendar.
+     * 
+     * @param {type} highlightDates
+     * @returns {undefined}
+     */
+    this.drawDaysRequested = function (highlightDates) {
+        var datesSelectedDetailsHtml = '';
+        if( highlightDates.length===0 ) {
+            $("#noDatesSelectedWarning").show();
+        } else {
+            $("#noDatesSelectedWarning").hide();
+            $.each( highlightDates, function( key, dateObject ) {
+                datesSelectedDetailsHtml += dateObject.REQUEST_DATE +
+                                            '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                            '<input class="selectedDateHours" value="' + dateObject.REQUESTED_HOURS +
+                                            '" size="2" disabled="disabled">' +
+                                            '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                            '<span class="badge ' + dateObject.CALENDAR_DAY_CLASS + '">' +
+                                            timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
+                                            '</span>&nbsp;&nbsp;&nbsp;' +
+                                            ( ( dateObject.REQUEST_STATUS==="P" ) ? '<span class="glyphicon glyphicon-user red"></span>' : '<span class="glyphicon glyphicon-ok green"></span>' ) +
+                                            '<br />';
+            });
+        }
+        $("#datesSelectedDetails").html( datesSelectedDetailsHtml );
+    }
+    
+    /**
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadCalendars = function (employeeNumber) {
@@ -339,7 +367,6 @@ var timeOffViewRequestHandler = new function ()
             dataType: 'json'
         })
         .success(function (json) {
-//                    console.log("### 289");
             if (requestForEmployeeNumber === '') {
                 loggedInUserData = json.employeeData;
                 loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
@@ -348,58 +375,15 @@ var timeOffViewRequestHandler = new function ()
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
             timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
+            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
             timeOffViewRequestHandler.setHours( json.employeeData );
-//        	console.log("requestForEmployeeNumber", requestForEmployeeNumber);
-//            var calendarHtml = '';
-//            $.each(json.calendarData.calendars, function (index, thisCalendarHtml) {
-//                $("#calendar" + index + "Html").html(
-//                    json.calendarData.openHeader +
-//                    ((index == 1) ? json.calendarData.navigation.fastRewindButton + ' ' + json.calendarData.navigation.prevButton : '') +
-//                    thisCalendarHtml.header + ((index == 3) ? json.calendarData.navigation.nextButton + ' ' + json.calendarData.navigation.fastForwardButton : '') +
-//                    json.calendarData.closeHeader +
-//                    thisCalendarHtml.data);
-//            });
-//
-//            timeOffViewRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_REMAINING);
-//            timeOffViewRequestHandler.setEmployeePTOPending(json.employeeData.PTO_PENDING_TOTAL);
-//
-//            timeOffViewRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeFloatPending(json.employeeData.FLOAT_PENDING_TOTAL);
-//
-//            timeOffViewRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeSickPending(json.employeeData.SICK_PENDING_TOTAL);
-//
-////        	timeOffViewRequestHandler.setEmployeeUnexcusedAbsenceRemaining(json.employeeData.UNEXCUSED_ABSENCE_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeUnexcusedAbsencePending(json.employeeData.UNEXCUSED_PENDING_TOTAL);
-//
-////        	timeOffViewRequestHandler.setEmployeeBereavementRemaining(json.employeeData.BEREAVEMENT_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeBereavementPending(json.employeeData.BEREAVEMENT_PENDING_TOTAL);
-//
-////        	timeOffViewRequestHandler.setEmployeeCivicDutyRemaining(json.employeeData.CIVIC_DUTY_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeCivicDutyPending(json.employeeData.CIVIC_DUTY_PENDING_TOTAL);
-//
-//            timeOffViewRequestHandler.setEmployeeGrandfatheredRemaining(json.employeeData.GF_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeGrandfatheredPending(json.employeeData.GF_PENDING_TOTAL);
-//
-////        	timeOffViewRequestHandler.setEmployeeApprovedNoPayRemaining(json.employeeData.APPROVED_NO_PAY_REMAINING);
-//            timeOffViewRequestHandler.setEmployeeApprovedNoPayPending(json.employeeData.UNPAID_PENDING_TOTAL);
-
-//            timeOffViewRequestHandler.setSelectedDates(json.requestData.json.approved, json.requestData.json.pending);
-//            timeOffViewRequestHandler.highlightDates();
-
-            // $(this).hasClass('disableTimeOffCategorySelection')
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
 
-//            console.log("FROG", json.employeeData);
             requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
-
-//            console.log('json.employeeData', json.employeeData);
-//            console.log('requestForEmployeeNumber', requestForEmployeeNumber);
-//            console.log('requestForEmployeeName', requestForEmployeeName);
 
             return;
         })
@@ -408,7 +392,7 @@ var timeOffViewRequestHandler = new function ()
             return;
         });
     }
-
+    
     this.setStep = function (step) {
         $(".step1").removeClass("active");
         $(".step2").removeClass("active");
@@ -457,6 +441,7 @@ var timeOffViewRequestHandler = new function ()
         })
         .success(function (json) {
             timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
+            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
             timeOffViewRequestHandler.setHours( json.employeeData );
             return;
         })
