@@ -44,9 +44,9 @@ class Employee extends BaseDB {
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
         'timeOffSick' => 'S',
-        'timeOffUnexcusedAbsence' => 'X',
+        'timeOffUnexcused' => 'X',
         'timeOffBereavement' => 'B',
-        'timeOffCivicDuty' => 'J',
+        'timeOffCivicDuty' => 'C',
         'timeOffGrandfathered' => 'R',
         'timeOffApprovedNoPay' => 'A'
     ];
@@ -54,7 +54,7 @@ class Employee extends BaseDB {
         'PTO' => 'timeOffPTO',
         'Float' => 'timeOffFloat',
         'Sick' => 'timeOffSick',
-        'UnexcusedAbsence' => 'timeOffUnexcusedAbsence',
+        'UnexcusedAbsence' => 'timeOffUnexcused',
         'Bereavement' => 'timeOffBereavement',
         'CivicDuty' => 'timeOffCivicDuty',
         'Grandfathered' => 'timeOffGrandfathered',
@@ -500,6 +500,9 @@ class Employee extends BaseDB {
     public function adjustRequestType( $request ) {
         if ( $request['REQUEST_TYPE'] === 'Unexcused' ) {
             $request['REQUEST_TYPE'] = 'UnexcusedAbsence';
+        }
+        if ( $request['REQUEST_TYPE'] === 'Civic Duty' ) {
+            $request['REQUEST_TYPE'] = 'CivicDuty';
         }
         if ( $request['REQUEST_TYPE'] === 'Time Off Without Pay' ) {
             $request['REQUEST_TYPE'] = 'ApprovedNoPay';

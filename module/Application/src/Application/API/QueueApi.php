@@ -56,6 +56,10 @@ class QueueApi extends ApiController {
     public function getPayrollQueueAction()
     {
         switch( $this->params()->fromRoute('payroll-queue') ) {
+            case 'denied':
+                return new JsonModel( $this->getPayrollDeniedQueueDatatable( $_POST ) );
+                break;
+            
             case 'update-checks':
                 return new JsonModel( $this->getPayrollUpdateChecksQueueDatatable( $_POST ) );
                 break;
@@ -112,6 +116,68 @@ class QueueApi extends ApiController {
 
         $recordsTotal = $ManagerQueues->countManagerQueueItems( $_POST, false );
         $recordsFiltered = $ManagerQueues->countManagerQueueItems( $_POST, true );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $draw,
+            "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+
+        /**
+         * return result
+         */
+        return $result;
+    }
+    
+    /**
+     * Get data for the Denied Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function getPayrollDeniedQueueDatatable( $data = null )
+    {
+        /**
+         * return empty result if not called by Datatable
+         */
+        if ( !array_key_exists( 'draw', $data ) ) {
+            return [ ];
+        }
+
+        /**
+         * increase draw counter for adatatable
+         */
+        $draw = $data['draw'] ++;
+
+        $PayrollQueues = new \Request\Model\PayrollQueues();
+        $queueData = $PayrollQueues->getDeniedQueue( $_POST );
+        
+        $data = [];
+        foreach ( $queueData as $ctr => $request ) {
+            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
+            
+            $data[] = [
+                'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
+                'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
+                'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
+                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                'REQUEST_REASON' => $request['REQUEST_REASON'],
+                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+            ];
+        }
+
+        $recordsTotal = 0;
+        $recordsFiltered = 0;
+        
+        $recordsTotal = $PayrollQueues->countDeniedQueueItems( $_POST, false );
+        $recordsFiltered = $PayrollQueues->countDeniedQueueItems( $_POST, true );
 
         /**
          * prepare return result
