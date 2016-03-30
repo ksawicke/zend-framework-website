@@ -104,13 +104,13 @@ return [
                 'child_routes' => []
             ],
             
-            'submitPayrollUpdate' => [
+            'submitPayrollUpdateChecks' => [
                 'type' => 'segment',
                 'options' => [
                     'route' => '/api/request/payroll-update-checks',
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
-                        'action' => 'submitPayrollUpdate'
+                        'action' => 'submitPayrollUpdateChecks'
                     ]
                 ],
                 'may_terminate' => 1,

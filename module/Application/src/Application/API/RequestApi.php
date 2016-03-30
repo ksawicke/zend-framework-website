@@ -59,7 +59,8 @@ class RequestApi extends ApiController {
         $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
                                            'sarah_koogle@swifttrans.com',
                                            'heather_baehr@swifttrans.com',
-                                           'jessica_yanez@swifttrans.com'
+                                           'jessica_yanez@swifttrans.com',
+                                           'nedra_munoz@swifttrans.com'
         ];
         $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
@@ -83,6 +84,32 @@ class RequestApi extends ApiController {
                 'hours' => number_format( $post->request['dates'][$key]['hours'], 2 )
             ];
         }
+        
+        return $post;
+    }
+    
+    /**
+     * Appends request data.
+     * 
+     * @param array $post
+     * @return array
+     */
+    protected function appendRequestData( $post )
+    {
+        $TimeOffRequests = new TimeOffRequests();
+        $request = $TimeOffRequests->findRequest( $post->request_id );
+        
+        foreach( $request['ENTRIES'] as $key => $data ) {
+            $date = \DateTime::createFromFormat( 'Y-m-d', $request['ENTRIES'][$key]['REQUEST_DATE'] );
+            $post->request['dates'][$key] = [
+                'date' => $date->format('Y-m-d'),
+                'day_of_week' => strtoupper( $date->format('D') ),
+                'type' => $request['ENTRIES'][$key]['REQUEST_CODE'],
+                'hours' => number_format( $request['ENTRIES'][$key]['REQUESTED_HOURS'], 2 )
+            ];
+        }
+        
+        $post->request['forEmployee'] = (array) $request['EMPLOYEE_DATA'];
         
         return $post;
     }
@@ -252,12 +279,12 @@ class RequestApi extends ApiController {
      * 
      * @param integer $requestId
      */
-    protected function emailDeniedNoticeToEmployee( $requestId, $post )
+    protected function emailDeniedNoticeToEmployee( $post )
     {
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
         $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
-            $renderer->basePath( '/request/review-request/' . $requestId );
-        $emailVariables = $this->getEmailRequestVariables( $requestId );
+            $renderer->basePath( '/request/review-request/' . $post->request_id );
+        $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         if( ENVIRONMENT==='development' ) {
@@ -269,15 +296,47 @@ class RequestApi extends ApiController {
             $cc = '';
         }
         
-        echo '<pre>';
-        print_r( $post );
-        echo '</pre>';
-        die();
-        
         $Email = new EmailFactory(
             'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' was denied',
             'The request for ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied: <br /><br />' . 
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied by Payroll' . 
+                ( !empty( $post->review_request_reason ) ? ' with the reason: ' . $post->review_request_reason : '' ) . '<br /><br />' . 
+                $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
+                'For details please visit the following URL:<br /><br />' .
+                '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
+            $to,
+            $cc
+        );
+        $Email->send();
+    }
+    
+    /**
+     * Emails an upload notice to Payroll of Status change to Upload
+     * 
+     * @param type $post
+     */
+    protected function emailUploadNoticeToPayroll( $post )
+    {
+        $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
+        $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+            $renderer->basePath( '/request/review-request/' . $post->request_id );
+        $emailVariables = $this->getEmailRequestVariables( $post->request_id );
+        $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
+        
+        $Email = new EmailFactory(
+            'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' status changed to Upload',
+            'The request for ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has changed status to Upload' . 
+                ( !empty( $post->review_request_reason ) ? ' with the reason: ' . $post->review_request_reason : '' ) . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'For details please visit the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
@@ -391,8 +450,6 @@ class RequestApi extends ApiController {
     public function submitManagerDeniedAction()
     {
         $post = $this->getRequest()->getPost();
-        $post = $this->cleanUpRequestedDates( $post );
-        $post = $this->addRequestForEmployeeData( $post );
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -497,22 +554,21 @@ class RequestApi extends ApiController {
      */
     public function submitPayrollDeniedAction()
     {
+        /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
+        $post = $this->appendRequestData( $post );
+        $post = $this->addRequestForEmployeeData( $post );
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         
-//        echo '<pre>';
-//        print_r( $post );
-//        echo '</pre>';
-//        die("...");
-        
         try {
+            $this->emailDeniedNoticeToEmployee( $post );
+            
             /** Log Payroll denied with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll denied by ' . UserSession::getFullUserInfo() .
-                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
                 ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
 
             /** Change status to Denied */
@@ -526,8 +582,6 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Status changed to Denied' );
-            
-            $this->emailDeniedNoticeToEmployee( $post->request_id, $post );
             
             $result = new JsonModel([
                 'success' => true,
@@ -550,10 +604,45 @@ class RequestApi extends ApiController {
      */
     public function submitPayrollUploadAction()
     {
-        $result = new JsonModel([
-            'success' => false,
-            'error' => 'submitPayrollUpload'
-        ]);
+        /** Clean up / append data to the Request **/
+        $post = $this->getRequest()->getPost();
+        $post = $this->appendRequestData( $post );
+        $post = $this->addRequestForEmployeeData( $post );
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $RequestEntry = new RequestEntry();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        
+        try {
+            /** Change status to Upload */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'pendingAS400Upload' ),
+                $post->request_id,
+                $post->review_request_reason );
+
+            /** Log status change to Upload **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Status changed to Pending AS400 Upload by ' . UserSession::getFullUserInfo() . 
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+           
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+            $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+            
+            /** Write record(s) to HPAPAATMP or PAPAATMP **/
+            $Papaa = new Papaatmp();
+            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks );
+            
+            $result = new JsonModel([
+                'success' => true,
+                'request_id' => $post->request_id
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
         
         return $result;
     }
@@ -563,12 +652,41 @@ class RequestApi extends ApiController {
      * 
      * @return JsonModel
      */
-    public function submitPayrollUpdateAction()
+    public function submitPayrollUpdateChecksAction()
     {
-        $result = new JsonModel([
-            'success' => false,
-            'error' => 'submitPayrollUpdate'
-        ]);
+        /** Clean up / append data to the Request **/
+        $post = $this->getRequest()->getPost();
+        $post = $this->appendRequestData( $post );
+        $post = $this->addRequestForEmployeeData( $post );
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        
+        try {
+            $this->emailUploadNoticeToPayroll( $post );
+            
+            /** Change status to Update Checks */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'updateChecks' ),
+                $post->request_id,
+                $post->review_request_reason );
+
+            /** Log status change to Update Checks **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Status changed to Update Checks by ' . UserSession::getFullUserInfo() . 
+                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+
+            $result = new JsonModel([
+                'success' => true,
+                'request_id' => $post->request_id
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
         
         return $result;
     }
