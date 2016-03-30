@@ -35,7 +35,8 @@ class RequestController extends AbstractActionController
         'update-checks' => 'Update Checks',
         'pending-payroll-approval' => 'Pending Payroll Approval',
         'completed-pafs' => 'Completed PAFs',
-        'pending-as400-upload' => 'Pending AS400 Upload'
+        'pending-as400-upload' => 'Pending AS400 Upload',
+        'denied' => 'Denied'
     ];
     
     protected static $typesToCodes = [
