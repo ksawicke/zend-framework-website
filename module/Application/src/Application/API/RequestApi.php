@@ -268,6 +268,12 @@ class RequestApi extends ApiController {
             $to = $this->testingEmailAddressList;
             $cc = '';
         }
+        
+        echo '<pre>';
+        print_r( $post );
+        echo '</pre>';
+        die();
+        
         $Email = new EmailFactory(
             'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' was denied',
             'The request for ' .
@@ -385,6 +391,8 @@ class RequestApi extends ApiController {
     public function submitManagerDeniedAction()
     {
         $post = $this->getRequest()->getPost();
+        $post = $this->cleanUpRequestedDates( $post );
+        $post = $this->addRequestForEmployeeData( $post );
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -494,6 +502,11 @@ class RequestApi extends ApiController {
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        
+//        echo '<pre>';
+//        print_r( $post );
+//        echo '</pre>';
+//        die("...");
         
         try {
             /** Log Payroll denied with comment **/
