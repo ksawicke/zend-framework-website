@@ -253,7 +253,12 @@ div.container {
 }
 
 .parsley-errorUserid {
-	color: red;
+    color: red;
+}
+
+.warnFirstDayRequestedTooOld {
+    color: red;
+    font-weight: bold;
 }
 
 .app_breadcrumb {

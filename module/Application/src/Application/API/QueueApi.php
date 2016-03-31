@@ -19,14 +19,10 @@
 namespace Application\API;
 
 use Zend\View\Model\JsonModel;
-use Request\Model\Employee;
-
-//use Application\Model\HotelTable;
-//use Application\Model\RoomTable;
 
 /**
  *
- * @author faecg
+ * @author sawik
  *
  */
 class QueueApi extends ApiController {
@@ -75,6 +71,10 @@ class QueueApi extends ApiController {
             case 'pending-as400-upload':
                 return new JsonModel( $this->getPayrollPendingAS400UploadQueueDatatable( $_POST ) );
                 break;
+            
+            case 'by-status':
+                return new JsonModel( $this->getPayrollByStatusQueueDatatable( $_POST ) );
+                break;
         }
     }
 
@@ -109,7 +109,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 6 days' ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -133,6 +133,23 @@ class QueueApi extends ApiController {
          * return result
          */
         return $result;
+    }
+    
+    /**
+     * Returns first day requested. Highlights if older than days passed in.
+     * 
+     * @param date $minDateRequested
+     * @param string $dateDiff
+     * @return string
+     */
+    protected function showFirstDayRequested( $minDateRequested = null, $dateDiff = '- 6 days' )
+    {
+        $minDateRequestedNewFormat = date_create( $minDateRequested );
+        $minDateRequestedNewFormat = date_format( $minDateRequestedNewFormat, "m/d/Y") ;
+
+        return ( $minDateRequested < date( 'Y-m-d', strtotime( $dateDiff, strtotime( date( "Y-m-d" ) ) ) ) ?
+                 '<span class="warnFirstDayRequestedTooOld">' . $minDateRequestedNewFormat . '</span>' :
+                 $minDateRequestedNewFormat );
     }
     
     /**
@@ -426,6 +443,68 @@ class QueueApi extends ApiController {
         
         $recordsTotal = $PayrollQueues->countPendingAS400UploadQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countPendingAS400UploadQueueItems( $_POST, true );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $draw,
+            "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+
+        /**
+         * return result
+         */
+        return $result;
+    }
+    
+    /**
+     * Get data for the Update Checks Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function getPayrollByStatusQueueDatatable( $data = null )
+    {
+        /**
+         * return empty result if not called by Datatable
+         */
+        if ( !array_key_exists( 'draw', $data ) ) {
+            return [ ];
+        }
+
+        /**
+         * increase draw counter for datatable
+         */
+        $draw = $data['draw'] ++;
+
+        $PayrollQueues = new \Request\Model\PayrollQueues();
+        $queueData = $PayrollQueues->getByStatusQueue( $_POST );
+        
+        $data = [];
+        foreach ( $queueData as $ctr => $request ) {
+            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
+            
+            $data[] = [
+                'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
+                'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
+                'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
+                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                'REQUEST_REASON' => $request['REQUEST_REASON'],
+                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+            ];
+        }
+
+        $recordsTotal = 0;
+        $recordsFiltered = 0;
+        
+        $recordsTotal = $PayrollQueues->countByStatusQueueItems( $_POST, false );
+        $recordsFiltered = $PayrollQueues->countByStatusQueueItems( $_POST, true );
 
         /**
          * prepare return result
