@@ -61,7 +61,7 @@ var timeOffViewRequestHandler = new function ()
             'timeOffFloat': 'Float',
             'timeOffSick': 'Sick',
             'timeOffGrandfathered': 'Grandfathered',
-            'timeOffUnexcused': 'Unexcused',
+            'timeOffUnexcusedAbsence': 'Unexcused',
             'timeOffBereavement': 'Bereavement',
             'timeOffCivicDuty': 'Civic Duty',
             'timeOffApprovedNoPay': 'Approved No Pay'

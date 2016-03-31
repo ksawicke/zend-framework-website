@@ -44,9 +44,9 @@ class Employee extends BaseDB {
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
         'timeOffSick' => 'S',
-        'timeOffUnexcused' => 'X',
+        'timeOffUnexcusedAbsence' => 'X',
         'timeOffBereavement' => 'B',
-        'timeOffCivicDuty' => 'C',
+        'timeOffCivicDuty' => 'J',
         'timeOffGrandfathered' => 'R',
         'timeOffApprovedNoPay' => 'A'
     ];
@@ -54,7 +54,7 @@ class Employee extends BaseDB {
         'PTO' => 'timeOffPTO',
         'Float' => 'timeOffFloat',
         'Sick' => 'timeOffSick',
-        'UnexcusedAbsence' => 'timeOffUnexcused',
+        'UnexcusedAbsence' => 'timeOffUnexcusedAbsence',
         'Bereavement' => 'timeOffBereavement',
         'CivicDuty' => 'timeOffCivicDuty',
         'Grandfathered' => 'timeOffGrandfathered',

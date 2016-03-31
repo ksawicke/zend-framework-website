@@ -207,6 +207,7 @@ var timeOffCreateRequestHandler = new function() {
                 date : $(this).data('date')
             };
             if (selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date) {
+                console.log("click", dateObject);
                 timeOffCreateRequestHandler.updateRequestDates(dateObject, $(this));
             }
         });
@@ -349,6 +350,8 @@ var timeOffCreateRequestHandler = new function() {
      * Update buttons with hour data.
      */
     this.setHours = function(employeeData) {
+        timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+        timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
         timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
         timeOffCreateRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
         timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
@@ -358,8 +361,6 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
         timeOffCreateRequestHandler.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
         timeOffCreateRequestHandler.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
-        timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
-        timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
         timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
     }
 
@@ -757,6 +758,7 @@ var timeOffCreateRequestHandler = new function() {
             $(this).removeClass('timeOffBereavementSelected');
             $(this).removeClass('timeOffApprovedNoPaySelected');
             $(this).removeClass('timeOffCivicDutySelected');
+            $(this).removeClass('timeOffUnexcusedAbsenceSelected');
         });
         $.each($(".calendar-day"), function(index, blah) {
             for (var i = 0; i < selectedDatesNew.length; i++) {

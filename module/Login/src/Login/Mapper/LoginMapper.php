@@ -89,6 +89,7 @@ class LoginMapper implements LoginMapperInterface
          * We can validate differently in development or production here.
          */
         switch(ENVIRONMENT) {
+            case 'testing':
             case 'development':
             case 'production':
             default:
