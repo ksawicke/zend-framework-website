@@ -9,7 +9,7 @@ var timeOffManagerQueueHandler = new function ()
      */
     this.initialize = function () {
         $(document).ready(function () {
-        	$('#pending-manager-approval').DataTable({
+        	$('#manager-queue-pending-manager-approval').DataTable({
                 dom: 'fltirp',
                 searching: true,
                 processing: true,
