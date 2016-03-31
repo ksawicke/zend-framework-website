@@ -1,23 +1,29 @@
 <html>
     
+    <head>
+        <style type="text/css">
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 12px;
+            }
+            table {
+                line-height: 1;
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
+            table th,
+            table td {
+                padding: 6px 13px;
+                border: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    
     <body>
         
-        <table style="border:none;">
-            <thead>
-                <tr>
-                    <th><img src="http://swift:10080/sawik/timeoff/dev/public/templates/swiftit/img/swift_logo_50h.png"></th>
-                    <th><h3>Time Off Requests</h3></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="2">
-                        <br />
-                        {emailBody}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <h3>SWIFT - Time Off Requests</h3>
+        
+        {emailBody}
         
         <br />
         
