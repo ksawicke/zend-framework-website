@@ -13,6 +13,11 @@ class LoginController extends AbstractActionController
 {
     public function __construct(AuthenticationServiceInterface $authenticationService, FormInterface $loginForm)
     {
+        $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
+        $url = $renderer->basePath('the_ressource_you_want_to_get_from_public_folder');
+        
+        die( $url );
+        
         $this->authenticationService = $authenticationService;
         $this->loginForm = $loginForm;
     }
@@ -47,7 +52,7 @@ class LoginController extends AbstractActionController
                 return $this->redirect()->toRoute('home', array('controller' => 'request', 'action' => 'home'));
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');
-                return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));
+                return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index33'));
             }
         }
         $view->setVariable('loginForm', $loginForm);
@@ -60,7 +65,8 @@ class LoginController extends AbstractActionController
     public function logoutAction()
     {
         \Login\Helper\UserSession::endUserSession();
-        return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));
+        return $this->redirect()->toUrl( '/login/index2222222' );
+        //return $this->redirect()->toRoute('login', array('controller' => 'login', 'action' => 'index'));
     }
 
 }

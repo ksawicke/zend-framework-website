@@ -19,18 +19,18 @@ $config = [
     ],
     'router' => [
         'routes' => [
-            'api' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => [
-                    'route' => '/request/api',
-                    'defaults' => [
-                        'controller' => 'RequestController',
-                        'action' => 'api'
-                    ]
-                ],
-                'may_terminate' => 1,
-                'child_routes' => []
-            ],
+//            'api' => [
+//                'type' => 'Zend\Mvc\Router\Http\Literal',
+//                'options' => [
+//                    'route' => '/request/api',
+//                    'defaults' => [
+//                        'controller' => 'RequestController',
+//                        'action' => 'api'
+//                    ]
+//                ],
+//                'may_terminate' => 1,
+//                'child_routes' => []
+//            ],
             'approvedRequest' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

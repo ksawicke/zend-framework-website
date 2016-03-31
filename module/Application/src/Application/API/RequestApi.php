@@ -232,7 +232,8 @@ class RequestApi extends ApiController {
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' by ' .
+                $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'],
             $to,
             $cc
@@ -264,7 +265,8 @@ class RequestApi extends ApiController {
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
             'A total of ' . $emailVariables['totalHoursRequested'] . ' hours were requested off for ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' by ' .
+                $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' . 
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'Please review this request at the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
