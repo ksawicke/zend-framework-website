@@ -136,23 +136,6 @@ class QueueApi extends ApiController {
     }
     
     /**
-     * Returns first day requested. Highlights if older than days passed in.
-     * 
-     * @param date $minDateRequested
-     * @param string $dateDiff
-     * @return string
-     */
-    protected function showFirstDayRequested( $minDateRequested = null, $dateDiff = '- 6 days' )
-    {
-        $minDateRequestedNewFormat = date_create( $minDateRequested );
-        $minDateRequestedNewFormat = date_format( $minDateRequestedNewFormat, "m/d/Y") ;
-
-        return ( $minDateRequested < date( 'Y-m-d', strtotime( $dateDiff, strtotime( date( "Y-m-d" ) ) ) ) ?
-                 '<span class="warnFirstDayRequestedTooOld">' . $minDateRequestedNewFormat . '</span>' :
-                 $minDateRequestedNewFormat );
-    }
-    
-    /**
      * Get data for the Denied Queue datatable.
      * 
      * @param array $data
@@ -185,7 +168,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -247,7 +230,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -309,7 +292,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -371,7 +354,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -433,7 +416,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -495,7 +478,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $request['MIN_DATE_REQUESTED'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
@@ -522,6 +505,27 @@ class QueueApi extends ApiController {
          * return result
          */
         return $result;
+    }
+    
+    /**
+     * Returns first day requested. Highlights if older than days passed in.
+     * 
+     * @param date $minDateRequested
+     * @param string $dateDiff
+     * @return string
+     */
+    protected function showFirstDayRequested( $minDateRequested = null, $dateDiff = null )
+    {
+        $minDateRequestedNewFormat = date_create( $minDateRequested );
+        $minDateRequestedNewFormat = date_format( $minDateRequestedNewFormat, "m/d/Y") ;
+
+        if( is_null( $dateDiff ) ) {
+            return $minDateRequestedNewFormat;
+        }
+        
+        return ( $minDateRequested < date( 'Y-m-d', strtotime( $dateDiff, strtotime( date( "Y-m-d" ) ) ) ) ?
+                 '<span class="warnFirstDayRequestedTooOld">' . $minDateRequestedNewFormat . '</span>' :
+                 $minDateRequestedNewFormat );
     }
     
 }
