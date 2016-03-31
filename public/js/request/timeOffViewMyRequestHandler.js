@@ -330,6 +330,7 @@ var timeOffViewRequestHandler = new function ()
             $("#noDatesSelectedWarning").show();
         } else {
             $("#noDatesSelectedWarning").hide();
+            datesSelectedDetailsHtml = '<strong>Hours Requested:</strong><br /><br />';
             $.each( highlightDates, function( key, dateObject ) {
                 datesSelectedDetailsHtml += dateObject.REQUEST_DATE +
                                             '&nbsp;&nbsp;&nbsp;&nbsp;' +

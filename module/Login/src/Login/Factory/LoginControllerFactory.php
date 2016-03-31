@@ -17,6 +17,11 @@ class LoginControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
+//        echo '<pre>';
+//        print_r( $serviceLocator );
+//        echo '</pre>';
+//        die();
+        
         $realServiceLocator = $serviceLocator->getServiceLocator();
         $authenticationService = $realServiceLocator->get('Login\Service\AuthenticationServiceInterface');
         $loginInsertForm = $realServiceLocator->get('FormElementManager')->get('Login\Form\LoginForm');
