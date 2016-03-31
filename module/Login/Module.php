@@ -68,16 +68,20 @@ class Module
 //         echo '</pre>';
 //         die("@@");
         
+        $fullPath = $_SERVER['DOCUMENT_URI'];
+        $fullPath = substr( $fullPath, 0, -10 ); // Strip off '/index.php'
+        
         if ($session->offsetExists ( 'EMPLOYEE_NUMBER' )) {
             if ($requestedResource == 'Login\Controller\Login-index' || in_array ( $requestedResource, $whiteList )) {
-                $url = '/sawik/timeoff/public/request/create';
+                $url = $fullPath . '/request/view-my-requests';
+                //$this->getRequest()->getBaseUrl()
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );
                 $response->setStatusCode ( 302 );
             }
         } else {
-
+            /** Redirect back to login! **/
             if ($requestedResource != 'Login\Controller\Login-index' && ! in_array ( $requestedResource, $whiteList )) {
-                $url = '/sawik/timeoff/public/login/index';
+                $url = $fullPath . '/login/index';
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $url ) );
                 $response->setStatusCode ( 302 );
             }
