@@ -1,4 +1,6 @@
 /**
+ * Gets full set of time off and employee data based on employee ID.
+ *
  * Author:  sawik
  * Created: Mar 28, 2016
  */
