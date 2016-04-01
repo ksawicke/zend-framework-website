@@ -65,7 +65,7 @@ var timeOffCreateRequestHandler = new function() {
             'timeOffUnexcusedAbsence' : 'Unexcused',
             'timeOffBereavement' : 'Bereavement',
             'timeOffCivicDuty' : 'Civic Duty',
-            'timeOffApprovedNoPay' : 'Approved No Pay'
+            'timeOffApprovedNoPay' : 'Time Off Without Pay'
         },
         directReportFilter = 'B';
         
@@ -549,7 +549,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Sets the Pending Approved No Pay time for selected employee.
+     * Sets the Pending Time Off Without Pay time for selected employee.
      */
     this.setEmployeeApprovedNoPayPending = function(approvedNoPayPending) {
         employeeApprovedNoPayPending = approvedNoPayPending;
@@ -674,7 +674,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Prints the Pending Approved No Pay time for selected employee.
+     * Prints the Pending Time Off Without Pay time for selected employee.
      */
     this.printEmployeeApprovedNoPayPending = function() {
         $("#employeeApprovedNoPayPendingHours").html(
