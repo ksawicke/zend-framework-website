@@ -191,9 +191,21 @@ var timeOffCreateRequestHandler = new function() {
                 category : $(this).attr('data-category'),
                 date : $(this).data('date')
             };
-            if (selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date) {
-                timeOffCreateRequestHandler.updateRequestDates(dateObject, $(this));
-            }
+            console.log( "DELETE DATE OBJECT", dateObject );
+            console.log( "CURRENT DATES SELECTED", selectedDatesNew );
+            $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+                if( selectedDateNewObject.date===dateObject.date &&
+                    selectedDateNewObject.category===dateObject.category ) {
+                    console.log( "DELETE THIS FROM selectedDatesNew", selectedDateNewObject );
+                    timeOffCreateRequestHandler.deleteDataFromRequest( selectedDatesNew, index, dateObject );
+                } else {
+                    console.log( "LEAVE THIS IN selectedDatesNew", selectedDateNewObject );
+//                    timeOffCreateRequestHandler.addDataToRequest( calendarDateObject, object );
+                }
+            });
+//            if (selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date) {
+//                timeOffCreateRequestHandler.updateRequestDates(dateObject, $(this));
+//            }
         });
     }
 
@@ -1297,14 +1309,24 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} object
      * @returns {undefined} */
     this.deleteDataFromRequest = function(calendarDateObject, deleteKey, object) {
-        timeOffCreateRequestHandler.subtractTime(selectedDatesNew[deleteKey].category, Number(selectedDatesNew[deleteKey].hours));
-        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
-        calendarDateObject.removeClass(object.category + "Selected");
-        $.each($('.calendar-day'), function(index, obj) {
-            if ($(this).data("date") === calendarDateObject.data("date")) {
-                $(this).removeClass("timeOffPTOSelected");
-            }
-        });
+        console.log( 'a', calendarDateObject );
+        console.log( 'deleteKey', deleteKey );
+        console.log( 'object', object );
+        
+        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteKey].category,
+                                                  Number( selectedDatesNew[deleteKey].hours ) );
+        timeOffCreateRequestHandler.removeDateFromRequest( deleteKey );
+        timeOffCreateRequestHandler.highlightDates();
+        timeOffCreateRequestHandler.drawHoursRequested();
+        
+//        timeOffCreateRequestHandler.subtractTime(selectedDatesNew[deleteKey].category, Number(selectedDatesNew[deleteKey].hours));
+//        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
+////        calendarDateObject.removeClass(object.category + "Selected");
+//        $.each($('.calendar-day'), function(index, obj) {
+//            if ($(this).data("date") === calendarDateObject.data("date")) {
+//                $(this).removeClass("timeOffPTOSelected");
+//            }
+//        });
     }
 
     this.splitDataFromRequest = function(calendarDateObject, deleteKey, copy, newOne) {

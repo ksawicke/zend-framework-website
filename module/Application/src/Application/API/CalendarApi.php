@@ -69,6 +69,11 @@ class CalendarApi extends ApiController {
         
     }
 
+    /**
+     * Load three calendars and employee data.
+     * 
+     * @return JsonModel
+     */
     public function loadCalendarAction() {
         $post = $this->getRequest()->getPost();
         $Employee = new \Request\Model\Employee();
