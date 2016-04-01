@@ -34,8 +34,8 @@ class CalendarApi extends ApiController {
     ];
 
     public function __construct() {
-        // Disable dates starting with one month ago and any date before.
-        $this->invalidRequestDates['before'] = date( "Y-m-d", strtotime( "-1 month", strtotime( date( "m/d/Y" ) ) ) );
+        // Disable dates starting with the following date.
+        $this->invalidRequestDates['before'] = $this->getEarliestRequestDate();
 
         // Disable dates starting with the following date.
         $this->invalidRequestDates['after'] = date( "Y-m-d", strtotime( "+1 year", strtotime( date( "m/d/Y" ) ) ) );
@@ -51,6 +51,22 @@ class CalendarApi extends ApiController {
             '2016-12-26',
             '2017-01-02'
         ];
+    }
+    
+    /**
+     * Allow Payroll to put in a request up to 6 months ago from today's date.
+     * All other roles can go back 1 month.
+     * 
+     * @return date
+     */
+    public function getEarliestRequestDate()
+    {
+        $Employee = new \Request\Model\Employee();
+        $isLoggedInUserPayroll = $Employee->isPayroll( $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'] );
+        
+        return ( $isLoggedInUserPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
+                                              : date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y")))) );
+        
     }
 
     public function loadCalendarAction() {
