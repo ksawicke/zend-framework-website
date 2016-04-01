@@ -548,8 +548,11 @@ https://www.colorschemer.com/schemes/viewscheme.php?id=10473
 **/
 
 .btn-requestCategory {
-	padding: 0px;
-	line-height:16px;
+    padding: 0px;
+    line-height:16px;
+}
+.padBottomButtonRow {
+    margin-bottom: 10px;
 }
 
 .timeOffPTO {
