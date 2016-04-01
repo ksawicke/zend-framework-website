@@ -389,15 +389,9 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
         } else {
-            $OutlookHelper = new OutlookHelper();
-            $RequestEntry = new RequestEntry();
-            $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
-            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-            $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-            
             /** Send calendar invites for this request **/
-            $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
-
+            $isSent = $this->sendCalendarInvitationsForRequest( $post );
+            
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
@@ -442,6 +436,25 @@ class RequestApi extends ApiController {
         }
 
         return $result;
+    }
+    
+    /**
+     * Sends Outlook calendar invitations for an approved request.
+     * 
+     * @param type $post
+     * @return type
+     */
+    public function sendCalendarInvitationsForRequest( $post )
+    {
+        $OutlookHelper = new OutlookHelper();
+        $RequestEntry = new RequestEntry();
+        $TimeOffRequests = new TimeOffRequests();
+        $Employee = new Employee();
+        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        
+        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
     }
  
     /**
@@ -527,7 +540,7 @@ class RequestApi extends ApiController {
                 'Status changed to Completed PAFs' );
 
             /** Send calendar invites for this request **/
-            $isSent = $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
+            $isSent = $this->sendCalendarInvitationsForRequest( $post );
             
             /** Log sending calendar invites **/
             $TimeOffRequestLog->logEntry(
