@@ -1,16 +1,10 @@
 <h4>Create New Time Off Request</h4>
 
-<br style="clear:both;" />
+<br />
 
-<div id="MyWizard" class="wizard">
-    <ul class="steps">
-        <li data-target="#step1" class="step1 active"><span class="badge badge-info">1</span>Select a Category<span class="chevron"></span></li>
-        <li data-target="#step2" class="step2"><span class="badge">2</span>Select date(s)<span class="chevron"></span></li>
-        <li data-target="#step3" class="step3 last"><span class="badge">3</span>Provide a Reason & Submit</li>
-    </ul>
-</div>
+<?php echo $this->partial('request/partials/submitRequestWizardWidget.phtml'); ?>
 
-<br style="clear:both;" />
+<br />
 
 <div id="noCategorySelected" style="display:none;">
     <div class="alert alert-danger" role="alert">
@@ -18,28 +12,19 @@
     </div>
 </div>
 
-<?php
-/** Include the category buttons widget **/
-echo $this->partial('request/partials/categoryButtonsWidget.phtml');
-?>
+<?php echo $this->partial('request/partials/categoryButtonsWidget.phtml'); ?>
 
-<br style="clear:both;" />
+<br />
 
-<?php
-/** Include the category buttons widget **/
-echo $this->partial('request/partials/threeCalendarWidget.phtml');
-?>
+<?php echo $this->partial('request/partials/threeCalendarWidget.phtml'); ?>
 
-<br style="clear:both;" />
-<br style="clear:both;" />
+<br />
+<br />
 
-<?php
-/** Include the category buttons widget **/
-echo $this->partial('request/partials/calendarLegendWidget.phtml');
-?>
+<?php echo $this->partial('request/partials/calendarLegendWidget.phtml'); ?>
 
-<br style="clear:both;" />
-<br style="clear:both;" />
+<br />
+<br />
 
 <div id="noDatesSelectedWarning" style="display:none;">
     <div class="alert alert-danger" role="alert">
@@ -47,23 +32,10 @@ echo $this->partial('request/partials/calendarLegendWidget.phtml');
     </div>
 </div>
 
-<?php
-/** Include the category buttons widget **/
-echo $this->partial('request/partials/requestSubmitFormWidget.phtml');
-?>
+<?php echo $this->partial('request/partials/requestSubmitFormWidget.phtml'); ?>
+<?php echo $this->partial('request/partials/submitRequestWizardWidget.phtml'); ?>
 
-<div id="MyWizard" class="wizard">
-    <ul class="steps">
-        <li data-target="#step1" class="step1 active"><span class="badge badge-info">1</span>Select a Category<span class="chevron"></span></li>
-        <li data-target="#step2" class="step2"><span class="badge">2</span>Select date(s)<span class="chevron"></span></li>
-        <li data-target="#step3" class="step3 last"><span class="badge">3</span>Provide a Reason & Submit</li>
-    </ul>
-</div>
-
-<?php
-/** Include the category buttons widget **/
-echo $this->partial('request/partials/dialogGrandfatheredAlertWidget.phtml');
-?>
+<?php echo $this->partial('request/partials/dialogGrandfatheredAlertWidget.phtml'); ?>
 
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffCreateRequestHandler.js"></script>
