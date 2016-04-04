@@ -64,7 +64,7 @@ var timeOffViewRequestHandler = new function ()
             'timeOffUnexcusedAbsence': 'Unexcused',
             'timeOffBereavement': 'Bereavement',
             'timeOffCivicDuty': 'Civic Duty',
-            'timeOffApprovedNoPay': 'Approved No Pay'
+            'timeOffApprovedNoPay': 'Time Off Without Pay'
         },
         directReportFilter = 'B';
 

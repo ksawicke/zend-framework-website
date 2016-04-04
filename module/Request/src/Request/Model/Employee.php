@@ -299,14 +299,14 @@ class Employee extends BaseDB {
      * Returns the Time Off and Employee Schedule for an employee.
      * 
      * @param integer $employeeNumber
-     * @param string $includeHourTotals
-     * @param string $includeOnlyFields   Default "Y" returns pending manager approval time as well.
+     * @param string $includeUnapprovedRequests Default "Y" returns pending manager approval time as well.
+     * @param string $includeOnlyFields Default "*" returns all fields from the function timeoff_get_employee_data.
      * @return array
      */
-    public function findEmployeeTimeOffData( $employeeNumber = null, $includeHourTotals = "Y", $includeOnlyFields = "*" ) {
+    public function findEmployeeTimeOffData( $employeeNumber = null, $includeUnapprovedRequests = "Y", $includeOnlyFields = "*" ) {
         $rawSql = "select data.*, sch.schedule_mon, sch.schedule_tue, sch.schedule_wed,
                    sch.schedule_thu, sch.schedule_fri, sch.schedule_sat, sch.schedule_sun
-                   from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeHourTotals . "')) as data
+                   from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeUnapprovedRequests . "')) as data
                    left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
                    on sch.employee_number = data.employee_number";
         
