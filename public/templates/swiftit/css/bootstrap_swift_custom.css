@@ -666,13 +666,13 @@ div#calendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
         #ddd 20px
     );
 }
-.timeOffSickSplit {
+.timeOffSickSelected {
     background: repeating-linear-gradient(
         315deg,
-        #f57900,
-        #f57900 10px,
+        #73d216,
         #73d216 10px,
-        #73d216 20px
+        #ddd 10px,
+        #ddd 20px
     );
 }
 .timeOffUnexcusedAbsenceSelected {
