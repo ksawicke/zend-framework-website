@@ -1225,7 +1225,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.alertUserToTakeGrandfatheredTime = function() {
-        $("#dialogUnableToSplitFloatAlert").dialog({
+        $("#dialogGrandfatheredAlert").dialog({
             modal : true,
             buttons : {
                 Ok : function() {
