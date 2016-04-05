@@ -423,6 +423,10 @@ td.calendar-day {
 	position: relative;
 }
 
+td.calendar-day.today {
+    border: 3px solid red;
+}
+
 * html div.calendar-day {
 	height: 80px;
 }

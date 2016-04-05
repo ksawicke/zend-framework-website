@@ -42,6 +42,8 @@ class Calendar
     
     public static $beginDayDisabledCell = '<td class="calendar-day calendar-day-disabled">';
     
+    public static $beginHolidayCell = '<td class="calendar-day calendar-day-holiday">';
+    
     public static $beginDay = '<div class="day-number">';
     
     public static $endDay = '</div>';
@@ -119,27 +121,57 @@ class Calendar
                ];
     }
     
+    /**
+     * Gets fast rewind button for navigating calendars.
+     * 
+     * @param array $dates
+     * @return string
+     */
     public static function getfastRewindButtonForThreeCalendars($dates)
     {
         return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-double-arrow calendarNavigation" title="Go back 6 months" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"></span></button>';
-        //return '<span title="Go back 6 months" class="glyphicon-class glyphicon glyphicon-fast-backward calendarNavigation" data-month="' . $dates['sixMonthsBack']->format('m') . '" data-year="' . $dates['sixMonthsBack']->format('Y') . '"> </span>';
     }
     
+    /**
+     * Gets previous button for navigating calendars.
+     * 
+     * @param array $dates
+     * @return string
+     */
     public static function getprevButtonForThreeCalendars($dates)
     {
         return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 3 months" data-month="' . $dates['threeMonthsBack']->format('m') . '" data-year="' . $dates['threeMonthsBack']->format('Y') . '"></span></button>&nbsp;&nbsp;&nbsp;&nbsp;';
     }
     
+    /**
+     * Gets next button for navigating calendars.
+     * 
+     * @param array $dates
+     * @return string
+     */
     public static function getNextButtonForThreeCalendars($dates)
     {
         return '&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 3 months" data-month="' . $dates['threeMonthsOut']->format('m') . '" data-year="' . $dates['threeMonthsOut']->format('Y') . '"></span></button>';
     }
     
+    /**
+     * Gets fast forward button for navigating calendars.
+     * 
+     * @param array $dates
+     * @return string
+     */
     public static function getfastForwardButtonForThreeCalendars($dates)
     {
         return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 6 months" data-month="' . $dates['sixMonthsOut']->format('m') . '" data-year="' . $dates['sixMonthsOut']->format('Y') . '"></span></button>';
     }
     
+    /**
+     * Gets dates for three calendars.
+     * 
+     * @param type $startYear
+     * @param type $startMonth
+     * @return \DateTime
+     */
     public static function getDatesForThreeCalendars($startYear = null, $startMonth = null)
     {
         if($startYear===null) {
@@ -151,13 +183,13 @@ class Calendar
         
         $time = strtotime($startYear . "-" . $startMonth . "-01");
         $return = ['sixMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-6 month", $time))),
-                'threeMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-3 month", $time))),
-                'currentMonth' => new \DateTime(date("Y-m-d", strtotime("+0 month", $time))),
-                'oneMonthOut' => new \DateTime(date("Y-m-d", strtotime("+1 month", $time))),
-                'twoMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+2 month", $time))),
-                'threeMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+3 month", $time))),
-                'sixMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+6 month", $time)))
-              ];
+                   'threeMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-3 month", $time))),
+                   'currentMonth' => new \DateTime(date("Y-m-d", strtotime("+0 month", $time))),
+                   'oneMonthOut' => new \DateTime(date("Y-m-d", strtotime("+1 month", $time))),
+                   'twoMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+2 month", $time))),
+                   'threeMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+3 month", $time))),
+                   'sixMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+6 month", $time)))
+                  ];
         
         return $return;
     }
@@ -302,9 +334,25 @@ class Calendar
     {
         $return = true;
         if( ( !empty(self::$invalidRequestDates['before']) && strtotime($thisDay) < strtotime(self::$invalidRequestDates['before']) ) ||
-            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) ) ||
-            in_array($thisDay, self::$invalidRequestDates['individual'])
+            ( !empty(self::$invalidRequestDates['after']) && strtotime($thisDay) > strtotime(self::$invalidRequestDates['after']) )
+            
           ) {
+            $return = false;
+        }
+        
+        return $return;
+    }
+    
+    /**
+     * Returns boolean if date is a company holiday.
+     * 
+     * @param string $thisDay
+     * @return boolean
+     */
+    public static function isDateHoliday($thisDay)
+    {
+        $return = true;
+        if( in_array($thisDay, self::$invalidRequestDates['individual']) ) {
             $return = false;
         }
         
@@ -314,14 +362,14 @@ class Calendar
     /**
      * Draws days on the calendar.
      * 
-     * @param unknown $month
-     * @param unknown $year
-     * @param unknown $days_in_month
-     * @param unknown $running_day
-     * @param unknown $days_in_this_week
-     * @param unknown $day_counter
-     * @param unknown $row_counter
-     * @param unknown $calendarData
+     * @param integer $month
+     * @param integer $year
+     * @param integer $days_in_month
+     * @param integer $running_day
+     * @param integer $days_in_this_week
+     * @param integer $day_counter
+     * @param integer $row_counter
+     * @param array $calendarData
      */
     public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData)
     {
@@ -362,40 +410,30 @@ class Calendar
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
                                str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, $beginDayCell) . self::$beginDay . $list_day . self::$endDay .
                                self::addDataToCalendarDay($list_day, $calendarData);
+            } elseif( $thisDay==='05/30/2016' ) { // self::isDateHoliday($thisDay)
+                $requestClass = 'disableMeBuddy';
+//                $beginDayCell = str_replace("&requestTypeClass&", $requestClass, self::$beginDayCell);
+                $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
+                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginHolidayCell) . self::$beginDay . $list_day . self::$endDay .
+                               self::addDataToCalendarDay($list_day, $calendarData);
             } else {
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
                                str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData);
             }
-//            $calendarTemp .= ( self::isDateValidToSelect($thisDay)
-//                               ?
-//                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-//                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell) . self::$beginDay . $list_day . self::$endDay .
-//                               self::addDataToCalendarDay($list_day, $calendarData)
-//                               :
-//                               str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-//                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData)
-//                             );
-
-//             $calendarTemp .= str_replace("&date&", "", self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay .
-//                              self::addDataToCalendarDay($list_day, $calendarData);
-            
-//             $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-//                 str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayCell) . self::$beginDay . $list_day . self::$endDay .
-//                 self::addDataToCalendarDay($list_day, $calendarData);
     
-                $calendarTemp .= self::$closeCell;
-                if ($running_day == 6) {
-                    $calendarTemp .= self::$closeRow;
-                    $row_counter++;
-                    if (($day_counter + 1) != $days_in_month) {
-                        $calendarTemp .= self::$beginCalendarRow;
-                    }
-                    $running_day = - 1;
-                    $days_in_this_week = 0;
+            $calendarTemp .= self::$closeCell;
+            if ($running_day == 6) {
+                $calendarTemp .= self::$closeRow;
+                $row_counter++;
+                if (($day_counter + 1) != $days_in_month) {
+                    $calendarTemp .= self::$beginCalendarRow;
                 }
-                $days_in_this_week ++;
-                $running_day ++;
-                $day_counter ++;
+                $running_day = - 1;
+                $days_in_this_week = 0;
+            }
+            $days_in_this_week ++;
+            $running_day ++;
+            $day_counter ++;
         }
     
         $data = ['calendar' => $calendarTemp,

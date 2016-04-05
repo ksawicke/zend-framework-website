@@ -727,6 +727,9 @@ var timeOffViewRequestHandler = new function ()
             $(this).removeClass('timeOffCivicDutySelected');
         });
         $.each($(".calendar-day"), function(index, blah) {
+            if( $(this).attr("data-date") === moment().format('MM/DD/YYYY') ) {
+                $(this).addClass("today");
+            }
             for (var i = 0; i < selectedDatesNew.length; i++) {
                 if (selectedDatesNew[i].date && selectedDatesNew[i].date === $(this).attr("data-date")) {
                     thisClass = selectedDatesNew[i].category + "Selected";

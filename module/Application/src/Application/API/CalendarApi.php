@@ -42,14 +42,14 @@ class CalendarApi extends ApiController {
 
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = [
-            '2015-12-25',
-            '2016-01-01',
-            '2016-05-30',
-            '2016-07-04',
-            '2016-09-05',
-            '2016-11-24',
-            '2016-12-26',
-            '2017-01-02'
+            '12/25/2015',
+            '01/01/2016',
+            '05/30/2016',
+            '07/04/2016',
+            '09/05/2016',
+            '11/24/2016',
+            '12/26/2016',
+            '01/02/2017'
         ];
     }
     
@@ -124,7 +124,8 @@ class CalendarApi extends ApiController {
                     'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
                     'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
                 ],
-                'highlightDates' => $highlightDates
+                'highlightDates' => $highlightDates,
+                'holidays' => $this->invalidRequestDates['individual']
             ]
         ] );
 
