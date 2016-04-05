@@ -1397,16 +1397,28 @@ var timeOffCreateRequestHandler = new function() {
 //        });
     }
 
+    /**
+     * Handles splitting hours based on the day selected and the employee's schedule.
+     * 
+     * @param {type} calendarDateObject
+     * @param {type} deleteKey
+     * @param {type} copy
+     * @param {type} newOne
+     * @returns {undefined}
+     */
     this.splitDataFromRequest = function(calendarDateObject, deleteKey, copy, newOne) {
         if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
             timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
         }
         else {
+            var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+            var scheduleDay = "SCHEDULE_" + dow;
+            
             timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
             timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
             calendarDateObject.removeClass(copy.category + "Selected");
-            copy.hours = "4.00";
-            newOne.hours = "4.00";
+            copy.hours = requestForEmployeeObject[scheduleDay] / 2;
+            newOne.hours = copy.hours;
             timeOffCreateRequestHandler.addDateToRequest(copy);
             timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
             timeOffCreateRequestHandler.addDateToRequest(newOne);
