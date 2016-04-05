@@ -1406,25 +1406,44 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} newOne
      * @returns {undefined}
      */
-    this.splitDataFromRequest = function(calendarDateObject, deleteKey, copy, newOne) {
+    this.splitDataFromRequest = function( calendarDateObject, deleteKey, copy, newOne ) {
+        var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+        var scheduleDay = "SCHEDULE_" + dow;
+        var hoursScheduledThisDay = requestForEmployeeObject[scheduleDay];
+        
         if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
-            timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
+            if( hoursScheduledThisDay < 10 ) {
+                timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
+            } else {
+                copy.hours = copy.category==="timeOffFloat" ? 8 : hoursScheduledThisDay - 8;
+                newOne.hours = hoursScheduledThisDay - copy.hours;
+                timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey );
+            }
         }
         else {
-            var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-            var scheduleDay = "SCHEDULE_" + dow;
-            
-            timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
-            timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
-            calendarDateObject.removeClass(copy.category + "Selected");
-            copy.hours = requestForEmployeeObject[scheduleDay] / 2;
+            copy.hours = hoursScheduledThisDay / 2;
             newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.addDateToRequest(copy);
-            timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
-            timeOffCreateRequestHandler.addDateToRequest(newOne);
-            timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
-            calendarDateObject.addClass(newOne.category + "Selected");
+            timeOffCreateRequestHandler.splitTime( copy, newOne, deleteKey );
         }
+    }
+    
+    /**
+     * Takes current selected day and performs the split.
+     * 
+     * @param {type} copy
+     * @param {type} newOne
+     * @param {type} deleteKey
+     * @returns {undefined}
+     */
+    this.splitTime = function( calendarDateObject, copy, newOne, deleteKey ) {
+        timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
+        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
+        calendarDateObject.removeClass(copy.category + "Selected");
+        timeOffCreateRequestHandler.addDateToRequest(copy);
+        timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
+        timeOffCreateRequestHandler.addDateToRequest(newOne);
+        timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
+        calendarDateObject.addClass(newOne.category + "Selected");
     }
 
     /**
