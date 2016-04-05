@@ -423,6 +423,10 @@ td.calendar-day {
 	position: relative;
 }
 
+td.calendar-day.today {
+    border: 3px solid red;
+}
+
 * html div.calendar-day {
 	height: 80px;
 }
@@ -798,6 +802,10 @@ td.calendar-day-disabled {
 	background-color: #404040 !important;
 	cursor: default !important;
 }
+td.calendar-day-holiday {
+	background-color: #404040 !important;
+	cursor: default !important;
+}
 
 .requestPending {
 	filter:alpha(opacity=60); /* IE */
@@ -1029,12 +1037,13 @@ button .full-width {
 }
 ****/
 
-#dialogGrandfatheredAlert {
-	display: none;
+#dialogGrandfatheredAlert,
+#dialogConfirmSelectHoliday {
+    display: none;
 }
 
 .hidden {
-	display:none;
+    display:none;
 }
 
 /** Calendar Legend for requests **/
