@@ -1219,8 +1219,29 @@ var timeOffCreateRequestHandler = new function() {
         }
     }
 
+    /**
+     * Warns user to take Grandfathered time off first if there is a balance.
+     * 
+     * @returns {undefined}
+     */
     this.alertUserToTakeGrandfatheredTime = function() {
-        $("#dialogGrandfatheredAlert").dialog({
+        $("#dialogUnableToSplitFloatAlert").dialog({
+            modal : true,
+            buttons : {
+                Ok : function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Warns user they can not split float time.
+     * 
+     * @returns {undefined}
+     */
+    this.alertUserUnableToSplitFloat = function() {
+        $("#dialogUnableToSplitFloatAlert").dialog({
             modal : true,
             buttons : {
                 Ok : function() {
@@ -1263,42 +1284,57 @@ var timeOffCreateRequestHandler = new function() {
 
     this.updateRequestDates = function(object, calendarDateObject) {
         var found = false;
+        var foundCounter = 0;
         var copy = null;
         var newOne = null;
         var deleteKey = null;
         $.each(selectedDatesNew, function(key, dateObject) {
-        if (object.date == dateObject.date
-                && object.category === dateObject.category) {
-        found = true;
+            if ( object.date == dateObject.date && object.category === dateObject.category ) {
+                found = true;
+                foundCounter++;
                 deleteKey = key;
-        }
-        if (object.date == dateObject.date
-                && object.category != dateObject.category
-                && found === false) {
-        found = true;
+            }
+            if ( object.date == dateObject.date && object.category != dateObject.category ) {
+                found = true;
+                foundCounter++;
                 copy = dateObject;
                 newOne = object;
                 deleteKey = key;
-        }
+            }
         });
+        
         /**
          * Add date to request.
          */
         if (copy === null && deleteKey === null) {
-            timeOffCreateRequestHandler.addDataToRequest(calendarDateObject, object);
+            timeOffCreateRequestHandler.addDataToRequest( calendarDateObject, object );
         }
 
         /**
          * Delete date from request.
          */
-        if (copy == null && deleteKey !== null) {
+        if ( copy == null && deleteKey !== null && foundCounter === 1 ) {
             timeOffCreateRequestHandler.deleteDataFromRequest(calendarDateObject, deleteKey, object);
+        }
+        
+        /**
+         * Warn before delete date from request where day is split.
+         */
+        if ( copy !== null && deleteKey !== null && foundCounter > 1 ) {
+            $("#dialogDeleteSplitDateAlert").dialog({
+                modal : true,
+                buttons : {
+                    Ok : function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
         }
 
         /**
          * Split the data.
          */
-        if (copy !== null && deleteKey !== null) {
+        if ( copy !== null && deleteKey !== null && foundCounter === 1 ) {
             timeOffCreateRequestHandler.splitDataFromRequest(calendarDateObject, deleteKey, copy, newOne);
         }
 
@@ -1362,16 +1398,21 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.splitDataFromRequest = function(calendarDateObject, deleteKey, copy, newOne) {
-        timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
-        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
-        calendarDateObject.removeClass(copy.category + "Selected");
-        copy.hours = "4.00";
-        newOne.hours = "4.00";
-        timeOffCreateRequestHandler.addDateToRequest(copy);
-        timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
-        timeOffCreateRequestHandler.addDateToRequest(newOne);
-        timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
-        calendarDateObject.addClass(newOne.category + "Selected");
+        if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
+            timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
+        }
+        else {
+            timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
+            timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
+            calendarDateObject.removeClass(copy.category + "Selected");
+            copy.hours = "4.00";
+            newOne.hours = "4.00";
+            timeOffCreateRequestHandler.addDateToRequest(copy);
+            timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
+            timeOffCreateRequestHandler.addDateToRequest(newOne);
+            timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
+            calendarDateObject.addClass(newOne.category + "Selected");
+        }
     }
 
     /**

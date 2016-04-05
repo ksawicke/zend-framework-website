@@ -649,76 +649,76 @@ div#calendarWrapper:hover #timeOffCalendarWarningNoCategorySelected {
  * @see https://css-tricks.com/stripes-css/
  */
 .timeOffPTOSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #f57900,
-	  #f57900 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #f57900,
+        #f57900 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 .timeOffFloatSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #edd400,
-	  #edd400 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #edd400,
+        #edd400 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
-.timeOffSickSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #73d216,
-	  #73d216 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+.timeOffSickSplit {
+    background: repeating-linear-gradient(
+        315deg,
+        #f57900,
+        #f57900 10px,
+        #73d216 10px,
+        #73d216 20px
+    );
 }
 .timeOffUnexcusedAbsenceSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #888a85,
-	  #888a85 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #888a85,
+        #888a85 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 .timeOffBereavementSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #729fcf,
-	  #729fcf 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #729fcf,
+        #729fcf 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 .timeOffCivicDutySelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #75507b,
-	  #75507b 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #75507b,
+        #75507b 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 .timeOffGrandfatheredSelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #c17d11,
-	  #c17d11 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #c17d11,
+        #c17d11 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 .timeOffApprovedNoPaySelected {
-	background: repeating-linear-gradient(
-	  315deg,
-	  #cc0000,
-	  #cc0000 10px,
-	  #ddd 10px,
-	  #ddd 20px
-	);
+    background: repeating-linear-gradient(
+        315deg,
+        #cc0000,
+        #cc0000 10px,
+        #ddd 10px,
+        #ddd 20px
+    );
 }
 
 /** Split background color
@@ -1038,7 +1038,9 @@ button .full-width {
 ****/
 
 #dialogGrandfatheredAlert,
-#dialogConfirmSelectHoliday {
+#dialogConfirmSelectHoliday,
+#dialogDeleteSplitDateAlert,
+#dialogUnableToSplitFloatAlert {
     display: none;
 }
 
