@@ -378,27 +378,10 @@ class Calendar
             $calendarClassesByDate[$data['REQUEST_DATE']] = $data['CALENDAR_DAY_CLASS'] . ( ($data['REQUEST_STATUS']==='P') ? ' requestPending' : '' );
         }
         
-//        echo '<pre>';
-//        print_r( $calendarClassesByDate );
-//        echo '<pre>';
-//        exit();
-        
         $calendarTemp = '';
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
-            // $invalidRequestDates
-            // $beginDayDisabledCell
             $thisDay = str_pad($month, 2, "0", STR_PAD_LEFT).'/'.str_pad($list_day, 2, "0", STR_PAD_LEFT).'/'.$year;
             $thisDayYmd = $year.'-'.str_pad($month, 2, "0", STR_PAD_LEFT).'-'.str_pad($list_day, 2, "0", STR_PAD_LEFT);
-            
-            // $beginDayDisabledCell
-            
-            // &requestTypeClass&
-            
-//            echo $thisDayYmd;
-//            echo '<pre>';
-//            print_r( $calendarData );
-//            echo '</pre>';
-//            die();
             
             if(self::isDateValidToSelect($thisDay)) {
                 // Replace &requestTypeClass& with '' or CALENDAR_DAY_CLASS
@@ -406,15 +389,12 @@ class Calendar
                 if( array_key_exists( $thisDayYmd, $calendarClassesByDate ) ) {
                     $requestClass = $calendarClassesByDate[$thisDayYmd];
                 }
+                if( in_array( $thisDay, self::$invalidRequestDates['individual'] ) ) {
+                    $requestClass = "calendar-day-holiday";
+                }
                 $beginDayCell = str_replace("&requestTypeClass&", $requestClass, self::$beginDayCell);
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
                                str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, $beginDayCell) . self::$beginDay . $list_day . self::$endDay .
-                               self::addDataToCalendarDay($list_day, $calendarData);
-            } elseif( $thisDay==='05/30/2016' ) { // self::isDateHoliday($thisDay)
-                $requestClass = 'disableMeBuddy';
-//                $beginDayCell = str_replace("&requestTypeClass&", $requestClass, self::$beginDayCell);
-                $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginHolidayCell) . self::$beginDay . $list_day . self::$endDay .
                                self::addDataToCalendarDay($list_day, $calendarData);
             } else {
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .

@@ -214,15 +214,44 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
-            var dateObject = {
-                category : selectedTimeoffCategory,
-                date : $(this).data('date')
-            };
-            if (selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date) {
-                console.log("click", dateObject);
-                timeOffCreateRequestHandler.updateRequestDates(dateObject, $(this));
+            var selectedCalendarDateObject = $(this);
+            if( selectedCalendarDateObject.hasClass("calendar-day-holiday") ) {
+                $("#dialogConfirmSelectHoliday").dialog({
+                    modal : true,
+                    closeOnEscape: false,
+                    buttons : {
+                        Yes : function() {
+                            $(this).dialog("close");
+                            timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeoffCategory, selectedCalendarDateObject );
+                        },
+                        No : function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            } else {
+                timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeoffCategory, selectedCalendarDateObject );
             }
         });
+    }
+    
+    /**
+     * Marks a day as requested off.
+     * 
+     * @param {type} selectedTimeoffCategory
+     * @param {type} currentObject
+     * @returns {undefined}
+     */
+    this.markDayAsRequestedOff = function( selectedTimeoffCategory, selectedCalendarDateObject ) {
+        console.log( "selectedTimeoffCategory", selectedTimeoffCategory );
+        console.log( "selectedCalendarDateObject", selectedCalendarDateObject );
+        var dateObject = {
+            category : selectedTimeoffCategory,
+            date : selectedCalendarDateObject.data('date')
+        };
+        if (selectedTimeoffCategory !== null && "undefined" !== typeof dateObject.date) {
+            timeOffCreateRequestHandler.updateRequestDates( dateObject, selectedCalendarDateObject );
+        }
     }
 
     /**
