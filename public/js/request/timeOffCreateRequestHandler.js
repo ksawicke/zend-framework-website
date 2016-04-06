@@ -1452,7 +1452,7 @@ var timeOffCreateRequestHandler = new function() {
         else {
             copy.hours = hoursScheduledThisDay / 2;
             newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.splitTime( copy, newOne, deleteKey );
+            timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey );
         }
     }
     
@@ -1465,6 +1465,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.splitTime = function( calendarDateObject, copy, newOne, deleteKey ) {
+        console.log( "CHECK", calendarDateObject );
         timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
         timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
         calendarDateObject.removeClass(copy.category + "Selected");
