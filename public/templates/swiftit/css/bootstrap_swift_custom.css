@@ -1040,7 +1040,8 @@ button .full-width {
 #dialogGrandfatheredAlert,
 #dialogConfirmSelectHoliday,
 #dialogDeleteSplitDateAlert,
-#dialogUnableToSplitFloatAlert {
+#dialogUnableToSplitFloatAlert,
+#dialogEditEmployeeSchedule {
     display: none;
 }
 

@@ -380,11 +380,24 @@ var timeOffCreateRequestHandler = new function() {
                 + requestForEmployeeName
                 + '</option>').val(requestForEmployeeNumber).trigger('change');
                 timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
+                
+            timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );   
             return;
         }).error(function() {
             console.log('There was some error.');
             return;
         });
+    }
+    
+    this.updateEmployeeSchedule = function( requestForEmployeeObject ) {
+        var data = requestForEmployeeObject;
+        $("#scheduleSUN").html( data.SCHEDULE_SUN );
+        $("#scheduleMON").html( data.SCHEDULE_MON );
+        $("#scheduleTUE").html( data.SCHEDULE_TUE );
+        $("#scheduleWED").html( data.SCHEDULE_WED );
+        $("#scheduleTHU").html( data.SCHEDULE_THU );
+        $("#scheduleFRI").html( data.SCHEDULE_FRI );
+        $("#scheduleSAT").html( data.SCHEDULE_SAT );
     }
 
     /**
