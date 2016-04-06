@@ -380,11 +380,40 @@ var timeOffCreateRequestHandler = new function() {
                 + requestForEmployeeName
                 + '</option>').val(requestForEmployeeNumber).trigger('change');
                 timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
+                
+            timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );   
             return;
         }).error(function() {
             console.log('There was some error.');
             return;
         });
+    }
+    
+    /**
+     * Appends the loaded schedule to the update form.
+     * 
+     * @param {type} data
+     * @returns {undefined}
+     */
+    this.updateEmployeeSchedule = function( data ) {
+        $("#scheduleSUN").html( data.SCHEDULE_SUN );
+        $("#scheduleMON").html( data.SCHEDULE_MON );
+        $("#scheduleTUE").html( data.SCHEDULE_TUE );
+        $("#scheduleWED").html( data.SCHEDULE_WED );
+        $("#scheduleTHU").html( data.SCHEDULE_THU );
+        $("#scheduleFRI").html( data.SCHEDULE_FRI );
+        $("#scheduleSAT").html( data.SCHEDULE_SAT );
+        
+        $("#employeeScheduleSUN").val( data.SCHEDULE_SUN );
+        $("#employeeScheduleMON").val( data.SCHEDULE_MON );
+        $("#employeeScheduleTUE").val( data.SCHEDULE_TUE );
+        $("#employeeScheduleWED").val( data.SCHEDULE_WED );
+        $("#employeeScheduleTHU").val( data.SCHEDULE_THU );
+        $("#employeeScheduleFRI").val( data.SCHEDULE_FRI );
+        $("#employeeScheduleSAT").val( data.SCHEDULE_SAT );
+        
+        $("#employeeScheduleFor").val( data.EMPLOYEE_NUMBER );
+        $("#employeeScheduleBy").val( requestForEmployeeNumber );
     }
 
     /**
@@ -1423,7 +1452,7 @@ var timeOffCreateRequestHandler = new function() {
         else {
             copy.hours = hoursScheduledThisDay / 2;
             newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.splitTime( copy, newOne, deleteKey );
+            timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey );
         }
     }
     
@@ -1436,6 +1465,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.splitTime = function( calendarDateObject, copy, newOne, deleteKey ) {
+        console.log( "CHECK", calendarDateObject );
         timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
         timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
         calendarDateObject.removeClass(copy.category + "Selected");

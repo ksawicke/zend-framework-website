@@ -178,6 +178,13 @@ echo $this->headScript();
                             </ul>
                         </li>
                         <?php } ?>
+                        <?php /*** <li class="dropdown" id="menuMyAccount">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" class="launchDialogEditEmployeeSchedule">Edit My Schedule</a></li>
+                                <li><a href="<?php echo $this->basepath(); ?>/login/logout">Log Out</a></li>
+                            </ul>
+                        </li> ***/ ?>
                     </ul>
                 </div><!--/.nav-collapse -->
                 
@@ -241,6 +248,8 @@ echo $this->headScript();
 
             <span class="copyright">Copyright &copy; <?php echo date( "Y" ); ?> Swift Transportation.</span>
         </div> <!-- /container -->
+        
+        <?php echo $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ); ?>
 
         <script>
             //     $(document).ready(function() {

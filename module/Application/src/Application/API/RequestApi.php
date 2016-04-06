@@ -19,6 +19,7 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\Employee;
+use \Request\Model\EmployeeSchedules;
 use \Request\Model\TimeOffRequestLog;
 use \Request\Model\TimeOffRequests;
 use \Request\Model\RequestEntry;
@@ -139,6 +140,28 @@ class RequestApi extends ApiController {
             "UNPAID_PENDING, UNPAID_PENDING_TMP, UNPAID_PENDING_TOTAL");
         
         return $post;
+    }
+    
+    public function submitEmployeeScheduleRequestAction()
+    {
+        $EmployeeSchedules = new EmployeeSchedules();
+        $post = $this->getRequest()->getPost();
+        
+        try {
+            $EmployeeSchedules->updateEmployeeSchedule( $post );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'byEmployee' => $post->request['byEmployee']
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
+        
+        return $result;
     }
     
     /**
