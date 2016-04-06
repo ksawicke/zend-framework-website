@@ -389,8 +389,13 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
     
-    this.updateEmployeeSchedule = function( requestForEmployeeObject ) {
-        var data = requestForEmployeeObject;
+    /**
+     * Appends the loaded schedule to the update form.
+     * 
+     * @param {type} data
+     * @returns {undefined}
+     */
+    this.updateEmployeeSchedule = function( data ) {
         $("#scheduleSUN").html( data.SCHEDULE_SUN );
         $("#scheduleMON").html( data.SCHEDULE_MON );
         $("#scheduleTUE").html( data.SCHEDULE_TUE );
@@ -398,6 +403,17 @@ var timeOffCreateRequestHandler = new function() {
         $("#scheduleTHU").html( data.SCHEDULE_THU );
         $("#scheduleFRI").html( data.SCHEDULE_FRI );
         $("#scheduleSAT").html( data.SCHEDULE_SAT );
+        
+        $("#employeeScheduleSUN").val( data.SCHEDULE_SUN );
+        $("#employeeScheduleMON").val( data.SCHEDULE_MON );
+        $("#employeeScheduleTUE").val( data.SCHEDULE_TUE );
+        $("#employeeScheduleWED").val( data.SCHEDULE_WED );
+        $("#employeeScheduleTHU").val( data.SCHEDULE_THU );
+        $("#employeeScheduleFRI").val( data.SCHEDULE_FRI );
+        $("#employeeScheduleSAT").val( data.SCHEDULE_SAT );
+        
+        $("#employeeScheduleFor").val( data.EMPLOYEE_NUMBER );
+        $("#employeeScheduleBy").val( requestForEmployeeNumber );
     }
 
     /**

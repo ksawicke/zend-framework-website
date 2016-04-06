@@ -39,6 +39,19 @@ return [
                 'child_routes' => []
             ],
             
+            'submitEmployeeScheduleRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/employee-schedule',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitEmployeeScheduleRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitManagerApproved' => [
                 'type' => 'segment',
                 'options' => [
