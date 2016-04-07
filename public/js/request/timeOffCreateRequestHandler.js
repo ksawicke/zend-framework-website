@@ -950,36 +950,48 @@ var timeOffCreateRequestHandler = new function() {
      * Draws form fields we can submit for the user.
      */
     this.drawHoursRequested = function() {
-        var datesSelectedDetailsHtml = '<strong>Hours Requested:</strong>'
-            + '<br style="clear:both;"/><br style="clear:both;"/>';
-            totalPTORequested = 0;
-            totalFloatRequested = 0;
-            totalSickRequested = 0;
-            totalUnexcusedAbsenceRequested = 0;
-            totalBereavementRequested = 0;
-            totalCivicDutyRequested = 0;
-            totalGrandfatheredRequested = 0;
-            totalApprovedNoPayRequested = 0;
+        totalPTORequested = 0;
+        totalFloatRequested = 0;
+        totalSickRequested = 0;
+        totalUnexcusedAbsenceRequested = 0;
+        totalBereavementRequested = 0;
+        totalCivicDutyRequested = 0;
+        totalGrandfatheredRequested = 0;
+        totalApprovedNoPayRequested = 0;
+            
+        datesSelectedDetailsHtml = '<strong>Hours Requested:</strong><br /><br />' +
+                    
+                                    '<table class="employeeSchedule" style="width:100%">' +
+                                         '<thead>' +
+                                             '<tr>' +
+                                                 '<th style="width:40px;">Day</th>' +
+                                                 '<th style="width:60px;">Date</th>' +
+                                                 '<th style="width:40px;">Hours</th>' +
+                                                 '<th>Category</th>' +
+                                                 '<th style="width:15px;text-align:center;">Delete</th>' +
+                                             '</tr>' +
+                                         '</thead>' +
+                                         '<tbody>';
+        
+        
         for (var key = 0; key < selectedDatesNew.length; key++) {
-            datesSelectedDetailsHtml += selectedDatesNew[key].date
-            + '&nbsp;&nbsp;&nbsp;&nbsp;'
-            + '<input class="selectedDateHours" value="'
-            + timeOffCreateRequestHandler
-            .setTwoDecimalPlaces(selectedDatesNew[key].hours)
-            + '" size="2" data-key="'
-            + key
-            + '" disabled="disabled">'
-            + '&nbsp;&nbsp;&nbsp;&nbsp;'
-            + '<span class="badge '
-            + selectedDatesNew[key].category
-            + '">'
-            + timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category)
-            + '</span>' + '&nbsp;&nbsp;&nbsp;' +
-            '<span class="glyphicon glyphicon-remove-circle red remove-date-requested" '
-            + 'data-date="' + selectedDatesNew[key].date + '" '
-            + 'data-category="' + selectedDatesNew[key].category + '" '
-            + 'title="Remove date from request">' + '</span>'
-            + '<br style="clear:both;" />';
+            var dow = moment(selectedDatesNew[key].date, "MM/DD/YYYY").format("ddd").toUpperCase();
+                datesSelectedDetailsHtml += '<tr>' +
+                                            '<td>' + dow + '</td>' +
+                                            '<td>' + selectedDatesNew[key].date + '</td>' +
+                                            '<td><input class="selectedDateHours" value="' +
+                                            timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) +
+                                            '" data-key="' + key + '" disabled="disabled"></td>' +
+                                            '<td>' +
+                                            '<span class="badge ' + selectedDatesNew[key].category + '">' +
+                                            timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
+                                            '</span>' +
+                                            '</td>' +
+                                            '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
+                                            'data-date="' + selectedDatesNew[key].date + '" ' +
+                                            'data-category="' + selectedDatesNew[key].category + '" ' +
+                                            'title="Remove date from request">' + '</span></td>' +
+                                            '</tr>';
 
             switch (selectedDatesNew[key].category) {
                 case 'timeOffPTO':
