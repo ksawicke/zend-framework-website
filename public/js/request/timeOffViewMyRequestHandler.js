@@ -330,19 +330,40 @@ var timeOffViewRequestHandler = new function ()
             $("#noDatesSelectedWarning").show();
         } else {
             $("#noDatesSelectedWarning").hide();
-            datesSelectedDetailsHtml = '<strong>Hours Requested:</strong><br /><br />';
+            
+            datesSelectedDetailsHtml = '<strong>Hours Requested:</strong><br /><br />' +
+                    
+                                       '<table class="employeeSchedule" style="width:100%">' +
+                                            '<thead>' +
+                                                '<tr>' +
+                                                    '<th style="width:15px;">Status</th>' +
+                                                    '<th style="width:40px;">Day</th>' +
+                                                    '<th style="width:60px;">Date</th>' +
+                                                    '<th style="width:40px;">Hours</th>' +
+                                                    '<th>Category</th>' +
+                                                '</tr>' +
+                                            '</thead>' +
+                                            '<tbody>';
+                                    
             $.each( highlightDates, function( key, dateObject ) {
-                datesSelectedDetailsHtml += dateObject.REQUEST_DATE +
-                                            '&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                            '<input class="selectedDateHours" value="' + dateObject.REQUESTED_HOURS +
-                                            '" size="2" disabled="disabled">' +
-                                            '&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                            '<span class="badge ' + dateObject.CALENDAR_DAY_CLASS + '">' +
-                                            timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
-                                            '</span>&nbsp;&nbsp;&nbsp;' +
-                                            ( ( dateObject.REQUEST_STATUS==="P" ) ? '<span class="glyphicon glyphicon-user red"></span>' : '<span class="glyphicon glyphicon-ok green"></span>' ) +
-                                            '<br />';
+                var dow = moment(dateObject.REQUEST_DATE, "MM/DD/YYYY").format("ddd").toUpperCase();
+                datesSelectedDetailsHtml += '<tr>' +
+                                                '<td>' + ( ( dateObject.REQUEST_STATUS==="P" ) ?
+                                                                            '<span class="glyphicon glyphicon-user red"></span>' :
+                                                                            '<span class="glyphicon glyphicon-ok green"></span>' ) +
+                                                '</td>' +
+                                                '<td>' + dow + '</td>' +
+                                                '<td>' + dateObject.REQUEST_DATE + '</td>' +
+                                                '<td><input class="selectedDateHours" value="' + dateObject.REQUESTED_HOURS +
+                                                '" style="width:50px;" disabled="disabled"></td>' +
+                                                '<td><span class="badge ' + dateObject.CALENDAR_DAY_CLASS + '">' +
+                                                timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
+                                                '</span></td>' +
+                                            '</tr>';                  
+                                    
             });
+            
+            
         }
         $("#datesSelectedDetails").html( datesSelectedDetailsHtml );
     }
