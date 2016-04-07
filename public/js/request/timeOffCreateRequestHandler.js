@@ -1328,6 +1328,7 @@ var timeOffCreateRequestHandler = new function() {
                 foundCounter++;
                 copy = dateObject;
                 newOne = object;
+                newOne.dow = moment(object.date, "MM/DD/YYYY").format("ddd").toUpperCase();
                 deleteKey = key;
             }
         });
@@ -1433,9 +1434,11 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} deleteKey
      * @param {type} copy
      * @param {type} newOne
+     * @param {type} oldHours
      * @returns {undefined}
      */
     this.splitDataFromRequest = function( calendarDateObject, deleteKey, copy, newOne ) {
+        var oldHours = copy.hours;
         var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         var scheduleDay = "SCHEDULE_" + dow;
         var hoursScheduledThisDay = requestForEmployeeObject[scheduleDay];
@@ -1446,31 +1449,49 @@ var timeOffCreateRequestHandler = new function() {
             } else {
                 copy.hours = copy.category==="timeOffFloat" ? 8 : hoursScheduledThisDay - 8;
                 newOne.hours = hoursScheduledThisDay - copy.hours;
-                timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey );
+                timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
             }
         }
         else {
             copy.hours = hoursScheduledThisDay / 2;
             newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey );
+            timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
         }
     }
     
     /**
      * Takes current selected day and performs the split.
      * 
-     * @param {type} copy
-     * @param {type} newOne
-     * @param {type} deleteKey
+     * @param object calendarDateObject
+     * @param object copy
+     * @param object newOne
+     * @param integer deleteKey
+     * @param integer oldHours
+     * 
      * @returns {undefined}
      */
-    this.splitTime = function( calendarDateObject, copy, newOne, deleteKey ) {
-        console.log( "CHECK", calendarDateObject );
-        timeOffCreateRequestHandler.subtractTime(copy.category, Number(copy.hours));
+    this.splitTime = function( calendarDateObject, copy, newOne, deleteKey, oldHours ) {
+//        console.log( "----------------------------" );
+//        console.log( "CHECK calendarDateObject", calendarDateObject );
+//        console.log( "CHECK deleteKey", deleteKey );
+//        console.log( "CHECK selectedDatesNew", selectedDatesNew );
+//        console.log( "CHECK copy", copy );
+//        console.log( "CHECK newOne", newOne );
+//        console.log( "CHECK deleteKey", deleteKey );
+//        console.log( "CHECK oldHours", oldHours );
+//        console.log( "----------------------------" );
+        
+        /** Remove the first date from the request. Recalculate the remaining time. **/
         timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
+        timeOffCreateRequestHandler.addTime(copy.category, 0-oldHours);
         calendarDateObject.removeClass(copy.category + "Selected");
+        
+        /** Add the first date again with new split time. Recalculate the remaining time. **/
         timeOffCreateRequestHandler.addDateToRequest(copy);
         timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
+        
+        /** Add the second date with the new split time. Recalculate the remaining time. **/
+        /** For now we'll highlight the calendar with the second category. **/
         timeOffCreateRequestHandler.addDateToRequest(newOne);
         timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
         calendarDateObject.addClass(newOne.category + "Selected");
