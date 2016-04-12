@@ -1,63 +1,108 @@
 <div id="dialogEditEmployeeSchedule" title="Edit employee's schedule">
-    <p class="validateTips">All form fields are required.</p>
-
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>SUN</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleSUN" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>MON</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleMON" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>TUE</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleTUE" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>WED</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleWED" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>THU</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleTHU" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>FRI</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleFRI" style="width:50px;"> hours
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3 text-left">
-            <strong>SAT</strong>
-        </div>
-        <div class="col-lg-9 col-md-9">
-            <input id="employeeScheduleSAT" style="width:50px;"> hours
+    <div class="employeeScheduleDailyHoursExceeded bs-callout bs-callout-warning hidden">
+        <div class="alert alert-danger" role="alert">
+            <i class="fa fa-warning"></i> <strong id="">Hours must be between 0-12.</strong><br />
         </div>
     </div>
     
-    <input id="employeeScheduleFor" type="hidden" value="">
-    <input id="employeeScheduleBy" type="hidden" value="">
+    <div class="employeeScheduleSaveError bs-callout bs-callout-warning hidden">
+        <div class="alert alert-danger" role="alert">
+            <i class="fa fa-warning"></i> <strong id="">There was an error saving the new schedule.</strong><br />
+        </div>
+    </div>
+    
+    <div class="employeeScheduleUploadError bs-callout bs-callout-warning hidden">
+        <div class="alert alert-danger" role="alert">
+            <i class="fa fa-warning"></i> <strong id="">There was an error uploading the new schedule.</strong><br />
+        </div>
+    </div>
+
+    <div class="employeeScheduleFormValidates bs-callout bs-callout-info hidden">
+        <?php /***<div class="alert alert-success" role="alert">
+            <i class="fa fa-exclamation-circle"></i> <strong>Nice!</strong>
+        </div> ***/ ?>
+    </div>
+
+    <form id="employeeScheduleForm" data-parsley-trigger="blur">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>SUN</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleSUN" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>MON</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleMON" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>TUE</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleTUE" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>WED</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleWED" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>THU</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleTHU" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>FRI</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleFRI" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 text-left">
+                <strong>SAT</strong>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <input id="employeeScheduleSAT" style="width:50px;"
+                       data-parsley-errors-messages-disabled
+                       data-parsley-required
+                       data-parsley-range="[0, 12]"> hours
+            </div>
+        </div>
+
+        <input id="employeeScheduleFor" type="hidden" value="">
+        <input id="employeeScheduleBy" type="hidden" value="">
+    </form>
 </div>
