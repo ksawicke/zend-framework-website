@@ -39,6 +39,19 @@ return [
                 'child_routes' => []
             ],
             
+            'submitProxyRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'submitProxyRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitEmployeeScheduleRequest' => [
                 'type' => 'segment',
                 'options' => [

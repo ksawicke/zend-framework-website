@@ -4,7 +4,9 @@
  */
 var timeOffProxyHandler = new function ()
 {
-    var timeOffProxySearchUrl = phpVars.basePath + '/api/search/proxies';
+    var timeOffProxySearchUrl = phpVars.basePath + '/api/search/proxies',
+        timeOffAddProxyUrl = phpVars.basePath + '/api/proxy',
+        selectedProxyEmployeeNumber = null;
 
     /**
      * What to run on initialize of this class.
@@ -23,7 +25,8 @@ var timeOffProxyHandler = new function ()
             $requestForEventSelect.on("select2:select", function(e) {
 //                timeOffCreateRequestHandler.resetCategorySelection();
                 var selectedEmployee = e.params.data;
-//                requestForEmployeeNumber = selectedEmployee.id;
+                selectedProxyEmployeeNumber = selectedEmployee.id;
+                
 //                requestForEmployeeName = selectedEmployee.text;
 //                timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
 //                $('.requestIsForMe').show();
@@ -90,6 +93,42 @@ var timeOffProxyHandler = new function ()
                 allowClear : true,
                 minimumInputLength : 2,
             });
+            
+            $(document).on('click', '.submitAddProxyRequest', function() {
+                timeOffProxyHandler.handleAddProxy();
+            });
+        });
+    }
+    
+    //timeOffProxyHandler.addProxy( proxyEmployeeNumber );
+    
+    this.handleAddProxy = function() {
+//        console.log( phpVars.employee_number );
+//        console.log( proxyEmployeeNumber );
+        
+        $.ajax({
+            url : timeOffAddProxyUrl,
+            type : 'POST',
+            data : {
+                request : {
+                    forEmployee : {
+                        EMPLOYEE_NUMBER : phpVars.employee_number
+                    },
+                    proxy : selectedProxyEmployeeNumber
+                }
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                console.log( "STOPPING HERE." );
+//                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was some error.');
+            return;
         });
     }
     
