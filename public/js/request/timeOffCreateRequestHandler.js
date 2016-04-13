@@ -167,13 +167,14 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay();
-
+            var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE==='S' ?
+                                      '#warnSalaryTakingRequiredHoursPerDay' :
+                                      '#warnHourlyTakingRequiredHoursPerDay' );
             if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
-                $("#warnSalaryTakingRequiredHoursPerDay").hide();
+                $( hoursWarningBlock ).hide();
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             } else {
-                $("#warnSalaryTakingRequiredHoursPerDay").show();
+                $( hoursWarningBlock ).show();
             }
         });
     }
@@ -187,20 +188,25 @@ var timeOffCreateRequestHandler = new function() {
         var validates = true;
         selectedDatesNewHoursByDate = [];
         
-        if( requestForEmployeeObject.SALARY_TYPE==='S' ) {
-            $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-                if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-                    selectedDatesNewHoursByDate[selectedDateNewObject.date] = timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
-                } else {
-                    selectedDatesNewHoursByDate[selectedDateNewObject.date] += timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
-                }
-            });
-            $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-                if( selectedDatesNewHoursByDate[selectedDateNewObject.date] != 8 ) {
-                   validates = false;
-                }
-            });
-        }
+        $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+            if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] = timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+            } else {
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] += timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+            }
+        });
+        $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+            if( requestForEmployeeObject.SALARY_TYPE==='S' &&
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] != 8 ) {
+                validates = false;
+            }
+            if( requestForEmployeeObject.SALARY_TYPE==='H' &&
+                ( selectedDatesNewHoursByDate[selectedDateNewObject.date] > 12 ||
+                  selectedDatesNewHoursByDate[selectedDateNewObject.date] < 0 )
+              ) {
+                validates = false;
+            }
+        });
         
         return validates;
     }
