@@ -44,12 +44,12 @@ var timeOffCommon = new function ()
                                 timeOffCommon.setEmployeeScheduleFormError( 'error' );
                             }        
                             
-                            if( $('#employeeScheduleForm').parsley().validate() &&
-                                $('#employeeScheduleForm').parsley().isValid() ) {
-                                console.log( "Form looks good" );
-                            } else {
-                                console.log( "Form is sad." );
-                            }
+//                            if( $('#employeeScheduleForm').parsley().validate() &&
+//                                $('#employeeScheduleForm').parsley().isValid() ) {
+//                                console.log( "Form looks good" );
+//                            } else {
+//                                console.log( "Form is sad." );
+//                            }
                         },
                         Cancel : function() {
                             $(this).dialog("close");

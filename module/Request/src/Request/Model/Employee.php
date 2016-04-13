@@ -339,6 +339,43 @@ class Employee extends BaseDB {
 
         return $this->employeeData;
     }
+    
+    public function findProxyEmployees( $managerEmployeeNumber = null, $search = null ) {
+        $where = "WHERE (
+            " . $this->getExcludedLevel2() . "
+            employee.PRER = '002' AND employee.PRTEDH = 0 AND
+            ( trim(employee.PREN) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRLNM) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
+            )
+        )";
+        $rawSql = "SELECT
+                CASE
+                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+                END AS EMPLOYEE_NAME,
+                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+                employee.PRL01 AS LEVEL_1,
+                employee.PRL02 AS LEVEL_2,
+                employee.PRL03 AS LEVEL_3,
+                employee.PRL04 AS LEVEL_4,
+                'N' AS DIRECT_INDIRECT,
+                '0' AS MANAGER_LEVEL,
+                trim(employee.PRPOS) AS POSITION,
+                trim(employee.PREML1) AS EMAIL_ADDRESS,
+                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+                trim(employee.PRTITL) AS POSITION_TITLE,
+                '' AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                '' AS DIRECT_MANAGER_NAME,
+                '' AS DIRECT_MANAGER_EMAIL_ADDRESS
+                FROM PRPMS employee
+                " . $where . "
+                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+
+        return $employeeData;
+    }
 
     /**
      * Find manager's employees

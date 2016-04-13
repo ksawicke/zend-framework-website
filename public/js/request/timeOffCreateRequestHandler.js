@@ -1147,9 +1147,9 @@ var timeOffCreateRequestHandler = new function() {
 
     this.checkAllowRequestOnBehalfOf = function() {
         if (loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" || loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
-            console.log('1132!!!');
+//            console.log('1132!!!');
         timeOffCreateRequestHandler.enableSelectRequestFor();
-        $("#requestFor").prop('disabled', false);
+            $("#requestFor").prop('disabled', false);
         } else {
             $("#requestFor").prop('disabled', true);
             $(".categoryBereavement").hide();

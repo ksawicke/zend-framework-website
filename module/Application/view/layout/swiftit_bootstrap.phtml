@@ -76,6 +76,11 @@ $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffCommon.js' ) )
         ->appendFile( $this->basePath( 'js/moment/moment.min.js' ) );
 
+//if( $isManager==="N" && $isPayroll==="N" ) {
+//    $this->headScript()
+//        ->appendFile( $this->basePath( 'js/request/timeOffProxyHandler.js' ) );
+//}
+
 if ( strpos( $_SERVER['REDIRECT_URL'], '/request/view-my-team-calendar' ) !== false ) {
     $this->headScript()
         ->appendFile( $this->basePath( 'js/request/timeOffTeamCalendarHandler.js' ) );
@@ -177,14 +182,17 @@ echo $this->headScript();
                                 <?php } ?>
                             </ul>
                         </li>
-                        <?php } ?>
-                        <?php /*** <li class="dropdown" id="menuMyAccount">
+                        <?php } else { ?>
+                        <li class="dropdown" id="menuMyAccount">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#" class="launchDialogEditEmployeeSchedule">Edit My Schedule</a></li>
+                                <?php /***<li><a href="#" class="launchDialogEditEmployeeSchedule">Edit My Schedule</a></li>***/ ?>
+                                <li><a href="<?php echo $this->basepath(); ?>/request/edit-employee-profile">Edit My Profile</a></li>
                                 <li><a href="<?php echo $this->basepath(); ?>/login/logout">Log Out</a></li>
                             </ul>
-                        </li> ***/ ?>
+                        </li>
+                        <?php echo $this->partial( 'request/partials/dialogEditEmployeeProxies.phtml' ); ?>
+                        <?php } ?>
                     </ul>
                 </div><!--/.nav-collapse -->
                 

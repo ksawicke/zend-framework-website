@@ -35,6 +35,10 @@ class SearchApi extends ApiController {
      */
     public function getSearchResultsAction() {
         switch ( $this->params()->fromRoute( 'search-type' ) ) {
+            case 'proxies':
+                return new JsonModel( $this->getEmployeeProxySearchResults() );
+                break;
+            
             case 'employees':
             default:
                 return new JsonModel( $this->getEmployeeSearchResults() );
@@ -52,6 +56,26 @@ class SearchApi extends ApiController {
         $return = [ ];
         $Employee = new \Request\Model\Employee();
         $managerEmployees = $Employee->findManagerEmployees( $request->getPost()->employeeNumber,
+            $request->getPost()->search, $request->getPost()->directReportFilter );
+        foreach ( $managerEmployees as $id => $data ) {
+            $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
+                'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE
+            ];
+        }
+
+        return $return;
+    }
+    
+    /**
+     * Returns an array of employees the logged in user may use as a proxy.
+     * 
+     * @return array
+     */
+    private function getEmployeeProxySearchResults() {
+        $request = $this->getRequest();
+        $return = [ ];
+        $Employee = new \Request\Model\Employee();
+        $managerEmployees = $Employee->findProxyEmployees( $request->getPost()->employeeNumber,
             $request->getPost()->search, $request->getPost()->directReportFilter );
         foreach ( $managerEmployees as $id => $data ) {
             $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
