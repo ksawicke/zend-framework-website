@@ -7,6 +7,7 @@ var timeOffCreateRequestHandler = new function() {
         timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request',
         timeOffSubmitTimeOffSuccessUrl = phpVars.basePath + '/request/submitted-for-approval',
         timeOffEmployeeSearchUrl = phpVars.basePath + '/api/search/employees',
+        settingsDisableHoursInputFields = false,
         employeePTORemaining = 0,
         employeeFloatRemaining = 0,
         employeeSickRemaining = 0,
@@ -41,7 +42,7 @@ var timeOffCreateRequestHandler = new function() {
         requestReason = '',
         /** Dates selected for this request **/
 
-        selectedDatesNew = [],
+        selectedDatesNewHoursByDate = [],
         selectedDatesApproved = [],
         selectedDatesPendingApproval = [],
         selectedDates = [],
@@ -124,7 +125,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.handleClickCalendarDate();
             timeOffCreateRequestHandler.handleRemoveDateFromRequest();
             timeOffCreateRequestHandler.handleChangeHoursForDateManually();
-            timeOffCreateRequestHandler.handleSubmitRequest();
+            timeOffCreateRequestHandler.verifyNewRequest();
             timeOffCreateRequestHandler.handleSplitDate();
             timeOffCreateRequestHandler.handleChangeRequestForEmployee();
             timeOffCreateRequestHandler.handleDirectReportToggle();
@@ -164,21 +165,56 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Submit time off request
      */
-    this.handleSubmitRequest = function() {
+    this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            requestReason = $("#requestReason").val();
-            timeOffCreateRequestHandler.submitTimeOffRequest();
+            timeOffCreateRequestHandler.verifySalaryTakingMinimumHoursPerDay();
+
+            if( timeOffCreateRequestHandler.verifySalaryTakingMinimumHoursPerDay()===true ) {
+                $("#warnMinHoursRequestedPerDay").hide();
+                timeOffCreateRequestHandler.submitTimeOffRequest();
+            } else {
+                $("#warnMinHoursRequestedPerDay").show();
+            }
         });
+    }
+    
+    /**
+     * Verify that no single day has less than 8 hours requested if the employee is Salary
+     * 
+     * @returns {Boolean|_L5.verifySalaryTakingMinimumHoursPerDay.validates}
+     */
+    this.verifySalaryTakingMinimumHoursPerDay = function() {
+        var validates = true;
+        selectedDatesNewHoursByDate = [];
+        
+        if( requestForEmployeeObject.SALARY_TYPE==='S' ) {
+            $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+                if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
+                    selectedDatesNewHoursByDate[selectedDateNewObject.date] = timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+                } else {
+                    selectedDatesNewHoursByDate[selectedDateNewObject.date] += timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+                }
+            });
+            $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+                if( selectedDatesNewHoursByDate[selectedDateNewObject.date] >= 8 ) {
+                } else {
+                   validates = false;
+                }
+            });
+        }
+        
+        return validates;
     }
 
     /**
      * Handle user changing the hours for a date manually
      */
     this.handleChangeHoursForDateManually = function() {
-        $(document).on('change', '.selectedDateHours', function() {
+        $(document).on('blur', '.selectedDateHours', function() { 
             var key = $(this).attr("data-key");
             var value = $(this).val();
-            selectedDateHours[key] = value;
+            
+            selectedDatesNew[key].hours = value;
         });
     }
 
@@ -191,15 +227,13 @@ var timeOffCreateRequestHandler = new function() {
                 category : $(this).attr('data-category'),
                 date : $(this).data('date')
             };
-            console.log( "DELETE DATE OBJECT", dateObject );
-            console.log( "CURRENT DATES SELECTED", selectedDatesNew );
+            
             $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
                 if( selectedDateNewObject.date===dateObject.date &&
                     selectedDateNewObject.category===dateObject.category ) {
-                    console.log( "DELETE THIS FROM selectedDatesNew", selectedDateNewObject );
                     timeOffCreateRequestHandler.deleteDataFromRequest( selectedDatesNew, index, dateObject );
                 } else {
-                    console.log( "LEAVE THIS IN selectedDatesNew", selectedDateNewObject );
+//                    console.log( "LEAVE THIS IN selectedDatesNew", selectedDateNewObject );
 //                    timeOffCreateRequestHandler.addDataToRequest( calendarDateObject, object );
                 }
             });
@@ -396,13 +430,13 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.updateEmployeeSchedule = function( data ) {
-        $("#scheduleSUN").html( data.SCHEDULE_SUN );
-        $("#scheduleMON").html( data.SCHEDULE_MON );
-        $("#scheduleTUE").html( data.SCHEDULE_TUE );
-        $("#scheduleWED").html( data.SCHEDULE_WED );
-        $("#scheduleTHU").html( data.SCHEDULE_THU );
-        $("#scheduleFRI").html( data.SCHEDULE_FRI );
-        $("#scheduleSAT").html( data.SCHEDULE_SAT );
+        $("#scheduleSUN").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_SUN ) );
+        $("#scheduleMON").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_MON ) );
+        $("#scheduleTUE").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_TUE ) );
+        $("#scheduleWED").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_WED ) ); // data.SCHEDULE_WED
+        $("#scheduleTHU").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_THU ) );
+        $("#scheduleFRI").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_FRI ) );
+        $("#scheduleSAT").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_SAT ) );
         
         $("#employeeScheduleSUN").val( data.SCHEDULE_SUN );
         $("#employeeScheduleMON").val( data.SCHEDULE_MON );
@@ -864,7 +898,7 @@ var timeOffCreateRequestHandler = new function() {
      * Rounds a number to two decimal places.
      */
     this.setTwoDecimalPlaces = function(num) {
-        return parseFloat(Math.round(num * 100) / 100).toFixed(2);
+        return parseFloat( Math.round(num) ).toFixed(2);
     }
 
     /**
@@ -981,7 +1015,8 @@ var timeOffCreateRequestHandler = new function() {
                                             '<td>' + selectedDatesNew[key].date + '</td>' +
                                             '<td><input class="selectedDateHours" value="' +
                                             timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) +
-                                            '" data-key="' + key + '" disabled="disabled"></td>' +
+                                            '" data-key="' + key + '" ' +
+                                            timeOffCreateRequestHandler.disableHoursInputField() + '></td>' +
                                             '<td>' +
                                             '<span class="badge ' + selectedDatesNew[key].category + '">' +
                                             timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
@@ -1033,6 +1068,10 @@ var timeOffCreateRequestHandler = new function() {
         }
 
         timeOffCreateRequestHandler.printEmployeePTORemaining();
+    }
+    
+    this.disableHoursInputField = function() {
+        return settingsDisableHoursInputFields===true ? ' disabled="disabled"' : '';
     }
 
     /**
@@ -1391,6 +1430,7 @@ var timeOffCreateRequestHandler = new function() {
      * @param {object} object
      * @returns {none}     */
     this.addDataToRequest = function(calendarDateObject, object) {
+        console.log( "ADD@" );
         object = timeOffCreateRequestHandler.formatDayRequested(object);
         timeOffCreateRequestHandler.addDateToRequest(object);
         timeOffCreateRequestHandler.addTime(object.category, object.hours);
@@ -1419,9 +1459,11 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} object
      * @returns {undefined} */
     this.deleteDataFromRequest = function(calendarDateObject, deleteKey, object) {
-        console.log( 'a', calendarDateObject );
-        console.log( 'deleteKey', deleteKey );
-        console.log( 'object', object );
+//        console.log( 'a', calendarDateObject );
+//        console.log( 'deleteKey', deleteKey );
+//        console.log( 'object', object );
+        
+        console.log( 'DELETE@@' );
         
         timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteKey].category,
                                                   Number( selectedDatesNew[deleteKey].hours ) );
