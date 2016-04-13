@@ -3,24 +3,43 @@ namespace Request\Helper;
 
 class Format
 {
+    public static $fieldsAsFloat;
+    
+    public static function setFieldsAsFloat( $fieldsAsFloat )
+    {
+        self::$fieldsAsFloat = $fieldsAsFloat;
+    }
+    
     public static function setStringDefaultToZero($string)
     {
         return (empty($string) ? number_format(0, 2) : $string);
     }
     
-    public static function trimData($object)
+    public static function trimData( $object )
     {
+//        echo '<pre>';
+//        var_dump( $object );
+//        echo '</pre>';
+//        exit();
+        
         if(!empty($object)) {
             array_walk_recursive($object, function( &$value, $key ) {
-                /**
-                 * Value is of type string
-                 */
-                if ( is_string( $value ) ) {
-                    $value = trim( $value );
+                switch( gettype( $value ) ) {
+                    case 'string':
+                        $value = trim( $value );
+                        break;
                 }
+//                if( in_array( $key, self::$fieldsAsFloat ) ) {
+//                    $value = $value * 1.00;
+//                }
             });
         }
 
+//        echo '<pre>';
+//        var_dump( $object );
+//        echo '</pre>';
+//        exit();
+        
         return $object;
     }
     

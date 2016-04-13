@@ -1,50 +1,60 @@
-<div class="row gutter-10 requestWrapper">
-    <div class="col-md-3 col-lg-3">
+<form id="newTimeOffRequestForm">
+    <div class="row gutter-10 requestWrapper">
+        <div class="col-md-3 col-lg-3">
 
-    </div>
-    <div class="col-md-6 col-lg-6">
-        <div id="datesSelectedDetails" style="display:none;">
-            
         </div>
-        <div id="requestSubmitDetails" style="display:none;">
-            <br style="clear:both;"/>
-            <strong>Reason for request:</strong>
-            <br style="clear:both;"/>
-            <br style="clear:both;"/>
-            <textarea style="width:100%;" rows="4" id="requestReason"></textarea>
-            <br style="clear:both;"/>
-            <br style="clear:both;"/>
-            
-            <div id="warnPTO" style="display:none;">
-            	<div class="alert alert-danger" role="alert">
-                    <i class="fa fa-warning"></i> <strong>PTO time remaining has been exceeded.</strong>
-                </div>
-            </div>
-            
-            <div id="warnFloat" style="display:none;">
-            	<div class="alert alert-danger" role="alert">
-                    <i class="fa fa-warning"></i> <strong>Float time remaining has been exceeded.</strong>
-                </div>
-            </div>
-            
-            <div id="warnSick" style="display:none;">
-            	<div class="alert alert-danger" role="alert">
-                    <i class="fa fa-warning"></i> <strong>PTO time remaining has been exceeded.</strong>
-                </div>
-            </div>
-            
-            <div id="warnGF" style="display:none;">
-            	<div class="alert alert-danger" role="alert">
-                    <i class="fa fa-warning"></i> <strong>Grandfathered time remaining has been exceeded.</strong>
-                </div>
-            </div>
-            
-            <button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit Request</button>
-            <br style="clear:both;"/>
-            <br style="clear:both;"/>
-        </div>
-    </div>
-    <div class="col-md-3 col-lg-3">
+        <div class="col-md-6 col-lg-6">
+            <div id="datesSelectedDetails" style="display:none;">
 
+            </div>
+            
+            <br style="clear:both;"/>
+            
+            <div id="warnMinHoursRequestedPerDay" style="display:none;">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fa fa-warning"></i> <strong>Please make sure you take a minimum of 8 hours off for each day of your request.</strong>
+                </div>
+            </div>
+            
+            <div id="requestSubmitDetails" style="display:none;">
+                <strong>Reason for request:</strong>
+                <br style="clear:both;"/>
+                <br style="clear:both;"/>
+                <textarea style="width:100%;" rows="4" id="requestReason"></textarea>
+                <br style="clear:both;"/>
+                <br style="clear:both;"/>
+
+                <div id="warnPTO" style="display:none;">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa fa-warning"></i> <strong>PTO time remaining has been exceeded.</strong>
+                    </div>
+                </div>
+
+                <div id="warnFloat" style="display:none;">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa fa-warning"></i> <strong>Float time remaining has been exceeded.</strong>
+                    </div>
+                </div>
+
+                <div id="warnSick" style="display:none;">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa fa-warning"></i> <strong>Sick time remaining has been exceeded.</strong>
+                    </div>
+                </div>
+
+                <div id="warnGF" style="display:none;">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa fa-warning"></i> <strong>Grandfathered time remaining has been exceeded.</strong>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-form-primary btn-lg submitTimeOffRequest">Submit Request</button>
+                <br style="clear:both;"/>
+                <br style="clear:both;"/>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3">
+
+        </div>
     </div>
-</div>
+</form>
