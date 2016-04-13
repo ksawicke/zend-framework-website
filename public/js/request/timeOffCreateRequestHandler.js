@@ -167,13 +167,13 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            timeOffCreateRequestHandler.verifySalaryTakingMinimumHoursPerDay();
+            timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay();
 
-            if( timeOffCreateRequestHandler.verifySalaryTakingMinimumHoursPerDay()===true ) {
-                $("#warnMinHoursRequestedPerDay").hide();
+            if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
+                $("#warnSalaryTakingRequiredHoursPerDay").hide();
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             } else {
-                $("#warnMinHoursRequestedPerDay").show();
+                $("#warnSalaryTakingRequiredHoursPerDay").show();
             }
         });
     }
@@ -181,9 +181,9 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Verify that no single day has less than 8 hours requested if the employee is Salary
      * 
-     * @returns {Boolean|_L5.verifySalaryTakingMinimumHoursPerDay.validates}
+     * @returns {Boolean|_L5.verifySalaryTakingRequiredHoursPerDay.validates}
      */
-    this.verifySalaryTakingMinimumHoursPerDay = function() {
+    this.verifySalaryTakingRequiredHoursPerDay = function() {
         var validates = true;
         selectedDatesNewHoursByDate = [];
         
@@ -196,8 +196,7 @@ var timeOffCreateRequestHandler = new function() {
                 }
             });
             $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-                if( selectedDatesNewHoursByDate[selectedDateNewObject.date] >= 8 ) {
-                } else {
+                if( selectedDatesNewHoursByDate[selectedDateNewObject.date] != 8 ) {
                    validates = false;
                 }
             });
