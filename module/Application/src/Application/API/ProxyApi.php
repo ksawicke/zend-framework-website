@@ -1,15 +1,15 @@
 <?php
 
 /**
- * RequestApi.php
+ * ProxyApi.php
  *
- * Request API
+ * Proxy API
  *
- * API Handler for request submissions and actions
+ * API Handler for proxy submissions and actions
  *
  * PHP version 5
  *
- * @package    Application\API\RequestApi
+ * @package    Application\API\ProxyApi
  * @author     Kevin Sawicke <kevin_sawicke@swifttrans.com>
  * @copyright  2016 Swift Transportation
  * @version    GIT: $Id$ In development

@@ -183,7 +183,8 @@ return [
             'Application\API\QueueApi' => API\QueueApi::class,
             'Application\API\SearchApi' => API\SearchApi::class,
             'Application\API\CalendarApi' => API\CalendarApi::class,
-            'Application\API\RequestApi' => API\RequestApi::class
+            'Application\API\RequestApi' => API\RequestApi::class,
+            'Application\API\ProxyApi' => API\ProxyApi::class
         ]
     ],
     'service_manager' => [

@@ -304,12 +304,14 @@ class Employee extends BaseDB {
      * @return array
      */
     public function findEmployeeTimeOffData( $employeeNumber = null, $includeUnapprovedRequests = "Y", $includeOnlyFields = "*" ) {
-        // CAST(CHAR_COL AS VARCHAR(25))
         $rawSql = "select data.*, sch.schedule_mon, sch.schedule_tue, sch.schedule_wed,
                    sch.schedule_thu, sch.schedule_fri, sch.schedule_sat, sch.schedule_sun
                    from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeUnapprovedRequests . "')) as data
                    left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
                    on sch.employee_number = data.employee_number";
+
+//        var_dump( $rawSql );
+//        die();
         
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
@@ -321,10 +323,6 @@ class Employee extends BaseDB {
         } else {
             $this->employeeData = [ ];
         }
-        
-//        echo '<pre>';
-//        var_dump( $this->employeeData );
-//        echo '</pre>';
         
 //        \Request\Helper\Format::setFieldsAsFloat( [
 //            'SCHEDULE_MON', 'SCHEDULE_TUE', 'SCHEDULE_WED', 'SCHEDULE_THU', 'SCHEDULE_FRI',
