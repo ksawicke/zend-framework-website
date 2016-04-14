@@ -18,14 +18,7 @@
 namespace Application\API;
 
 use Zend\View\Model\JsonModel;
-use \Request\Model\Employee;
-use \Request\Model\EmployeeSchedules;
-use \Request\Model\TimeOffRequestLog;
-use \Request\Model\TimeOffRequests;
-use \Request\Model\RequestEntry;
-use \Request\Model\Papaatmp;
-use \Request\Helper\OutlookHelper;
-use \Request\Helper\ValidationHelper;
+use \Request\Model\EmployeeProxies;
 use \Login\Helper\UserSession;
 use \Application\Factory\EmailFactory;
 
@@ -37,18 +30,49 @@ use \Application\Factory\EmailFactory;
  */
 class ProxyApi extends ApiController {
     
+    public function loadProxiesAction()
+    {
+        try {
+            $post = $this->getRequest()->getPost();
+            $EmployeeProxies = new EmployeeProxies();
+            $proxyData = $EmployeeProxies->getProxies( $post );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'employeeNumber' => $post->EMPLOYEE_NUMBER,
+                'proxyData' => $proxyData
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error adding a proxy for this employee number. Please try again.'
+            ]);
+        }        
+        
+        return $result;
+    }
+    
     /**
      * Submits new proxy request for an employee.
      */
     public function submitProxyRequestAction()
     {
-        /** Clean up / append data to the Request **/
         $post = $this->getRequest()->getPost();
+        $EmployeeProxies = new EmployeeProxies();
         
-        $result = new JsonModel([
-            'success' => true,
-            'post' => $post
-        ]);
+        try {
+            $EmployeeProxies->addProxy( $post );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'employeeNumber' => $post->EMPLOYEE_NUMBER
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error adding a proxy for this employee number. Please try again.'
+            ]);
+        }        
         
         return $result;
     }

@@ -5,7 +5,9 @@
 var timeOffProxyHandler = new function ()
 {
     var timeOffProxySearchUrl = phpVars.basePath + '/api/search/proxies',
+        timeOffGetProxiesUrl = phpVars.basePath + '/api/proxy/get',
         timeOffAddProxyUrl = phpVars.basePath + '/api/proxy',
+        timeOffRemoveProxyUrl = phpVars.basePath + '/api/proxy/delete',
         selectedProxyEmployeeNumber = null;
 
     /**
@@ -97,6 +99,12 @@ var timeOffProxyHandler = new function ()
             $(document).on('click', '.submitAddProxyRequest', function() {
                 timeOffProxyHandler.handleAddProxy();
             });
+            
+            $(document).on('click', '.remove-proxy', function() {
+                timeOffProxyHandler.handleRemoveProxy( $(this).data('employee-number') );
+            });
+            
+            timeOffProxyHandler.getProxies( phpVars.employee_number );
         });
     }
     
@@ -110,26 +118,93 @@ var timeOffProxyHandler = new function ()
             url : timeOffAddProxyUrl,
             type : 'POST',
             data : {
-                request : {
-                    forEmployee : {
-                        EMPLOYEE_NUMBER : phpVars.employee_number
-                    },
-                    proxy : selectedProxyEmployeeNumber
-                }
+                EMPLOYEE_NUMBER : phpVars.employee_number,
+                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber
             },
             dataType : 'json'
         }).success(function(json) {
             if (json.success == true) {
-                console.log( "STOPPING HERE." );
-//                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+                timeOffProxyHandler.getProxies( phpVars.employee_number );
             } else {
                 alert(json.message);
             }
             return;
         }).error(function() {
-            console.log('There was some error.');
+            console.log('There was an error submitting request to add a proxy.');
             return;
         });
+    }
+    
+    this.handleRemoveProxy = function( selectedProxyEmployeeNumber ) {
+        $.ajax({
+            url : timeOffRemoveProxyUrl,
+            type : 'POST',
+            data : {
+                EMPLOYEE_NUMBER : phpVars.employee_number,
+                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                timeOffProxyHandler.getProxies( phpVars.employee_number );
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was an error submitting request to add a proxy.');
+            return;
+        });
+    }
+    
+    /**
+     * Gets the proxies for passed in Employee Number.
+     * 
+     * @param {type} employeeNumber
+     * @returns {undefined}
+     */
+    this.getProxies = function( employeeNumber ) {
+        timeOffProxyHandler.resetErrors();
+        $.ajax({
+            url : timeOffGetProxiesUrl,
+            type : 'POST',
+            data : {
+                EMPLOYEE_NUMBER : employeeNumber
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                timeOffProxyHandler.clearProxyTable();
+                timeOffProxyHandler.appendProxyTable( json );
+            } else {
+//                alert(json.message);
+                $("#warnNoProxiesSelected").show();
+            }
+            return;
+        }).error(function() {
+            //console.log('There was an error loading proxies.');
+            $("#warnErrorLoadingProxies").show();
+            return;
+        });
+    }
+    
+    this.resetErrors = function () {
+        $("#warnNoProxiesSelected").hide();
+        $("#warnErrorLoadingProxies").hide();
+    }
+    
+    this.clearProxyTable = function () {
+        $("#employeeProxiesBody tr").remove();
+    }
+    
+    this.appendProxyTable = function( json ) {
+        for( data in json.proxyData ) {
+            $("#employeeProxiesBody").append( "<tr>" + 
+                                              "<td>" + json.proxyData[data].EMPLOYEE_DESCRIPTION + 
+                                              '&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-remove-circle red remove-proxy" data-employee-number="' +
+                                              json.proxyData[data].PROXY_EMPLOYEE_NUMBER + '">' +
+                                              "</td></tr>" );
+        }
     }
     
 }

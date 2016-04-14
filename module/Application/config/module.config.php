@@ -39,6 +39,19 @@ return [
                 'child_routes' => []
             ],
             
+            'loadProxies' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'loadProxies'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitProxyRequest' => [
                 'type' => 'segment',
                 'options' => [
