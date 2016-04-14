@@ -70,4 +70,50 @@ class EmployeeProxies extends BaseDB {
         }
     }
     
+    public function deleteProxy( $post ) {
+        /**
+         * instantiate new SQL adapter
+         */
+        $sql = new Sql($this->adapter);
+
+        /**
+         * prepare new sql DELETE
+         */
+        $delete = $sql->delete();
+
+        /**
+         * define sql FROM
+         */
+        $delete->from('TIMEOFF_REQUEST_EMPLOYEE_PROXIES');
+
+        /**
+         * define sql WHERE
+         */
+        $delete->where(array(
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->EMPLOYEE_NUMBER ),
+            'PROXY_EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->PROXY_EMPLOYEE_NUMBER )
+        ));
+
+        /**
+         * prepare SQL execution
+         */
+        $statement = $sql->prepareStatementForSqlObject($delete);
+
+        /**
+         * execute SQL
+         */
+        $result = $statement->execute();
+
+        /**
+         * analyze result set
+         */
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray();
+        }
+
+        return array();
+    }
+    
 }

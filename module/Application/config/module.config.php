@@ -52,6 +52,19 @@ return [
                 'child_routes' => []
             ],
             
+            'deleteProxy' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/delete',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'deleteProxy'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitProxyRequest' => [
                 'type' => 'segment',
                 'options' => [

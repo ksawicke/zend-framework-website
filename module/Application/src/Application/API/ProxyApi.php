@@ -77,4 +77,26 @@ class ProxyApi extends ApiController {
         return $result;
     }
     
+    public function deleteProxyAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $EmployeeProxies = new EmployeeProxies();
+        
+        try {
+            $EmployeeProxies->deleteProxy( $post );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'employeeNumber' => $post->EMPLOYEE_NUMBER
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error deleting a proxy for this employee number. Please try again.'
+            ]);
+        }        
+        
+        return $result;
+    }
+    
 }
