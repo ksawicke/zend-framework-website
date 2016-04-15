@@ -15,8 +15,8 @@ var timeOffProxyHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.initialize = function () {
-        $(document).ready(function () {            
+    this.initialize = function() {
+        $(document).ready( function() {            
             var $eventLog = $(".js-event-log");
             var $requestForEventSelect = $("#requestFor");
             /**
@@ -64,10 +64,9 @@ var timeOffProxyHandler = new function ()
             });
             
             $("#requestFor").prop('disabled', false);
-            $("#requestFor").empty().append(
-                '<option value="SELECT PROXY HERE</option>').val('229589').trigger('change');
+//            $("#requestFor").empty().append(
+//                '<option value="SELECT PROXY HERE</option>').val('229589').trigger('change');
             
-//        var $requestForEventSelect = $("#requestFor");
             $requestForEventSelect.select2({
                 ajax : {
                     url : timeOffProxySearchUrl,
@@ -104,16 +103,15 @@ var timeOffProxyHandler = new function ()
                 timeOffProxyHandler.handleRemoveProxy( $(this).data('employee-number') );
             });
             
+            $(document).on('click', '.clearProxyRequest', function() {
+                $("#requestFor").select2("val", "");
+            });
+            
             timeOffProxyHandler.getProxies( phpVars.employee_number );
         });
     }
     
-    //timeOffProxyHandler.addProxy( proxyEmployeeNumber );
-    
     this.handleAddProxy = function() {
-//        console.log( phpVars.employee_number );
-//        console.log( proxyEmployeeNumber );
-        
         $.ajax({
             url : timeOffAddProxyUrl,
             type : 'POST',
@@ -124,7 +122,7 @@ var timeOffProxyHandler = new function ()
             dataType : 'json'
         }).success(function(json) {
             if (json.success == true) {
-                timeOffProxyHandler.getProxies( phpVars.employee_number );
+                timeOffProxyHandler.reloadProxies();
             } else {
                 alert(json.message);
             }
@@ -145,11 +143,7 @@ var timeOffProxyHandler = new function ()
             },
             dataType : 'json'
         }).success(function(json) {
-            if (json.success == true) {
-                timeOffProxyHandler.getProxies( phpVars.employee_number );
-            } else {
-                alert(json.message);
-            }
+            timeOffProxyHandler.reloadProxies();
             return;
         }).error(function() {
             console.log('There was an error submitting request to add a proxy.');
@@ -164,47 +158,50 @@ var timeOffProxyHandler = new function ()
      * @returns {undefined}
      */
     this.getProxies = function( employeeNumber ) {
-        timeOffProxyHandler.resetErrors();
-        $.ajax({
-            url : timeOffGetProxiesUrl,
-            type : 'POST',
-            data : {
-                EMPLOYEE_NUMBER : employeeNumber
+        $('#proxy-list').DataTable({
+            dom: 'ltirp',
+            searching: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='" + phpVars.basePath +  "/img/loading/clock.gif'>"
             },
-            dataType : 'json'
-        }).success(function(json) {
-            if (json.success == true) {
-                timeOffProxyHandler.clearProxyTable();
-                timeOffProxyHandler.appendProxyTable( json );
-            } else {
-//                alert(json.message);
-                $("#warnNoProxiesSelected").show();
+            columns: [
+                {"data": "EMPLOYEE_DESCRIPTION"},
+                {"data": "STATUS"},
+                {"data": "ACTIONS"}
+            ],
+            order: [],
+//            columnDefs: [{"orderable": false,
+//                    "targets": [1, 2, 3]
+//                }
+//            ],
+            ajax: {
+                url: timeOffGetProxiesUrl,
+                data: function (d) {
+                    return $.extend({}, d, {
+                        "employeeNumber": employeeNumber
+                    });
+                },
+                type: "POST",
             }
-            return;
-        }).error(function() {
-            //console.log('There was an error loading proxies.');
-            $("#warnErrorLoadingProxies").show();
-            return;
+        })
+        .on("error.dt", function (e, settings, techNote, message) {
+            console.log("An error has been reported by DataTables: ", message);
         });
     }
     
-    this.resetErrors = function () {
+    /**
+     * Reload datatable for proxies
+     */
+    this.reloadProxies = function() {
+        $("#proxy-list").DataTable().ajax.reload( function() {} );
+        $("#requestFor").select2("val", "");
+    }
+    
+    this.resetErrors = function() {
         $("#warnNoProxiesSelected").hide();
         $("#warnErrorLoadingProxies").hide();
-    }
-    
-    this.clearProxyTable = function () {
-        $("#employeeProxiesBody tr").remove();
-    }
-    
-    this.appendProxyTable = function( json ) {
-        for( data in json.proxyData ) {
-            $("#employeeProxiesBody").append( "<tr>" + 
-                                              "<td>" + json.proxyData[data].EMPLOYEE_DESCRIPTION + 
-                                              '&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-remove-circle red remove-proxy" data-employee-number="' +
-                                              json.proxyData[data].PROXY_EMPLOYEE_NUMBER + '">' +
-                                              "</td></tr>" );
-        }
     }
     
 }

@@ -23,15 +23,50 @@ class EmployeeProxies extends BaseDB {
         parent::__construct();
     }
     
+    /**
+     * Get count of Manager Queue data
+     * 
+     * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
+     * @return int
+     */
+    public function countProxyItems( $data = null, $isFiltered = false )
+    {
+        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
+        WHERE trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
+        // INNER JOIN HRDBFA.PRPMS employee ON employee.PREN = p.PROXY_EMPLOYEE_NUMBER
+        
+//        $where = [];
+//        $where[] = "trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
+//            
+//        if( $isFiltered ) {
+//            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+//                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+//                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+//                            )";
+//            }
+//        }
+//        $rawSql .=  " WHERE " . implode( " AND ", $where );
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return (int) $employeeData['RCOUNT'];
+    }
+    
     public function getProxies( $post )
     {
         $proxyData = [];
+//        echo '<pre>';
+//        var_dump( $post );
+//        echo '</pre>';
+//        exit();
         $rawSql = "SELECT trim(p.PROXY_EMPLOYEE_NUMBER) as PROXY_EMPLOYEE_NUMBER,
             TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
             LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(p.PROXY_EMPLOYEE_NUMBER)
             WHERE
-               trim(p.EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'
+               trim(p.EMPLOYEE_NUMBER) = '" . $post['employeeNumber'] . "'
             ORDER BY employee.PRLNM ASC";
         
         $statement = $this->adapter->query( $rawSql );

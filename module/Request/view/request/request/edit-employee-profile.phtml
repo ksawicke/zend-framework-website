@@ -2,7 +2,23 @@
 
 <br />
 
-<div class="tab-pane" id="tab-demo5">
+<table id="proxy-list" class="display" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:550px;">Employee</th>
+            <th>Active</th>
+            <th style="width:225px;">Actions</th>
+        </tr>
+    </thead>
+</table>
+
+<select id="requestFor" class="requestFor form-control">
+</select><span class="categoryCloseIcon requestIsForMe glyphicon glyphicon-remove-circle red"></span>
+<br /><br />
+<button type="button" class="btn btn-form-primary btn-sm submitAddProxyRequest">Add Proxy</button>
+<button type="button" class="btn btn-form-primary btn-sm clearProxyRequest">Clear</button>
+
+<!--div class="tab-pane" id="tab-demo5">
     <div class="col-md-1 col-lg-1 moveDown">
         <strong>Proxies:</strong>
     </div>
@@ -42,9 +58,14 @@
     </div>
 </div>
 
-<br style="clear:both;" />
+<br style="clear:both;" /-->
 
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/datatables/datatables.js"></script>
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffProxyHandler.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
+
+<?php /***<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 <!--script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffCreateRequestHandler.js"></script-->
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffProxyHandler.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffProxyHandler.js"></script>**/ ?>
