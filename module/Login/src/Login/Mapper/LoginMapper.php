@@ -127,9 +127,9 @@ class LoginMapper implements LoginMapperInterface
     {
         $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
     
-        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
     
-        return $isSupervisorData[0]->IS_MANAGER;
+        return $data[0]->IS_MANAGER;
     }
     
     public function isPayroll($employeeNumber = null)
@@ -139,8 +139,19 @@ class LoginMapper implements LoginMapperInterface
             FROM PRPMS
             WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
     
-        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
     
-        return $isSupervisorData[0]->IS_PAYROLL;
+        return $data[0]->IS_PAYROLL;
+    }
+    
+    public function isProxy($employeeNumber = null)
+    {
+        $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES
+                   WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
+                   STATUS = 1";
+    
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
     }
 }

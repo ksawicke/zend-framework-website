@@ -107,6 +107,12 @@ class EmployeeProxies extends BaseDB {
         }
     }
     
+    /**
+     * Deletes a proxy for a designated employee.
+     * 
+     * @param type $post
+     * @return type
+     */
     public function deleteProxy( $post ) {
         /**
          * instantiate new SQL adapter

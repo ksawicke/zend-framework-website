@@ -39,4 +39,9 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         return $this->loginMapper->isPayroll($employeeNumber);
     }
+    
+    public function isProxy($employeeNumber)
+    {
+        return $this->loginMapper->isProxy($employeeNumber);
+    }
 }

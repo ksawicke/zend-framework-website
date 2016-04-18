@@ -54,18 +54,10 @@ class ProxyApi extends ApiController {
          * increase draw counter for adatatable
          */
         $draw = $data['draw'] ++;
-
-//        $ManagerQueues = new \Request\Model\ManagerQueues();
-//        $queueData = $ManagerQueues->getManagerQueue( $_POST );
         $EmployeeProxies = new EmployeeProxies();
         $proxyData = $EmployeeProxies->getProxies( $data );
-//        $proxyData[0]['STATUS'] = 0;
-//        $proxyData[1]['STATUS'] = 1;
-//        $proxyData[2]['STATUS'] = 0;
-        
         $data = [];
         foreach ( $proxyData as $ctr => $request ) {
-            //$viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
             $viewLinkUrl = "#";
             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
             
@@ -102,30 +94,6 @@ class ProxyApi extends ApiController {
          * return result
          */
         return $result;
-        
-//        try {
-//            $post = $this->getRequest()->getPost();
-//            $EmployeeProxies = new EmployeeProxies();
-//            $proxyData = $EmployeeProxies->getProxies( $post );
-//            /**
-//             * 200: OK success code, for GET or HEAD request.
-//             */
-//            $this->getResponse()->setStatusCode( 200 );
-//            return new JsonModel([
-//                'success' => true,
-//                'employeeNumber' => $post->EMPLOYEE_NUMBER,
-//                'proxyData' => $proxyData
-//            ]);
-//        } catch ( Exception $ex ) {
-//            /**
-//             * 500: An error has occurred so the request couldn't be completed.
-//             */
-//            $this->getResponse()->setStatusCode( 500 );
-//            return new JsonModel([
-//                'success' => false,
-//                'message' => 'There was an error adding a proxy for this employee number. Please try again.'
-//            ]);
-//        }
     }
     
     /**

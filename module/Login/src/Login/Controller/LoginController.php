@@ -46,8 +46,10 @@ class LoginController extends AbstractActionController
                 $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
                 $isManager = $this->authenticationService->isManager($employeeNumber);
                 $isPayroll = $this->authenticationService->isPayroll($employeeNumber);
+                $isProxy = $this->authenticationService->isProxy($employeeNumber);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_MANAGER', $isManager);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL', $isPayroll);
+                \Login\Helper\UserSession::setUserSessionVariable('IS_PROXY', $isProxy);
                 
                 return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
             } else {

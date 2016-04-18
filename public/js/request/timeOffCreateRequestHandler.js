@@ -92,6 +92,7 @@ var timeOffCreateRequestHandler = new function() {
                 /**
                  * SELECT2 is opened
                  */
+                console.log( "SLICK", loggedInUserData );
                 if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
                     $("span").remove(".select2CustomTag");
                     var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
@@ -399,6 +400,13 @@ var timeOffCreateRequestHandler = new function() {
                 loggedInUserData = json.employeeData;
                 loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
                 loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
+                loggedInUserData.IS_LOGGED_IN_USER_PROXY = json.loggedInUser.isProxy;
+                loggedInUserData.PROXY_FOR = [];
+                if( json.loggedInUser.isProxy==="Y" ) {
+                    for( key in json.proxyFor ) {
+                        loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
+                    }
+                }
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
@@ -1170,9 +1178,11 @@ var timeOffCreateRequestHandler = new function() {
                 data : function(params) {
                     return {
                     search : params.term,
-                            directReportFilter : directReportFilter,
-                            employeeNumber : phpVars.employee_number,
-                            page : params.page
+                             directReportFilter : directReportFilter,
+                             employeeNumber : phpVars.employee_number,
+                             isProxy : loggedInUserData.IS_LOGGED_IN_USER_PROXY,
+                             proxyFor : loggedInUserData.PROXY_FOR,
+                             page : params.page
                     };
                 },
                 processResults : function(data, params) {

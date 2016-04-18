@@ -112,9 +112,14 @@ class CalendarApi extends ApiController {
         $result = new JsonModel( [
             'success' => true,
             'employeeData' => $employeeData,
-            'loggedInUser' => ['isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
-                'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' )
+            'loggedInUser' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
+                                'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
+                                'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
             ],
+            'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
+                            $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :
+                            []
+                          ),
             'calendarData' => [
                 'headers' => $headers,
                 'calendars' => $calendars,
@@ -128,7 +133,14 @@ class CalendarApi extends ApiController {
                 'holidays' => $this->invalidRequestDates['individual']
             ]
         ] );
-
+        
+        if( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ) {
+            
+        }
+//        if( $result['loggedInUser']['isProxy']==='Y' ) {
+//            $result['employeeData']->PROXY_FOR = [];
+//        }
+        
         return $result;
     }
 

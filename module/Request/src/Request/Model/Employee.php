@@ -133,6 +133,33 @@ class Employee extends BaseDB {
 
         return (int) $employeeData['RCOUNT'];
     }
+    
+    /**
+     * Returns the employee numbers that the passed in employee number can submit time off on their behalf.
+     * 
+     * @param type $employeeNumber
+     * @return type
+     */
+    public function findProxiesByEmployeeNumber( $employeeNumber = null )
+    {
+        $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER
+            FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
+            WHERE
+               TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;
+        
+        $statement = $this->adapter->query( $rawSql );
+        $result = $statement->execute();
+
+        if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize( $result );
+            $proxyData = $resultSet->toArray();
+        } else {
+            $proxyData = [ ];
+        }
+        
+        return $proxyData;
+    }
 
     /**
      * Get data for Datatables for the Pending Manager Approval queue.
@@ -383,7 +410,17 @@ class Employee extends BaseDB {
      * @param string $directReportFilter
      * @return \Zend\Db\ResultSet\ResultSet[]
      */
-    public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null ) {
+    public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
+            $isProxy = null, $proxyFor = [] ) {
+        
+//        echo '<pre>';
+//        print_r( $isProxy );
+//        echo '</pre>';
+//        echo '<pre>';
+//        print_r( $proxyFor );
+//        echo '</pre>';
+//        exit();
+        
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
@@ -395,6 +432,12 @@ class Employee extends BaseDB {
         )";
 
         if ( $isPayroll === "N" ) {
+            foreach( $proxyFor as $key => $proxy ) {
+                $proxyFor[$key] = "'" . $proxy . "'";
+            }
+            $proxyForPartial = implode(",", $proxyFor);
+            
+            $where = "WHERE trim(employee.PREN) IN(" . $proxyForPartial . ")";
             $rawSql = "SELECT
                 CASE
                     when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
@@ -405,33 +448,60 @@ class Employee extends BaseDB {
                 employee.PRL02 AS LEVEL_2,
                 employee.PRL03 AS LEVEL_3,
                 employee.PRL04 AS LEVEL_4,
-                hierarchy.DIRECT_INDIRECT,
-                hierarchy.MANAGER_LEVEL,
+                '',
+                '',
                 trim(employee.PRPOS) AS POSITION,
                 trim(employee.PREML1) AS EMAIL_ADDRESS,
                 employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
                 trim(employee.PRTITL) AS POSITION_TITLE,
-                TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+                '000' AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                'BLAH' AS DIRECT_MANAGER_NAME,
                 manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
             FROM PRPMS employee
-            INNER JOIN table (
-                  SELECT
-                      trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
-                      TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                      DIRECT_INDIRECT,
-                      MANAGER_LEVEL
-                  FROM table (
-                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
-                  ) as data
-            ) hierarchy
-                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
             INNER JOIN PRPSP manager
                   ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons
                  ON manager_addons.PREN = manager.SPSPEN
             " . $where . "
             ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+            
+//            $rawSql = "SELECT
+//                CASE
+//                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+//                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+//                END AS EMPLOYEE_NAME,
+//                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+//                employee.PRL01 AS LEVEL_1,
+//                employee.PRL02 AS LEVEL_2,
+//                employee.PRL03 AS LEVEL_3,
+//                employee.PRL04 AS LEVEL_4,
+//                hierarchy.DIRECT_INDIRECT,
+//                hierarchy.MANAGER_LEVEL,
+//                trim(employee.PRPOS) AS POSITION,
+//                trim(employee.PREML1) AS EMAIL_ADDRESS,
+//                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+//                trim(employee.PRTITL) AS POSITION_TITLE,
+//                TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+//                trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+//                manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+//            FROM PRPMS employee
+//            INNER JOIN table (
+//                  SELECT
+//                      trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+//                      TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+//                      DIRECT_INDIRECT,
+//                      MANAGER_LEVEL
+//                  FROM table (
+//                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+//                  ) as data
+//            ) hierarchy
+//                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+//            INNER JOIN PRPSP manager
+//                  ON employee.PREN = manager.SPEN
+//            INNER JOIN PRPMS manager_addons
+//                 ON manager_addons.PREN = manager.SPSPEN
+//            " . $where . "
+//            ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
         } else {
             $rawSql = "SELECT
                 CASE
