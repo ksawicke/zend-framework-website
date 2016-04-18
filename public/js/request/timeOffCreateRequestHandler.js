@@ -93,10 +93,19 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is opened
                  */
                 console.log( "SLICK", loggedInUserData );
-                if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
+                // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                   ) {
+                    /**
+                     * Allow user to search their reports (for Managers) and/or
+                     * employees for which they are a proxy.
+                     */
                     $("span").remove(".select2CustomTag");
-                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
-                        + '<input type="radio" name="directReportFilter" value="B"'
+                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
+                }
+                if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                    $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter === 'B') ? ' checked'
                             : '')
                         + '> Both&nbsp;&nbsp;&nbsp;'
@@ -107,9 +116,19 @@ var timeOffCreateRequestHandler = new function() {
                         + '<input type="radio" name="directReportFilter" value="I"'
                         + ((directReportFilter === 'I') ? ' checked'
                             : '')
-                        + '> Indirect Reports&nbsp;&nbsp;&nbsp;'
-                        + '</form>';
-                    $("<span class='select2CustomTag' style='padding-left:6px;'>"
+                        + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
+                }
+                if( loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" ) {
+                    $filter += '<input type="radio" name="directReportFilter" value="P"'
+                        + ((directReportFilter === 'P') ? ' checked'
+                            : '')
+                        + '> Employees For Whom I Am Authorized to Submit Requests';
+                }
+                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                   ) {
+                        $filter += '</form>';
+                        $("<span class='select2CustomTag' style='padding-left:6px;'>"
                         + $filter
                         + "</span>")
                     .insertBefore('.select2-results');
