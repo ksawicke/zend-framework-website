@@ -65,6 +65,19 @@ return [
                 'child_routes' => []
             ],
             
+            'toggleProxy' => [
+            'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'toggleProxy'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitProxyRequest' => [
                 'type' => 'segment',
                 'options' => [

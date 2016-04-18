@@ -62,7 +62,9 @@ class EmployeeProxies extends BaseDB {
 //        echo '</pre>';
 //        exit();
         $rawSql = "SELECT trim(p.PROXY_EMPLOYEE_NUMBER) as PROXY_EMPLOYEE_NUMBER,
-            TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION
+            trim(p.EMPLOYEE_NUMBER) as EMPLOYEE_NUMBER,
+            TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
+            p.STATUS
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
             LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(p.PROXY_EMPLOYEE_NUMBER)
             WHERE
@@ -149,6 +151,17 @@ class EmployeeProxies extends BaseDB {
         }
 
         return array();
+    }
+    
+    public function toggleProxy( $post )
+    {
+        $rawSql = "UPDATE TIMEOFF_REQUEST_EMPLOYEE_PROXIES SET STATUS = '" . $post->STATUS . "' WHERE " .
+                  "EMPLOYEE_NUMBER = " . $post->EMPLOYEE_NUMBER . " AND " .
+                  "PROXY_EMPLOYEE_NUMBER = " . $post->PROXY_EMPLOYEE_NUMBER;
+
+        $proxyData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);        
+
+        return $proxyData;
     }
     
 }

@@ -106,7 +106,7 @@ input.cmn-toggle-round:checked + label:after {
 ============================================================ */
 input.cmn-toggle-round-flat + label {
   padding: 2px;
-  width: 60px;
+  width: 50px;
   height: 28px;
   background-color: #fff;
   -webkit-border-radius: 28px;
@@ -129,8 +129,8 @@ input.cmn-toggle-round-flat + label:before {
   left: 2px;
   bottom: 2px;
   right: 2px;
-  background-color: #ccc; /*** background of pill ***/ /** #8ce196 green **/
-  border:2px solid #aaa;
+  background-color: #999; /** background of switch when off **/
+  border:0px solid #999;
   -webkit-border-radius: 28px;
   -moz-border-radius: 28px;
   -ms-border-radius: 28px;
@@ -146,8 +146,8 @@ input.cmn-toggle-round-flat + label:after {
   left: 4px;
   bottom: 4px;
   width: 22px;
-  background-color: #fff;
-  border:2px solid #aaa;
+  background-color: #fff; /** color of switch when off **/
+  border:0px solid #999;
   -webkit-border-radius: 22px;
   -moz-border-radius: 22px;
   -ms-border-radius: 22px;
@@ -158,12 +158,12 @@ input.cmn-toggle-round-flat + label:after {
   -o-transition: margin 0.4s, background 0.4s;
   transition: margin 0.4s, background 0.4s;
 }
-input.cmn-toggle-round-flat:checked + label {
-  background-color: #fff;
+input.cmn-toggle-round-flat:checked + label:before {
+  background-color: #8ce196; /** background color switch when on **/
 }
 input.cmn-toggle-round-flat:checked + label:after {
-  margin-left: 28px;
-  background-color: #fff; /*#8ce196;*/
+  margin-left: 20px;
+  background-color: #fff; /** color of switch when on **/
 }
 
 /* ============================================================

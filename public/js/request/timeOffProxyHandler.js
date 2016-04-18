@@ -8,6 +8,7 @@ var timeOffProxyHandler = new function ()
         timeOffGetProxiesUrl = phpVars.basePath + '/api/proxy/get',
         timeOffAddProxyUrl = phpVars.basePath + '/api/proxy',
         timeOffRemoveProxyUrl = phpVars.basePath + '/api/proxy/delete',
+        timeOffToggleProxyUrl = phpVars.basePath + '/api/proxy/toggle',
         selectedProxyEmployeeNumber = null;
 
     /**
@@ -100,11 +101,15 @@ var timeOffProxyHandler = new function ()
             });
             
             $(document).on('click', '.remove-proxy', function() {
-                timeOffProxyHandler.handleRemoveProxy( $(this).data('employee-number') );
+                timeOffProxyHandler.handleRemoveProxy( $(this).data('proxy-employee-number') );
             });
             
             $(document).on('click', '.clearProxyRequest', function() {
                 $("#requestFor").select2("val", "");
+            });
+            
+            $(document).on('click', '.cmn-toggle', function() {
+                timeOffProxyHandler.handleToggleProxy( $(this).data('proxy-employee-number'), $(this).data('status') );
             });
             
             timeOffProxyHandler.getProxies( phpVars.employee_number );
@@ -147,6 +152,25 @@ var timeOffProxyHandler = new function ()
             return;
         }).error(function() {
             console.log('There was an error submitting request to add a proxy.');
+            return;
+        });
+    }
+    
+    this.handleToggleProxy = function( selectedProxyEmployeeNumber, status ) {
+        $.ajax({
+            url : timeOffToggleProxyUrl,
+            type : 'POST',
+            data : {
+                EMPLOYEE_NUMBER : phpVars.employee_number,
+                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber,
+                STATUS : ( status==1 ? 0 : 1 )
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            timeOffProxyHandler.reloadProxies();
+            return;
+        }).error(function() {
+            console.log('There was an error submitting request to toggle a proxy.');
             return;
         });
     }
