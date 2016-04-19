@@ -87,6 +87,12 @@ var timeOffCreateRequestHandler = new function() {
                 requestForEmployeeNumber = selectedEmployee.id;
                 requestForEmployeeName = selectedEmployee.text;
                 timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+                
+//                requestForEmployeeObject = selectedEmployee;
+//                console.log( "DIRT", requestForEmployeeObject );
+////                timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
+//                timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
+            
                 $('.requestIsForMe').show();
             }).on("select2:open", function(e) {
                 /**
@@ -450,6 +456,8 @@ var timeOffCreateRequestHandler = new function() {
                 + '</option>').val(requestForEmployeeNumber).trigger('change');
                 timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
                 
+            console.log( "XQ", requestForEmployeeObject );    
+                
             timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );   
             return;
         }).error(function() {
@@ -465,13 +473,13 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.updateEmployeeSchedule = function( data ) {
-        $("#scheduleSUN").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_SUN ) );
-        $("#scheduleMON").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_MON ) );
-        $("#scheduleTUE").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_TUE ) );
-        $("#scheduleWED").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_WED ) ); // data.SCHEDULE_WED
-        $("#scheduleTHU").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_THU ) );
-        $("#scheduleFRI").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_FRI ) );
-        $("#scheduleSAT").html( timeOffCreateRequestHandler.setTwoDecimalPlaces( data.SCHEDULE_SAT ) );
+        $("#scheduleSUN").html( data.SCHEDULE_SUN );
+        $("#scheduleMON").html( data.SCHEDULE_MON );
+        $("#scheduleTUE").html( data.SCHEDULE_TUE );
+        $("#scheduleWED").html( data.SCHEDULE_WED );
+        $("#scheduleTHU").html( data.SCHEDULE_THU );
+        $("#scheduleFRI").html( data.SCHEDULE_FRI );
+        $("#scheduleSAT").html( data.SCHEDULE_SAT );
         
         $("#employeeScheduleSUN").val( data.SCHEDULE_SUN );
         $("#employeeScheduleMON").val( data.SCHEDULE_MON );
@@ -591,7 +599,10 @@ var timeOffCreateRequestHandler = new function() {
             },
             dataType : 'json'
         }).success(function(json) {
+            requestForEmployeeObject = json.employeeData;
+            console.log( "DIRT", requestForEmployeeObject );
             timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
+            timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
             return;
         }).error(function() {
             console.log('There was some error.');
