@@ -119,8 +119,11 @@ var timeOffCreateRequestHandler = new function() {
                         + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
                 }
                 if( loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" ) {
+                    if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "N" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                        directReportFilter = 'P';
+                    }
                     $filter += '<input type="radio" name="directReportFilter" value="P"'
-                        + ((directReportFilter === 'P') ? ' checked'
+                        + ((directReportFilter === 'P' ) ? ' checked'
                             : '')
                         + '> Employees For Whom I Am Authorized to Submit Requests';
                 }
@@ -1173,9 +1176,10 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.checkAllowRequestOnBehalfOf = function() {
-        if (loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" || loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
-//            console.log('1132!!!');
-        timeOffCreateRequestHandler.enableSelectRequestFor();
+        if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+             loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+        ) {
+            timeOffCreateRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
         } else {
             $("#requestFor").prop('disabled', true);

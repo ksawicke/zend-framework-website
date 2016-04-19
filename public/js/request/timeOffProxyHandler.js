@@ -97,7 +97,19 @@ var timeOffProxyHandler = new function ()
             });
             
             $(document).on('click', '.submitAddProxyRequest', function() {
-                timeOffProxyHandler.handleAddProxy();
+                if( timeOffCommon.empty(selectedProxyEmployeeNumber)===false ) {
+                    timeOffProxyHandler.handleAddProxy();
+                } else {
+                    $("#dialogSelectAProxy").dialog({
+                        modal : true,
+                        closeOnEscape: false,
+                        buttons : {
+                            OK : function() {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                }
             });
             
             $(document).on('click', '.remove-proxy', function() {
@@ -167,7 +179,6 @@ var timeOffProxyHandler = new function ()
             },
             dataType : 'json'
         }).success(function(json) {
-            timeOffProxyHandler.reloadProxies();
             return;
         }).error(function() {
             console.log('There was an error submitting request to toggle a proxy.');
