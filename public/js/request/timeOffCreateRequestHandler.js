@@ -454,9 +454,7 @@ var timeOffCreateRequestHandler = new function() {
                 + requestForEmployeeNumber + '">'
                 + requestForEmployeeName
                 + '</option>').val(requestForEmployeeNumber).trigger('change');
-                timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();
-                
-            console.log( "XQ", requestForEmployeeObject );    
+                timeOffCreateRequestHandler.checkAllowRequestOnBehalfOf();   
                 
             timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );   
             return;

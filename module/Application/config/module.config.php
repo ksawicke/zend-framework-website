@@ -205,6 +205,18 @@ return [
                     ],
                 ],
             ],
+            
+            'getManagerActionEmailData' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/queue/manager/manager-action-email',
+                    'defaults' => [
+                        'controller' => 'Application\API\QueueApi',
+                        'action' => 'getManagerActionEmailData'
+                    ],
+                ],
+            ],
+            
             'getPayrollQueue' => [
                 'type' => 'segment',
                 'options' => [

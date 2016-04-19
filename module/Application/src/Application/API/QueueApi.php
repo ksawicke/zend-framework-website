@@ -507,6 +507,17 @@ class QueueApi extends ApiController {
         return $result;
     }
     
+    public function getManagerActionEmailDataAction( $data = null )
+    {
+        $ManagerQueues = new \Request\Model\ManagerQueues();
+        $queueData = $ManagerQueues->getManagerActionEmailQueue( [ 'employeeNumber' => '289589' ] );
+        
+        echo '<pre>';
+        print_r( $queueData );
+        echo '</pre>';
+        die( "...." );
+    }
+    
     /**
      * Returns first day requested. Highlights if older than days passed in.
      * 
