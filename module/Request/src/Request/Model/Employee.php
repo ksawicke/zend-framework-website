@@ -133,6 +133,33 @@ class Employee extends BaseDB {
 
         return (int) $employeeData['RCOUNT'];
     }
+    
+    /**
+     * Returns the employee numbers that the passed in employee number can submit time off on their behalf.
+     * 
+     * @param type $employeeNumber
+     * @return type
+     */
+    public function findProxiesByEmployeeNumber( $employeeNumber = null )
+    {
+        $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER
+            FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
+            WHERE
+               TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;
+        
+        $statement = $this->adapter->query( $rawSql );
+        $result = $statement->execute();
+
+        if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize( $result );
+            $proxyData = $resultSet->toArray();
+        } else {
+            $proxyData = [ ];
+        }
+        
+        return $proxyData;
+    }
 
     /**
      * Get data for Datatables for the Pending Manager Approval queue.
@@ -304,12 +331,14 @@ class Employee extends BaseDB {
      * @return array
      */
     public function findEmployeeTimeOffData( $employeeNumber = null, $includeUnapprovedRequests = "Y", $includeOnlyFields = "*" ) {
-        // CAST(CHAR_COL AS VARCHAR(25))
         $rawSql = "select data.*, sch.schedule_mon, sch.schedule_tue, sch.schedule_wed,
                    sch.schedule_thu, sch.schedule_fri, sch.schedule_sat, sch.schedule_sun
                    from table(timeoff_get_employee_data('002', '" . $employeeNumber . "', '" . $includeUnapprovedRequests . "')) as data
                    left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
                    on sch.employee_number = data.employee_number";
+
+//        var_dump( $rawSql );
+//        die();
         
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
@@ -321,10 +350,6 @@ class Employee extends BaseDB {
         } else {
             $this->employeeData = [ ];
         }
-        
-//        echo '<pre>';
-//        var_dump( $this->employeeData );
-//        echo '</pre>';
         
 //        \Request\Helper\Format::setFieldsAsFloat( [
 //            'SCHEDULE_MON', 'SCHEDULE_TUE', 'SCHEDULE_WED', 'SCHEDULE_THU', 'SCHEDULE_FRI',
@@ -339,17 +364,8 @@ class Employee extends BaseDB {
 
         return $this->employeeData;
     }
-
-    /**
-     * Find manager's employees
-     * 
-     * @param integer $managerEmployeeNumber
-     * @param string $search
-     * @param string $directReportFilter
-     * @return \Zend\Db\ResultSet\ResultSet[]
-     */
-    public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null ) {
-        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+    
+    public function findProxyEmployees( $managerEmployeeNumber = null, $search = null ) {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
@@ -358,47 +374,7 @@ class Employee extends BaseDB {
               trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
             )
         )";
-
-        if ( $isPayroll === "N" ) {
-            $rawSql = "SELECT
-                CASE
-                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
-                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
-                END AS EMPLOYEE_NAME,
-                trim(employee.PREN) AS EMPLOYEE_NUMBER,
-                employee.PRL01 AS LEVEL_1,
-                employee.PRL02 AS LEVEL_2,
-                employee.PRL03 AS LEVEL_3,
-                employee.PRL04 AS LEVEL_4,
-                hierarchy.DIRECT_INDIRECT,
-                hierarchy.MANAGER_LEVEL,
-                trim(employee.PRPOS) AS POSITION,
-                trim(employee.PREML1) AS EMAIL_ADDRESS,
-                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
-                trim(employee.PRTITL) AS POSITION_TITLE,
-                TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
-                manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
-            FROM PRPMS employee
-            INNER JOIN table (
-                  SELECT
-                      trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
-                      TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                      DIRECT_INDIRECT,
-                      MANAGER_LEVEL
-                  FROM table (
-                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
-                  ) as data
-            ) hierarchy
-                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
-            INNER JOIN PRPSP manager
-                  ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons
-                 ON manager_addons.PREN = manager.SPSPEN
-            " . $where . "
-            ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
-        } else {
-            $rawSql = "SELECT
+        $rawSql = "SELECT
                 CASE
                     when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
                     else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
@@ -420,6 +396,158 @@ class Employee extends BaseDB {
                 FROM PRPMS employee
                 " . $where . "
                 ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+
+        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+
+        return $employeeData;
+    }
+    
+    /**
+     * Returns the Payroll Employee Search
+     * 
+     * @param type $where
+     * @return type
+     */
+    public function getPayrollEmployeeSearchStatement( $where = null )
+    {
+        return "SELECT
+                CASE
+                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+                END AS EMPLOYEE_NAME,
+                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+                employee.PRL01 AS LEVEL_1,
+                employee.PRL02 AS LEVEL_2,
+                employee.PRL03 AS LEVEL_3,
+                employee.PRL04 AS LEVEL_4,
+                'N' AS DIRECT_INDIRECT,
+                '0' AS MANAGER_LEVEL,
+                trim(employee.PRPOS) AS POSITION,
+                trim(employee.PREML1) AS EMAIL_ADDRESS,
+                employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+                trim(employee.PRTITL) AS POSITION_TITLE,
+                '' AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                '' AS DIRECT_MANAGER_NAME,
+                '' AS DIRECT_MANAGER_EMAIL_ADDRESS
+                FROM PRPMS employee
+                " . $where . "
+                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+    }
+    
+    /**
+     * Returns the Proxy Employee Search
+     * 
+     * @param type $where
+     * @return type
+     */
+    public function getProxyEmployeeSearchStatement( $where = null, $proxyFor = [] )
+    {
+        foreach( $proxyFor as $key => $proxy ) {
+            $proxyFor[$key] = "'" . $proxy . "'";
+        }
+        $proxyForPartial = implode(",", $proxyFor);
+
+        $where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
+        
+        $rawSql = "SELECT
+            CASE
+                when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+            END AS EMPLOYEE_NAME,
+            trim(employee.PREN) AS EMPLOYEE_NUMBER,
+            employee.PRL01 AS LEVEL_1,
+            employee.PRL02 AS LEVEL_2,
+            employee.PRL03 AS LEVEL_3,
+            employee.PRL04 AS LEVEL_4,
+            '',
+            '',
+            trim(employee.PRPOS) AS POSITION,
+            trim(employee.PREML1) AS EMAIL_ADDRESS,
+            employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+            trim(employee.PRTITL) AS POSITION_TITLE,
+            '000' AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+            'BLAH' AS DIRECT_MANAGER_NAME,
+            manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+        FROM PRPMS employee
+        INNER JOIN PRPSP manager
+              ON employee.PREN = manager.SPEN
+        INNER JOIN PRPMS manager_addons
+             ON manager_addons.PREN = manager.SPSPEN
+        " . $where . "
+        ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+        
+        return $rawSql;
+    }
+    
+    public function getManagerEmployeeSearchStatement( $where = null, $managerEmployeeNumber = null, $directReportFilter = null )
+    {
+        return "SELECT
+                CASE
+                    when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
+                    else trim(employee.PRLNM) || ', ' || trim(employee.PRFNM)
+                END AS EMPLOYEE_NAME,
+                trim(employee.PREN) AS EMPLOYEE_NUMBER,
+                employee.PRL01 AS LEVEL_1, employee.PRL02 AS LEVEL_2, employee.PRL03 AS LEVEL_3, employee.PRL04 AS LEVEL_4,
+                hierarchy.DIRECT_INDIRECT, hierarchy.MANAGER_LEVEL, trim(employee.PRPOS) AS POSITION,
+                trim(employee.PREML1) AS EMAIL_ADDRESS, employee.PRDOHE AS EMPLOYEE_HIRE_DATE,
+                trim(employee.PRTITL) AS POSITION_TITLE,
+                TRIM(hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                trim(manager_addons.PRLNM) || ', ' || trim(manager_addons.PRFNM) AS DIRECT_MANAGER_NAME,
+                manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
+                FROM PRPMS employee
+                INNER JOIN table (
+                      SELECT
+                          trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
+                          TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                          DIRECT_INDIRECT,
+                          MANAGER_LEVEL
+                      FROM table (
+                          CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+                      ) as data
+                ) hierarchy
+                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+                INNER JOIN PRPSP manager
+                      ON employee.PREN = manager.SPEN
+                INNER JOIN PRPMS manager_addons
+                     ON manager_addons.PREN = manager.SPSPEN
+                " . $where . "
+                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+    }
+
+    /**
+     * Find manager's employees
+     * 
+     * @param integer $managerEmployeeNumber
+     * @param string $search
+     * @param string $directReportFilter
+     * @return \Zend\Db\ResultSet\ResultSet[]
+     */
+    public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
+            $isProxy = null, $proxyFor = [] ) {        
+        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+        $where = "WHERE (
+            " . $this->getExcludedLevel2() . "
+            employee.PRER = '002' AND employee.PRTEDH = 0 AND
+            ( trim(employee.PREN) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRLNM) LIKE '%" . strtoupper( $search ) . "%' OR
+              trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
+            )
+        )";
+        
+        if ( $isPayroll === "Y" ) {
+            $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
+        } else {
+            switch( $directReportFilter ) {
+                case 'P':
+                    $rawSql = $this->getProxyEmployeeSearchStatement( $where, $proxyFor );
+                    break;
+                
+                case 'B':
+                case 'D':
+                case 'I':
+                    $rawSql = $this->getManagerEmployeeSearchStatement( $where, $managerEmployeeNumber, $directReportFilter );
+                    break;
+            }
         }
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );

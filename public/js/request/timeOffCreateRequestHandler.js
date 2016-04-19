@@ -92,10 +92,20 @@ var timeOffCreateRequestHandler = new function() {
                 /**
                  * SELECT2 is opened
                  */
-                if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
+                console.log( "SLICK", loggedInUserData );
+                // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                   ) {
+                    /**
+                     * Allow user to search their reports (for Managers) and/or
+                     * employees for which they are a proxy.
+                     */
                     $("span").remove(".select2CustomTag");
-                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
-                        + '<input type="radio" name="directReportFilter" value="B"'
+                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
+                }
+                if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                    $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter === 'B') ? ' checked'
                             : '')
                         + '> Both&nbsp;&nbsp;&nbsp;'
@@ -106,9 +116,22 @@ var timeOffCreateRequestHandler = new function() {
                         + '<input type="radio" name="directReportFilter" value="I"'
                         + ((directReportFilter === 'I') ? ' checked'
                             : '')
-                        + '> Indirect Reports&nbsp;&nbsp;&nbsp;'
-                        + '</form>';
-                    $("<span class='select2CustomTag' style='padding-left:6px;'>"
+                        + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
+                }
+                if( loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" ) {
+                    if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "N" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                        directReportFilter = 'P';
+                    }
+                    $filter += '<input type="radio" name="directReportFilter" value="P"'
+                        + ((directReportFilter === 'P' ) ? ' checked'
+                            : '')
+                        + '> Employees For Whom I Am Authorized to Submit Requests';
+                }
+                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                   ) {
+                        $filter += '</form>';
+                        $("<span class='select2CustomTag' style='padding-left:6px;'>"
                         + $filter
                         + "</span>")
                     .insertBefore('.select2-results');
@@ -399,6 +422,13 @@ var timeOffCreateRequestHandler = new function() {
                 loggedInUserData = json.employeeData;
                 loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
                 loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
+                loggedInUserData.IS_LOGGED_IN_USER_PROXY = json.loggedInUser.isProxy;
+                loggedInUserData.PROXY_FOR = [];
+                if( json.loggedInUser.isProxy==="Y" ) {
+                    for( key in json.proxyFor ) {
+                        loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
+                    }
+                }
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
@@ -1146,10 +1176,11 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.checkAllowRequestOnBehalfOf = function() {
-        if (loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" || loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
-            console.log('1132!!!');
-        timeOffCreateRequestHandler.enableSelectRequestFor();
-        $("#requestFor").prop('disabled', false);
+        if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
+             loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+        ) {
+            timeOffCreateRequestHandler.enableSelectRequestFor();
+            $("#requestFor").prop('disabled', false);
         } else {
             $("#requestFor").prop('disabled', true);
             $(".categoryBereavement").hide();
@@ -1170,9 +1201,11 @@ var timeOffCreateRequestHandler = new function() {
                 data : function(params) {
                     return {
                     search : params.term,
-                            directReportFilter : directReportFilter,
-                            employeeNumber : phpVars.employee_number,
-                            page : params.page
+                             directReportFilter : directReportFilter,
+                             employeeNumber : phpVars.employee_number,
+                             isProxy : loggedInUserData.IS_LOGGED_IN_USER_PROXY,
+                             proxyFor : loggedInUserData.PROXY_FOR,
+                             page : params.page
                     };
                 },
                 processResults : function(data, params) {

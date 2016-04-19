@@ -44,12 +44,12 @@ var timeOffCommon = new function ()
                                 timeOffCommon.setEmployeeScheduleFormError( 'error' );
                             }        
                             
-                            if( $('#employeeScheduleForm').parsley().validate() &&
-                                $('#employeeScheduleForm').parsley().isValid() ) {
-                                console.log( "Form looks good" );
-                            } else {
-                                console.log( "Form is sad." );
-                            }
+//                            if( $('#employeeScheduleForm').parsley().validate() &&
+//                                $('#employeeScheduleForm').parsley().isValid() ) {
+//                                console.log( "Form looks good" );
+//                            } else {
+//                                console.log( "Form is sad." );
+//                            }
                         },
                         Cancel : function() {
                             $(this).dialog("close");
@@ -195,6 +195,30 @@ var timeOffCommon = new function ()
                 $(this).toggleClass('open');
                 $('b', this).toggleClass("caret caret-up");                
             });
+    }
+    
+    this.empty = function(data) {
+        if(typeof(data) == 'number' || typeof(data) == 'boolean')
+        { 
+          return false; 
+        }
+        if(typeof(data) == 'undefined' || data === null)
+        {
+          return true; 
+        }
+        if(typeof(data.length) != 'undefined')
+        {
+          return data.length == 0;
+        }
+        var count = 0;
+        for(var i in data)
+        {
+          if(data.hasOwnProperty(i))
+          {
+            count ++;
+          }
+        }
+        return count == 0;
     }
 }
 

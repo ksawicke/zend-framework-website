@@ -55,6 +55,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'editEmployeeProfile' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/edit-employee-profile',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'editEmployeeProfile'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'create2' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

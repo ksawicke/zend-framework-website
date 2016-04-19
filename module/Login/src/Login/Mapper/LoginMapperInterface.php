@@ -10,4 +10,6 @@ interface LoginMapperInterface
     public function isManager($employeeNumber = null);
     
     public function isPayroll($employeeNumber = null);
+    
+    public function isProxy($employeeNumber = null);
 }

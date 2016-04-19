@@ -39,6 +39,58 @@ return [
                 'child_routes' => []
             ],
             
+            'loadProxies' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'loadProxies'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'deleteProxy' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/delete',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'deleteProxy'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'toggleProxy' => [
+            'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy/toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'toggleProxy'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitProxyRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/proxy',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'submitProxyRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitEmployeeScheduleRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -170,7 +222,8 @@ return [
             'Application\API\QueueApi' => API\QueueApi::class,
             'Application\API\SearchApi' => API\SearchApi::class,
             'Application\API\CalendarApi' => API\CalendarApi::class,
-            'Application\API\RequestApi' => API\RequestApi::class
+            'Application\API\RequestApi' => API\RequestApi::class,
+            'Application\API\ProxyApi' => API\ProxyApi::class
         ]
     ],
     'service_manager' => [
