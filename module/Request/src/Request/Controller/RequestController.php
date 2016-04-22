@@ -335,8 +335,8 @@ class RequestController extends AbstractActionController
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
     {
         /** Include PHPExcel */
-        $path = CURRENT_PATH . '/vendor/phpoffice/phpexcel/Classes/PHPExcel.php';        
-        require_once( CURRENT_PATH . '/vendor/phpoffice/phpexcel/Classes/PHPExcel.php' );
+        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';        
+        require_once( $path );
         $objPHPExcel = new \PHPExcel();
         
         // Initialize spreadsheet
