@@ -19,6 +19,7 @@
 namespace Application\API;
 
 use Zend\View\Model\JsonModel;
+use \Application\Factory\EmailFactory;
 
 /**
  *
@@ -27,6 +28,25 @@ use Zend\View\Model\JsonModel;
  */
 class QueueApi extends ApiController {
 
+    /**
+     * Array of email addresses to send all emails when running on SWIFT.
+     * 
+     * @var unknown
+     */
+    public $testingEmailAddressList = null;
+    public $developmentEmailAddressList = null;
+    
+    public function __construct()
+    {
+        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+                                           'sarah_koogle@swifttrans.com',
+                                           'heather_baehr@swifttrans.com',
+                                           'jessica_yanez@swifttrans.com',
+                                           'nedra_munoz@swifttrans.com'
+        ];
+        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
+    }
+    
     /**
      * POST request from datatable UI to load Manager Queue.
      *
@@ -74,6 +94,10 @@ class QueueApi extends ApiController {
             
             case 'by-status':
                 return new JsonModel( $this->getPayrollByStatusQueueDatatable( $_POST ) );
+                break;
+            
+            case 'manager-action':
+                return new JsonModel( $this->getManagerActionQueueDatatable( $_POST ) );
                 break;
         }
     }
@@ -507,15 +531,118 @@ class QueueApi extends ApiController {
         return $result;
     }
     
+    /**
+     * Get data for the Manager Action Queue datatable.
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function getManagerActionQueueDatatable( $data = null )
+    {
+        /**
+         * return empty result if not called by Datatable
+         */
+        if ( !array_key_exists( 'draw', $data ) ) {
+            return [ ];
+        }
+
+        /**
+         * increase draw counter for datatable
+         */
+        $draw = $data['draw'] ++;
+
+        $PayrollQueues = new \Request\Model\PayrollQueues();
+        $queueData = $PayrollQueues->getManagerActionEmailQueue( $_POST, [ 'WARN_TYPE' => 'OLD_REQUESTS' ]);
+        
+        $data = [];
+        foreach ( $queueData as $ctr => $request ) {
+            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
+            
+            $data[] = [
+                'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION_ALT'],
+                'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
+                'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
+                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                'REQUEST_REASON' => $request['REQUEST_REASON'],
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+            ];
+        }
+
+        $recordsTotal = 0;
+        $recordsFiltered = 0;
+        
+        $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false );
+        $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $draw,
+            "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+        
+//        echo '<pre>';
+//        var_dump( $result );
+//        echo '</pre>';
+//        exit();
+        
+        /**
+         * return result
+         */
+        return $result;
+    }
+    
     public function getManagerActionEmailDataAction( $data = null )
     {
         $ManagerQueues = new \Request\Model\ManagerQueues();
-        $queueData = $ManagerQueues->getManagerActionEmailQueue( [ 'employeeNumber' => '289589' ] );
+        $queueData = $ManagerQueues->getManagerActionEmailQueue( $data ); // 'MANAGER_EMPLOYEE_NUMBER' => '229589'
+        $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
+        if( array_key_exists( 'WARN_TYPE', $data ) ) {
+            if( $data['WARN_TYPE'] === 'OLD_REQUESTS' ) {
+                $warnTypeBody = "It has been more than 3 days since this request was made and requires your approval.";
+            }
+            if( $data['WARN_TYPE'] === 'BEFORE_PAYROLL_RUN' ) {
+                $warnTypeBody = "We are about to do a Payroll run, and this request requires your approval.";
+            }
+        }
         
-        echo '<pre>';
-        print_r( $queueData );
-        echo '</pre>';
-        die( "...." );
+        foreach( $queueData as $key => $queue ) {
+            $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
+                $renderer->basePath( '/request/review-request/' . $queue['REQUEST_ID'] );
+            $to = $queue['MANAGER_EMAIL_ADDRESS'];
+            if( ENVIRONMENT==='development' ) {
+                $to = $this->developmentEmailAddressList;
+                $cc = '';
+            }
+            if( ENVIRONMENT==='testing' ) {
+                $to = $this->testingEmailAddressList;
+                $cc = '';
+            }
+            $Email = new EmailFactory(
+                'Time off request for ' . $queue['EMPLOYEE_DESCRIPTION_ALT'] . ' requires approval',
+                'A total of ' . $queue['REQUESTED_HOURS'] . ' hours were requested off for ' .
+                    $queue['EMPLOYEE_DESCRIPTION_ALT'] . '<br /><br />' .
+                    $warnTypeBody . '<br /><br />' .
+                    'Please review this request at the following URL:<br /><br />' .
+                    '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
+                $to,
+                $cc
+            );
+            $Email->send();
+        }
+        
+        die('...EMAIL(S) SENT...');
+        
+//        echo '<pre>';
+//        print_r( $queueData );
+//        echo '</pre>';
+//        die( "...." );
     }
     
     /**

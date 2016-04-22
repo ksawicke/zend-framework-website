@@ -44,7 +44,6 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <link href="<?php echo $this->basePath( 'css/fullcalendar.min.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'css/jqueryui/jquery-ui.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'css/font-awesome.min.css' ); ?>" rel="stylesheet">
-        <!--link href="<?php echo $this->basePath( 'css/toggle_switch/base.css' ); ?>" rel="stylesheet"-->
         <link href="<?php echo $this->basePath( 'css/toggle_switch/style.css' ); ?>" rel="stylesheet">
         <?php
         /**
@@ -135,19 +134,12 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Queues <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
-                                <?php if( $isManager==="Y" ) { ?>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/pending-manager-approval">Pending Manager Approval</a></li>
-                                <?php
+                                <?php if( $isManager==="Y" ) {
+                                    echo $this->partial( 'application/partials/managerQueuesMenuWidget.phtml' );
                                 }
                                 if( $isPayroll==="Y" ) {
-                                ?>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/update-checks">Update Checks</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-payroll-approval">Pending Payroll Approval</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/completed-pafs">Completed PAFs</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/pending-as400-upload">Pending AS400 Upload</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/denied">Denied PAFs</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/view-payroll-queue/by-status">By Status</a></li>
-                                <?php } ?>
+                                    echo $this->partial( 'application/partials/payrollQueuesMenuWidget.phtml' );
+                                } ?>
                             </ul>
                         </li>
                         <?php } ?>
@@ -155,9 +147,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         <li class="dropdown" id="menuMyAccount">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
-                                <?php /***<li><a href="#" class="launchDialogEditEmployeeSchedule">Edit My Schedule</a></li>***/ ?>
-                                <li><a href="<?php echo $this->basepath(); ?>/request/edit-employee-profile">Edit My Profile</a></li>
-                                <li><a href="<?php echo $this->basepath(); ?>/login/logout">Log Out</a></li>
+                                <?php echo $this->partial( 'application/partials/myAccountMenuWidget.phtml' ); ?>
                             </ul>
                         </li>
                         <?php } ?>
@@ -170,47 +160,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <div class="container">
             <div class="well well-sm">
 
-                <?php
-                $alertType = '';
-                switch ( $alertType ) {
-                    case 'success':
-                    default:
-                        $alertIcon = 'check-square-o';
-                        break;
-
-                    case 'info':
-                        $alertIcon = 'info-circle';
-                        break;
-
-                    case 'warning':
-                        $alertIcon = 'warning';
-                        break;
-
-                    case 'danger':
-                        $alertIcon = 'exclamation-circle';
-                        break;
-                }
- 
-                /** Out put any flash messages * */
-                $children = $this->viewModel()->getCurrent()->getChildren();
-                $ourView = $children[0];
-
-                if ( isset( $ourView->flashMessages ) && count( $ourView->flashMessages ) ) {
-                    foreach ( $ourView->flashMessages as $alertType => $messages ) {
-                        if ( !empty( $messages ) ) {
-                            ?>
-                            <div id="applicationFlashMessage" class="alert alert-<?php echo $alertType; ?>" role="alert">
-                                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                <i class="fa fa-<?php echo $alertIcon; ?>"></i> <strong><?php foreach ( $messages as $mk => $message ) {
-                    echo $message . '<br />';
-                } ?></strong><br />
-                                <div class="autoCloseMessage">This message will auto close in <span class="autoCloseMessage">10</span> seconds.</div>
-                            </div>
-                            <?php
-                        }
-                    }
-                }
-                ?>
+                <?php echo $this->partial( 'application/partials/applicationFlashMessageWidget.phtml' ); ?>
 
                 <?php echo $this->content; ?>
 
@@ -226,15 +176,6 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         </div> <!-- /container -->
         
         <?php echo $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ); ?>
-
-        <script>
-            //     $(document).ready(function() {
-            //         function createAutoClosingAlert(selector, delay) {
-            //           var alert = $(selector).alert();
-            //           window.setTimeout(function() { alert.alert('close') }, delay);
-            //        }
-            //     });
-        </script>
 
         <!-- Bootstrap core JavaScript
         ================================================== -->

@@ -15,6 +15,7 @@ var timeOffPayrollQueueHandler = new function ()
             timeOffPayrollQueueHandler.handleLoadingPendingAS400UploadQueue();
             timeOffPayrollQueueHandler.handleLoadingDeniedQueue();
             timeOffPayrollQueueHandler.handleLoadingByStatusQueue();
+            timeOffPayrollQueueHandler.handleLoadingManagerActionQueue();
         });
     }
     
@@ -263,6 +264,49 @@ var timeOffPayrollQueueHandler = new function ()
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/by-status",
+                data: function (d) {
+                    return $.extend({}, d, {
+                        "employeeNumber": phpVars.employee_number
+                    });
+                },
+                type: "POST",
+            }
+        })
+        .on("error.dt", function (e, settings, techNote, message) {
+            console.log("An error has been reported by DataTables: ", message);
+        });
+    }
+    
+    /**
+     * Loads the Manager Action Queue.
+     * 
+     * @returns {undefined}
+     */
+    this.handleLoadingManagerActionQueue = function () {
+        $('#payroll-queue-manager-action').DataTable({
+            dom: 'fltirp',
+            searching: true,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
+            },
+            columns: [
+                {"data": "EMPLOYEE_DESCRIPTION"},
+                {"data": "APPROVER_QUEUE"},
+                {"data": "REQUEST_STATUS_DESCRIPTION"},
+                {"data": "REQUESTED_HOURS"},
+                {"data": "REQUEST_REASON"},
+                {"data": "MIN_DATE_REQUESTED"},
+                {"data": "ACTIONS"}
+            ],
+            order: [],
+            columnDefs: [{"orderable": false,
+                    "targets": [1, 2, 3, 4, 6]
+                }
+            ],
+            ajax: {
+                url: phpVars.basePath + "/api/queue/payroll/manager-action",
                 data: function (d) {
                     return $.extend({}, d, {
                         "employeeNumber": phpVars.employee_number

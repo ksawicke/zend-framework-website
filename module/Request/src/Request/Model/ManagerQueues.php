@@ -19,12 +19,8 @@ use Request\Model\BaseDB;
  */
 class ManagerQueues extends BaseDB {
 
-    public $timePeriodToElapseBeforeWarningManagerToApproveRequests; 
-    
     public function __construct() {
         parent::__construct();
-        
-        $this->timePeriodToElapseBeforeWarningManagerToApproveRequests = '-1 days';
     }
     
     /**
@@ -147,69 +143,5 @@ class ManagerQueues extends BaseDB {
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
-    }
-    
-    public function getManagerActionEmailQueue( $data = null )
-    {
-        $rawSql = "
-        SELECT DATA2.* FROM (
-            SELECT
-                ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
-                DATA.* FROM (
-                SELECT
-                request.REQUEST_ID AS REQUEST_ID,
-                TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
-                request.REQUEST_REASON AS REQUEST_REASON,
-                status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
-                (
-                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                ) AS REQUESTED_HOURS,
-                (
-                    SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                ) AS MIN_DATE_REQUESTED,
-                (
-                    SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                ) AS MAX_DATE_REQUESTED,
-
-                TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
-                TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
-                TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
-                TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS,
-                date( CREATE_TIMESTAMP ) as CREATE_TIMESTAMP
-            FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            --INNER JOIN table (
-            --    SELECT
-            --        EMPLOYEE_ID AS EMPLOYEE_NUMBER,
-            --        TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-            --        DIRECT_INDIRECT,
-            --        MANAGER_LEVEL
-            --    FROM table (
-            --        CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
-            --    ) as data
-            --) hierarchy
-            --    ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'P' AND
-                  ( date( CREATE_TIMESTAMP ) < '" . $this->getManagerWarnDateToApproveRequests() . "' )
-            ORDER BY REQUEST_ID DESC) AS DATA
-        ) AS DATA2";
-        
-        $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
-
-        return $employeeData;
-    }
-    
-    /**
-     * Returns the date where we need to warn manager of requests in their queue they need to action.
-     * 
-     * @return type
-     */
-    private function getManagerWarnDateToApproveRequests()
-    {
-        return date( 'Y-m-d', strtotime( $this->timePeriodToElapseBeforeWarningManagerToApproveRequests, strtotime( date( "Y-m-d" ) ) ) );
     }
 }

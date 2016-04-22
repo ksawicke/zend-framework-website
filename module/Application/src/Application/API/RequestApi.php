@@ -53,6 +53,7 @@ class RequestApi extends ApiController {
      * 
      * @var unknown
      */
+    public $testingEmailAddressList = null;
     public $developmentEmailAddressList = null;
     
     public function __construct()

@@ -151,6 +151,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            
             'submittedForApproval' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -162,7 +163,21 @@ $config = [
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
+            ],
+            
+            'downloadReportManagerActionNeeded' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/download-report-manager-action-needed',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'downloadReportManagerActionNeeded'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
             ]
+            
         ]
     ],
     'view_manager' => [
