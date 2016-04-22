@@ -18,6 +18,7 @@ class LoginController extends AbstractActionController
 //        
 //        die( $url );
         
+//        die("STOP");
         $this->authenticationService = $authenticationService;
         $this->loginForm = $loginForm;
     }

@@ -1,0 +1,41 @@
+<?php
+                $alertType = '';
+                switch ( $alertType ) {
+                    case 'success':
+                    default:
+                        $alertIcon = 'check-square-o';
+                        break;
+
+                    case 'info':
+                        $alertIcon = 'info-circle';
+                        break;
+
+                    case 'warning':
+                        $alertIcon = 'warning';
+                        break;
+
+                    case 'danger':
+                        $alertIcon = 'exclamation-circle';
+                        break;
+                }
+ 
+                /** Out put any flash messages * */
+                $children = $this->viewModel()->getCurrent()->getChildren();
+                $ourView = $children[0];
+
+                if ( isset( $ourView->flashMessages ) && count( $ourView->flashMessages ) ) {
+                    foreach ( $ourView->flashMessages as $alertType => $messages ) {
+                        if ( !empty( $messages ) ) {
+                            ?>
+                            <div id="applicationFlashMessage" class="alert alert-<?php echo $alertType; ?>" role="alert">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <i class="fa fa-<?php echo $alertIcon; ?>"></i> <strong><?php foreach ( $messages as $mk => $message ) {
+                    echo $message . '<br />';
+                } ?></strong><br />
+                                <div class="autoCloseMessage">This message will auto close in <span class="autoCloseMessage">10</span> seconds.</div>
+                            </div>
+                            <?php
+                        }
+                    }
+                }
+                ?>
