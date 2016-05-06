@@ -139,7 +139,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                                 <?php if( $isManager==="Y" ) {
                                     echo $this->partial( 'application/partials/managerQueuesMenuWidget.phtml' );
                                 }
-                                if( $isPayroll==="Y" || $isPayrollAssistant==="Y" ) {
+                                if( $isPayrollAdmin==="Y" || $isPayrollAssistant==="Y" ) {
                                     echo $this->partial( 'application/partials/payrollQueuesMenuWidget.phtml' );
                                 } ?>
                             </ul>

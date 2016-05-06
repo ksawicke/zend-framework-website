@@ -132,16 +132,56 @@ class LoginMapper implements LoginMapperInterface
         return $data[0]->IS_MANAGER;
     }
     
-    public function isPayrollAdmin($employeeNumber = null)
-    {
+    /**
+     * Returns whether employee is Payroll Admin OR Assistant.
+     * 
+     * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
+     * @return boolean   "Y" or "N"
+     */
+    public function isPayroll( $employeeNumber = null ) {
+        return ( ( $this->isPayrollAdmin( $employeeNumber ) === "Y" ) ||
+                 ( $this->isPayrollAssistant( $employeeNumber) === "Y" ) ? "Y" : "N" );
+    }
+
+    /**
+     * Returns whether employee is Payroll or not.
+     * 
+     * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
+     * @return boolean   "Y" or "N"
+     */
+    public function isPayrollAdmin( $employeeNumber = null ) {
+        /**
+         * 05/06/16 sawik Change to:
+         * If Level 2 = FIN (from file PPRMS, field PRL02) and
+         *    Level 3 starts with PY (from file PRPMS, field PRL02) and
+         *    Training group = MGR2 (from file PRPMS, field PRTGRP)
+         */
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
-            FROM PRPMS
-            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
-    
-        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
-    
+                   (CASE WHEN (
+                      PRL02 = 'FIN' AND
+                      SUBSTRING(PRL03,0,3) = 'PY' AND
+                      PRTGRP = 'MGR2' AND
+                      PRTEDH = 0
+                   ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
+                   FROM PRPMS
+                   WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSql );
+        
         return $data[0]->IS_PAYROLL_ADMIN;
+    }
+    
+    /**
+     * Returns whether employee is Payroll or not.
+     * 
+     * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
+     * @return boolean   "Y" or "N"
+     */
+    public function isPayrollAssistant( $employeeNumber = null ) {
+        /**
+         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
+         */
+        return "N";
     }
     
     public function isProxy($employeeNumber = null)
