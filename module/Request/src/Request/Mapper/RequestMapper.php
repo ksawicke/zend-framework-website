@@ -1065,6 +1065,12 @@ class RequestMapper implements RequestMapperInterface {
      */
     public function isPayrollAdmin($employeeNumber = null)
     {
+        /**
+         * sawik 05/06/16 Modify to the following:
+         * 
+         * Set as Payroll Admin: If Level 2 = FIN (from file PPRMS, field PRL02) and Level 3 starts with PY (from file PRPMS, field PRL02) and Training group = MGR2 (from file PRPMS, field PRTGRP)
+         * 
+         */
         $rawSql = "SELECT
             (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL_ADMIN
             FROM PRPMS
