@@ -70,7 +70,7 @@ var timeOffPayrollAssistantHandler = new function ()
             
             $requestForEventSelect.select2({
                 ajax : {
-                    url : timeOffProxySearchUrl,
+                    url : timeOffPayrollAssistantSearchUrl,
                     method : 'post',
                     dataType : 'json',
                     delay : 250,
