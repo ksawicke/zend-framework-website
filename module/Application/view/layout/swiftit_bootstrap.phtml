@@ -7,14 +7,17 @@ $isPayrollAdmin = 'N';
 $isPayrollAssistant = 'N';
 
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
-    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
-        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
-        '!&nbsp;&nbsp;&nbsp;(<a href="' . $this->basepath() . '/login/logout">Logout</a>)';
     $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
     $loggedIn = 'Y';
     $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
     $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
     $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
+    $appendAfterWelcome = '<span style="font-size:60%;">' .
+                          '(MGR: ' . $isManager . ') (PAYROLL ADMIN: ' . $isPayrollAdmin . ') (PAYROLL ASSISTANT: ' . $isPayrollAssistant . ')' .
+                          '</span>';
+    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
+        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
+        '!&nbsp;' . $appendAfterWelcome;
 }
 
 ?>
