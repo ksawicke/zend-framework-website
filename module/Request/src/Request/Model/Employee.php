@@ -261,13 +261,13 @@ class Employee extends BaseDB {
      */
     public function isPayroll( $employeeNumber = null ) {
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
             FROM PRPMS
             WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
 
         $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
         
-        return $isSupervisorData[0]->IS_PAYROLL;
+        return $isSupervisorData[0]->IS_PAYROLL_ADMIN;
     }
 
     /**
@@ -524,7 +524,7 @@ class Employee extends BaseDB {
      */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
             $isProxy = null, $proxyFor = [] ) {        
-        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND

@@ -132,16 +132,16 @@ class LoginMapper implements LoginMapperInterface
         return $data[0]->IS_MANAGER;
     }
     
-    public function isPayroll($employeeNumber = null)
+    public function isPayrollAdmin($employeeNumber = null)
     {
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
             FROM PRPMS
             WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
     
         $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
     
-        return $data[0]->IS_PAYROLL;
+        return $data[0]->IS_PAYROLL_ADMIN;
     }
     
     public function isProxy($employeeNumber = null)
