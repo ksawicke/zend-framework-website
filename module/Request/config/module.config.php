@@ -67,6 +67,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'managePayrollAssistants' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/manage-payroll-assistants',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'managePayrollAssistants'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'create2' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

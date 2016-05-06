@@ -136,6 +136,26 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
+    
+    /**
+     * Allows an employee to edit their profile.
+     * 
+     * @return ViewModel
+     */
+    public function managePayrollAssistantsAction()
+    {
+        $Employee = new \Request\Model\Employee();
+        
+        return new ViewModel([
+            'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
 
     /**
      * Allows an employee to submit a new time off request for themselves.

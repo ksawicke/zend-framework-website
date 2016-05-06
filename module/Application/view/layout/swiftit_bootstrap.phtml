@@ -13,7 +13,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
     $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
     $appendAfterWelcome = '<span style="font-size:60%;">' .
-                          '(MGR: ' . $isManager . ') (PAYROLL ADMIN: ' . $isPayrollAdmin . ') (PAYROLL ASSISTANT: ' . $isPayrollAssistant . ')' .
+                          '(MGR: ' . $isManager . ') (PADM: ' . $isPayrollAdmin . ') (PAST: ' . $isPayrollAssistant . ')' .
                           '</span>';
     $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
         $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
@@ -147,8 +147,18 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                                 } ?>
                             </ul>
                         </li>
-                        <?php } ?>
-                        <?php if( $loggedIn==='Y' ) { ?>
+                        <?php }
+                        if( $isPayrollAdmin==="Y" ) { ?>
+                        ?>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php echo $this->partial( 'application/partials/payrollManageAssistantsMenuWidget.phtml' ); ?>
+                            </ul>
+                        </li>
+                        <?php
+                        }
+                        if( $loggedIn==='Y' ) { ?>
                         <li class="dropdown" id="menuMyAccount">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
