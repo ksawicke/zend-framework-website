@@ -3,7 +3,8 @@ $welcomeMessage = '';
 $employeeNumber = '';
 $loggedIn = 'N';
 $isManager = 'N';
-$isPayroll = 'N';
+$isPayrollAdmin = 'N';
+$isPayrollAssistant = 'N';
 
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
@@ -12,7 +13,8 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
     $loggedIn = 'Y';
     $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
-    $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+    $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+    $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
 }
 
 ?>
@@ -130,14 +132,14 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         </li>
                         <?php
                         }
-                        if( $isManager==="Y" || $isPayroll==="Y" ) { ?>
+                        if( $isManager==="Y" || $isPayrollAdmin==="Y" || $isPayrollAssistant==="Y" ) { ?>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Queues <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
                                 <?php if( $isManager==="Y" ) {
                                     echo $this->partial( 'application/partials/managerQueuesMenuWidget.phtml' );
                                 }
-                                if( $isPayroll==="Y" ) {
+                                if( $isPayroll==="Y" || $isPayrollAssistant==="Y" ) {
                                     echo $this->partial( 'application/partials/payrollQueuesMenuWidget.phtml' );
                                 } ?>
                             </ul>
