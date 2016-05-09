@@ -1043,7 +1043,8 @@ button .full-width {
 #dialogUnableToSplitFloatAlert,
 #dialogEditEmployeeSchedule,
 #dialogEditEmployeeProxies,
-#dialogSelectAProxy {
+#dialogSelectAProxy,
+#dialogSelectAPayrollAssistant {
     display: none;
 }
 
