@@ -87,8 +87,8 @@ class PayrollAssistants extends BaseDB {
     public function addPayrollAssistant( $post ) {
         $payrollAssistant = new Insert( 'timeoff_requests_payroll_assistants' );
         $payrollAssistant->values( [
-            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->EMPLOYEE_NUMBER )
-//            'CREATED_BY' => \Request\Helper\Format::rightPadEmployeeNumber( $post->CREATED_BY )
+            'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->EMPLOYEE_NUMBER ),
+            'CREATED_BY' => \Request\Helper\Format::rightPadEmployeeNumber( $post->CREATED_BY )
         ] );
         $sql = new Sql( $this->adapter );
         $stmt = $sql->prepareStatementForSqlObject( $payrollAssistant );

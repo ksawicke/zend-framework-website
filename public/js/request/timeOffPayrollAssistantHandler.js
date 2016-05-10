@@ -175,7 +175,7 @@ var timeOffPayrollAssistantHandler = new function ()
             type : 'POST',
             data : {
                 PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAssistantEmployeeNumber,
-                STATUS : ( status==1 ? 0 : 1 )
+                STATUS : ( status=='1' ? '0' : '1' )
             },
             dataType : 'json'
         }).success(function(json) {

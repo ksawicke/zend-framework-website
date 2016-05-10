@@ -57,6 +57,12 @@ class PayrollAssistantApi extends ApiController {
         $PayrollAssistants = new PayrollAssistants();
         $payrollAssistantData = $PayrollAssistants->getPayrollAssistants( $data );
         $data = [];
+        
+//        echo '<pre>';
+//        var_dump( $payrollAssistantData );
+//        echo '</pre>';
+//        exit();
+        
         foreach ( $payrollAssistantData as $ctr => $request ) {
             $viewLinkUrl = "#";
             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
@@ -174,7 +180,7 @@ class PayrollAssistantApi extends ApiController {
             $this->getResponse()->setStatusCode( 200 );
             return new JsonModel([
                 'success' => true,
-                'employeeNumber' => $post->EMPLOYEE_NUMBER
+                'employeeNumber' => $post->PAYROLLASSISTANT_EMPLOYEE_NUMBER
             ]);
         } catch ( Exception $ex ) {
              /**
