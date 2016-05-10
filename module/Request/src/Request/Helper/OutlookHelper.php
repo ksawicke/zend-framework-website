@@ -18,10 +18,25 @@ class OutlookHelper {
     public $endDate = '';
     public $startTime = '';
     public $endTime = '';
-
+    
+    /**
+     * Array of email addresses to send all emails when running on SWIFT.
+     * 
+     * @var unknown
+     */
+    public $testingEmailAddressList = null;
+    public $developmentEmailAddressList = null;
+    
     public function __construct() {
         $this->startTime = '0000';
         $this->endTime = '2359';
+        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+                                           'sarah_koogle@swifttrans.com',
+                                           'heather_baehr@swifttrans.com',
+                                           'jessica_yanez@swifttrans.com',
+                                           'nedra_munoz@swifttrans.com'
+        ];
+        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
 
     public function outputBeginVCalendar() {
@@ -132,8 +147,15 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         $manager = trim( $calendarRequestObject['for']['MANAGER_NAME'] );
         $managerEmail = trim( $calendarRequestObject['for']['MANAGER_EMAIL_ADDRESS'] );
         $subject = strtoupper( $for ) . ' - APPROVED TIME OFF';
+        $to = $calendarRequestObject['to'];
         if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
             $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
+        if( ENVIRONMENT==='development' ) {
+            $to = implode( ',', $this->testingEmailAddressList );
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = implode( ',', $this->developmentEmailAddressList );
         }
         
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
@@ -148,8 +170,7 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
                     $this->outputEndVCalendar();
 
             $headers .= $message;
-            
-            $mailsent = mail( $calendarRequestObject['to'], $subject, $message, $headers );
+            $mailsent = mail( $to, $subject, $message, $headers );
         }
 
         return ($mailsent) ? (true) : (false);
