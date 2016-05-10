@@ -385,6 +385,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $validationHelper = new ValidationHelper();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
         
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
@@ -415,6 +416,8 @@ class RequestApi extends ApiController {
         } else {
             /** Send calendar invites for this request **/
             $isSent = $this->sendCalendarInvitationsForRequest( $post );
+            $RequestEntry = new RequestEntry();
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
             
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(
