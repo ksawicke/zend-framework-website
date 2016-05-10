@@ -562,6 +562,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.submitTimeOffRequest = function() {
+//        console.log( "PE", loggedInUserData );
         $.ajax({
             url : timeOffSubmitTimeOffRequestUrl,
             type : 'POST',

@@ -178,10 +178,13 @@ class LoginMapper implements LoginMapperInterface
      * @return boolean   "Y" or "N"
      */
     public function isPayrollAssistant( $employeeNumber = null ) {
-        /**
-         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
-         */
-        return "N";
+        $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUESTS_PAYROLL_ASSISTANTS
+                   WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
+                   STATUS = 1";
+    
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+    
+        return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
     }
     
     public function isProxy($employeeNumber = null)

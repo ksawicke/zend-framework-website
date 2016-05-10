@@ -559,7 +559,8 @@ class Employee extends BaseDB {
      */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
             $isProxy = null, $proxyFor = [] ) {        
-        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+        $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+        $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
@@ -569,8 +570,9 @@ class Employee extends BaseDB {
             )
         )";
         
-        if ( $isPayroll === "Y" ) {
-            $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
+        if ( $isPayrollAdmin === "Y" ||
+             $isPayrollAssistant === "Y" ) {
+             $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
         } else {
             switch( $directReportFilter ) {
                 case 'P':

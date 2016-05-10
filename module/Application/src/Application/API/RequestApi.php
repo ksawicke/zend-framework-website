@@ -143,6 +143,16 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    protected function addRequestByEmployeeData( $post )
+    {
+        $Employee = new Employee();
+        $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
+        $post->request['byEmployee'] = (array) $Employee->findEmployeeTimeOffData( $employeeNumber, "Y",
+            "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS");
+        
+        return $post;
+    }
+    
     public function submitEmployeeScheduleRequestAction()
     {
         $EmployeeSchedules = new EmployeeSchedules();
@@ -180,6 +190,17 @@ class RequestApi extends ApiController {
         $post = $this->getRequest()->getPost();
         $post = $this->cleanUpRequestedDates( $post );
         $post = $this->addRequestForEmployeeData( $post );
+        $post = $this->addRequestByEmployeeData( $post );
+        
+//        echo '<pre>';
+//        var_dump( $post );
+//        echo '</pre>';
+//        
+//        echo '<pre>';
+//        var_dump( $post->request['byEmployee'] );
+//        echo '</pre>';
+//        
+//        exit();
         
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
