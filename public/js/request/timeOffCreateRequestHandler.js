@@ -99,8 +99,10 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is opened
                  */
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
-                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.isManager === "Y" &&
+                       loggedInUserData.isPayrollAdmin === "N" &&
+                       loggedInUserData.isPayrollAssistant === "N" ) ||
+                       loggedInUserData.isProxy === "Y"
                    ) {
                     /**
                      * Allow user to search their reports (for Managers) and/or
@@ -109,7 +111,7 @@ var timeOffCreateRequestHandler = new function() {
                     $("span").remove(".select2CustomTag");
                     var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
                 }
-                if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                if( loggedInUserData.isManager === "Y" && loggedInUserData.isPayrollAdmin === "N" ) {
                     $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter === 'B') ? ' checked'
                             : '')
@@ -123,8 +125,10 @@ var timeOffCreateRequestHandler = new function() {
                             : '')
                         + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
                 }
-                if( loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" ) {
-                    if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "N" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                if( loggedInUserData.isProxy === "Y" ) {
+                    if( loggedInUserData.isManager === "N" &&
+                        loggedInUserData.isPayrollAdmin === "N" &&
+                        loggedInUserData.isPayrollAssistant === "N" ) {
                         directReportFilter = 'P';
                     }
                     $filter += '<input type="radio" name="directReportFilter" value="P"'
@@ -132,8 +136,10 @@ var timeOffCreateRequestHandler = new function() {
                             : '')
                         + '> Employees For Whom I Am Authorized to Submit Requests';
                 }
-                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.isManager === "Y" &&
+                       loggedInUserData.isPayrollAdmin === "N" &&
+                       loggedInUserData.isPayrollAssistant === "N" ) ||
+                       loggedInUserData.isProxy === "Y"
                    ) {
                         $filter += '</form>';
                         $("<span class='select2CustomTag' style='padding-left:6px;'>"
@@ -1190,7 +1196,7 @@ var timeOffCreateRequestHandler = new function() {
         if ( ( loggedInUserData.isManager == "Y" ||
                loggedInUserData.isPayrollAdmin == "Y" ||
                loggedInUserData.isPayrollAssistant == "Y" ||
-               loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" )
+               loggedInUserData.isProxy === "Y" )
         ) {
 //            alert("ENABLE");
             timeOffCreateRequestHandler.enableSelectRequestFor();
@@ -1218,8 +1224,8 @@ var timeOffCreateRequestHandler = new function() {
                     search : params.term,
                              directReportFilter : directReportFilter,
                              employeeNumber : phpVars.employee_number,
-                             isProxy : loggedInUserData.IS_LOGGED_IN_USER_PROXY,
-                             proxyFor : loggedInUserData.PROXY_FOR,
+                             isProxy : loggedInUserData.isProxy,
+                             proxyFor : loggedInUserData.proxyFor,
                              page : params.page
                     };
                 },
