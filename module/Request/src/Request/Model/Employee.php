@@ -286,7 +286,7 @@ class Employee extends BaseDB {
                    ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
                    FROM PRPMS
                    WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
-
+//die($rawSql);
         $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
         
         return $data[0]->IS_PAYROLL_ADMIN;

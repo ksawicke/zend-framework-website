@@ -75,7 +75,7 @@ var timeOffCreateRequestHandler = new function() {
     */
    this.initialize = function() {
        $(document).ready(function() {
-            var $requestForEventSelect = $("#requestFor");
+           var $requestForEventSelect = $("#requestFor");
             /**
              * When we change the for dropdown using select2,
              * set the employee number and name as a local variable
@@ -98,7 +98,6 @@ var timeOffCreateRequestHandler = new function() {
                 /**
                  * SELECT2 is opened
                  */
-                console.log( "SLICK", loggedInUserData );
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
                 if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
                        loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
@@ -425,12 +424,14 @@ var timeOffCreateRequestHandler = new function() {
         })
         .success(function(json) {
             if (requestForEmployeeNumber === '') {
-                loggedInUserData = json.employeeData;
-                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
-                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
-                loggedInUserData.IS_LOGGED_IN_USER_PROXY = json.loggedInUser.isProxy;
-                loggedInUserData.PROXY_FOR = [];
-                if( json.loggedInUser.isProxy==="Y" ) {
+                loggedInUserData = json.loggedInUserData;
+//                console.log( "CHECK PERMISSIONS!!! loggedInUserData:", loggedInUserData );
+//                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = loggedInUserData.isManager;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ADMIN = loggedInUserData.isPayrollAdmin;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ASSISTANT = loggedInUserData.isPayrollAssistant;
+//                loggedInUserData.IS_LOGGED_IN_USER_PROXY = loggedInUserData.isProxy;
+//                loggedInUserData.PROXY_FOR = [];
+                if( loggedInUserData.isProxy==="Y" ) {
                     for( key in json.proxyFor ) {
                         loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
                     }
@@ -1185,12 +1186,17 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.checkAllowRequestOnBehalfOf = function() {
-        if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-             loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+        console.log( "@@@@", loggedInUserData );
+        if ( ( loggedInUserData.isManager == "Y" ||
+               loggedInUserData.isPayrollAdmin == "Y" ||
+               loggedInUserData.isPayrollAssistant == "Y" ||
+               loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" )
         ) {
+//            alert("ENABLE");
             timeOffCreateRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
         } else {
+//            alert("DISABLE");
             $("#requestFor").prop('disabled', true);
             $(".categoryBereavement").hide();
             $(".categoryCivicDuty").hide();

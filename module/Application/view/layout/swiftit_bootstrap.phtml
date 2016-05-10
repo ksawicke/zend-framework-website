@@ -9,15 +9,8 @@ $isPayrollAssistant = 'N';
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
     $loggedIn = 'Y';
-    $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
-    $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
-    $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
-    $appendAfterWelcome = '<span style="font-size:60%;">' .
-                          '(MGR: ' . $isManager . ') (PADM: ' . $isPayrollAdmin . ') (PAST: ' . $isPayrollAssistant . ')' .
-                          '</span>';
     $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
-        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
-        '!&nbsp;' . $appendAfterWelcome;
+        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'];
 }
 
 ?>
@@ -182,6 +175,8 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                 <br />
                 <br />
                 <br />
+                
+                <?php echo ( $loggedIn==="Y" ? $this->partial( 'request/partials/developmentInfo.phtml' ) : '' ); ?>
 
             </div>
 
@@ -191,7 +186,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         </div> <!-- /container -->
         
         <?php echo $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ); ?>
-
+        
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->

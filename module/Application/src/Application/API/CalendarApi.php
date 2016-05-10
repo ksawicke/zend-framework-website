@@ -112,10 +112,10 @@ class CalendarApi extends ApiController {
         $result = new JsonModel( [
             'success' => true,
             'employeeData' => $employeeData,
-            'loggedInUser' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
-                                'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
-                                'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
-                                'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
+            'loggedInUserData' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
+                                    'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
+                                    'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
+                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
             ],
             'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
                             $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :
