@@ -62,9 +62,9 @@ class CalendarApi extends ApiController {
     public function getEarliestRequestDate()
     {
         $Employee = new \Request\Model\Employee();
-        $isLoggedInUserPayroll = $Employee->isPayroll( $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'] );
+        $isPayroll = $Employee->isPayroll( $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'] );
         
-        return ( $isLoggedInUserPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
+        return ( $isPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
                                               : date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y")))) );
         
     }
@@ -112,9 +112,10 @@ class CalendarApi extends ApiController {
         $result = new JsonModel( [
             'success' => true,
             'employeeData' => $employeeData,
-            'loggedInUser' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
-                                'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
-                                'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
+            'loggedInUserData' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
+                                    'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
+                                    'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
+                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
             ],
             'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
                             $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :

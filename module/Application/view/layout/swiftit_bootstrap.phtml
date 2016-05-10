@@ -3,16 +3,17 @@ $welcomeMessage = '';
 $employeeNumber = '';
 $loggedIn = 'N';
 $isManager = 'N';
-$isPayroll = 'N';
+$isPayrollAdmin = 'N';
+$isPayrollAssistant = 'N';
 
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
-    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
-        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] .
-        '!&nbsp;&nbsp;&nbsp;(<a href="' . $this->basepath() . '/login/logout">Logout</a>)';
     $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
     $loggedIn = 'Y';
     $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
-    $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+    $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+    $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
+    $welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' .
+        $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'];
 }
 
 ?>
@@ -130,20 +131,30 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         </li>
                         <?php
                         }
-                        if( $isManager==="Y" || $isPayroll==="Y" ) { ?>
+                        if( $isManager==="Y" || $isPayrollAdmin==="Y" || $isPayrollAssistant==="Y" ) { ?>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Queues <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
                                 <?php if( $isManager==="Y" ) {
                                     echo $this->partial( 'application/partials/managerQueuesMenuWidget.phtml' );
                                 }
-                                if( $isPayroll==="Y" ) {
+                                if( $isPayrollAdmin==="Y" || $isPayrollAssistant==="Y" ) {
                                     echo $this->partial( 'application/partials/payrollQueuesMenuWidget.phtml' );
                                 } ?>
                             </ul>
                         </li>
-                        <?php } ?>
-                        <?php if( $loggedIn==='Y' ) { ?>
+                        <?php }
+                        if( $isPayrollAdmin==="Y" ) { ?>
+                        ?>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php echo $this->partial( 'application/partials/payrollManageAssistantsMenuWidget.phtml' ); ?>
+                            </ul>
+                        </li>
+                        <?php
+                        }
+                        if( $loggedIn==='Y' ) { ?>
                         <li class="dropdown" id="menuMyAccount">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
@@ -167,6 +178,8 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                 <br />
                 <br />
                 <br />
+                
+                <?php echo ( $loggedIn==="Y" ? $this->partial( 'request/partials/developmentInfo.phtml' ) : '' ); ?>
 
             </div>
 
@@ -176,7 +189,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         </div> <!-- /container -->
         
         <?php echo $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ); ?>
-
+        
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->

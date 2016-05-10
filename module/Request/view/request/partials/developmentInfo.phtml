@@ -1,0 +1,13 @@
+<?php
+$isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
+$isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+$isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
+?>
+
+<pre style="margin-top:50px;font-size:75%;">
+    <strong>The following is information used for troubleshooting in non-Production environments.</strong>
+
+    Is Manager: <?php echo $isManager; ?><br />
+    Is Payroll Administrator: <?php echo $isPayrollAdmin; ?><br />
+    Is Payroll Assistant: <?php echo $isPayrollAssistant; ?><br />
+</pre>

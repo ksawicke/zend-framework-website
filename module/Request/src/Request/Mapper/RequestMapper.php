@@ -907,7 +907,8 @@ class RequestMapper implements RequestMapperInterface {
 
     public function findManagerEmployees($managerEmployeeNumber = null, $search = null, $directReportFilter = null)
     {
-        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL');
+        $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN');
+        $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ASSISTANT');
         $where = "WHERE (
             employee.PRER = '002' and
             employee.PRTEDH = 0 and
@@ -922,7 +923,7 @@ class RequestMapper implements RequestMapperInterface {
 //            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
 //            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "
 
-        if ($isPayroll === "N") {
+        if ($isPayrollAdmin === "N" && $isPayrollAssistant === "N" ) {
             $rawSql = "SELECT
                 CASE
                     when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
@@ -1044,16 +1045,51 @@ class RequestMapper implements RequestMapperInterface {
         return $isSupervisorData[0]->IS_MANAGER;
     }
 
+    /**
+     * Returns whether employee is Payroll Admin OR Assistant.
+     * 
+     * @param type $employeeNumber
+     * @return type
+     */
     public function isPayroll($employeeNumber = null)
     {
+        return ( ( $this->isPayrollAdmin( $employeeNumber ) === "Y" &&
+                   $this->isPayrollAssistant( $employeeNumber ) === "Y" ) ? "Y" : "N" );
+    }
+    
+    /**
+     * Returns whether employee is a Payroll Admin.
+     * 
+     * @param type $employeeNumber
+     * @return type
+     */
+    public function isPayrollAdmin($employeeNumber = null)
+    {
+        /**
+         * sawik 05/06/16 Modify to the following:
+         * 
+         * Set as Payroll Admin: If Level 2 = FIN (from file PPRMS, field PRL02) and Level 3 starts with PY (from file PRPMS, field PRL02) and Training group = MGR2 (from file PRPMS, field PRTGRP)
+         * 
+         */
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL
+            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL_ADMIN
             FROM PRPMS
             WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
 
         $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
 
         return $isSupervisorData[0]->IS_MANAGER;
+    }
+    
+    /**
+     * Returns whether employee is a Payroll Assistant.
+     * 
+     * @param type $employeeNumber
+     * @return string
+     */
+    public function isPayrollAssistant($employeeNumber = null)
+    {
+        return "N";
     }
 
     public function submitRequestForApproval($employeeNumber = null, $requestData = [], $requestReason = null, $requesterEmployeeNumber = null)

@@ -390,9 +390,18 @@ var timeOffViewRequestHandler = new function ()
         })
         .success(function (json) {
             if (requestForEmployeeNumber === '') {
-                loggedInUserData = json.employeeData;
-                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
-                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
+                loggedInUserData = json.loggedInUserData;
+//                console.log( "CHECK PERMISSIONS!!! loggedInUserData:", loggedInUserData );
+//                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = loggedInUserData.isManager;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ADMIN = loggedInUserData.isPayrollAdmin;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ASSISTANT = loggedInUserData.isPayrollAssistant;
+//                loggedInUserData.IS_LOGGED_IN_USER_PROXY = loggedInUserData.isProxy;
+//                loggedInUserData.PROXY_FOR = [];
+                if( loggedInUserData.isProxy==="Y" ) {
+                    for( key in json.proxyFor ) {
+                        loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
+                    }
+                }
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;

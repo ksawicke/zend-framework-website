@@ -75,7 +75,7 @@ var timeOffCreateRequestHandler = new function() {
     */
    this.initialize = function() {
        $(document).ready(function() {
-            var $requestForEventSelect = $("#requestFor");
+           var $requestForEventSelect = $("#requestFor");
             /**
              * When we change the for dropdown using select2,
              * set the employee number and name as a local variable
@@ -98,10 +98,11 @@ var timeOffCreateRequestHandler = new function() {
                 /**
                  * SELECT2 is opened
                  */
-                console.log( "SLICK", loggedInUserData );
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
-                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.isManager === "Y" &&
+                       loggedInUserData.isPayrollAdmin === "N" &&
+                       loggedInUserData.isPayrollAssistant === "N" ) ||
+                       loggedInUserData.isProxy === "Y"
                    ) {
                     /**
                      * Allow user to search their reports (for Managers) and/or
@@ -110,7 +111,7 @@ var timeOffCreateRequestHandler = new function() {
                     $("span").remove(".select2CustomTag");
                     var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
                 }
-                if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                if( loggedInUserData.isManager === "Y" && loggedInUserData.isPayrollAdmin === "N" ) {
                     $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter === 'B') ? ' checked'
                             : '')
@@ -124,8 +125,10 @@ var timeOffCreateRequestHandler = new function() {
                             : '')
                         + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
                 }
-                if( loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y" ) {
-                    if( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "N" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) {
+                if( loggedInUserData.isProxy === "Y" ) {
+                    if( loggedInUserData.isManager === "N" &&
+                        loggedInUserData.isPayrollAdmin === "N" &&
+                        loggedInUserData.isPayrollAssistant === "N" ) {
                         directReportFilter = 'P';
                     }
                     $filter += '<input type="radio" name="directReportFilter" value="P"'
@@ -133,8 +136,10 @@ var timeOffCreateRequestHandler = new function() {
                             : '')
                         + '> Employees For Whom I Am Authorized to Submit Requests';
                 }
-                if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-                       loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+                if ( ( loggedInUserData.isManager === "Y" &&
+                       loggedInUserData.isPayrollAdmin === "N" &&
+                       loggedInUserData.isPayrollAssistant === "N" ) ||
+                       loggedInUserData.isProxy === "Y"
                    ) {
                         $filter += '</form>';
                         $("<span class='select2CustomTag' style='padding-left:6px;'>"
@@ -425,12 +430,14 @@ var timeOffCreateRequestHandler = new function() {
         })
         .success(function(json) {
             if (requestForEmployeeNumber === '') {
-                loggedInUserData = json.employeeData;
-                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUser.isManager;
-                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUser.isPayroll;
-                loggedInUserData.IS_LOGGED_IN_USER_PROXY = json.loggedInUser.isProxy;
-                loggedInUserData.PROXY_FOR = [];
-                if( json.loggedInUser.isProxy==="Y" ) {
+                loggedInUserData = json.loggedInUserData;
+//                console.log( "CHECK PERMISSIONS!!! loggedInUserData:", loggedInUserData );
+//                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = loggedInUserData.isManager;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ADMIN = loggedInUserData.isPayrollAdmin;
+//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ASSISTANT = loggedInUserData.isPayrollAssistant;
+//                loggedInUserData.IS_LOGGED_IN_USER_PROXY = loggedInUserData.isProxy;
+//                loggedInUserData.PROXY_FOR = [];
+                if( loggedInUserData.isProxy==="Y" ) {
                     for( key in json.proxyFor ) {
                         loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
                     }
@@ -555,6 +562,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.submitTimeOffRequest = function() {
+//        console.log( "PE", loggedInUserData );
         $.ajax({
             url : timeOffSubmitTimeOffRequestUrl,
             type : 'POST',
@@ -1185,12 +1193,17 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.checkAllowRequestOnBehalfOf = function() {
-        if ( ( loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" && loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N" ) ||
-             loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
+        console.log( "@@@@", loggedInUserData );
+        if ( ( loggedInUserData.isManager == "Y" ||
+               loggedInUserData.isPayrollAdmin == "Y" ||
+               loggedInUserData.isPayrollAssistant == "Y" ||
+               loggedInUserData.isProxy === "Y" )
         ) {
+//            alert("ENABLE");
             timeOffCreateRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
         } else {
+//            alert("DISABLE");
             $("#requestFor").prop('disabled', true);
             $(".categoryBereavement").hide();
             $(".categoryCivicDuty").hide();
@@ -1212,8 +1225,8 @@ var timeOffCreateRequestHandler = new function() {
                     search : params.term,
                              directReportFilter : directReportFilter,
                              employeeNumber : phpVars.employee_number,
-                             isProxy : loggedInUserData.IS_LOGGED_IN_USER_PROXY,
-                             proxyFor : loggedInUserData.PROXY_FOR,
+                             isProxy : loggedInUserData.isProxy,
+                             proxyFor : loggedInUserData.proxyFor,
                              page : params.page
                     };
                 },

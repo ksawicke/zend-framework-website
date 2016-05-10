@@ -110,9 +110,9 @@ class RequestController extends AbstractActionController
     public function getEarliestRequestDate()
     {
         $Employee = new \Request\Model\Employee();
-        $isLoggedInUserPayroll = $Employee->isPayroll( $this->employeeNumber );
+        $isPayroll = $Employee->isPayroll( $this->employeeNumber );
         
-        return ( $isLoggedInUserPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
+        return ( $isPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
                                               : date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y")))) );
         
     }
@@ -129,6 +129,26 @@ class RequestController extends AbstractActionController
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
+    
+    /**
+     * Allows an employee to edit their profile.
+     * 
+     * @return ViewModel
+     */
+    public function managePayrollAssistantsAction()
+    {
+        $Employee = new \Request\Model\Employee();
+        
+        return new ViewModel([
+            'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
@@ -237,8 +257,8 @@ class RequestController extends AbstractActionController
     {
         $payrollView = $this->params()->fromRoute('payroll-view');
         $Employee = new \Request\Model\Employee();
-        $isLoggedInUserPayroll = $Employee->isPayroll( $this->employeeNumber );
-        if($isLoggedInUserPayroll!=="Y") {
+        $isPayroll = $Employee->isPayroll( $this->employeeNumber );
+        if($isPayroll!=="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -246,7 +266,7 @@ class RequestController extends AbstractActionController
         $this->layout()->setVariable( 'payrollView', $payrollView );
         
         $view = new ViewModel([
-            'isLoggedInUserPayroll' => $isLoggedInUserPayroll,
+            'isPayroll' => $isPayroll,
             'payrollView' => $payrollView,
             'payrollViewName' => $this->payrollViewName[$payrollView],
             'employeeNumber' => $this->employeeNumber,

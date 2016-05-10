@@ -252,6 +252,17 @@ class Employee extends BaseDB {
 
         return $isSupervisorData[0]->IS_MANAGER;
     }
+    
+    /**
+     * Returns whether employee is Payroll Admin OR Assistant.
+     * 
+     * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
+     * @return boolean   "Y" or "N"
+     */
+    public function isPayroll( $employeeNumber = null ) {
+        return ( ( $this->isPayrollAdmin( $employeeNumber ) === "Y" ) ||
+                 ( $this->isPayrollAssistant( $employeeNumber) === "Y" ) ? "Y" : "N" );
+    }
 
     /**
      * Returns whether employee is Payroll or not.
@@ -259,15 +270,39 @@ class Employee extends BaseDB {
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
-    public function isPayroll( $employeeNumber = null ) {
+    public function isPayrollAdmin( $employeeNumber = null ) {
+        /**
+         * 05/06/16 sawik Change to:
+         * If Level 2 = FIN (from file PPRMS, field PRL02) and
+         *    Level 3 starts with PY (from file PRPMS, field PRL02) and
+         *    Training group = MGR2 (from file PRPMS, field PRTGRP)
+         */
         $rawSql = "SELECT
-            (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL
-            FROM PRPMS
-            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
-
-        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+                   (CASE WHEN (
+                      PRL02 = 'FIN' AND
+                      SUBSTRING(PRL03,0,3) = 'PY' AND
+                      PRTGRP = 'MGR2' AND
+                      PRTEDH = 0
+                   ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
+                   FROM PRPMS
+                   WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+//die($rawSql);
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
         
-        return $isSupervisorData[0]->IS_PAYROLL;
+        return $data[0]->IS_PAYROLL_ADMIN;
+    }
+    
+    /**
+     * Returns whether employee is Payroll or not.
+     * 
+     * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
+     * @return boolean   "Y" or "N"
+     */
+    public function isPayrollAssistant( $employeeNumber = null ) {
+        /**
+         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
+         */
+        return "N";
     }
 
     /**
@@ -524,7 +559,8 @@ class Employee extends BaseDB {
      */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
             $isProxy = null, $proxyFor = [] ) {        
-        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+        $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+        $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
@@ -534,8 +570,9 @@ class Employee extends BaseDB {
             )
         )";
         
-        if ( $isPayroll === "Y" ) {
-            $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
+        if ( $isPayrollAdmin === "Y" ||
+             $isPayrollAssistant === "Y" ) {
+             $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
         } else {
             switch( $directReportFilter ) {
                 case 'P':

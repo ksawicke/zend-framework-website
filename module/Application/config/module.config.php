@@ -39,6 +39,11 @@ return [
                 'child_routes' => []
             ],
             
+            /**
+             * Handle Proxies - people authorized to submit
+             * on behalf of someone else.
+             */
+            
             'loadProxies' => [
                 'type' => 'segment',
                 'options' => [
@@ -90,6 +95,66 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            
+            /**
+             * Payroll Assistants
+             */
+            
+            'loadPayrollAssistants' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-assistants/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAssistantApi',
+                        'action' => 'loadPayrollAssistants'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'deletePayrollAssistant' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-assistant/delete',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAssistantApi',
+                        'action' => 'deletePayrollAssistant'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'togglePayrollAssistant' => [
+            'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-assistant/toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAssistantApi',
+                        'action' => 'togglePayrollAssistant'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollAssistantRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-assistant',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAssistantApi',
+                        'action' => 'submitPayrollAssistantRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            /**
+             * Change Employee Schedule
+             */
             
             'submitEmployeeScheduleRequest' => [
                 'type' => 'segment',
@@ -235,7 +300,8 @@ return [
             'Application\API\SearchApi' => API\SearchApi::class,
             'Application\API\CalendarApi' => API\CalendarApi::class,
             'Application\API\RequestApi' => API\RequestApi::class,
-            'Application\API\ProxyApi' => API\ProxyApi::class
+            'Application\API\ProxyApi' => API\ProxyApi::class,
+            'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
         ]
     ],
     'service_manager' => [

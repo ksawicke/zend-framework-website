@@ -143,6 +143,16 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    protected function addRequestByEmployeeData( $post )
+    {
+        $Employee = new Employee();
+        $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
+        $post->request['byEmployee'] = (array) $Employee->findEmployeeTimeOffData( $employeeNumber, "Y",
+            "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS");
+        
+        return $post;
+    }
+    
     public function submitEmployeeScheduleRequestAction()
     {
         $EmployeeSchedules = new EmployeeSchedules();
@@ -180,6 +190,17 @@ class RequestApi extends ApiController {
         $post = $this->getRequest()->getPost();
         $post = $this->cleanUpRequestedDates( $post );
         $post = $this->addRequestForEmployeeData( $post );
+        $post = $this->addRequestByEmployeeData( $post );
+        
+//        echo '<pre>';
+//        var_dump( $post );
+//        echo '</pre>';
+//        
+//        echo '<pre>';
+//        var_dump( $post->request['byEmployee'] );
+//        echo '</pre>';
+//        
+//        exit();
         
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
@@ -385,6 +406,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $validationHelper = new ValidationHelper();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
         
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
@@ -415,6 +437,8 @@ class RequestApi extends ApiController {
         } else {
             /** Send calendar invites for this request **/
             $isSent = $this->sendCalendarInvitationsForRequest( $post );
+            $RequestEntry = new RequestEntry();
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
             
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(
