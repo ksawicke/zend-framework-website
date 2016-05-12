@@ -204,13 +204,34 @@ var timeOffCreateRequestHandler = new function() {
             var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE==='S' ?
                                       '#warnSalaryTakingRequiredHoursPerDay' :
                                       '#warnHourlyTakingRequiredHoursPerDay' );
-            if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
-                $( hoursWarningBlock ).hide();
-                timeOffCreateRequestHandler.submitTimeOffRequest();
-            } else {
+            if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===false ) {
+                $( "#warnBereavementHoursPerRequest" ).show();
+            }                  
+            if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
                 $( hoursWarningBlock ).show();
             }
+            
+            if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
+                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
+                timeOffCreateRequestHandler.submitTimeOffRequest();
+            }
         });
+    }
+    
+    this.verifyBereavementHoursPerRequest = function() {
+        var validates = false;
+        var bereavementTotalForRequest = 0;
+        $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+            if( selectedDateNewObject.category==="timeOffBereavement" ) {
+                bereavementTotalForRequest += +selectedDateNewObject.hours;
+            }
+        });
+        
+        if( bereavementTotalForRequest <= 24 ) {
+            validates = true;
+        }
+        
+        return validates;
     }
     
     /**
