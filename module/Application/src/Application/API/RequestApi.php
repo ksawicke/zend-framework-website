@@ -232,8 +232,9 @@ class RequestApi extends ApiController {
             return $result;
         } else {
             $this->emailRequestToEmployee( $requestId, $post );
-            $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId, 'review_request_reason' => 'System auto-approved request on behalf of ' . $post->request['byEmployee']['MANAGER_DESCRIPTION_ALT'] .
-                '. Reason: requester is in manager heirarchy of ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
+            $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
+                'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
             
             return $return;
         }
