@@ -213,6 +213,7 @@ var timeOffCreateRequestHandler = new function() {
             
             if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
+                requestReason = $("#requestReason").val();
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             }
         });
@@ -452,6 +453,7 @@ var timeOffCreateRequestHandler = new function() {
         .success(function(json) {
             if (requestForEmployeeNumber === '') {
                 loggedInUserData = json.loggedInUserData;
+                loggedInUserData.PROXY_FOR = [];
 //                console.log( "CHECK PERMISSIONS!!! loggedInUserData:", loggedInUserData );
 //                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = loggedInUserData.isManager;
 //                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ADMIN = loggedInUserData.isPayrollAdmin;

@@ -192,52 +192,55 @@ class RequestApi extends ApiController {
         $post = $this->addRequestForEmployeeData( $post );
         $post = $this->addRequestByEmployeeData( $post );
         
+        // $post->request['byEmployee']
+        // $post->request['forEmployee']['MANAGER_EMPLOYEE_NUMBER']
+        
 //        echo '<pre>';
 //        var_dump( $post );
 //        echo '</pre>';
-//        
-//        echo '<pre>';
-//        var_dump( $post->request['byEmployee'] );
-//        echo '</pre>';
-//        
-//        exit();
+//        die();
         
+        $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
+                                                                           $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
-        
+
         /** Submit the request to employee's manager; get the Request ID **/
         $requestReturnData = $TimeOffRequests->submitRequestForManagerApproval( $post );
         $requestId = $requestReturnData['request_id'];
-        
         /** Log creation of this request **/
         $TimeOffRequestLog->logEntry(
             $requestId,
             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
         
-        /** Log change in status to Pending Manager Approval **/
-        $TimeOffRequestLog->logEntry(
-            $requestId,
-            $post->request['byEmployee']['EMPLOYEE_NUMBER'],
-            'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
+        if( !$isRequestToBeAutoApproved ) {
+            /** Log change in status to Pending Manager Approval **/
+            $TimeOffRequestLog->logEntry(
+                $requestId,
+                $post->request['byEmployee']['EMPLOYEE_NUMBER'],
+                'Sent for manager approval to ' . $post->request['forEmployee']['MANAGER_DESCRIPTION_ALT'] );
+
+            /** Send email to employee and manager; grab data to email out **/
+            $this->emailRequestToEmployee( $requestId, $post );
+            $this->emailRequestToManager( $requestId, $post );
+
+            if( $requestReturnData['request_id']!=null ) {
+                $result = new JsonModel([
+                    'success' => true,
+                    'request_id' => $requestReturnData['request_id']
+                ]);
+            } else {
+                $result = new JsonModel([
+                    'success' => false,
+                    'message' => 'There was an error submitting your request. Please try again.'
+                ]);
+            }
         
-        /** Send email to employee and manager; grab data to email out **/
-        $this->emailRequestToEmployee( $requestId, $post );
-        $this->emailRequestToManager( $requestId, $post );
-                
-        if( $requestReturnData['request_id']!=null ) {
-            $result = new JsonModel([
-                'success' => true,
-                'request_id' => $requestReturnData['request_id']
-            ]);
+            return $result;
         } else {
-            $result = new JsonModel([
-                'success' => false,
-                'message' => 'There was an error submitting your request. Please try again.'
-            ]);
+            return $this->submitManagerApprovedAction( [ 'request_id' => $requestId, 'review_request_reason' => 'Auto-approved by system since requester is in managerial chain.' ] );
         }
-        
-        return $result;
     }
     
     /**
@@ -398,9 +401,21 @@ class RequestApi extends ApiController {
      * 
      * @return JsonModel
      */
-    public function submitManagerApprovedAction()
+    public function submitManagerApprovedAction( $data = [] )
     {
-        $post = $this->getRequest()->getPost();
+        $posted = true;
+        if( empty( $data ) ) {
+            $post = $this->getRequest()->getPost();
+        } else {
+            $posted = false;
+            $post = (object) $data;
+        }
+        
+//        echo '<pre>';
+//        var_dump( $post );
+//        echo '</pre>';
+//        die();
+        
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -474,12 +489,14 @@ class RequestApi extends ApiController {
             $result = new JsonModel( [
                 'success' => true,
                 'request_id' => $requestReturnData['request_id'],
-                'action' => 'A'
+                'action' => 'A', 
+                'posted' => $posted
             ] );
         } else {
             $result = new JsonModel( [
                 'success' => false,
-                'message' => 'There was an error submitting your request. Please try again.'
+                'message' => 'There was an error submitting your request. Please try again.', 
+                'posted' => $posted
             ] );
         }
 

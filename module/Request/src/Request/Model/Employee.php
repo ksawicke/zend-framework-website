@@ -602,6 +602,23 @@ class Employee extends BaseDB {
             $this->makeDefaultEmployeeSchedule( $employeeNumber );
         }
     }
+    
+    public function isRequestToBeAutoApproved( $forEmployee = null, $byEmployee = null ) {
+        $byEmployeeInChain = false;
+        $rawSql = "select mh.* from table (care_get_entire_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
+        $employeeManagerData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+        
+        foreach( $employeeManagerData as $ctr => $managerData ) {
+            if( $managerData['MANAGER_EMPLOYEE_ID'] == $byEmployee ) {
+                $byEmployeeInChain = true;
+                break;
+            }
+        }
+        
+        return $byEmployeeInChain;
+        
+        // select mh.* from table (care_get_entire_manager_hierarchy_for_employee(in_employer_id,in_employee_id)) mh
+    }
 
     /**
      * Returns schedule for an employee.

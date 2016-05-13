@@ -2,7 +2,11 @@
 
 <br />
 
-<?php if($isLoggedInUserPayroll==="Y") { ?>
+<?php
+$isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+$isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
+$isLoggedInUserPayroll = ( ( $isPayrollAdmin || $isPayrollAssistant ) ? "Y" : "N" );
+if($isLoggedInUserPayroll==="Y") { ?>
 
 <table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display" style="width:100%;">
     <thead>
