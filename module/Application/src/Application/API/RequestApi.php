@@ -192,14 +192,6 @@ class RequestApi extends ApiController {
         $post = $this->addRequestForEmployeeData( $post );
         $post = $this->addRequestByEmployeeData( $post );
         
-        // $post->request['byEmployee']
-        // $post->request['forEmployee']['MANAGER_EMPLOYEE_NUMBER']
-        
-//        echo '<pre>';
-//        var_dump( $post );
-//        echo '</pre>';
-//        die();
-        
         $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
                                                                            $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
         /** Ensure Employee has a default schedule created **/
@@ -239,7 +231,11 @@ class RequestApi extends ApiController {
         
             return $result;
         } else {
-            return $this->submitManagerApprovedAction( [ 'request_id' => $requestId, 'review_request_reason' => 'Auto-approved by system since requester is in managerial chain.' ] );
+            $this->emailRequestToEmployee( $requestId, $post );
+            $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId, 'review_request_reason' => 'System auto-approved request on behalf of ' . $post->request['byEmployee']['MANAGER_DESCRIPTION_ALT'] .
+                '. Reason: requester is in manager heirarchy of ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
+            
+            return $return;
         }
     }
     
