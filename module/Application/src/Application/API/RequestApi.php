@@ -216,11 +216,8 @@ class RequestApi extends ApiController {
         $post = $this->addRequestForEmployeeData( $post );
         $post = $this->addRequestByEmployeeData( $post );
         
-        $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $post->request['dates'] );
         $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
                                                                            $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
-        
-        $appendReason = ( $isFirstDateRequestedTooOld ? ' Payroll review required because one or more days requested is 14 or more days ago.' : '' );
         
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
@@ -238,7 +235,7 @@ class RequestApi extends ApiController {
             $this->emailRequestToEmployee( $requestId, $post );
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
                 'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." . $appendReason ] );
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
             
             return $return;
         } else {
@@ -465,7 +462,14 @@ class RequestApi extends ApiController {
 
         //  .....  && $isFirstDateRequestedTooOld === true
         
-        if ( $isPayrollReviewRequired === true ) {
+        if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld ) {
+            $payrollReviewRequiredReason = '';
+            if( $isPayrollReviewRequired ) {
+                $payrollReviewRequiredReason = 'Payroll review required because of insufficient hours.';
+            }
+            if( $isFirstDateRequestedTooOld ) {
+                $payrollReviewRequiredReason = 'Payroll review required because one or more days requested is at least 14 days old.';
+            }
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
@@ -482,7 +486,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Payroll review required because of insufficient hours' );
+                $payrollReviewRequiredReason );
             
             /** Change status to Pending Payroll Approval */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
