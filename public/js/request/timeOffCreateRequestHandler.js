@@ -1513,11 +1513,36 @@ var timeOffCreateRequestHandler = new function() {
      * @param {object} object
      * @returns {none}     */
     this.addDataToRequest = function(calendarDateObject, object) {
+        $("#warnFirstDateRequestedTooOld").hide();
         console.log( "ADD@" );
         object = timeOffCreateRequestHandler.formatDayRequested(object);
         timeOffCreateRequestHandler.addDateToRequest(object);
         timeOffCreateRequestHandler.addTime(object.category, object.hours);
         timeOffCreateRequestHandler.highlightDates();
+        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
+    }
+    
+    /**
+     * Shows warning that request needs Payroll review if first date
+     * requested is 14 or more days old.
+     * 
+     * @returns {undefined}
+     */
+    this.warnFirstDateRequestedAgeTooOld = function() {
+        var warnFirstDateRequestedTooOld = false;
+        var counter = 0;
+        var compareToDate = moment().locale("en").subtract(14, 'd').format("MM/DD/YYYY");
+        //moment().add(7, 'days').subtract(1, 'months').year(2009).hours(0).minutes(0).seconds(0);
+        $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+            if( selectedDateNewObject.date <= compareToDate ) {
+                counter++;
+            }
+        });
+        if( counter>0 ) {
+            warnFirstDateRequestedTooOld = true;
+        }
+        
+        return warnFirstDateRequestedTooOld;
     }
 
     /**
@@ -1532,6 +1557,15 @@ var timeOffCreateRequestHandler = new function() {
         var scheduleDay = "SCHEDULE_" + object.dow;
         object.hours = requestForEmployeeObject[scheduleDay];
         return object;
+    }
+    
+    this.toggleFirstDateRequestedTooOldWarning = function() {
+        warnFirstDateRequestedTooOld = timeOffCreateRequestHandler.warnFirstDateRequestedAgeTooOld();
+        if( warnFirstDateRequestedTooOld ) {
+            $("#warnFirstDateRequestedTooOld").show();
+        } else {
+            $("#warnFirstDateRequestedTooOld").hide();
+        }
     }
 
     /**
@@ -1553,6 +1587,8 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.removeDateFromRequest( deleteKey );
         timeOffCreateRequestHandler.highlightDates();
         timeOffCreateRequestHandler.drawHoursRequested();
+        
+        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
         
 //        timeOffCreateRequestHandler.subtractTime(selectedDatesNew[deleteKey].category, Number(selectedDatesNew[deleteKey].hours));
 //        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
