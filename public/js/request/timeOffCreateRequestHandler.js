@@ -246,9 +246,9 @@ var timeOffCreateRequestHandler = new function() {
         
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
             if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] = timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
             } else {
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] += timeOffCreateRequestHandler.setTwoDecimalPlaces( selectedDateNewObject.hours );
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
             }
         });
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
@@ -263,7 +263,7 @@ var timeOffCreateRequestHandler = new function() {
                 validates = false;
             }
         });
-        
+                
         return validates;
     }
 
