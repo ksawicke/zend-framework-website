@@ -176,6 +176,30 @@ class RequestApi extends ApiController {
     }
     
     /**
+     * Checks if any date in the array of dates is 14 or greater days.
+     * 
+     * @param type $dates
+     * @return boolean
+     */
+    public function isFirstDateRequestedTooOld( $dates = [] )
+    {
+        $isFirstDateRequestedTooOld = false;
+        $counter = 0;
+        $compareToDate = date( 'Y-m-d', strtotime('-14 days') );
+        
+        foreach( $dates as $index => $selectedDateObject ) {
+            if( $selectedDateObject['date'] <= $compareToDate ) {
+                $counter++;
+            }
+        }
+        if( $counter>0 ) {
+            $isFirstDateRequestedTooOld = true;
+        }
+        
+        return $isFirstDateRequestedTooOld;
+    }
+    
+    /**
      * Submits the new Time Off Request for an employee.
      * 
      * @return JsonModel
@@ -192,8 +216,12 @@ class RequestApi extends ApiController {
         $post = $this->addRequestForEmployeeData( $post );
         $post = $this->addRequestByEmployeeData( $post );
         
+        $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $post->request['dates'] );
         $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
                                                                            $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
+        
+        $appendReason = ( $isFirstDateRequestedTooOld ? ' Payroll review required because one or more days requested is 14 or more days ago.' : '' );
+        
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
 
@@ -206,7 +234,14 @@ class RequestApi extends ApiController {
             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
         
-        if( !$isRequestToBeAutoApproved ) {
+        if( $isRequestToBeAutoApproved ) {
+            $this->emailRequestToEmployee( $requestId, $post );
+            $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
+                'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." . $appendReason ] );
+            
+            return $return;
+        } else {
             /** Log change in status to Pending Manager Approval **/
             $TimeOffRequestLog->logEntry(
                 $requestId,
@@ -230,13 +265,6 @@ class RequestApi extends ApiController {
             }
         
             return $result;
-        } else {
-            $this->emailRequestToEmployee( $requestId, $post );
-            $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
-                'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
-            
-            return $return;
         }
     }
     
@@ -420,8 +448,23 @@ class RequestApi extends ApiController {
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         $employeeData = (array) $requestData['EMPLOYEE_DATA'];
         
+//        echo '<pre>requestData';
+//        var_dump( $requestData );
+//        echo '</pre>';
+        
+        $dates = [];
+        foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
+            $dates[]['date'] = $requestObject['REQUEST_DATE'];
+        }
+        
+        $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );
+        
+//        die($isFirstDateRequestedTooOld);
+        
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
+        //  .....  && $isFirstDateRequestedTooOld === true
+        
         if ( $isPayrollReviewRequired === true ) {
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(

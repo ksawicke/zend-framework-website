@@ -1513,7 +1513,6 @@ var timeOffCreateRequestHandler = new function() {
      * @param {object} object
      * @returns {none}     */
     this.addDataToRequest = function(calendarDateObject, object) {
-        $("#warnFirstDateRequestedTooOld").hide();
         console.log( "ADD@" );
         object = timeOffCreateRequestHandler.formatDayRequested(object);
         timeOffCreateRequestHandler.addDateToRequest(object);
