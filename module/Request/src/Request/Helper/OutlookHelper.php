@@ -152,10 +152,10 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
             $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
         }
         if( ENVIRONMENT==='development' ) {
-            $to = implode( ',', $this->testingEmailAddressList );
+            $to = implode( ',', $this->developmentEmailAddressList );
         }
         if( ENVIRONMENT==='testing' ) {
-            $to = implode( ',', $this->developmentEmailAddressList );
+            $to = implode( ',', $this->testingEmailAddressList );
         }
         
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
