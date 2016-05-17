@@ -36,7 +36,7 @@ class Papaatmp extends BaseDB {
      * @param array $employeeData
      * @param array $dateRequestBlocks
      */
-    public function prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks )
+    public function prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id )
     {
         $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
         $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
@@ -44,10 +44,29 @@ class Papaatmp extends BaseDB {
         $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-
+        
+//        echo '<pre>';
+//        var_dump($employeeData);
+//        echo '</pre>';
+//        
+//        echo '<pre>';
+//        var_dump($dateRequestBlocks);
+//        echo '</pre>';
+        
         foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
-            $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection );
+//            echo '<pre>';
+//            var_dump($dateRequestBlocks);
+//            echo '</pre>';
+//            
+//            echo '<pre>';
+//            var_dump($dateCollection);
+//            echo '</pre>';
+//            
+//            echo $request_id . "<br />";
+            
+            $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection, $request_id );
         }
+//        die(".");
     }
     
     /**
@@ -57,7 +76,7 @@ class Papaatmp extends BaseDB {
      * @param type $reason
      * @param type $dateCollection
      */
-    public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [] )
+    public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [], $request_id = null )
     {
         $this->table = ( ( $employeeData['salary_type']==="H" ? "HPAPAATMP" : "PAPAATMP" ) );
         
@@ -75,6 +94,7 @@ class Papaatmp extends BaseDB {
         }
         
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "Reason" ], [ $reason ] );
+        call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "RequestId" ], [ $request_id ] );
         
         $this->insertPapaatmpRecord();
     }
@@ -86,11 +106,11 @@ class Papaatmp extends BaseDB {
      */
     protected function insertPapaatmpRecord()
     {
-        $action = new Insert( $this->table );
-        $action->values( $this->collection );
-        $sql = new Sql( $this->adapter );
-        $stmt = $sql->prepareStatementForSqlObject( $action );
         try {
+            $action = new Insert( $this->table );
+            $action->values( $this->collection );
+            $sql = new Sql( $this->adapter );
+            $stmt = $sql->prepareStatementForSqlObject( $action );
             $result = $stmt->execute();
         } catch ( Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
@@ -420,6 +440,16 @@ class Papaatmp extends BaseDB {
     public function Reason( $reason )
     {
         $this->collection['AACOMM'] = $reason;
+    }
+    
+    /**
+     * Append Request ID to the pappa object.
+     * 
+     * @param string $reason
+     */
+    public function RequestId( $request_id )
+    {
+        $this->collection['TIMEOFF_REQUEST_ID'] = $request_id;
     }
     
 }

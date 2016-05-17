@@ -11,6 +11,9 @@ use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 use \Request\Helper\ValidationHelper;
 
+use \Request\Model\RequestEntry;
+use \Request\Model\Papaatmp;
+
 class RequestController extends AbstractActionController
 {
 //    protected $requestService;
@@ -99,6 +102,33 @@ class RequestController extends AbstractActionController
 //        print_r( $this->invalidRequestDates );
 //        echo '</pre>';
 //        exit();
+    }
+    
+    public function testpapaaAction() {
+        $request_id = '100918';
+        
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+//        $TimeOffRequestLog = new TimeOffRequestLog();
+        $RequestEntry = new RequestEntry();
+        $requestData = $TimeOffRequests->findRequest( $request_id );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $request_id );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
+//        echo '<pre>';
+//        var_dump( $employeeData );
+//        echo '</pre>';
+//        
+//        echo '<pre>';
+//        var_dump( $dateRequestBlocks );
+//        echo '</pre>';
+//        
+//        die( $request_id );
+        
+        /** Write record(s) to HPAPAATMP or PAPAATMP **/
+        $Papaa = new Papaatmp();
+        $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id );
+//        die( "COMPLETE" );
     }
     
     /**
