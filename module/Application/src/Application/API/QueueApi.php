@@ -64,6 +64,25 @@ class QueueApi extends ApiController {
     }
     
     /**
+     * Adjusts dates to YYYY-mm-dd format.
+     * 
+     * @param type $data
+     * @return type
+     */
+    public function adjustStartAndEndDates( $data ) {
+        if( !empty( $data['startDate'] ) ) {
+            $startDate = new \DateTime( $data['startDate'] );
+            $data['startDate'] = date_format( $startDate, 'Y-m-d' );
+        }
+        if( !empty( $data['endDate'] ) ) {
+            $endDate = new \DateTime( $_POST['endDate'] );
+            $data['endDate'] = date_format( $endDate, 'Y-m-d' );
+        }        
+        
+        return $data;
+    }
+    
+    /**
      * POST request from datatable UI to load Payroll Queue.
      *
      * @api
@@ -93,6 +112,7 @@ class QueueApi extends ApiController {
                 break;
             
             case 'by-status':
+                $_POST = $this->adjustStartAndEndDates( $_POST );
                 return new JsonModel( $this->getPayrollByStatusQueueDatatable( $_POST ) );
                 break;
             

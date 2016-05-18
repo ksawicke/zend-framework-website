@@ -266,7 +266,9 @@ var timeOffPayrollQueueHandler = new function ()
                 url: phpVars.basePath + "/api/queue/payroll/by-status",
                 data: function (d) {
                     return $.extend({}, d, {
-                        "employeeNumber": phpVars.employee_number
+                        "employeeNumber": phpVars.employee_number,
+                        "startDate": $("#startDate").val(),
+                        "endDate": $("#endDate").val()
                     });
                 },
                 type: "POST",
