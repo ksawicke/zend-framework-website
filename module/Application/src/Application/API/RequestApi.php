@@ -526,7 +526,7 @@ class RequestApi extends ApiController {
                                     
             /** Write record(s) to HPAPAATMP or PAPAATMP **/
             $Papaa = new Papaatmp();
-            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks );
+            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $post->request_id );
         }
 
         if ( $requestReturnData['request_id'] != null ) {
@@ -755,7 +755,7 @@ class RequestApi extends ApiController {
             
             /** Write record(s) to HPAPAATMP or PAPAATMP **/
             $Papaa = new Papaatmp();
-            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks );
+            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $post->request_id );
             
             $result = new JsonModel([
                 'success' => true,
