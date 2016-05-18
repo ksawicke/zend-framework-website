@@ -128,7 +128,7 @@ class RequestController extends AbstractActionController
         /** Write record(s) to HPAPAATMP or PAPAATMP **/
         $Papaa = new Papaatmp();
         $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id );
-//        die( "COMPLETE" );
+        die( "COMPLETE" );
     }
     
     /**

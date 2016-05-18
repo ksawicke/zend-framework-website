@@ -45,28 +45,9 @@ class Papaatmp extends BaseDB {
         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
         
-//        echo '<pre>';
-//        var_dump($employeeData);
-//        echo '</pre>';
-//        
-//        echo '<pre>';
-//        var_dump($dateRequestBlocks);
-//        echo '</pre>';
-        
-        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
-//            echo '<pre>';
-//            var_dump($dateRequestBlocks);
-//            echo '</pre>';
-//            
-//            echo '<pre>';
-//            var_dump($dateCollection);
-//            echo '</pre>';
-//            
-//            echo $request_id . "<br />";
-            
+        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {            
             $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection, $request_id );
         }
-//        die(".");
     }
     
     /**
@@ -110,8 +91,8 @@ class Papaatmp extends BaseDB {
             $action = new Insert( $this->table );
             $action->values( $this->collection );
             $sql = new Sql( $this->adapter );
-            $stmt = $sql->prepareStatementForSqlObject( $action );
-            $result = $stmt->execute();
+            $rawSql = $sql->getSqlStringForSqlObject( $action );
+            \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
