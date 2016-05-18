@@ -26,15 +26,15 @@ $( "#endDate" ).datepicker({
   dateFormat: "yy-mm-dd"
 });
 $( "#startDate" ).on( 'blur', function() {
-    console.log( "START DATE" );
-    var table = $('#payroll-queue-by-status').DataTable();
-    table.ajax.reload();
+    reloadByStatusDT();
 });
 $( "#endDate" ).on( 'blur', function() {
-    console.log( "END DATE" );
+    reloadByStatusDT();
+});
+var reloadByStatusDT = function() {
     var table = $('#payroll-queue-by-status').DataTable();
     table.ajax.reload();
-});
+}
 </script>
 <?php } ?>
 <table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display" style="width:100%;">
