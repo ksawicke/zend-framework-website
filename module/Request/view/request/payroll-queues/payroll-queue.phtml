@@ -12,7 +12,7 @@ if($isLoggedInUserPayroll==="Y") { ?>
 <table border="0" cellspacing="5" cellpadding="5" style="float:right;">
     <tbody>
         <tr>
-            <td style="border:0px solid #fff;">Days requested are between <input type="text" id="startDate" name="startDate" value="" placeholder="Start Date" style="border:1px solid #ccc;"> and <input type="text" id="endDate" name="endDate" value="" placeholder="End Date" style="border:1px solid #ccc;">
+            <td style="border:0px solid #fff;">Days requested are between <input type="text" id="startDate" name="startDate" value="" placeholder="Start Date"> and <input type="text" id="endDate" name="endDate" value="" placeholder="End Date">
             </td>
         </tr>
     </tbody>
@@ -20,10 +20,10 @@ if($isLoggedInUserPayroll==="Y") { ?>
 <br style="clear:both;" />
 <script>
 $( "#startDate" ).datepicker({
-  dateFormat: "yy-mm-dd"
+  dateFormat: "mm/dd/yy"
 });
 $( "#endDate" ).datepicker({
-  dateFormat: "yy-mm-dd"
+  dateFormat: "mm/dd/yy"
 });
 $( "#startDate" ).on( 'blur', function() {
     reloadByStatusDT();

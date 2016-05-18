@@ -1188,3 +1188,10 @@ div.DTTT {
 div.buttons {
     clear: both;
 }
+
+#startDate,
+#endDate {
+    border:1px solid #ccc;
+    padding:6px;
+    width: 100px;
+}

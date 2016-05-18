@@ -546,8 +546,14 @@ class PayrollQueues extends BaseDB {
         }
         $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         
+//        die( $rawSql );
+        
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
+//        echo '<pre>';
+//        var_dump( $queueData );
+//        echo '</pre>';exit();
+        
         return (int) $queueData['RCOUNT'];
     }
     
