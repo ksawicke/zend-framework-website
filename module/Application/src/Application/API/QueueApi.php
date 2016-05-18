@@ -70,10 +70,14 @@ class QueueApi extends ApiController {
      * @return type
      */
     public function adjustStartAndEndDates( $data ) {
-        $startDate = new \DateTime( $data['startDate'] );
-        $data['startDate'] = date_format( $startDate, 'Y-m-d' );
-        $endDate = new \DateTime( $_POST['endDate'] );
-        $data['endDate'] = date_format( $endDate, 'Y-m-d' );
+        if( !empty( $data['startDate'] ) ) {
+            $startDate = new \DateTime( $data['startDate'] );
+            $data['startDate'] = date_format( $startDate, 'Y-m-d' );
+        }
+        if( !empty( $data['endDate'] ) ) {
+            $endDate = new \DateTime( $_POST['endDate'] );
+            $data['endDate'] = date_format( $endDate, 'Y-m-d' );
+        }        
         
         return $data;
     }
