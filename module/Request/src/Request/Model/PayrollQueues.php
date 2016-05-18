@@ -570,11 +570,19 @@ class PayrollQueues extends BaseDB {
                           EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
                         )";
         }
+        if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
+            $where[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
+        }
+        if( array_key_exists( 'endDate', $data) && !empty( $data['endDate'] ) ) {
+            $where[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
+        }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
         
         $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
+        
+//        die( $rawSql );
         
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
