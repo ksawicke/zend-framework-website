@@ -1162,3 +1162,29 @@ div.panel.panel-default div.panel-body div.row div.col-lg-8 div.row {
 .selectedDateHours {
     width: 60px;
 }
+
+/** Datatables **/
+div.dataTables_length {
+    float: left;
+}
+
+div.dataTables_filter {
+    float: right;
+}
+
+div.dataTables_info {
+    float: left;
+}
+
+div.dataTables_paginate {
+    float: right;
+}
+
+div.DTTT {
+    float: left;
+    margin-right: 50px;
+}
+
+div.buttons {
+    clear: both;
+}
