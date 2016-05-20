@@ -395,9 +395,9 @@ class Calendar
      */
     public static function isDateHoliday($thisDay)
     {
-        $return = true;
+        $return = false;
         if( in_array($thisDay, self::$invalidRequestDates['individual']) ) {
-            $return = false;
+            $return = true;
         }
         
         return $return;
