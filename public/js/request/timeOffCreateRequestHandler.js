@@ -522,6 +522,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.addLoadedDatesAsSelected = function( highlightDates ) {
+        selectedDatesNew = [];
         for (key in highlightDates) {
             var obj = {
                 date : highlightDates[key].REQUEST_DATE,
@@ -706,9 +707,9 @@ var timeOffCreateRequestHandler = new function() {
              * Allow manager to edit request
              */
             if( calendarsToLoad===1 ) {
-//                $("#datesSelectedDetails").html("");
-//                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
-//                timeOffCreateRequestHandler.drawHoursRequested();
+                $("#datesSelectedDetails").html("");
+                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
+                timeOffCreateRequestHandler.drawHoursRequested();
             }
             return;
         }).error(function() {
@@ -1208,6 +1209,8 @@ var timeOffCreateRequestHandler = new function() {
                     break;
             }
         }
+
+//        console.log( "selectedDatesNew", selectedDatesNew );
 
         $("#datesSelectedDetails").html(datesSelectedDetailsHtml);
         if (selectedDatesNew.length === 0) {
