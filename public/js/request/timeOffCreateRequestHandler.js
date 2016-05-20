@@ -86,7 +86,7 @@ var timeOffCreateRequestHandler = new function() {
                 var selectedEmployee = e.params.data;
                 requestForEmployeeNumber = selectedEmployee.id;
                 requestForEmployeeName = selectedEmployee.text;
-                timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
+                timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber, 3);
                 
 //                requestForEmployeeObject = selectedEmployee;
 //                console.log( "DIRT", requestForEmployeeObject );
@@ -163,7 +163,6 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.handleSplitDate();
             timeOffCreateRequestHandler.handleChangeRequestForEmployee();
             timeOffCreateRequestHandler.handleDirectReportToggle();
-            timeOffCreateRequestHandler.loadCalendars();
         });
     }
 
