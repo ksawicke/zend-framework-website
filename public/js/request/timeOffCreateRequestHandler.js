@@ -373,7 +373,11 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleCalendarNavigation = function() {
         $('body').on('click', '.calendarNavigation', function(e) {
-            timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+            if( phpVars.request_id != 0 ) {
+                timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"), 1, phpVars.request_id);
+            } else {
+                timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"), 3);
+            }
         });
     }
 
@@ -672,7 +676,7 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Handles loading calendars after initial load
      */
-    this.loadNewCalendars = function(startMonth, startYear) {
+    this.loadNewCalendars = function(startMonth, startYear, calendarsToLoad, request_id) {
         $.ajax({
             url : timeOffLoadCalendarUrl,
             type : 'POST',
@@ -680,14 +684,30 @@ var timeOffCreateRequestHandler = new function() {
                 action : 'loadCalendar',
                 startMonth : startMonth,
                 startYear : startYear,
-                employeeNumber : requestForEmployeeNumber
+                employeeNumber : requestForEmployeeNumber,
+                calendarsToLoad : calendarsToLoad,
+                requestId: request_id
             },
             dataType : 'json'
         }).success(function(json) {
             requestForEmployeeObject = json.employeeData;
-            console.log( "DIRT", requestForEmployeeObject );
-            timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
+            if( calendarsToLoad===1 ) {
+                timeOffCreateRequestHandler.drawOneCalendar(json.calendarData);
+            }
+            if( calendarsToLoad===3 ) {
+                timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
+            }
+            
             timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
+            
+            /**
+             * Allow manager to edit request
+             */
+            if( calendarsToLoad===1 ) {
+//                $("#datesSelectedDetails").html("");
+//                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
+//                timeOffCreateRequestHandler.drawHoursRequested();
+            }
             return;
         }).error(function() {
             console.log('There was some error.');
