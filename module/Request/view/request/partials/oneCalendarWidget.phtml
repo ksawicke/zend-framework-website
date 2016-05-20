@@ -1,0 +1,33 @@
+<div id="calendarWrapper">
+	<div id="timeOffCalendarWarningNoCategorySelected">
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+            <strong>Sorry!</strong>&nbsp;Before you select any dates, please select a category above.
+        </div>
+    </div>
+    <div class="calendarMask">
+    	<div style="width:100%;padding-right:10px;float:left;text-align:center;">
+    		<div id="calendar1Header">
+    			<span id="calendarNavigationFastRewind" class="fc-icon fc-icon-left-double-arrow calendarNavigation" title="Go back 3 months" data-month="" data-year=""></span>
+    			<span id="calendarNavigationRewind" class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 1 month" data-month="" data-year=""></span>
+    			&nbsp;&nbsp;&nbsp;
+    			<strong><span id="calendar1Label"></span></strong>
+                        &nbsp;&nbsp;&nbsp;
+    			<span id="calendarNavigationForward" class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 1 month" data-month="" data-year=""></span>
+    			<span id="calendarNavigationFastForward" class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 3 months" data-month="" data-year=""></span>
+    		</div>
+    	</div>
+        
+        <br /><br />
+    
+    	<div style="width:100%;padding-right:10px;float:left;text-align:center;">
+    		<div id="calendar1Body"></div>
+    	</div>
+    </div>
+</div>
+
+<br style="clear:both;" />
+<br style="clear:both;" />
+
+<script src="<?php echo $this->basePath( 'js/request/timeOffCreateRequestHandler.js' ); ?>"></script>
+<script src="<?php echo $this->basePath( 'js/request/timeOffCreateRequestInitHandler.js' ); ?>"></script>
