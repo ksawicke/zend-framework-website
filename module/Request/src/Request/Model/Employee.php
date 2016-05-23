@@ -241,6 +241,26 @@ class Employee extends BaseDB {
     }
     
     /**
+     * Gets the start date for a request so we can determine which calendar
+     * to use first for a request.
+     * 
+     * @param integer $requestId
+     * @return array
+     */
+    public function getStartDateDataFromRequest( $requestId = null ) {
+        $rawSql = "SELECT
+                        MIN(REQUEST_DATE) AS MIN_REQUEST_DATE,
+                        CHAR(MIN(REQUEST_DATE),USA) AS USA_DATE_FORMAT,
+                        MONTH(MIN(REQUEST_DATE)) AS START_MONTH,
+                        YEAR(MIN(REQUEST_DATE)) AS START_YEAR
+                   FROM timeoff_request_entries entry WHERE entry.request_id = " . $requestId;
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return $employeeData;
+    }
+    
+    /**
      * Returns whether employee is a Manager or not.
      * 
      * @param type $employeeNumber  Integer, up to 9 places. Does not need to be justified.
@@ -747,11 +767,12 @@ class Employee extends BaseDB {
      * Find time off calendar data by Employee Number lookup.
      * 
      */
-    public function findTimeOffCalendarByEmployeeNumber( $employeeNumber = null, $startDate = null, $endDate = null ) {
+    public function findTimeOffCalendarByEmployeeNumber( $employeeNumber = null, $startDate = null, $endDate = null, $requestId = null ) {
         $startDate = new \Datetime( $startDate );
         $startDate = $startDate->format( "Y-m-d" );
         $endDate = new \Datetime( $endDate );
         $endDate = $endDate->format( "Y-m-d" );
+        $andRequestId = ( !is_null( $requestId ) ? " AND request.REQUEST_ID = " . $requestId : "" );
         
         $rawSql = "SELECT entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
             FROM TIMEOFF_REQUEST_ENTRIES entry
@@ -761,7 +782,8 @@ class Employee extends BaseDB {
             WHERE
                request.REQUEST_STATUS IN('A', 'P') AND
                trim(employee.PREN) = '" . $employeeNumber . "' AND
-               entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'
+               entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'" .
+               $andRequestId . "
             ORDER BY REQUEST_DATE ASC";
         
         $statement = $this->adapter->query( $rawSql );

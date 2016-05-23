@@ -76,16 +76,22 @@ class CalendarApi extends ApiController {
      */
     public function loadCalendarAction() {
         $post = $this->getRequest()->getPost();
-        
-//        echo '<pre>';
-//        var_dump( $post );
-//        echo '</pre>';
-//        die( "..." );
-        
         $Employee = new \Request\Model\Employee();
         $Employee->ensureEmployeeScheduleIsDefined( $post->employeeNumber );
         $employeeData = $Employee->findEmployeeTimeOffData( $post->employeeNumber, "Y" );
-        $startDate = $post->startYear . "-" . $post->startMonth . "-01";
+        $startYear = null;
+        $startMonth = null;
+        
+        if( $post->calendarsToLoad==1 && $post->startYear==date("Y") && $post->startMonth==date("n") ) {
+            $startDateData = $Employee->getStartDateDataFromRequest( $post->requestId );
+            $startYear = $startDateData['START_YEAR'];
+            $startMonth = $startDateData['START_MONTH'];
+        } else {
+            $startYear = $post->startYear;
+            $startMonth = $post->startMonth;
+        }
+        
+        $startDate = $startYear . "-" . $startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
         $dates = [];
         $headers = [];
@@ -98,16 +104,14 @@ class CalendarApi extends ApiController {
         
         switch( $post->calendarsToLoad ) {
             case 3:
-                $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $post->startYear, $post->startMonth );
+                $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $startYear, $startMonth );
                 break;
             
             case 1:
             default:
-                $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $post->startYear, $post->startMonth );
+                $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $startYear, $startMonth );
                 break;
         }
-        
-//        $requestData = $Employee->findTimeOffRequestData( $post->employeeNumber, $calendarDates, $post->requestId );
         
         foreach( $calendarDates as $timeFrame => $timeObject ) {
             $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
@@ -116,8 +120,13 @@ class CalendarApi extends ApiController {
         $highlightDates = $Employee->findTimeOffCalendarByEmployeeNumber( $post->employeeNumber, $startDate,
             ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] ), $post->requestId );
         
+//        echo '<pre>';
+//        var_dump( $highlightDates );
+//        echo '</pre>';
+//        die( ">>>>>" );
+        
         if( $post->calendarsToLoad==1) {
-            $threeCalendars = \Request\Helper\Calendar::getOneCalendar( $post->startYear, $post->startMonth, $highlightDates, $post->requestId );
+            $threeCalendars = \Request\Helper\Calendar::getOneCalendar( $startYear, $startMonth, $highlightDates, $post->requestId );
             $navigation = [ 'calendarNavigationFastRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
                             'calendarNavigationRewind' => [ 'month' => $calendarDates['oneMonthBack']->format( "m" ), 'year' => $calendarDates['oneMonthBack']->format( "Y" ) ],
                             'calendarNavigationForward' => [ 'month' => $calendarDates['oneMonthOut']->format( "m" ), 'year' => $calendarDates['oneMonthOut']->format( "Y" ) ],
@@ -125,7 +134,7 @@ class CalendarApi extends ApiController {
                           ];
         }
         if( $post->calendarsToLoad==3) {
-            $threeCalendars = \Request\Helper\Calendar::getThreeCalendars( $post->startYear, $post->startMonth, $highlightDates );
+            $threeCalendars = \Request\Helper\Calendar::getThreeCalendars( $startYear, $startMonth, $highlightDates );
             $navigation = [ 'calendarNavigationFastRewind' => [ 'month' => $calendarDates['sixMonthsBack']->format( "m" ), 'year' => $calendarDates['sixMonthsBack']->format( "Y" ) ],
                             'calendarNavigationRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
                             'calendarNavigationForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
