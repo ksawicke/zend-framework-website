@@ -62,8 +62,36 @@ class Calendar
     
     public static $closeHeader = '</strong><br /><br />';
     
+    public static $preHighlightedDates = [];
+    
     public static function getOneCalendar($startYear = null, $startMonth = null, $calendarData = [], $requestId = null)
     {        
+//        echo '<pre>!!!!calendarData';
+//        var_dump( $calendarData );
+//        echo '</pre>';
+//        
+//        echo '<pre>preHighlightedDates';
+//        var_dump( self::$preHighlightedDates );
+//        echo '</pre>';
+        
+        if( !empty( self::$preHighlightedDates ) ) {
+            foreach( self::$preHighlightedDates as $key => $highlightMe ) {
+                $calendarData[] = [
+                    'REQUEST_DATE' => '2016-10-11',
+                    'REQUESTED_HOURS' => '8.00',
+                    'CALENDAR_DAY_CLASS' => 'timeOffSick',
+                    'REQUEST_STATUS' => 'P'
+                ];
+            }
+        }
+        
+        usort( $calendarData, function( $item1, $item2 ) {
+            if ($item1['REQUEST_DATE'] == $item2['REQUEST_DATE']) return 0;
+            return $item1['REQUEST_DATE'] < $item2['REQUEST_DATE'] ? -1 : 1;
+        });
+        
+//        die( '~.~.~.~.~' );
+        
         $dates = self::getDatesForOneCalendar($startYear, $startMonth);
 //        echo '<pre>';
 //        var_dump( $calendarData );
@@ -420,6 +448,7 @@ class Calendar
         $selectedClass = ( ($requestId===0) ? "" : "Selected" );
         $pendingClass = ( ($requestId===0) ? " requestPending" : "" );
         $calendarClassesByDate = [];
+        
         foreach( $calendarData as $ctr => $data ) {
             $calendarClassesByDate[$data['REQUEST_DATE']] = $data['CALENDAR_DAY_CLASS'] . $selectedClass . $pendingClass;
         }
@@ -645,5 +674,17 @@ class Calendar
     {
         self::$invalidRequestDates = $invalidRequestDates;
 //         var_dump($invalidRequestDates);
+    }
+    
+    public static function setPreHighlightedDates($preHighlightedDates)
+    {
+        $return = [];
+        foreach( $preHighlightedDates as $ctr => $highlightMe ) {
+            if( !array_key_exists( 'entryId', $highlightMe ) ) {
+                $return[] = $highlightMe;
+            }
+        }
+        
+        self::$preHighlightedDates = $return;
     }
 }

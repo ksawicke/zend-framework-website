@@ -82,6 +82,10 @@ class CalendarApi extends ApiController {
         $startYear = null;
         $startMonth = null;
         
+        if( !empty( $post->appendDatesAsHighlighted ) ) {
+            \Request\Helper\Calendar::setPreHighlightedDates($post->appendDatesAsHighlighted);
+        }
+        
         if( $post->calendarsToLoad==1 && $post->startYear==date("Y") && $post->startMonth==date("n") ) {
             $startDateData = $Employee->getStartDateDataFromRequest( $post->requestId );
             $startYear = $startDateData['START_YEAR'];
