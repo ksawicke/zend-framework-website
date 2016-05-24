@@ -710,7 +710,7 @@ var timeOffCreateRequestHandler = new function() {
 //                console.log( "selectedDatesNew &&", selectedDatesNew );
 //                console.log( "calendarData &&", json.calendarData );
                 
-                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
+//                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
             }
             return;
         }).error(function() {
