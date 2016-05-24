@@ -73,13 +73,16 @@ class Calendar
 //        echo '<pre>preHighlightedDates';
 //        var_dump( self::$preHighlightedDates );
 //        echo '</pre>';
+//        
+//        die( '$%$%$%' );
         
         if( !empty( self::$preHighlightedDates ) ) {
             foreach( self::$preHighlightedDates as $key => $highlightMe ) {
+                $requestDate = date( "Y-m-d", strtotime( $highlightMe['date'] ) );
                 $calendarData[] = [
-                    'REQUEST_DATE' => '2016-10-11',
-                    'REQUESTED_HOURS' => '8.00',
-                    'CALENDAR_DAY_CLASS' => 'timeOffSick',
+                    'REQUEST_DATE' => $requestDate,
+                    'REQUESTED_HOURS' => $highlightMe['hours'],
+                    'CALENDAR_DAY_CLASS' => $highlightMe['category'],
                     'REQUEST_STATUS' => 'P'
                 ];
             }
