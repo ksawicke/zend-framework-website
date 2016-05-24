@@ -516,13 +516,12 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     /**
-     * This will add dates loaded as selected so manager can edit the request.
+     * This will add dates as selected so manager can edit the request.
      * 
      * @param {type} highlightDates
      * @returns {undefined}
      */
     this.addLoadedDatesAsSelected = function( highlightDates ) {
-        selectedDatesNew = [];
         for (key in highlightDates) {
             var obj = {
                 date : highlightDates[key].REQUEST_DATE,
@@ -689,15 +688,16 @@ var timeOffCreateRequestHandler = new function() {
                 startYear : startYear,
                 employeeNumber : requestForEmployeeNumber,
                 calendarsToLoad : calendarsToLoad,
-                requestId: request_id
+                requestId: request_id,
+                appendDatesAsHighlighted: selectedDatesNew
             },
             dataType : 'json'
         }).success(function(json) {
             requestForEmployeeObject = json.employeeData;
-            if( calendarsToLoad===1 ) {
+            if( calendarsToLoad==1 ) {
                 timeOffCreateRequestHandler.drawOneCalendar(json.calendarData);
             }
-            if( calendarsToLoad===3 ) {
+            if( calendarsToLoad==3 ) {
                 timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
             }
             
@@ -706,10 +706,11 @@ var timeOffCreateRequestHandler = new function() {
             /**
              * Allow manager to edit request
              */
-            if( calendarsToLoad===1 ) {
-                $("#datesSelectedDetails").html("");
+            if( calendarsToLoad==1 ) {
+//                console.log( "selectedDatesNew &&", selectedDatesNew );
+//                console.log( "calendarData &&", json.calendarData );
+                
                 timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
-                timeOffCreateRequestHandler.drawHoursRequested();
             }
             return;
         }).error(function() {
@@ -1092,6 +1093,7 @@ var timeOffCreateRequestHandler = new function() {
      * Adds date to current request
      */
     this.addDateToRequest = function(obj) {
+        console.log( "addDateToRequest", obj );
         selectedDatesNew.push(obj);
     }
 
