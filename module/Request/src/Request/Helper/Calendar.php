@@ -66,16 +66,6 @@ class Calendar
     
     public static function getOneCalendar($startYear = null, $startMonth = null, $calendarData = [], $requestId = null)
     {        
-//        echo '<pre>!!!!calendarData';
-//        var_dump( $calendarData );
-//        echo '</pre>';
-//        
-//        echo '<pre>preHighlightedDates';
-//        var_dump( self::$preHighlightedDates );
-//        echo '</pre>';
-//        
-//        die( '$%$%$%' );
-        
         if( !empty( self::$preHighlightedDates ) ) {
             foreach( self::$preHighlightedDates as $key => $highlightMe ) {
                 $requestDate = date( "Y-m-d", strtotime( $highlightMe['date'] ) );
@@ -93,13 +83,8 @@ class Calendar
             return $item1['REQUEST_DATE'] < $item2['REQUEST_DATE'] ? -1 : 1;
         });
         
-//        die( '~.~.~.~.~' );
-        
         $dates = self::getDatesForOneCalendar($startYear, $startMonth);
-//        echo '<pre>';
-//        var_dump( $calendarData );
-//        echo '</pre>';
-//        exit();
+
         return ['calendars' => [ 1 => ['header' => $dates['currentMonth']->format('M') . ' ' . $dates['currentMonth']->format('Y'),
                                        'data' => self::drawCalendar($startMonth, $startYear, $calendarData, $requestId)]
                                ],
