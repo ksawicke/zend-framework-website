@@ -326,6 +326,10 @@ var timeOffCreateRequestHandler = new function() {
             } else {
                 timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeoffCategory, selectedCalendarDateObject );
             }
+            if( $('#formStatus').val()=="clean" ) {
+                $('#formStatus').val('dirty'); // This method allows us to see if form was edited.
+            }
+            console.log( "FORM STATUS" + $("#formStatus").val() );
         });
     }
     
