@@ -193,6 +193,98 @@ class TimeOffRequests extends BaseDB {
     }
     
     /**
+     * Copies the Request Entries based on Request ID to archive table.
+     * 
+     * @param type $requestId
+     */
+    public function copyRequestEntriesToArchive( $requestId = null )
+    {
+        $requestEntries = $this->findRequestEntries( $requestId );
+        
+        foreach( $requestEntries as $ctr => $request ) {
+            $action = new Insert( 'timeoff_request_entries_archive' );
+            $action->values( [
+                'ENTRY_ID' => $request['ENTRY_ID'],
+                'REQUEST_ID' => $request['REQUEST_ID'],
+                'REQUEST_DATE' => $request['REQUEST_DATE'],
+                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                'REQUEST_CODE' => $request['REQUEST_CODE']
+            ] );
+            $sql = new Sql( $this->adapter );
+            $stmt = $sql->prepareStatementForSqlObject( $action );
+            try {
+                $result = $stmt->execute();
+                $requestEntryId = $result->getGeneratedValue();
+
+                return $requestEntryId;
+            } catch ( Exception $e ) {
+                throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
+            }
+        }
+    }
+    
+    /**
+     * Updates a Request Entry.
+     * 
+     * @param type $entryId
+     */
+    public function updateRequestEntry( $data = [] )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET
+                   REQUEST_DATE = '" . $data['REQUEST_DATE'] . "',
+                   REQUESTED_HOURS = '" . $data['REQUESTED_HOURS'] . "',
+                   REQUEST_CODE = '" . $this->typesToCodes[$data['REQUEST_CATEGORY']] . "'
+                   WHERE ENTRY_ID = '" . $data['ENTRY_ID'] . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+    
+    /**
+     * Marks a Request Entry as Deleted.
+     * 
+     * @param type $entryId
+     */
+    public function markRequestEntryAsDeleted( $entryId = null )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE ENTRY_ID = '" . $entryId . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+    
+    /**
+     * Adds a Request Entry.
+     * 
+     * @param type $data
+     */
+    public function addRequestEntry( $data = [] )
+    {
+        $action = new Insert( 'timeoff_request_entries' );
+        $action->values( [
+            'REQUEST_ID' => $data['REQUEST_ID'],
+            'REQUEST_DATE' => $data['REQUEST_DATE'],
+            'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+            'REQUEST_CODE' => $this->typesToCodes[$data['REQUEST_CATEGORY']],
+            'REQUEST_DAY_OF_WEEK' => $data['REQUEST_DAY_OF_WEEK']
+        ] );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+            $requestEntryId = $result->getGeneratedValue();
+            
+            return $requestEntryId;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
+        }
+    }
+    
+    /**
      * Draws a nicely formatted table of the requested days to display on the review request screen.
      * 
      * @param array $entries    Array of requested days.
@@ -341,7 +433,7 @@ class TimeOffRequests extends BaseDB {
     public function findRequestEntries( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
-                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
+                ->columns( [ 'ENTRY_ID' => 'ENTRY_ID', 'REQUEST_ID' => 'REQUEST_ID', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
                              'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
                            ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )

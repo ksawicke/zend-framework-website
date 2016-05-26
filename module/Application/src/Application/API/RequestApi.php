@@ -446,15 +446,178 @@ class RequestApi extends ApiController {
         
         echo "<br /><br /><br />";
         
+        /**
+         *
+         * <pre>Manager Approved this request...
+         * array(3) {
+                [0]=>
+                array(7) {
+                  ["date"]=>
+                  string(10) "01/03/2017"
+                  ["hours"]=>
+                  string(4) "8.00"
+                  ["category"]=>
+                  string(10) "timeOffPTO"
+                  ["requestId"]=>
+                  string(6) "100944"
+                  ["entryId"]=>
+                  string(4) "4505"
+                  ["fieldDirty"]=>
+                  string(4) "true"
+                  ["delete"]=>
+                  string(4) "true"
+                }
+                [1]=>
+                array(4) {
+                  ["category"]=>
+                  string(23) "timeOffUnexcusedAbsence"
+                  ["date"]=>
+                  string(10) "01/04/2017"
+                  ["dow"]=>
+                  string(3) "WED"
+                  ["hours"]=>
+                  string(4) "8.00"
+                }
+                [2]=>
+                array(4) {
+                  ["category"]=>
+                  string(18) "timeOffBereavement"
+                  ["date"]=>
+                  string(10) "01/05/2017"
+                  ["dow"]=>
+                  string(3) "THU"
+                  ["hours"]=>
+                  string(4) "8.00"
+                }
+              }
+              </pre><pre>requestedDatesOldarray(1) {
+                [0]=>
+                array(5) {
+                  ["REQUEST_DATE"]=>
+                  string(10) "2017-01-03"
+                  ["REQUEST_DAY_OF_WEEK"]=>
+                  string(3) "TUE"
+                  ["REQUESTED_HOURS"]=>
+                  string(4) "8.00"
+                  ["REQUEST_CODE"]=>
+                  string(1) "P"
+                  ["DESCRIPTION"]=>
+                  string(3) "PTO"
+                }
+              }
+              </pre><pre>postobject(Zend\Stdlib\Parameters)#122 (1) {
+                ["storage":"ArrayObject":private]=>
+                array(4) {
+                  ["request_id"]=>
+                  string(6) "100944"
+                  ["review_request_reason"]=>
+                  string(0) ""
+                  ["formDirty"]=>
+                  string(4) "true"
+                  ["selectedDatesNew"]=>
+                  array(3) {
+                    [0]=>
+                    array(7) {
+                      ["date"]=>
+                      string(10) "01/03/2017"
+                      ["hours"]=>
+                      string(4) "8.00"
+                      ["category"]=>
+                      string(10) "timeOffPTO"
+                      ["requestId"]=>
+                      string(6) "100944"
+                      ["entryId"]=>
+                      string(4) "4505"
+                      ["fieldDirty"]=>
+                      string(4) "true"
+                      ["delete"]=>
+                      string(4) "true"
+                    }
+                    [1]=>
+                    array(4) {
+                      ["category"]=>
+                      string(23) "timeOffUnexcusedAbsence"
+                      ["date"]=>
+                      string(10) "01/04/2017"
+                      ["dow"]=>
+                      string(3) "WED"
+                      ["hours"]=>
+                      string(4) "8.00"
+                    }
+                    [2]=>
+                    array(4) {
+                      ["category"]=>
+                      string(18) "timeOffBereavement"
+                      ["date"]=>
+                      string(10) "01/05/2017"
+                      ["dow"]=>
+                      string(3) "THU"
+                      ["hours"]=>
+                      string(4) "8.00"
+                    }
+                  }
+                }
+              }
+         */
+        
+        /**
+         * [0]=>
+                array(7) {
+                  ["date"]=>
+                  string(10) "01/03/2017"
+                  ["hours"]=>
+                  string(4) "8.00"
+                  ["category"]=>
+                  string(10) "timeOffPTO"
+                  ["requestId"]=>
+                  string(6) "100944"
+                  ["entryId"]=>
+                  string(4) "4505"
+                  ["fieldDirty"]=>
+                  string(4) "true"
+                  ["delete"]=>
+                  string(4) "true"
+                }
+         * 
+         * 
+         * [0]=>
+                array(5) {
+                  ["REQUEST_DATE"]=>
+                  string(10) "2017-01-03"
+                  ["REQUEST_DAY_OF_WEEK"]=>
+                  string(3) "TUE"
+                  ["REQUESTED_HOURS"]=>
+                  string(4) "8.00"
+                  ["REQUEST_CODE"]=>
+                  string(1) "P"
+                  ["DESCRIPTION"]=>
+                  string(3) "PTO"
+                }
+         */
+        
         if( $post->formDirty=="true" ) {
+            $TimeOffRequests = new TimeOffRequests();
+            
             echo '<pre>';
             foreach( $post->selectedDatesNew as $ctr => $request ) {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
                     !array_key_exists( 'delete', $request )
                   ) {
+                    // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
                     // Update the entryId in TIMEOFF_REQUEST_ENTRIES
                     echo "Update the entryId in TIMEOFF_REQUEST_ENTRIES<br />";
+                    
+                    $data = [ 'ENTRY_ID' => $post->selectedDatesNew['entryId'],
+                              'REQUEST_ID' => $post->request_id,
+                              'REQUEST_DATE' => $post->selectedDatesNew['date'],
+                              'REQUESTED_HOURS' => $post->selectedDatesNew['hours'],
+                              'REQUEST_CATEGORY' => $post->selectedDatesNew['category'],
+                              'REQUEST_DAY_OF_WEEK' => $post->selectedDatesNew['dow']
+                            ];
+                    
+                    $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
+                    $TimeOffRequests->updateRequestEntry( $data );
                 }
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
@@ -462,12 +625,21 @@ class RequestApi extends ApiController {
                   ) {
                     // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
                     // update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
-                    echo "copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
+                    echo "copy entries in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
                     echo "update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1<br />";
+                    
+                    $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
+                    $TimeOffRequests->markRequestEntryAsDeleted( $post->selectedDatesNew['entryId'] );
                 }
                 if( !array_key_exists( 'entryId', $request ) ) {
-                    // add entry to TIMEOFF_REQUEST_ENTRIES
-                    echo "add entry to TIMEOFF_REQUEST_ENTRIES<br />";
+                    $data = [ 'REQUEST_ID' => $post->request_id,
+                              'REQUEST_DATE' => $post->selectedDatesNew['date'],
+                              'REQUESTED_HOURS' => $post->selectedDatesNew['hours'],
+                              'REQUEST_CATEGORY' => $post->selectedDatesNew['category'],
+                              'REQUEST_DAY_OF_WEEK' => $post->selectedDatesNew['dow']
+                            ];
+                    
+                    $TimeOffRequests->addRequestEntry( $data );
                 }
                 
             }
