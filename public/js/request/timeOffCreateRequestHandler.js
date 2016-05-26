@@ -275,6 +275,8 @@ var timeOffCreateRequestHandler = new function() {
             var value = $(this).val();
             
             selectedDatesNew[key].hours = value;
+            selectedDatesNew[key].fieldDirty = true;
+            $("#formDirty").val('true');
         });
     }
 
@@ -326,10 +328,9 @@ var timeOffCreateRequestHandler = new function() {
             } else {
                 timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeoffCategory, selectedCalendarDateObject );
             }
-            if( $('#formStatus').val()=="clean" ) {
-                $('#formStatus').val('dirty'); // This method allows us to see if form was edited.
+            if( $('#formDirty').val()=="false" ) {
+                $('#formDirty').val('true'); // This method allows us to see if form was edited.
             }
-            console.log( "FORM STATUS" + $("#formStatus").val() );
         });
     }
     
@@ -508,7 +509,7 @@ var timeOffCreateRequestHandler = new function() {
              */
             if( calendarsToLoad===1 ) {
                 $("#datesSelectedDetails").html("");
-                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
+                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates, request_id );
                 timeOffCreateRequestHandler.drawHoursRequested( 'update-', json.calendarData.highlightDates );
                 console.log( "selectedDatesNew updated", selectedDatesNew );
             }
@@ -525,13 +526,15 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} highlightDates
      * @returns {undefined}
      */
-    this.addLoadedDatesAsSelected = function( highlightDates ) {
+    this.addLoadedDatesAsSelected = function( highlightDates, request_id ) {
         for (key in highlightDates) {
             var obj = {
                 date : highlightDates[key].REQUEST_DATE,
                 hours : highlightDates[key].REQUESTED_HOURS,
                 category : highlightDates[key].CALENDAR_DAY_CLASS,
-                entryId : highlightDates[key].ENTRY_ID
+                requestId: request_id,
+                entryId : highlightDates[key].ENTRY_ID,
+                fieldDirty: false
             };
             selectedDatesNew.push(obj);
         }
@@ -1105,7 +1108,18 @@ var timeOffCreateRequestHandler = new function() {
      * Removes a date from current request
      */
     this.removeDateFromRequest = function(deleteIndex) {
-        selectedDatesNew.splice(deleteIndex, 1);
+        console.log( "CHECK BEFORE MARKING AS DELETED", selectedDatesNew );
+        console.log( " >> " + deleteIndex );
+        console.log( "...." );
+        
+        selectedDatesNew[deleteIndex].fieldDirty = true;
+        selectedDatesNew[deleteIndex].delete = true;
+        $('#formDirty').val('true');
+        
+        console.log( "CHECK AFTER MARKING AS DELETED", selectedDatesNew );
+        console.log( "formDirty", $('#formDirty').val() );
+        
+//        selectedDatesNew.splice(deleteIndex, 1);
     }
 
     /**

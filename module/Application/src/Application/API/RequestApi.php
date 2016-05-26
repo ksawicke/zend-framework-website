@@ -418,6 +418,71 @@ class RequestApi extends ApiController {
         $Email->send();
     }
     
+    public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
+    {
+        echo '<pre>Manager Approved this request...';
+        var_dump( $post->selectedDatesNew );
+        echo '</pre>';
+        
+        // If formDirty=="true" {
+        //   1. Look at each day in request: $post->selectedDatesNew
+        //   2. If contains 'entryId' && 'fieldDirty' == 'true' && 'delete' != 'true', update the entryId in table
+        //   3. If contains 'entryId' && 'fieldDirty' == 'true' && 'delete' == 'true',
+        //        copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
+        //        update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
+        //   4. If !contains 'entryId', add entry to TIMEOFF_REQUEST_ENTRIES
+        //   5. Save json object of before / after
+        //   6. Create a summary of changes to be used in email
+        // }
+        //
+        
+        echo '<pre>requestedDatesOld';
+        var_dump( $requestedDatesOld );
+        echo '</pre>';
+        
+        echo '<pre>post';
+        var_dump( $post );
+        echo '</pre>';
+        
+        echo "<br /><br /><br />";
+        
+        if( $post->formDirty=="true" ) {
+            echo '<pre>';
+            foreach( $post->selectedDatesNew as $ctr => $request ) {
+                if( array_key_exists( 'entryId', $request ) &&
+                    $request['fieldDirty']=="true" &&
+                    !array_key_exists( 'delete', $request )
+                  ) {
+                    // Update the entryId in TIMEOFF_REQUEST_ENTRIES
+                    echo "Update the entryId in TIMEOFF_REQUEST_ENTRIES<br />";
+                }
+                if( array_key_exists( 'entryId', $request ) &&
+                    $request['fieldDirty']=="true" &&
+                    array_key_exists( 'delete', $request )
+                  ) {
+                    // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
+                    // update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
+                    echo "copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
+                    echo "update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1<br />";
+                }
+                if( !array_key_exists( 'entryId', $request ) ) {
+                    // add entry to TIMEOFF_REQUEST_ENTRIES
+                    echo "add entry to TIMEOFF_REQUEST_ENTRIES<br />";
+                }
+                
+            }
+            
+            // Save json object of before / after
+            // Create a summary of changes to be used in email
+            echo "Save json object of before / after<br />";
+            echo "Create a summary of changes to be used in email<br />";
+            
+            echo '</pre>';
+        }
+        
+        die( "*.*.*.*" );
+    }
+    
     /**
      * Handles the manager approval process.
      * 
@@ -433,17 +498,17 @@ class RequestApi extends ApiController {
             $post = (object) $data;
         }
         
-//        echo '<pre>';
-//        var_dump( $post );
-//        echo '</pre>';
-//        die();
-        
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
         $validationHelper = new ValidationHelper();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         $employeeData = (array) $requestData['EMPLOYEE_DATA'];
+        
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        
+        die( "____++++____" );
         
 //        echo '<pre>requestData';
 //        var_dump( $requestData );
@@ -574,6 +639,12 @@ class RequestApi extends ApiController {
     public function submitManagerDeniedAction()
     {
         $post = $this->getRequest()->getPost();
+        
+        echo '<pre>Manager Denied this request...';
+        var_dump( $post );
+        echo '</pre>';
+        die();
+        
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();

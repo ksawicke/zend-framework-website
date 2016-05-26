@@ -25,10 +25,14 @@ var timeOffApproveRequestHandler = new function ()
     this.handleApiButtonClick = function() {
         $('body').on('click', '.apiRequest', function () {
             var apiaction = $(this).attr("data-apiaction");
+            var formDirty = $("#formDirty").val();
             var data = {
                 request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
+                review_request_reason: $("#reviewRequestReason").val(),
+                formDirty: formDirty,
+                selectedDatesNew: selectedDatesNew
             };
+            
             switch( apiaction ) {
                 case 'managerActionApproveRequest':
                     timeOffApproveRequestHandler.managerActionApproveRequest( data );
