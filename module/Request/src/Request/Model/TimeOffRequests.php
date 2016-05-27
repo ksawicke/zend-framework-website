@@ -305,6 +305,26 @@ class TimeOffRequests extends BaseDB {
         }
     }
     
+    public function addRequestUpdate( $create_user = null, $request_id = null, $update_detail = [] )
+    {
+        $action = new Insert( 'timeoff_request_updates' );
+        $action->values( [
+            'REQUEST_ID' => $request_id,
+            'CREATE_USER' => $create_user,
+            'UPDATE_DETAIL' => db2_escape_string( json_encode( $update_detail ) )
+        ] );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+            $requestEntryId = $result->getGeneratedValue();
+            
+            return $requestEntryId;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to add request update entry: " . $e->getMessage() );
+        }
+    }
+    
     /**
      * Draws a nicely formatted table of the requested days to display on the review request screen.
      * 

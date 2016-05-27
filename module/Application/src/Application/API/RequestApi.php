@@ -652,13 +652,15 @@ class RequestApi extends ApiController {
             // $newRequest['ENTRIES']
             // $requestedDatesOld
             
-            $array = [
+            $update_detail = [
                 'old' => $requestedDatesOld,
                 'new' => $newRequest['ENTRIES']
             ];
             
+            $TimeOffRequests->addRequestUpdate( $post->loggedInUserEmployeeNumber, $post->request_id, $update_detail );
+            
             echo '<pre>';
-            echo json_encode( $array );
+            echo json_encode( $update_detail );
             echo '</pre>';
             
 //            echo "Save json object of before / after<br />";

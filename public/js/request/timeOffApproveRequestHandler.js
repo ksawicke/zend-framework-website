@@ -30,7 +30,8 @@ var timeOffApproveRequestHandler = new function ()
                 request_id: $("#requestId").val(),
                 review_request_reason: $("#reviewRequestReason").val(),
                 formDirty: formDirty,
-                selectedDatesNew: selectedDatesNew
+                selectedDatesNew: selectedDatesNew,
+                loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
             
             switch( apiaction ) {
