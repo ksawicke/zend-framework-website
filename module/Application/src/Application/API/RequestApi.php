@@ -598,7 +598,7 @@ class RequestApi extends ApiController {
         if( $post->formDirty=="true" ) {
             $TimeOffRequests = new TimeOffRequests();
             
-            echo '<pre>';
+//            echo '<pre>';
             foreach( $post->selectedDatesNew as $ctr => $request ) {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
@@ -606,14 +606,14 @@ class RequestApi extends ApiController {
                   ) {
                     // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
                     // Update the entryId in TIMEOFF_REQUEST_ENTRIES
-                    echo "Update the entryId in TIMEOFF_REQUEST_ENTRIES<br />";
+//                    echo "Update the entryId in TIMEOFF_REQUEST_ENTRIES<br />";
                     
-                    $data = [ 'ENTRY_ID' => $post->selectedDatesNew['entryId'],
+                    $data = [ 'ENTRY_ID' => $request['entryId'],
                               'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $post->selectedDatesNew['date'],
-                              'REQUESTED_HOURS' => $post->selectedDatesNew['hours'],
-                              'REQUEST_CATEGORY' => $post->selectedDatesNew['category'],
-                              'REQUEST_DAY_OF_WEEK' => $post->selectedDatesNew['dow']
+                              'REQUEST_DATE' => $request['date'],
+                              'REQUESTED_HOURS' => $request['hours'],
+                              'REQUEST_CATEGORY' => $request['category'],
+                              'REQUEST_DAY_OF_WEEK' => $request['dow']
                             ];
                     
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
@@ -625,18 +625,18 @@ class RequestApi extends ApiController {
                   ) {
                     // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
                     // update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
-                    echo "copy entries in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
-                    echo "update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1<br />";
+//                    echo "copy entries in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
+//                    echo "update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1<br />";
                     
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
-                    $TimeOffRequests->markRequestEntryAsDeleted( $post->selectedDatesNew['entryId'] );
+                    $TimeOffRequests->markRequestEntryAsDeleted( $request['entryId'] );
                 }
                 if( !array_key_exists( 'entryId', $request ) ) {
                     $data = [ 'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $post->selectedDatesNew['date'],
-                              'REQUESTED_HOURS' => $post->selectedDatesNew['hours'],
-                              'REQUEST_CATEGORY' => $post->selectedDatesNew['category'],
-                              'REQUEST_DAY_OF_WEEK' => $post->selectedDatesNew['dow']
+                              'REQUEST_DATE' => $request['date'],
+                              'REQUESTED_HOURS' => $request['hours'],
+                              'REQUEST_CATEGORY' => $request['category'],
+                              'REQUEST_DAY_OF_WEEK' => $request['dow']
                             ];
                     
                     $TimeOffRequests->addRequestEntry( $data );
@@ -646,10 +646,25 @@ class RequestApi extends ApiController {
             
             // Save json object of before / after
             // Create a summary of changes to be used in email
-            echo "Save json object of before / after<br />";
-            echo "Create a summary of changes to be used in email<br />";
             
+            $TimeOffRequests = new TimeOffRequests();
+            $newRequest = $TimeOffRequests->findRequest( $post->request_id );
+            // $newRequest['ENTRIES']
+            // $requestedDatesOld
+            
+            $array = [
+                'old' => $requestedDatesOld,
+                'new' => $newRequest['ENTRIES']
+            ];
+            
+            echo '<pre>';
+            echo json_encode( $array );
             echo '</pre>';
+            
+//            echo "Save json object of before / after<br />";
+//            echo "Create a summary of changes to be used in email<br />";
+//            
+//            echo '</pre>';
         }
         
         die( "*.*.*.*" );

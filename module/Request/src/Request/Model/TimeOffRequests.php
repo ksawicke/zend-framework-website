@@ -193,6 +193,20 @@ class TimeOffRequests extends BaseDB {
     }
     
     /**
+     * Generates json encoded value of request data.
+     * 
+     * @param type $request
+     * @return type
+     */
+    public function getRequestData( $request )
+    {
+        return json_encode( [ 'REQUEST_DATE' => $request['REQUEST_DATE'],
+                              'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                              'REQUEST_CODE' => $request['REQUEST_CODE']
+                            ] );
+    }
+    
+    /**
      * Copies the Request Entries based on Request ID to archive table.
      * 
      * @param type $requestId
@@ -201,15 +215,22 @@ class TimeOffRequests extends BaseDB {
     {
         $requestEntries = $this->findRequestEntries( $requestId );
         
+        /**
+         * ENTRY_ARCHIVE_ID    1000
+         * REQUEST_ID          20498
+         * ENTRY_ID            10
+         * REQUEST_DATA        { [ 'REQUEST_DATE': '2016-01-01', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
+                                 [ 'REQUEST_DATE': '2016-01-02', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
+         *                     }
+         * 
+         */
+        
         foreach( $requestEntries as $ctr => $request ) {
             $action = new Insert( 'timeoff_request_entries_archive' );
-            $action->values( [
-                'ENTRY_ID' => $request['ENTRY_ID'],
-                'REQUEST_ID' => $request['REQUEST_ID'],
-                'REQUEST_DATE' => $request['REQUEST_DATE'],
-                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
-                'REQUEST_CODE' => $request['REQUEST_CODE']
-            ] );
+            $action->values( [ 'REQUEST_ID' => $request['REQUEST_ID'],
+                               'ENTRY_ID' => $request['ENTRY_ID'],
+                               'REQUEST_DATA' => $this->getRequestData( $request )
+                             ] );
             $sql = new Sql( $this->adapter );
             $stmt = $sql->prepareStatementForSqlObject( $action );
             try {
