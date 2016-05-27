@@ -229,7 +229,7 @@ class TimeOffRequests extends BaseDB {
             $action = new Insert( 'timeoff_request_entries_archive' );
             $action->values( [ 'REQUEST_ID' => $request['REQUEST_ID'],
                                'ENTRY_ID' => $request['ENTRY_ID'],
-                               'REQUEST_DATA' => $this->getRequestData( $request )
+                               'REQUEST_DATA' => db2_escape_string( $this->getRequestData( $request ) )
                              ] );
             $sql = new Sql( $this->adapter );
             $stmt = $sql->prepareStatementForSqlObject( $action );
