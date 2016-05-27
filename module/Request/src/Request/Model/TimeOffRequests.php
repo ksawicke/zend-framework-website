@@ -305,6 +305,15 @@ class TimeOffRequests extends BaseDB {
         }
     }
     
+    /**
+     * Save a json object of old/new request info.
+     * 
+     * @param type $create_user
+     * @param type $request_id
+     * @param type $update_detail
+     * @return type
+     * @throws \Exception
+     */
     public function addRequestUpdate( $create_user = null, $request_id = null, $update_detail = [] )
     {
         $action = new Insert( 'timeoff_request_updates' );

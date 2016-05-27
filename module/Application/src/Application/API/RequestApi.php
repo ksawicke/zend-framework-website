@@ -420,194 +420,14 @@ class RequestApi extends ApiController {
     
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
-        echo '<pre>Manager Approved this request...';
-        var_dump( $post->selectedDatesNew );
-        echo '</pre>';
-        
-        // If formDirty=="true" {
-        //   1. Look at each day in request: $post->selectedDatesNew
-        //   2. If contains 'entryId' && 'fieldDirty' == 'true' && 'delete' != 'true', update the entryId in table
-        //   3. If contains 'entryId' && 'fieldDirty' == 'true' && 'delete' == 'true',
-        //        copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
-        //        update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
-        //   4. If !contains 'entryId', add entry to TIMEOFF_REQUEST_ENTRIES
-        //   5. Save json object of before / after
-        //   6. Create a summary of changes to be used in email
-        // }
-        //
-        
-        echo '<pre>requestedDatesOld';
-        var_dump( $requestedDatesOld );
-        echo '</pre>';
-        
-        echo '<pre>post';
-        var_dump( $post );
-        echo '</pre>';
-        
-        echo "<br /><br /><br />";
-        
-        /**
-         *
-         * <pre>Manager Approved this request...
-         * array(3) {
-                [0]=>
-                array(7) {
-                  ["date"]=>
-                  string(10) "01/03/2017"
-                  ["hours"]=>
-                  string(4) "8.00"
-                  ["category"]=>
-                  string(10) "timeOffPTO"
-                  ["requestId"]=>
-                  string(6) "100944"
-                  ["entryId"]=>
-                  string(4) "4505"
-                  ["fieldDirty"]=>
-                  string(4) "true"
-                  ["delete"]=>
-                  string(4) "true"
-                }
-                [1]=>
-                array(4) {
-                  ["category"]=>
-                  string(23) "timeOffUnexcusedAbsence"
-                  ["date"]=>
-                  string(10) "01/04/2017"
-                  ["dow"]=>
-                  string(3) "WED"
-                  ["hours"]=>
-                  string(4) "8.00"
-                }
-                [2]=>
-                array(4) {
-                  ["category"]=>
-                  string(18) "timeOffBereavement"
-                  ["date"]=>
-                  string(10) "01/05/2017"
-                  ["dow"]=>
-                  string(3) "THU"
-                  ["hours"]=>
-                  string(4) "8.00"
-                }
-              }
-              </pre><pre>requestedDatesOldarray(1) {
-                [0]=>
-                array(5) {
-                  ["REQUEST_DATE"]=>
-                  string(10) "2017-01-03"
-                  ["REQUEST_DAY_OF_WEEK"]=>
-                  string(3) "TUE"
-                  ["REQUESTED_HOURS"]=>
-                  string(4) "8.00"
-                  ["REQUEST_CODE"]=>
-                  string(1) "P"
-                  ["DESCRIPTION"]=>
-                  string(3) "PTO"
-                }
-              }
-              </pre><pre>postobject(Zend\Stdlib\Parameters)#122 (1) {
-                ["storage":"ArrayObject":private]=>
-                array(4) {
-                  ["request_id"]=>
-                  string(6) "100944"
-                  ["review_request_reason"]=>
-                  string(0) ""
-                  ["formDirty"]=>
-                  string(4) "true"
-                  ["selectedDatesNew"]=>
-                  array(3) {
-                    [0]=>
-                    array(7) {
-                      ["date"]=>
-                      string(10) "01/03/2017"
-                      ["hours"]=>
-                      string(4) "8.00"
-                      ["category"]=>
-                      string(10) "timeOffPTO"
-                      ["requestId"]=>
-                      string(6) "100944"
-                      ["entryId"]=>
-                      string(4) "4505"
-                      ["fieldDirty"]=>
-                      string(4) "true"
-                      ["delete"]=>
-                      string(4) "true"
-                    }
-                    [1]=>
-                    array(4) {
-                      ["category"]=>
-                      string(23) "timeOffUnexcusedAbsence"
-                      ["date"]=>
-                      string(10) "01/04/2017"
-                      ["dow"]=>
-                      string(3) "WED"
-                      ["hours"]=>
-                      string(4) "8.00"
-                    }
-                    [2]=>
-                    array(4) {
-                      ["category"]=>
-                      string(18) "timeOffBereavement"
-                      ["date"]=>
-                      string(10) "01/05/2017"
-                      ["dow"]=>
-                      string(3) "THU"
-                      ["hours"]=>
-                      string(4) "8.00"
-                    }
-                  }
-                }
-              }
-         */
-        
-        /**
-         * [0]=>
-                array(7) {
-                  ["date"]=>
-                  string(10) "01/03/2017"
-                  ["hours"]=>
-                  string(4) "8.00"
-                  ["category"]=>
-                  string(10) "timeOffPTO"
-                  ["requestId"]=>
-                  string(6) "100944"
-                  ["entryId"]=>
-                  string(4) "4505"
-                  ["fieldDirty"]=>
-                  string(4) "true"
-                  ["delete"]=>
-                  string(4) "true"
-                }
-         * 
-         * 
-         * [0]=>
-                array(5) {
-                  ["REQUEST_DATE"]=>
-                  string(10) "2017-01-03"
-                  ["REQUEST_DAY_OF_WEEK"]=>
-                  string(3) "TUE"
-                  ["REQUESTED_HOURS"]=>
-                  string(4) "8.00"
-                  ["REQUEST_CODE"]=>
-                  string(1) "P"
-                  ["DESCRIPTION"]=>
-                  string(3) "PTO"
-                }
-         */
-        
         if( $post->formDirty=="true" ) {
             $TimeOffRequests = new TimeOffRequests();
-            
-//            echo '<pre>';
+
             foreach( $post->selectedDatesNew as $ctr => $request ) {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
                     !array_key_exists( 'delete', $request )
-                  ) {
-                    // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
-                    // Update the entryId in TIMEOFF_REQUEST_ENTRIES
-//                    echo "Update the entryId in TIMEOFF_REQUEST_ENTRIES<br />";
-                    
+                  ) {                    
                     $data = [ 'ENTRY_ID' => $request['entryId'],
                               'REQUEST_ID' => $post->request_id,
                               'REQUEST_DATE' => $request['date'],
@@ -622,12 +442,7 @@ class RequestApi extends ApiController {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
                     array_key_exists( 'delete', $request )
-                  ) {
-                    // copy entry in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,
-                    // update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1
-//                    echo "copy entries in TIMEOFF_REQUEST_ENTRIES to TIMEOFF_REQUEST_ENTRIES_ARCHIVE,<br />";
-//                    echo "update entry in TIMEOFF_REQUEST_ENTRIES so IS_DELETED = 1<br />";
-                    
+                  ) {                    
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
                     $TimeOffRequests->markRequestEntryAsDeleted( $request['entryId'] );
                 }
@@ -644,13 +459,8 @@ class RequestApi extends ApiController {
                 
             }
             
-            // Save json object of before / after
-            // Create a summary of changes to be used in email
-            
             $TimeOffRequests = new TimeOffRequests();
             $newRequest = $TimeOffRequests->findRequest( $post->request_id );
-            // $newRequest['ENTRIES']
-            // $requestedDatesOld
             
             $update_detail = [
                 'old' => $requestedDatesOld,
@@ -658,18 +468,7 @@ class RequestApi extends ApiController {
             ];
             
             $TimeOffRequests->addRequestUpdate( $post->loggedInUserEmployeeNumber, $post->request_id, $update_detail );
-            
-            echo '<pre>';
-            echo json_encode( $update_detail );
-            echo '</pre>';
-            
-//            echo "Save json object of before / after<br />";
-//            echo "Create a summary of changes to be used in email<br />";
-//            
-//            echo '</pre>';
         }
-        
-        die( "*.*.*.*" );
     }
     
     /**
@@ -697,24 +496,13 @@ class RequestApi extends ApiController {
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         
-        die( "____++++____" );
-        
-//        echo '<pre>requestData';
-//        var_dump( $requestData );
-//        echo '</pre>';
-        
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
             $dates[]['date'] = $requestObject['REQUEST_DATE'];
         }
         
-        $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );
-        
-//        die($isFirstDateRequestedTooOld);
-        
+        $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );        
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
-
-        //  .....  && $isFirstDateRequestedTooOld === true
         
         if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld ) {
             $payrollReviewRequiredReason = '';
