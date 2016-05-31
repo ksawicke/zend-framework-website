@@ -420,14 +420,18 @@ class RequestApi extends ApiController {
     
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
+        $updatesMadeToForm = false;
+        
         if( $post->formDirty=="true" ) {
+            $updatesMadeToForm = true;
+            
             $TimeOffRequests = new TimeOffRequests();
 
             foreach( $post->selectedDatesNew as $ctr => $request ) {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
                     !array_key_exists( 'delete', $request )
-                  ) {                    
+                  ) {         
                     $data = [ 'ENTRY_ID' => $request['entryId'],
                               'REQUEST_ID' => $post->request_id,
                               'REQUEST_DATE' => $request['date'],
@@ -442,11 +446,13 @@ class RequestApi extends ApiController {
                 if( array_key_exists( 'entryId', $request ) &&
                     $request['fieldDirty']=="true" &&
                     array_key_exists( 'delete', $request )
-                  ) {                    
+                  ) {
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
                     $TimeOffRequests->markRequestEntryAsDeleted( $request['entryId'] );
                 }
-                if( !array_key_exists( 'entryId', $request ) ) {
+                if( !array_key_exists( 'entryId', $request ) &&
+                    !array_key_exists( 'requestId', $request )
+                  ) {
                     $data = [ 'REQUEST_ID' => $post->request_id,
                               'REQUEST_DATE' => $request['date'],
                               'REQUESTED_HOURS' => $request['hours'],
@@ -469,6 +475,8 @@ class RequestApi extends ApiController {
             
             $TimeOffRequests->addRequestUpdate( $post->loggedInUserEmployeeNumber, $post->request_id, $update_detail );
         }
+        
+        return $updatesMadeToForm;
     }
     
     /**
