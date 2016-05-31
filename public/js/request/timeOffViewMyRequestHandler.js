@@ -180,7 +180,7 @@ var timeOffViewRequestHandler = new function ()
 //                directReportFilter = $('input[name="directReportFilter"]:checked', '#directReportForm').val();
 //            });
 
-            timeOffViewRequestHandler.loadCalendars(phpVars.employee_number, 3, 0);
+            timeOffViewRequestHandler.loadCalendars(phpVars.employee_number, 3);
             timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();

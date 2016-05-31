@@ -8,7 +8,7 @@ var timeOffCreateRequestInitHandler = new function() {
     */
    this.initialize = function() {
        $(document).ready(function() {
-           timeOffCreateRequestHandler.loadCalendars(phpVars.employee_number, 3, 0);
+           timeOffCreateRequestHandler.loadCalendars(phpVars.employee_number, 3);
        });
    }
    
