@@ -1416,7 +1416,8 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);
             timeOffCreateRequestHandler.setTimeoffCategory(categoryButton);
         }
-        if (categoryButton.hasClass('disableTimeOffCategorySelection') && categoryButton.hasClass('categoryPTO')) {
+        if (employeeGrandfatheredRemaining > 0 && categoryButton.attr("data-category")=="timeOffPTO") {
+            timeOffCreateRequestHandler.resetTimeoffCategory(categoryButton);
             timeOffCreateRequestHandler.alertUserToTakeGrandfatheredTime();
         }
         if (selectedTimeoffCategory === null) {
