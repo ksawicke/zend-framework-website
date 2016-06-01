@@ -1033,12 +1033,15 @@ var timeOffCreateRequestHandler = new function() {
             $(this).removeClass('timeOffCivicDutySelected');
             $(this).removeClass('timeOffUnexcusedAbsenceSelected');
         });
+        // DOMO
         $.each($(".calendar-day"), function(index, blah) {
             if( $(this).attr("data-date") === moment().format('MM/DD/YYYY') ) {
                 $(this).addClass("today");
             }
             for (var i = 0; i < selectedDatesNew.length; i++) {
-                if (selectedDatesNew[i].date && selectedDatesNew[i].date === $(this).attr("data-date")) {
+                var isDeleted = (selectedDatesNew[i].hasOwnProperty('delete') && selectedDatesNew[i].delete===true);
+                if (selectedDatesNew[i].date && selectedDatesNew[i].date === $(this).attr("data-date") &&
+                    !isDeleted) {
                     thisClass = selectedDatesNew[i].category + "Selected";
                     $(this).toggleClass(thisClass);
                     break;
@@ -1115,16 +1118,19 @@ var timeOffCreateRequestHandler = new function() {
      * Removes a date from current request
      */
     this.removeDateFromRequest = function(deleteIndex) {
-        console.log( "CHECK BEFORE MARKING AS DELETED", selectedDatesNew );
-        console.log( " >> " + deleteIndex );
-        console.log( "...." );
+//        console.log( "CHECK BEFORE MARKING AS DELETED", selectedDatesNew );
+//        console.log( " >> " + deleteIndex );
+//        console.log( "...." );
         
         selectedDatesNew[deleteIndex].fieldDirty = true;
         selectedDatesNew[deleteIndex].delete = true;
         $('#formDirty').val('true');
         
-        console.log( "CHECK AFTER MARKING AS DELETED", selectedDatesNew );
-        console.log( "formDirty", $('#formDirty').val() );
+//        console.log( "CHECK AFTER MARKING AS DELETED", selectedDatesNew );
+//        console.log( "formDirty", $('#formDirty').val() );
+        
+        timeOffCreateRequestHandler.drawHoursRequested();
+        timeOffCreateRequestHandler.highlightDates();
         
 //        selectedDatesNew.splice(deleteIndex, 1);
     }
@@ -1191,7 +1197,9 @@ var timeOffCreateRequestHandler = new function() {
         
         for (var key = 0; key < selectedDatesNew.length; key++) {
             var dow = moment(selectedDatesNew[key].date, "MM/DD/YYYY").format("ddd").toUpperCase();
-                datesSelectedDetailsHtml += '<tr>' +
+            var hideMe = ( selectedDatesNew[key].hasOwnProperty('delete') && selectedDatesNew[key].delete===true ?
+                           ' style="display:none;"' : '' );
+                datesSelectedDetailsHtml += '<tr' + hideMe + '>' +
                                             '<td>' + dow + '</td>' +
                                             '<td>' + selectedDatesNew[key].date + '</td>' +
                                             '<td><input class="selectedDateHours" value="' +
