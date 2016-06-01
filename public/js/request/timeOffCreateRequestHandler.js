@@ -466,10 +466,13 @@ var timeOffCreateRequestHandler = new function() {
         })
         .success(function(json) {
             if (requestForEmployeeNumber === '') {
+                console.log( "QQQQQQ", json.loggedInUserData );
                 loggedInUserData = json.employeeData;
-                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUserData.isManager;
-                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUserData.isPayroll;
-                loggedInUserData.IS_LOGGED_IN_USER_PROXY = json.loggedInUserData.isProxy;
+                loggedInUserData.isManager = json.loggedInUserData.isManager;
+                loggedInUserData.isPayroll = json.loggedInUserData.isPayroll;
+                loggedInUserData.isPayrollAdmin = json.loggedInUserData.isPayrollAdmin;
+                loggedInUserData.isPayrollAssistant = json.loggedInUserData.isPayrollAssistant;
+                loggedInUserData.isProxy = json.loggedInUserData.isProxy;
                 loggedInUserData.PROXY_FOR = [];
                 if( json.loggedInUserData.isProxy==="Y" ) {
                     for( key in json.proxyFor ) {
