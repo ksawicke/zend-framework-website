@@ -68,7 +68,8 @@ var timeOffCreateRequestHandler = new function() {
             'timeOffCivicDuty' : 'Civic Duty',
             'timeOffApprovedNoPay' : 'Time Off Without Pay'
         },
-        directReportFilter = 'B';
+        directReportFilter = 'B',
+        doRealDelete = true;
         
     /**
     * Initializes binding
@@ -1023,6 +1024,9 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.highlightDates = function() {
+//        console.log( "CHECK>>>>>> " + doRealDelete );
+//        var blahhh = typeof timeOffCreateRequestInitHandler;
+//        console.log(blahhh);
         $.each($(".calendar-day"), function(index, blah) {
             $(this).removeClass('timeOffPTOSelected');
             $(this).removeClass('timeOffFloatSelected');
@@ -1033,13 +1037,14 @@ var timeOffCreateRequestHandler = new function() {
             $(this).removeClass('timeOffCivicDutySelected');
             $(this).removeClass('timeOffUnexcusedAbsenceSelected');
         });
-        // DOMO
         $.each($(".calendar-day"), function(index, blah) {
             if( $(this).attr("data-date") === moment().format('MM/DD/YYYY') ) {
                 $(this).addClass("today");
             }
             for (var i = 0; i < selectedDatesNew.length; i++) {
                 var isDeleted = (selectedDatesNew[i].hasOwnProperty('delete') && selectedDatesNew[i].delete===true);
+                var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
+//                console.log( "isBeingReviewed", isBeingReviewed );
                 if (selectedDatesNew[i].date && selectedDatesNew[i].date === $(this).attr("data-date") &&
                     !isDeleted) {
                     thisClass = selectedDatesNew[i].category + "Selected";

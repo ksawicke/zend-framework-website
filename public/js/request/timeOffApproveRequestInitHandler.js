@@ -19,6 +19,7 @@ var timeOffCreateRequestInitHandler = new function() {
             
            timeOffCreateRequestHandler.loadCalendars( phpVars.employee_number, 1, phpVars.request_id );
            timeOffCreateRequestHandler.handleCalendarNavigation();
+           doRealDelete = false;
        });
        
        /**

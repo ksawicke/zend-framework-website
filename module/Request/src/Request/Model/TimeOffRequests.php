@@ -448,6 +448,7 @@ class TimeOffRequests extends BaseDB {
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
+        $request['CHANGES_MADE'] = $this->findLastRequestChangeMade( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
         $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m/d/Y" );
         
@@ -513,6 +514,19 @@ class TimeOffRequests extends BaseDB {
         $logEntries = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $logEntries;
+    }
+    
+    public function findLastRequestChangeMade( $requestId = null ) {
+        $rawSql = "SELECT CREATE_USER, CREATE_TIMESTAMP, UPDATE_DETAIL
+                   FROM TIMEOFF_REQUEST_UPDATES
+                   WHERE REQUEST_ID = " . $requestId . "
+                   ORDER BY CREATE_TIMESTAMP DESC
+                   FETCH FIRST 1 ROWS ONLY";
+        
+        $change = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+        $change['UPDATE_DETAIL'] = json_decode( $change['UPDATE_DETAIL'] );
+
+        return $change;
     }
     
     /**

@@ -11,7 +11,8 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollUploadUrl = phpVars.basePath + '/api/request/payroll-upload',
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
-        redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request';
+        redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
+        doRealDelete = false;
 
     /**
      * Initializes binding
