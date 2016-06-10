@@ -788,6 +788,7 @@ class Employee extends BaseDB {
             INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
             WHERE
+              trim(request.EMPLOYEE_NUMBER)='" . $employeeNumber . "' AND 
               entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' " . $andRequestId . "
             ORDER BY REQUEST_DATE ASC";
                 

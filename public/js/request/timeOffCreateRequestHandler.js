@@ -343,8 +343,8 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.markDayAsRequestedOff = function( selectedTimeoffCategory, selectedCalendarDateObject ) {
-        console.log( "selectedTimeoffCategory", selectedTimeoffCategory );
-        console.log( "selectedCalendarDateObject", selectedCalendarDateObject );
+//        console.log( "selectedTimeoffCategory", selectedTimeoffCategory );
+//        console.log( "selectedCalendarDateObject", selectedCalendarDateObject );
         var dateObject = {
             category : selectedTimeoffCategory,
             date : selectedCalendarDateObject.data('date')
@@ -960,6 +960,10 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.addTime = function(category, hours) {
         switch (category) {
+            case 'timeOffGrandfathered':
+                employeeGrandfatheredRemaining -= hours;
+                timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+                break;
             case 'timeOffPTO':
                 employeePTORemaining -= hours;
                 timeOffCreateRequestHandler.printEmployeePTORemaining();
@@ -980,6 +984,10 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.subtractTime = function(category, hours) {
         switch (category) {
+            case 'timeOffGrandfathered':
+                employeeGrandfatheredRemaining += hours;
+                timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+                break;
             case 'timeOffPTO':
                 employeePTORemaining += hours;
                 timeOffCreateRequestHandler.printEmployeePTORemaining();
@@ -1635,7 +1643,7 @@ var timeOffCreateRequestHandler = new function() {
      * @param {object} object
      * @returns {none}     */
     this.addDataToRequest = function(calendarDateObject, object) {
-        console.log( "ADD@" );
+//        console.log( "ADD@" );
         object = timeOffCreateRequestHandler.formatDayRequested(object);
         timeOffCreateRequestHandler.addDateToRequest(object);
         timeOffCreateRequestHandler.addTime(object.category, object.hours);

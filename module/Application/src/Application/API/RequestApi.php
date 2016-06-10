@@ -281,13 +281,19 @@ class RequestApi extends ApiController {
                ];
     }
     
+    /**
+     * Get HTML blocks for changes made to a request.
+     * 
+     * @param type $requestId
+     * @return type
+     */
     protected function getEmailRequestChangesVariables( $requestId )
     {
         $TimeOffRequests = new TimeoffRequests();
         $timeoffRequestData = $TimeOffRequests->findRequest( $requestId );
         
-        return [ 'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
-                 'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData['ENTRIES'] )
+        return [ 'oldHoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->old ),
+                 'newHoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->new )
                ];
     }
     
@@ -440,13 +446,23 @@ class RequestApi extends ApiController {
             $renderer->basePath( '/request/review-request/' . $post->request_id );
         //$emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $emailVariables = $this->getEmailRequestChangesVariables( $post->request_id );
+        
+//        echo '<pre>';
+//        var_dump( $emailVariables );
+//        echo '</pre>';
+//        die( "..." );
+        
         $to = 'kevin_sawicke@swifttrans.com';
+        $cc = 'kevin_sawicke@swifttrans.com';
         $Email = new EmailFactory(
             'Time off requst has been modified',
             'The request for ' .
                 'John Doe' . ' has been modified' . 
                 '<br /><br />' . 
-                $emailVariables['changesHtml'] . '<br /><br />' .
+                '<strong>Original request:<br /><br />' .
+                $emailVariables['oldHoursRequestedHtml'] . '<br /><br />' .
+                '<strong>Modified request:<br /><br />' .
+                $emailVariables['newHoursRequestedHtml'] . '<br /><br />' .
                 'For details please visit the following URL:<br /><br />' .
                 '<a href="' . $reviewUrl . '">' . $reviewUrl . '</a>',
             $to,
@@ -541,6 +557,15 @@ class RequestApi extends ApiController {
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         
+        if( $updatesToFormMade ) {
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Time requested modified by ' . UserSession::getFullUserInfo() );
+
+            $this->emailChangesToRequestMade( $post );
+        }
+        
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
             $dates[]['date'] = $requestObject['REQUEST_DATE'];
@@ -587,21 +612,8 @@ class RequestApi extends ApiController {
                     UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                     'Time requested modified by ' . UserSession::getFullUserInfo() );
                 
-                $TimeOffRequests = new TimeoffRequests();
-                $timeoffRequestData = $TimeOffRequests->findRequest( $post->request_id );
-                
-                echo '<pre>OLD';
-                var_dump( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->old );
-                echo '</pre>';
-                
-                echo '<pre>NEW';
-                var_dump( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->new );
-                echo '</pre>';
-                               
-//                $this->emailChangesToRequestMade( $post );
+                $this->emailChangesToRequestMade( $post );
             }
-            
-            die( "STOPPING THE PROCESS HERE FOR A MOMENT." );
             
             /** Send calendar invites for this request **/
             $isSent = $this->sendCalendarInvitationsForRequest( $post );
@@ -743,6 +755,18 @@ class RequestApi extends ApiController {
         $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
         $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
         $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        
+        if( $updatesToFormMade ) {
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Time requested modified by ' . UserSession::getFullUserInfo() );
+
+            $this->emailChangesToRequestMade( $post );
+        }
         
         try {
             /** Log Payroll approval with comment **/
