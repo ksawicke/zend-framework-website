@@ -11,45 +11,55 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollUploadUrl = phpVars.basePath + '/api/request/payroll-upload',
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
-        redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request';
+        redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
+        doRealDelete = false;
 
     /**
      * Initializes binding
      */
-    this.initialize = function () {
+    this.initialize = function() {
         $(document).ready(function () {
             timeOffApproveRequestHandler.handleApiButtonClick();
         });
     }
 
-    this.handleApiButtonClick = function () {
+    this.handleApiButtonClick = function() {
         $('body').on('click', '.apiRequest', function () {
             var apiaction = $(this).attr("data-apiaction");
+            var formDirty = $("#formDirty").val();
+            var data = {
+                request_id: $("#requestId").val(),
+                review_request_reason: $("#reviewRequestReason").val(),
+                formDirty: formDirty,
+                selectedDatesNew: selectedDatesNew,
+                loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
+            };
+            
             switch( apiaction ) {
                 case 'managerActionApproveRequest':
-                    timeOffApproveRequestHandler.managerActionApproveRequest();
+                    timeOffApproveRequestHandler.managerActionApproveRequest( data );
                     break;
                     
                 case 'managerActionDenyRequest':
-                    timeOffApproveRequestHandler.managerActionDenyRequest();
+                    timeOffApproveRequestHandler.managerActionDenyRequest( data );
                     break;
                     
                 case 'payrollActionApproveRequest':
-                    timeOffApproveRequestHandler.payrollActionApproveRequest();
+                    timeOffApproveRequestHandler.payrollActionApproveRequest( data );
                     break;
                     
                 case 'payrollActionDenyRequest':
-                    timeOffApproveRequestHandler.payrollActionDenyRequest();
+                    timeOffApproveRequestHandler.payrollActionDenyRequest( data );
                     break;
                     
                     
                 case 'payrollActionUpload':
-                    timeOffApproveRequestHandler.payrollActionUpload();
+                    timeOffApproveRequestHandler.payrollActionUpload( data );
                     break;
                     
                     
                 case 'payrollActionUpdateOfficeChecks':
-                    timeOffApproveRequestHandler.payrollActionUpdateOfficeChecks();
+                    timeOffApproveRequestHandler.payrollActionUpdateOfficeChecks( data );
                     break;
             }
         });
@@ -60,28 +70,9 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.managerActionApproveRequest = function () {
-        $.ajax({
-            url: apiSubmitManagerApprovedUrl,
-            type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
-            dataType: 'json'
-        })
-        .success(function (json) {
-            if (json.success == true) {
-                window.location.href = redirectManagerApprovedCompleteUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        })
-        .error(function () {
-            console.log('There was some error.');
-            return;
-        });
+    this.managerActionApproveRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitManagerApprovedUrl, redirectManagerApprovedCompleteUrl, "Unable to Approve Request." );
     }
 
     /**
@@ -89,28 +80,9 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.managerActionDenyRequest = function () {
-        $.ajax({
-            url: apiSubmitManagerDeniedUrl,
-            type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
-            dataType: 'json'
-        })
-        .success(function (json) {
-            if (json.success == true) {
-                window.location.href = redirectManagerDeniedCompleteUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        })
-        .error(function () {
-            console.log('There was some error.');
-            return;
-        });
+    this.managerActionDenyRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
     }
     
     /**
@@ -118,28 +90,9 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.payrollActionApproveRequest = function () {
-        $.ajax({
-            url: apiSubmitPayrollApprovedUrl,
-            type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
-            dataType: 'json'
-        })
-        .success(function (json) {
-            if (json.success == true) {
-                window.location.href = redirectManagerApprovedCompleteUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        })
-        .error(function () {
-            console.log('There was some error.');
-            return;
-        });
+    this.payrollActionApproveRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitPayrollApprovedUrl, redirectManagerApprovedCompleteUrl, "Unable to Approve Request." );
     }
     
     /**
@@ -147,28 +100,9 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.payrollActionDenyRequest = function () {
-        $.ajax({
-            url: apiSubmitPayrollDeniedUrl,
-            type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
-            dataType: 'json'
-        })
-        .success(function (json) {
-            if (json.success == true) {
-                window.location.href = redirectManagerApprovedCompleteUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        })
-        .error(function () {
-            console.log('There was some error.');
-            return;
-        });
+    this.payrollActionDenyRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
     }
     
     /**
@@ -176,28 +110,9 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.payrollActionUpload = function () {
-        $.ajax({
-            url: apiSubmitPayrollUploadUrl,
-            type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
-            dataType: 'json'
-        })
-        .success(function (json) {
-            if (json.success == true) {
-                window.location.href = redirectManagerApprovedCompleteUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        })
-        .error(function () {
-            console.log('There was some error.');
-            return;
-        });
+    this.payrollActionUpload = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitPayrollUploadUrl, redirectManagerApprovedCompleteUrl, "Unable to Upload Request." );
     }
     
     /**
@@ -205,26 +120,28 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.payrollActionUpdateOfficeChecks = function () {
+    this.payrollActionUpdateOfficeChecks = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitPayrollUpdateChecksUrl, redirectManagerApprovedCompleteUrl, "Unable to mark as Update Checks." );
+    }
+    
+    this.roundTripAPICall = function( data, initialUrl, successUrl, errorMessage ) {
         $.ajax({
-            url: apiSubmitPayrollUpdateChecksUrl,
+            url: initialUrl,
             type: 'POST',
-            data: {
-                request_id: $("#requestId").val(),
-                review_request_reason: $("#reviewRequestReason").val()
-            },
+            data: data,
             dataType: 'json'
         })
         .success(function (json) {
             if (json.success == true) {
-                window.location.href = redirectManagerApprovedCompleteUrl;
+                window.location.href = successUrl;
             } else {
                 alert(json.message);
             }
             return;
         })
         .error(function () {
-            console.log('There was some error.');
+            console.log( errorMessage );
             return;
         });
     }

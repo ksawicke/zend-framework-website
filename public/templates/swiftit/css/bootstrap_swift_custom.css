@@ -803,7 +803,7 @@ td.calendar-day-disabled {
 	cursor: default !important;
 }
 td.calendar-day-holiday {
-	background-color: #404040 !important;
+	border: 3px solid fuchsia !important;
 	cursor: default !important;
 }
 

@@ -194,7 +194,11 @@
                                 <strong>Time Off Requested</strong>
                             </div>
                             <div class="col-lg-9 col-md-9">
-                                <?php echo $hoursRequestedHtml; ?>
+                                <?php echo $this->partial( 'request/partials/categoryButtonsWidget.phtml' ); ?>
+                                
+                                <?php echo $this->partial( 'request/partials/oneCalendarWidget.phtml' ); ?>
+                                
+                                <?php echo $this->partial( 'request/partials/managerEditRequestFormWidget.phtml' ); ?>
                             </div>
                         </div>
                         
@@ -307,4 +311,17 @@
     </div>
 </div>
 
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>
+
+<?php
+// $timeoffRequestData['EMPLOYEE_DATA']
+$phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER,
+             'basePath' => ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ?
+                             'http://swift:10080' . $this->basepath() :
+                             'http://aswift:10080' . $this->basepath() ),
+             'request_id' => $timeoffRequestData['REQUEST_ID']
+            ];
+$this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
+?>

@@ -62,40 +62,42 @@ class Calendar
     
     public static $closeHeader = '</strong><br /><br />';
     
-    public static function getThreeCalendars($startYear = null, $startMonth = null, $calendarData = [])
-    {
-//        var_dump($calendarData);
-//        die();
-        /**
-         * array(16) {
-  [0]=>
-  array(5) {
-    ["ENTRY_ID"]=>
-    string(4) "3457"
-    ["REQUEST_DATE"]=>
-    string(10) "2016-04-04"
-    ["REQUESTED_HOURS"]=>
-    string(4) "8.00"
-    ["CALENDAR_DAY_CLASS"]=>
-    string(10) "timeOffPTO"
-    ["REQUEST_STATUS"]=>
-    string(1) "P"
-  }
-  [1]=>
-  array(5) {
-    ["ENTRY_ID"]=>
-    string(4) "3458"
-    ["REQUEST_DATE"]=>
-    string(10) "2016-04-05"
-    ["REQUESTED_HOURS"]=>
-    string(4) "8.00"
-    ["CALENDAR_DAY_CLASS"]=>
-    string(11) "timeOffSick"
-    ["REQUEST_STATUS"]=>
-    string(1) "P"
-  }
-         */
+    public static $preHighlightedDates = [];
+    
+    public static function getOneCalendar($startYear = null, $startMonth = null, $calendarData = [], $requestId = null)
+    {        
+        if( !empty( self::$preHighlightedDates ) ) {
+            foreach( self::$preHighlightedDates as $key => $highlightMe ) {
+                $requestDate = date( "Y-m-d", strtotime( $highlightMe['date'] ) );
+                $calendarData[] = [
+                    'REQUEST_DATE' => $requestDate,
+                    'REQUESTED_HOURS' => $highlightMe['hours'],
+                    'CALENDAR_DAY_CLASS' => $highlightMe['category'],
+                    'REQUEST_STATUS' => 'P'
+                ];
+            }
+        }
         
+        usort( $calendarData, function( $item1, $item2 ) {
+            if ($item1['REQUEST_DATE'] == $item2['REQUEST_DATE']) return 0;
+            return $item1['REQUEST_DATE'] < $item2['REQUEST_DATE'] ? -1 : 1;
+        });
+        
+        $dates = self::getDatesForOneCalendar($startYear, $startMonth);
+
+        return ['calendars' => [ 1 => ['header' => $dates['currentMonth']->format('M') . ' ' . $dates['currentMonth']->format('Y'),
+                                       'data' => self::drawCalendar($startMonth, $startYear, $calendarData, $requestId)]
+                               ],
+                'navigation' => self::getCalendarNavigationForOneCalendar($dates),
+                'openHeader' => self::$openHeader,
+                'closeHeader' => self::$closeHeader,
+                'showCurrentRequestsOnOrAfter' => $dates['currentMonth']->format('Y-m-01'),
+                'showCurrentRequestsBefore' => $dates['threeMonthsOut']->format('Y-m-01')
+            ];
+    }
+    
+    public static function getThreeCalendars($startYear = null, $startMonth = null, $calendarData = [])
+    {        
         $dates = self::getDatesForThreeCalendars($startYear, $startMonth);
         return ['calendars' => [ 1 => ['header' => $dates['currentMonth']->format('M') . ' ' . $dates['currentMonth']->format('Y'),
                                        'data' => self::drawCalendar($startMonth, $startYear, $calendarData)],
@@ -110,6 +112,15 @@ class Calendar
                 'showCurrentRequestsOnOrAfter' => $dates['currentMonth']->format('Y-m-01'),
                 'showCurrentRequestsBefore' => $dates['threeMonthsOut']->format('Y-m-01')
             ];
+    }
+    
+    public static function getCalendarNavigationForOneCalendar($dates)
+    {
+        return ['fastRewindButton' => self::getprevButtonForThreeCalendars($dates),
+                'prevButton' => self::getprevButtonForOneCalendar($dates),
+                'nextButton' => self::getNextButtonForOneCalendar($dates),
+                'fastForwardButton' => self::getNextButtonForThreeCalendars($dates)
+               ];
     }
     
     public static function getCalendarNavigationForThreeCalendars($dates)
@@ -144,6 +155,17 @@ class Calendar
     }
     
     /**
+     * Gets previous button for navigating single calendar.
+     * 
+     * @param array $dates
+     * @return string
+     */
+    public static function getprevButtonForOneCalendar($dates)
+    {
+        return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 1 month" data-month="' . $dates['oneMonthBack']->format('m') . '" data-year="' . $dates['oneMonthBack']->format('Y') . '"></span></button>&nbsp;&nbsp;&nbsp;&nbsp;';
+    }
+    
+    /**
      * Gets next button for navigating calendars.
      * 
      * @param array $dates
@@ -155,6 +177,17 @@ class Calendar
     }
     
     /**
+     * Gets next button for single calendar.
+     * 
+     * @param array $dates
+     * @return string
+     */
+    public static function getNextButtonForOneCalendar($dates)
+    {
+        return '&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 1 month" data-month="' . $dates['oneMonthOut']->format('m') . '" data-year="' . $dates['oneMonthOut']->format('Y') . '"></span></button>';
+    }
+    
+    /**
      * Gets fast forward button for navigating calendars.
      * 
      * @param array $dates
@@ -163,6 +196,33 @@ class Calendar
     public static function getfastForwardButtonForThreeCalendars($dates)
     {
         return '<button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 6 months" data-month="' . $dates['sixMonthsOut']->format('m') . '" data-year="' . $dates['sixMonthsOut']->format('Y') . '"></span></button>';
+    }
+    
+    /**
+     * Gets dates for one calendar.
+     * 
+     * @param type $startYear
+     * @param type $startMonth
+     * @return \DateTime
+     */
+    public static function getDatesForOneCalendar($startYear = null, $startMonth = null)
+    {
+        if($startYear===null) {
+            $startYear = date("Y");
+        }
+        if($startMonth===null) {
+            $startMonth = date("m");
+        }
+        
+        $time = strtotime($startYear . "-" . $startMonth . "-01");
+        $return = ['threeMonthsBack' => new \DateTime(date("Y-m-d", strtotime("-3 month", $time))),
+                   'oneMonthBack' => new \DateTime(date("Y-m-d", strtotime("-1 month", $time))),
+                   'currentMonth' => new \DateTime(date("Y-m-d", strtotime("+0 month", $time))),
+                   'oneMonthOut' => new \DateTime(date("Y-m-d", strtotime("+1 month", $time))),
+                   'threeMonthsOut' => new \DateTime(date("Y-m-d", strtotime("+3 month", $time)))
+                  ];
+        
+        return $return;
     }
     
     /**
@@ -205,7 +265,7 @@ class Calendar
      * @see https://davidwlsh.name/php-calendar
      * @modified Kevin Sawicke
      */
-    public static function drawCalendar($month, $year, $calendarData)
+    public static function drawCalendar($month, $year, $calendarData, $requestId = 0)
     {
 //        echo '<pre>';
 //        print_r($calendarData);
@@ -237,7 +297,7 @@ class Calendar
         $days_in_this_week = $data['days_in_this_week'];
         
         /* keep going with days.... */
-        $data = self::drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData);
+        $data = self::drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData, $requestId);
         $calendar .= $data['calendar'];
         $days_in_this_week = $data['days_in_this_week'];
         $running_day = $data['running_day'];
@@ -351,9 +411,9 @@ class Calendar
      */
     public static function isDateHoliday($thisDay)
     {
-        $return = true;
+        $return = false;
         if( in_array($thisDay, self::$invalidRequestDates['individual']) ) {
-            $return = false;
+            $return = true;
         }
         
         return $return;
@@ -371,12 +431,20 @@ class Calendar
      * @param integer $row_counter
      * @param array $calendarData
      */
-    public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData)
+    public static function drawCalendarDays($month, $year, $days_in_month, $running_day, $days_in_this_week, $day_counter, $row_counter, $calendarData, $requestId = 0)
     {
+        $selectedClass = ( ($requestId===0) ? "" : "Selected" );
+        $pendingClass = ( ($requestId===0) ? " requestPending" : "" );
         $calendarClassesByDate = [];
+        
         foreach( $calendarData as $ctr => $data ) {
-            $calendarClassesByDate[$data['REQUEST_DATE']] = $data['CALENDAR_DAY_CLASS'] . ( ($data['REQUEST_STATUS']==='P') ? ' requestPending' : '' );
+            $calendarClassesByDate[$data['REQUEST_DATE']] = $data['CALENDAR_DAY_CLASS'] . $selectedClass . $pendingClass;
         }
+        
+//        echo '<pre>';
+//        var_dump( $calendarClassesByDate );
+//        echo '</pre>';
+//        exit();
         
         $calendarTemp = '';
         for ($list_day = 1; $list_day <= $days_in_month; $list_day ++) {
@@ -397,8 +465,13 @@ class Calendar
                                str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, $beginDayCell) . self::$beginDay . $list_day . self::$endDay .
                                self::addDataToCalendarDay($list_day, $calendarData);
             } else {
+                $requestClass = '';
+                if( array_key_exists( $thisDayYmd, $calendarClassesByDate ) ) {
+                    $requestClass = $calendarClassesByDate[$thisDayYmd];
+                }
+                $beginDayCell = ( ($requestId!=0) ? str_replace("&requestTypeClass&", $requestClass, self::$beginDayCell) : self::$beginDayDisabledCell ); // self::$beginDayDisabledCell
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .
-                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, self::$beginDayDisabledCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData);
+                               str_pad($list_day, 2, "0", STR_PAD_LEFT) . "/" . $year, $beginDayCell) . self::$beginDay . $list_day . self::$endDay . self::addDataToCalendarDay($list_day, $calendarData);
             }
     
             $calendarTemp .= self::$closeCell;
@@ -589,5 +662,17 @@ class Calendar
     {
         self::$invalidRequestDates = $invalidRequestDates;
 //         var_dump($invalidRequestDates);
+    }
+    
+    public static function setPreHighlightedDates($preHighlightedDates)
+    {
+        $return = [];
+        foreach( $preHighlightedDates as $ctr => $highlightMe ) {
+            if( !array_key_exists( 'entryId', $highlightMe ) ) {
+                $return[] = $highlightMe;
+            }
+        }
+        
+        self::$preHighlightedDates = $return;
     }
 }

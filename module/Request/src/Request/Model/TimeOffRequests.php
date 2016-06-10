@@ -193,6 +193,148 @@ class TimeOffRequests extends BaseDB {
     }
     
     /**
+     * Generates json encoded value of request data.
+     * 
+     * @param type $request
+     * @return type
+     */
+    public function getRequestData( $request )
+    {
+        return json_encode( [ 'REQUEST_DATE' => $request['REQUEST_DATE'],
+                              'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
+                              'REQUEST_CODE' => $request['REQUEST_CODE']
+                            ] );
+    }
+    
+    /**
+     * Copies the Request Entries based on Request ID to archive table.
+     * 
+     * @param type $requestId
+     */
+    public function copyRequestEntriesToArchive( $requestId = null )
+    {
+        $requestEntries = $this->findRequestEntries( $requestId );
+        
+        /**
+         * ENTRY_ARCHIVE_ID    1000
+         * REQUEST_ID          20498
+         * ENTRY_ID            10
+         * REQUEST_DATA        { [ 'REQUEST_DATE': '2016-01-01', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
+                                 [ 'REQUEST_DATE': '2016-01-02', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
+         *                     }
+         * 
+         */
+        
+        foreach( $requestEntries as $ctr => $request ) {
+            $action = new Insert( 'timeoff_request_entries_archive' );
+            $action->values( [ 'REQUEST_ID' => $request['REQUEST_ID'],
+                               'ENTRY_ID' => $request['ENTRY_ID'],
+                               'REQUEST_DATA' => db2_escape_string( $this->getRequestData( $request ) )
+                             ] );
+            $sql = new Sql( $this->adapter );
+            $stmt = $sql->prepareStatementForSqlObject( $action );
+            try {
+                $result = $stmt->execute();
+                $requestEntryId = $result->getGeneratedValue();
+
+                return $requestEntryId;
+            } catch ( Exception $e ) {
+                throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
+            }
+        }
+    }
+    
+    /**
+     * Updates a Request Entry.
+     * 
+     * @param type $entryId
+     */
+    public function updateRequestEntry( $data = [] )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET
+                   REQUEST_DATE = '" . $data['REQUEST_DATE'] . "',
+                   REQUESTED_HOURS = '" . $data['REQUESTED_HOURS'] . "',
+                   REQUEST_CODE = '" . $this->typesToCodes[$data['REQUEST_CATEGORY']] . "'
+                   WHERE ENTRY_ID = '" . $data['ENTRY_ID'] . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+    
+    /**
+     * Marks a Request Entry as Deleted.
+     * 
+     * @param type $entryId
+     */
+    public function markRequestEntryAsDeleted( $entryId = null )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE ENTRY_ID = '" . $entryId . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+    
+    /**
+     * Adds a Request Entry.
+     * 
+     * @param type $data
+     */
+    public function addRequestEntry( $data = [] )
+    {
+        $action = new Insert( 'timeoff_request_entries' );
+        $action->values( [
+            'REQUEST_ID' => $data['REQUEST_ID'],
+            'REQUEST_DATE' => $data['REQUEST_DATE'],
+            'REQUESTED_HOURS' => $data['REQUESTED_HOURS'],
+            'REQUEST_CODE' => $this->typesToCodes[$data['REQUEST_CATEGORY']],
+            'REQUEST_DAY_OF_WEEK' => $data['REQUEST_DAY_OF_WEEK']
+        ] );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+            $requestEntryId = $result->getGeneratedValue();
+            
+            return $requestEntryId;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
+        }
+    }
+    
+    /**
+     * Save a json object of old/new request info.
+     * 
+     * @param type $create_user
+     * @param type $request_id
+     * @param type $update_detail
+     * @return type
+     * @throws \Exception
+     */
+    public function addRequestUpdate( $create_user = null, $request_id = null, $update_detail = [] )
+    {
+        $action = new Insert( 'timeoff_request_updates' );
+        $action->values( [
+            'REQUEST_ID' => $request_id,
+            'CREATE_USER' => $create_user,
+            'UPDATE_DETAIL' => db2_escape_string( json_encode( $update_detail ) )
+        ] );
+        $sql = new Sql( $this->adapter );
+        $stmt = $sql->prepareStatementForSqlObject( $action );
+        try {
+            $result = $stmt->execute();
+            $requestEntryId = $result->getGeneratedValue();
+            
+            return $requestEntryId;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to add request update entry: " . $e->getMessage() );
+        }
+    }
+    
+    /**
      * Draws a nicely formatted table of the requested days to display on the review request screen.
      * 
      * @param array $entries    Array of requested days.
@@ -202,13 +344,14 @@ class TimeOffRequests extends BaseDB {
     {        
         $htmlData = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
         foreach( $entries as $ctr => $data ) {
-            $code = $data['REQUEST_CODE'];
-            $date = new \DateTime( $data['REQUEST_DATE'] );
+            $data = (object) $data;
+            $code = $data->REQUEST_CODE;
+            $date = new \DateTime( $data->REQUEST_DATE );
             $date = $date->format( "m/d/Y" );
             $htmlData .= '<tr>' .
-                '<td>' . $data['REQUEST_DAY_OF_WEEK'] . '</td>' . 
+                '<td>' . $data->REQUEST_DAY_OF_WEEK . '</td>' . 
                 '<td>' . $date . '</td>' . 
-                '<td>' . $data['REQUESTED_HOURS'] . '</td>' .
+                '<td>' . $data->REQUESTED_HOURS . '</td>' .
                 '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
                 '</tr>';
         }
@@ -306,6 +449,7 @@ class TimeOffRequests extends BaseDB {
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
+        $request['CHANGES_MADE'] = $this->findLastRequestChangeMade( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
         $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m/d/Y" );
         
@@ -341,7 +485,7 @@ class TimeOffRequests extends BaseDB {
     public function findRequestEntries( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
-                ->columns( [ 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
+                ->columns( [ 'ENTRY_ID' => 'ENTRY_ID', 'REQUEST_ID' => 'REQUEST_ID', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_DAY_OF_WEEK' => 'REQUEST_DAY_OF_WEEK',
                              'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
                            ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
@@ -371,6 +515,19 @@ class TimeOffRequests extends BaseDB {
         $logEntries = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $logEntries;
+    }
+    
+    public function findLastRequestChangeMade( $requestId = null ) {
+        $rawSql = "SELECT CREATE_USER, CREATE_TIMESTAMP, UPDATE_DETAIL
+                   FROM TIMEOFF_REQUEST_UPDATES
+                   WHERE REQUEST_ID = " . $requestId . "
+                   ORDER BY CREATE_TIMESTAMP DESC
+                   FETCH FIRST 1 ROWS ONLY";
+        
+        $change = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+        $change['UPDATE_DETAIL'] = json_decode( $change['UPDATE_DETAIL'] );
+
+        return $change;
     }
     
     /**

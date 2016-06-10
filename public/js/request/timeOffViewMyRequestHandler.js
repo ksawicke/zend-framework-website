@@ -34,7 +34,7 @@ var timeOffViewRequestHandler = new function ()
         defaultHours = 8,
         defaultSplitHours = 4,
         selectedTimeoffCategory = null,
-        loggedInUserData = [],
+        loggedInUserDataData = [],
         requestForEmployeeNumber = '',
         requestForEmployeeName = '',
         requestReason = '',
@@ -91,7 +91,7 @@ var timeOffViewRequestHandler = new function ()
             })
                     .on("select2:open", function (e) {
                         //console.log("SELECT2 OPENED");
-                        if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
+                        if (loggedInUserDataData.IS_LOGGED_IN_USER_PAYROLL === "N") {
                             $("span").remove(".select2CustomTag");
                             var $filter =
                                     '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
@@ -180,7 +180,7 @@ var timeOffViewRequestHandler = new function ()
 //                directReportFilter = $('input[name="directReportFilter"]:checked', '#directReportForm').val();
 //            });
 
-            timeOffViewRequestHandler.loadCalendars( phpVars.employee_number );
+            timeOffViewRequestHandler.loadCalendars(phpVars.employee_number, 3);
             timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.maskCalendars('show');
 //            timeOffViewRequestHandler.drawHoursRequested();
@@ -288,7 +288,8 @@ var timeOffViewRequestHandler = new function ()
      */
     this.handleCalendarNavigation = function() {
         $('body').on('click', '.calendarNavigation', function(e) {
-            timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+//            timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"));
+            timeOffViewRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"), 3);
         });
     }
     
@@ -371,7 +372,7 @@ var timeOffViewRequestHandler = new function ()
     /**
      * Loads calendars via ajax and displays them on the page.
      */
-    this.loadCalendars = function (employeeNumber) {
+    this.loadCalendars = function (employeeNumber, calendarsToLoad, request_id) {
         var month = (new Date()).getMonth() + 1;
         var year = (new Date()).getFullYear();
 
@@ -384,28 +385,26 @@ var timeOffViewRequestHandler = new function ()
                 action: 'loadCalendar',
                 startMonth: month,
                 startYear: year,
-                employeeNumber: employeeNumber
+                employeeNumber: employeeNumber,
+                calendarsToLoad: calendarsToLoad,
+                requestId: request_id
             },
             dataType: 'json'
         })
         .success(function (json) {
             if (requestForEmployeeNumber === '') {
-                loggedInUserData = json.loggedInUserData;
-//                console.log( "CHECK PERMISSIONS!!! loggedInUserData:", loggedInUserData );
-//                loggedInUserData.IS_LOGGED_IN_USER_MANAGER = loggedInUserData.isManager;
-//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ADMIN = loggedInUserData.isPayrollAdmin;
-//                loggedInUserData.IS_LOGGED_IN_USER_PAYROLL_ASSISTANT = loggedInUserData.isPayrollAssistant;
-//                loggedInUserData.IS_LOGGED_IN_USER_PROXY = loggedInUserData.isProxy;
-//                loggedInUserData.PROXY_FOR = [];
-                if( loggedInUserData.isProxy==="Y" ) {
-                    for( key in json.proxyFor ) {
-                        loggedInUserData.PROXY_FOR.push( json.proxyFor[key].EMPLOYEE_NUMBER );
-                    }
-                }
+                loggedInUserDataData = json.employeeData;
+                loggedInUserDataData.IS_LOGGED_IN_USER_MANAGER = json.loggedInUserData.isManager;
+                loggedInUserDataData.IS_LOGGED_IN_USER_PAYROLL = json.loggedInUserData.isPayroll;
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
-            timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
+            if( calendarsToLoad===1 ) {
+                timeOffViewRequestHandler.drawOneCalendar(json.calendarData);
+            }
+            if( calendarsToLoad===3 ) {
+                timeOffViewRequestHandler.drawThreeCalendars(json.calendarData);
+            }
             timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
             timeOffViewRequestHandler.setHours( json.employeeData );
             if (json.employeeData.GF_REMAINING > 0) {
@@ -440,7 +439,7 @@ var timeOffViewRequestHandler = new function ()
                 selectedDatesNew: selectedDatesNew,
                 requestReason: requestReason,
                 employeeNumber: requestForEmployeeNumber,
-                loggedInUserData: loggedInUserData
+                loggedInUserDataData: loggedInUserDataData
             },
             dataType: 'json'
         })
@@ -458,7 +457,7 @@ var timeOffViewRequestHandler = new function ()
         });
     };
 
-    this.loadNewCalendars = function (startMonth, startYear) {
+    this.loadNewCalendars = function (startMonth, startYear, calendarsToLoad, request_id) {
         $.ajax({
             url: timeOffLoadCalendarUrl,
             type: 'POST',
@@ -466,12 +465,20 @@ var timeOffViewRequestHandler = new function ()
                 action: 'loadCalendar',
                 startMonth: startMonth,
                 startYear: startYear,
-                employeeNumber: phpVars.employee_number
+                employeeNumber: phpVars.employee_number,
+                calendarsToLoad : calendarsToLoad,
+                requestId: request_id
             },
             dataType: 'json'
         })
         .success(function (json) {
-            timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
+//            timeOffViewRequestHandler.drawThreeCalendars( json.calendarData );
+            if( calendarsToLoad===1 ) {
+                timeOffViewRequestHandler.drawOneCalendar(json.calendarData);
+            }
+            if( calendarsToLoad===3 ) {
+                timeOffViewRequestHandler.drawThreeCalendars(json.calendarData);
+            }
             timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
             timeOffViewRequestHandler.setHours( json.employeeData );
             return;
@@ -1147,7 +1154,7 @@ var timeOffViewRequestHandler = new function ()
     }
 
     this.checkAllowRequestOnBehalfOf = function () {
-        if (loggedInUserData.IS_LOGGED_IN_USER_MANAGER === "Y" || loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
+        if (loggedInUserDataData.IS_LOGGED_IN_USER_MANAGER === "Y" || loggedInUserDataData.IS_LOGGED_IN_USER_PAYROLL === "Y") {
             console.log('1132!!!');
             timeOffViewRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
@@ -1223,7 +1230,7 @@ var timeOffViewRequestHandler = new function ()
 //    	})
 //        .on("select2:open", function (e) {
 //            //console.log("SELECT2 OPENED");
-//            if(loggedInUserData.IS_LOGGED_IN_USER_PAYROLL==="N") {
+//            if(loggedInUserDataData.IS_LOGGED_IN_USER_PAYROLL==="N") {
 //                $("span").remove(".select2CustomTag");
 //                var $filter = 
 //                    '<form id="directReportForm" style="display:inline-block;padding 5px;">' +
