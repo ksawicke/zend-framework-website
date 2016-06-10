@@ -291,8 +291,12 @@ class RequestApi extends ApiController {
     {
         $TimeOffRequests = new TimeoffRequests();
         $timeoffRequestData = $TimeOffRequests->findRequest( $requestId );
-        
-        return [ 'oldHoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->old ),
+       
+        return [ 'forName' => $timeoffRequestData->EMPLOYEE_DATA->EMPLOYEE_NAME,
+                 'forEmail' => $timeoffRequestData->EMPLOYEE_DATA->EMAIL_ADDRESS,
+                 'managerName' => $timeoffRequestData->EMPLOYEE_DATA->MANAGER_NAME,
+                 'managerEmail' => $timeoffRequestData->EMPLOYEE_DATA->MANAGER_EMAIL_ADDRESS,
+                 'oldHoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->old ),
                  'newHoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeoffRequestData->CHANGES_MADE->UPDATE_DETAIL->new )
                ];
     }
@@ -447,17 +451,21 @@ class RequestApi extends ApiController {
         //$emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $emailVariables = $this->getEmailRequestChangesVariables( $post->request_id );
         
-//        echo '<pre>';
-//        var_dump( $emailVariables );
-//        echo '</pre>';
-//        die( "..." );
+        $to = $emailVariables['forEmail'];
+        $cc = $emailVariables['managerEmail'];
+        if( ENVIRONMENT==='development' ) {
+            $to = $this->developmentEmailAddressList;
+            $cc = '';
+        }
+        if( ENVIRONMENT==='testing' ) {
+            $to = $this->testingEmailAddressList;
+            $cc = '';
+        }
         
-        $to = 'kevin_sawicke@swifttrans.com';
-        $cc = 'kevin_sawicke@swifttrans.com';
         $Email = new EmailFactory(
             'Time off requst has been modified',
             'The request for ' .
-                'John Doe' . ' has been modified' . 
+                $emailVariables['forName'] . ' has been modified' . 
                 '<br /><br />' . 
                 '<strong>Original request:<br /><br />' .
                 $emailVariables['oldHoursRequestedHtml'] . '<br /><br />' .
@@ -561,7 +569,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Time requested modified by ' . UserSession::getFullUserInfo() );
+                'Request modified by ' . UserSession::getFullUserInfo() );
 
             $this->emailChangesToRequestMade( $post );
         }
@@ -606,15 +614,6 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
         } else {
-            if( $updatesToFormMade ) {
-                $TimeOffRequestLog->logEntry(
-                    $post->request_id,
-                    UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                    'Time requested modified by ' . UserSession::getFullUserInfo() );
-                
-                $this->emailChangesToRequestMade( $post );
-            }
-            
             /** Send calendar invites for this request **/
             $isSent = $this->sendCalendarInvitationsForRequest( $post );
             $RequestEntry = new RequestEntry();
@@ -763,7 +762,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Time requested modified by ' . UserSession::getFullUserInfo() );
+                'Request modified by ' . UserSession::getFullUserInfo() );
 
             $this->emailChangesToRequestMade( $post );
         }
