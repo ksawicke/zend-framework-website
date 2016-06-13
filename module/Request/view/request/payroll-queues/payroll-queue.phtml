@@ -49,6 +49,19 @@ var reloadByStatusDT = function() {
             <th>Actions</th>
         </tr>
     </thead>
+    <?php if( $this->payrollView === "by-status" ) { ?>
+    <tfoot>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </tfoot>
+    <?php } ?>
 </table>
 
 <?php if( $this->payrollView === 'manager-action' ) { ?>

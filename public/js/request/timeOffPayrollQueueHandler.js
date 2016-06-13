@@ -240,6 +240,11 @@ var timeOffPayrollQueueHandler = new function ()
      * @returns {undefined}
      */
     this.handleLoadingByStatusQueue = function () {
+        // Setup - add a text input to each footer cell
+//        $('#payroll-queue-by-status tfoot th').each( function () {
+//            $(this).html( '<select><option value=""></option></select>' );
+//        } );
+    
         $('#payroll-queue-by-status').DataTable({
             dom: 'fltirp',
             searching: true,
@@ -271,12 +276,42 @@ var timeOffPayrollQueueHandler = new function ()
                         "endDate": $("#endDate").val()
                     });
                 },
-                type: "POST",
+                type: "POST"
+            },
+            initComplete: function () {
+                var table = $('#payroll-queue-by-status').DataTable();
+        
+                table.columns().every( function () {
+                    var column = this;
+                    var select = $('<select><option value="Select one:" selected></option></select>')
+                        .appendTo( $(column.footer()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+
+                            column
+                                .search( val ? '^'+val+'$' : '', true, false )
+                                .draw();
+                        } );
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' )
+                    } );
+                } );
             }
         })
         .on("error.dt", function (e, settings, techNote, message) {
             console.log("An error has been reported by DataTables: ", message);
         });
+        
+        
+        
+        // Apply the search
+        table.columns().every( function () {            
+            // SAVE...this appends 'a' value to each dropdown
+//            $('select', this.footer() ).append( '<option value="a">a</option>' );
+        } );
     }
     
     /**
