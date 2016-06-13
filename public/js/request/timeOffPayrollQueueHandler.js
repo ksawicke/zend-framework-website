@@ -283,21 +283,25 @@ var timeOffPayrollQueueHandler = new function ()
         
                 table.columns().every( function () {
                     var column = this;
-                    var select = $('<select><option value="Select one:" selected></option></select>')
-                        .appendTo( $(column.footer()).empty() )
-                        .on( 'change', function () {
-                            var val = $.fn.dataTable.util.escapeRegex(
-                                $(this).val()
-                            );
+                    var idx = this.index();
+                    var title = table.column( idx ).header();
+                    
+                    if( $(title).html()=="Request Status" ) {
+                        var select = $('<select><option value="Select one:" selected></option></select>')
+                            .appendTo( $(column.footer()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
 
-                            column
-                                .search( val ? '^'+val+'$' : '', true, false )
-                                .draw();
+                                column
+                                    .search( val ? val : '', true, false )
+                                    .draw();
+                            } );
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
                         } );
-
-                    column.data().unique().sort().each( function ( d, j ) {
-                        select.append( '<option value="'+d+'">'+d+'</option>' )
-                    } );
+                    }
                 } );
             }
         })
