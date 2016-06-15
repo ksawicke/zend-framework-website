@@ -531,23 +531,23 @@ class PayrollQueues extends BaseDB {
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
         
-        $where = [];
+        $where2 = [];
             
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
-                            )";
+                $where2[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                        )";
             }
             if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
-                $where[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
+                $where2[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
             }
             if( array_key_exists( 'endDate', $data) && !empty( $data['endDate'] ) ) {
-                $where[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
+                $where2[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
             }
         }
-        $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
+        $rawSql .=  ( !empty( $where2 ) ? " WHERE " . implode( " AND ", $where2 ) : "" );
         
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
         
@@ -603,9 +603,9 @@ class PayrollQueues extends BaseDB {
         
         $where2 = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-            $where2[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+            $where2[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
                         )";
         }
         if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {

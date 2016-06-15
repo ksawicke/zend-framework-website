@@ -239,17 +239,13 @@ var timeOffPayrollQueueHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.handleLoadingByStatusQueue = function () {
-        // Setup - add a text input to each footer cell
-//        $('#payroll-queue-by-status tfoot th').each( function () {
-//            $(this).html( '<select><option value=""></option></select>' );
-//        } );
-    
+    this.handleLoadingByStatusQueue = function () {    
         $('#payroll-queue-by-status').DataTable({
             dom: 'fltirp',
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
