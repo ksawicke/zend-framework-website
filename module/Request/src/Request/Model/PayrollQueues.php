@@ -496,6 +496,9 @@ class PayrollQueues extends BaseDB {
     
     public function countByStatusQueueItems( $data = null, $isFiltered = false )
     {
+        $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+                    "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
+        
         $rawSql = "SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -524,7 +527,7 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
         
@@ -546,19 +549,16 @@ class PayrollQueues extends BaseDB {
         }
         $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         
-//        die( $rawSql );
-        
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
-
-//        echo '<pre>';
-//        var_dump( $queueData );
-//        echo '</pre>';exit();
         
         return (int) $queueData['RCOUNT'];
     }
     
     public function getByStatusQueue( $data = null )
     {
+        $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+                    "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
+        
         $rawSql = "       
         SELECT DATA2.* FROM (
             SELECT
@@ -588,7 +588,7 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
 
@@ -601,26 +601,24 @@ class PayrollQueues extends BaseDB {
                      "ACTIONS"
                    ];
         
-        $where = [];
+        $where2 = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-            $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+            $where2[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
                         )";
         }
         if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
-            $where[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
+            $where2[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
         }
         if( array_key_exists( 'endDate', $data) && !empty( $data['endDate'] ) ) {
-            $where[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
+            $where2[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
         }
         if( $data !== null ) {
-            $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
+            $where2[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
         
-        $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
-        
-//        die( $rawSql );
+        $rawSql .=  ( !empty( $where2 ) ? " WHERE " . implode( " AND ", $where2 ) : "" );
         
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 

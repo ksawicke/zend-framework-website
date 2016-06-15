@@ -287,8 +287,8 @@ var timeOffPayrollQueueHandler = new function ()
                     var title = table.column( idx ).header();
                     
                     if( $(title).html()=="Request Status" ) {
-                        var select = $('<select><option value="Select one:" selected></option></select>')
-                            .appendTo( $(column.footer()).empty() )
+                        var select = $('<br /><select><option value="All" selected>All</option></select>')
+                            .appendTo( $(column.header()) )
                             .on( 'change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
@@ -312,10 +312,10 @@ var timeOffPayrollQueueHandler = new function ()
         
         
         // Apply the search
-        table.columns().every( function () {            
+//        table.columns().every( function () {            
             // SAVE...this appends 'a' value to each dropdown
 //            $('select', this.footer() ).append( '<option value="a">a</option>' );
-        } );
+//        } );
     }
     
     /**

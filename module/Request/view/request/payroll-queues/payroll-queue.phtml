@@ -37,7 +37,7 @@ var reloadByStatusDT = function() {
 }
 </script>
 <?php } ?>
-<table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display" style="width:100%;">
+<table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display dataTable" style="width:100%;">
     <thead>
         <tr>
             <th>Employee</th>
@@ -49,19 +49,6 @@ var reloadByStatusDT = function() {
             <th>Actions</th>
         </tr>
     </thead>
-    <?php if( $this->payrollView === "by-status" ) { ?>
-    <tfoot>
-        <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </tfoot>
-    <?php } ?>
 </table>
 
 <?php if( $this->payrollView === 'manager-action' ) { ?>
