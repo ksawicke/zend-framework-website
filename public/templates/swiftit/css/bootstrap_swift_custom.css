@@ -1195,3 +1195,19 @@ div.buttons {
     padding:6px;
     width: 100px;
 }
+
+.dataTable th {
+    vertical-align:top;
+}
+.dataTable th select {
+    font-weight:normal;
+}
+.dataTable td {
+    font-family:Helvetica,Arial,sans-serif;
+    font-weight:normal;
+    font-size:90%;
+}
+.dataTables_info {
+    font-weight:normal;
+    font-size:80%;
+}
