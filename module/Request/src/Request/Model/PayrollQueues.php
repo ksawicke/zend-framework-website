@@ -654,10 +654,6 @@ class PayrollQueues extends BaseDB {
         
         $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         
-        if( $data !== null ) {
-            $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
-        }
-        
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
@@ -721,11 +717,19 @@ class PayrollQueues extends BaseDB {
             ) AS DATA
         ) AS DATA2";
         
-        if( !empty( $data ) ) {
+        $where = [];
+        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+            $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                        )";
+        }
+        if( $data !== null && array_key_exists( 'start', $data ) && array_key_exists( 'length', $data ) &&
+            !empty( $data['start'] ) && !empty( $data['length'] ) ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
         
-        $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
+        $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
