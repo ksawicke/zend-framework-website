@@ -496,8 +496,11 @@ class PayrollQueues extends BaseDB {
     
     public function countByStatusQueueItems( $data = null, $isFiltered = false )
     {
-        $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+        $where1 = "";
+        if( $isFiltered ) {
+            $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
                     "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
+        }
         
         $rawSql = "SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
@@ -527,7 +530,8 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS " . $where1 . "
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS 
+            " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
         
@@ -541,10 +545,10 @@ class PayrollQueues extends BaseDB {
                         )";
             }
             if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
-                $where2[] = "MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
+                $where2[] = "DATA2.MIN_DATE_REQUESTED >= '" . $data['startDate'] . "'";
             }
             if( array_key_exists( 'endDate', $data) && !empty( $data['endDate'] ) ) {
-                $where2[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
+                $where2[] = "DATA2.MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
             }
         }
         $rawSql .=  ( !empty( $where2 ) ? " WHERE " . implode( " AND ", $where2 ) : "" );
