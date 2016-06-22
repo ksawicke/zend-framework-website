@@ -286,15 +286,15 @@
                                 <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ) { ?>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
                                     
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) { ?>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionUpload">Upload</button>
-                                        <button type="button" class="btn btn-form-primary btn-lg apiRequest" data-apiaction="payrollActionUpdateOfficeChecks">Update Checks</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpdateOfficeChecks">Update Checks</button>
                                     <?php } ?>
                                 </p>
                             </div>
