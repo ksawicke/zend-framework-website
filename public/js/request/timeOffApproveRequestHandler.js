@@ -35,6 +35,8 @@ var timeOffApproveRequestHandler = new function ()
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
             
+            timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
+            
             switch( apiaction ) {
                 case 'managerActionApproveRequest':
                     timeOffApproveRequestHandler.managerActionApproveRequest( data );
@@ -63,6 +65,21 @@ var timeOffApproveRequestHandler = new function ()
                     break;
             }
         });
+    }
+    
+    /**
+     * Handles showing the user the API action is being processed.
+     * 
+     * @param {type} selectedButton
+     * @returns {undefined}
+     */
+    this.handlePleaseWaitStatus = function( selectedButton ) {
+        $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
+        //selectedButton.addClass( 'disabled' );
+        selectedButton.blur(); // Click out of button.
+        
+        // Add a spinning icon and a couple of spaces before the button text.
+        selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
 
     /**
