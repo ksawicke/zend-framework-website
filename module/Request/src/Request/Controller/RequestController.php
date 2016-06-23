@@ -348,6 +348,7 @@ class RequestController extends AbstractActionController
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId );
         
         return new ViewModel( [
+            'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,
             'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
             'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
