@@ -265,6 +265,10 @@
                             </div>
                         </div>
                         
+                        <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
+                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) &&
+                                  $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
+                        ?>
                         <div class="form-group">
                             <label for="inputPassword3" class="col-lg-3 col-md-3 text-right">Approval Actions</label>
                             <div class="ccol-lg-9 col-md-9">
@@ -283,14 +287,15 @@
                                 ?>
                                 
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
-                                <textarea cols="40" rows="4" id="reviewRequestReason"></textarea><br /><br />
                                 <p>
-                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ) { ?>
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
                                     
-                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) { ?>
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>
@@ -299,7 +304,7 @@
                                 </p>
                             </div>
                         </div>
-                        <?php /*** BEGIN REQUEST DETAIL ***/ ?>
+                        <?php } /*** BEGIN REQUEST DETAIL ***/ ?>
                         
                     </div>
                 </div>
@@ -324,3 +329,8 @@ $phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE
             ];
 $this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
 ?>
+
+<pre>
+<?php //var_dump( $loggedInEmployeeNumber ); ?>
+<?php //var_dump( $timeoffRequestData ); ?>
+</pre>
