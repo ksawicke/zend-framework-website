@@ -41,16 +41,20 @@ class CalendarApi extends ApiController {
         $this->invalidRequestDates['after'] = date( "Y-m-d", strtotime( "+1 year", strtotime( date( "m/d/Y" ) ) ) );
 
         // Disable any dates in this array
-        $this->invalidRequestDates['individual'] = [
-            '12/25/2015',
-            '01/01/2016',
-            '05/30/2016',
-            '07/04/2016',
-            '09/05/2016',
-            '11/24/2016',
-            '12/26/2016',
-            '01/02/2017'
-        ];
+        $this->invalidRequestDates['individual'] = $this->getCompanyHolidays();
+    }
+    
+    /**
+     * Gets a list of company holidays.
+     * 
+     * @return date
+     */
+    public function getCompanyHolidays()
+    {
+        $TimeOffRequests = new \Request\Model\TimeOffRequests();
+        $companyHolidays = $TimeOffRequests->getCompanyHolidays();
+        
+        return $companyHolidays;
     }
     
     /**

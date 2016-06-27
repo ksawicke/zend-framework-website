@@ -186,6 +186,20 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
+    
+    public function manageCompanyHolidaysAction()
+    {
+        $Employee = new \Request\Model\Employee();
+        
+        return new ViewModel([
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
 
     /**
      * Allows an employee to submit a new time off request for themselves.

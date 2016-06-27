@@ -193,6 +193,28 @@ class TimeOffRequests extends BaseDB {
     }
     
     /**
+     * Returns a list of comapny holidays.
+     * 
+     * @return type
+     */
+    public function getCompanyHolidays()
+    {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'settings' => 'TIMEOFF_REQUEST_SETTINGS' ] )
+                ->columns( [ 'SYSTEM_VALUE' => 'SYSTEM_VALUE' ] )
+                ->where( [ 'settings.SYSTEM_KEY' => 'companyHolidays' ] );
+
+        try {
+            $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+            $companyHolidays = json_decode( $request->SYSTEM_VALUE );
+        } catch ( Exception $e ) {
+            var_dump( $e );
+        }
+        
+        return $companyHolidays;
+    }
+    
+    /**
      * Generates json encoded value of request data.
      * 
      * @param type $request
