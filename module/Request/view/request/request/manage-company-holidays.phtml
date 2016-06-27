@@ -1,0 +1,22 @@
+<h4>Manage Company Holidays</h4>
+
+<br />
+
+<table id="holiday-list" class="display" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:550px;">Date</th>
+            <th style="width:225px;">Description</th>
+        </tr>
+    </thead>
+</table>
+
+<select id="requestFor" class="requestFor form-control">
+</select><span class="categoryCloseIcon requestIsForMe glyphicon glyphicon-remove-circle red"></span>
+<br /><br />
+<button type="button" class="btn btn-form-primary btn-sm submitAddPayrollAssistantRequest">Add Payroll Assistant</button>
+<button type="button" class="btn btn-form-primary btn-sm clearPayrollAssistantRequest">Clear</button>
+
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/datatables/datatables.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
