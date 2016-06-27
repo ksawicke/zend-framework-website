@@ -93,6 +93,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'manageCompanyHolidays' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/manage-company-holidays',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'manageCompanyHolidays'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'create2' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
