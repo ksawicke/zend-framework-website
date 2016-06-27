@@ -90,6 +90,63 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    public function getCompanyHolidaysAction()
+    {
+        return new JsonModel( $this->getCompanyHolidaysDatatable( $_POST ) );
+    }
+    
+    public function getCompanyHolidaysDatatable( $data = null )
+    {
+        /**
+         * return empty result if not called by Datatable
+         */
+        if ( !array_key_exists( 'draw', $data ) ) {
+            return [ ];
+        }
+
+        /**
+         * increase draw counter for adatatable
+         */
+        $draw = $data['draw'] ++;
+
+        $TimeOffRequests = new \Request\Model\TimeOffRequests();
+        $companyHolidays = $TimeOffRequests->getCompanyHolidays();
+        
+        $data = [];
+        foreach ( $companyHolidays as $ctr => $holiday ) {
+            //$viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
+            $viewLinkUrl = '--';
+            
+            $data[] = [
+                'DATE' => $holiday,
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+            ];
+        }
+
+        $recordsTotal = 0;
+        $recordsFiltered = 0;
+        
+        $recordsTotal = count( $companyHolidays );
+        $recordsFiltered = count( $companyHolidays );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $draw,
+            "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+
+        /**
+         * return result
+         */
+        return $result;
+    }
+    
     /**
      * Appends request data.
      * 
