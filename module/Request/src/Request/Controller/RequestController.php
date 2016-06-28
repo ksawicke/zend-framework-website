@@ -87,16 +87,7 @@ class RequestController extends AbstractActionController
         $this->invalidRequestDates['after'] = date("m/d/Y", strtotime("+1 year", strtotime(date("m/d/Y"))));
         
         // Disable any dates in this array
-        $this->invalidRequestDates['individual'] = [
-            '12/25/2015',
-            '01/01/2016',
-            '05/30/2016',
-            '07/04/2016',
-            '09/05/2016',
-            '11/24/2016',
-            '12/26/2016',
-            '01/02/2017'
-        ];
+        $this->invalidRequestDates['individual'] = $this->getCompanyHolidays();
         
 //        echo '<pre>';
 //        print_r( $this->invalidRequestDates );
@@ -104,31 +95,17 @@ class RequestController extends AbstractActionController
 //        exit();
     }
     
-    public function testpapaaAction() {
-        $request_id = '100918';
+    /**
+     * Gets a list of company holidays.
+     * 
+     * @return date
+     */
+    public function getCompanyHolidays()
+    {
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $companyHolidays = $TimeOffRequestSettings->getCompanyHolidays();
         
-        $Employee = new Employee();
-        $TimeOffRequests = new TimeOffRequests();
-//        $TimeOffRequestLog = new TimeOffRequestLog();
-        $RequestEntry = new RequestEntry();
-        $requestData = $TimeOffRequests->findRequest( $request_id );
-        $dateRequestBlocks = $RequestEntry->getRequestObject( $request_id );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-
-//        echo '<pre>';
-//        var_dump( $employeeData );
-//        echo '</pre>';
-//        
-//        echo '<pre>';
-//        var_dump( $dateRequestBlocks );
-//        echo '</pre>';
-//        
-//        die( $request_id );
-        
-        /** Write record(s) to HPAPAATMP or PAPAATMP **/
-        $Papaa = new Papaatmp();
-        $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id );
-        die( "COMPLETE" );
+        return $companyHolidays;
     }
     
     /**

@@ -1097,7 +1097,8 @@ button .full-width {
 #dialogEditEmployeeSchedule,
 #dialogEditEmployeeProxies,
 #dialogSelectAProxy,
-#dialogSelectAPayrollAssistant {
+#dialogSelectAPayrollAssistant,
+#dialogConfirmDeleteCompanyHoliday {
     display: none;
 }
 
