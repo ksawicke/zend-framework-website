@@ -102,8 +102,8 @@ class RequestController extends AbstractActionController
      */
     public function getCompanyHolidays()
     {
-        $TimeOffRequests = new \Request\Model\TimeOffRequests();
-        $companyHolidays = $TimeOffRequests->getCompanyHolidays();
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $companyHolidays = $TimeOffRequestSettings->getCompanyHolidays();
         
         return $companyHolidays;
     }

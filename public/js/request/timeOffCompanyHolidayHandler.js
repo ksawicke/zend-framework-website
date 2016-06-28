@@ -4,12 +4,18 @@
  */
 var timeOffCompanyHolidayHandler = new function ()
 {
+    var timeOffSubmitNewCompanyHolidayUrl = phpVars.basePath + '/api/request/add-company-holiday',
+        timeOffDeleteCompanyHolidayUrl = phpVars.basePath + '/api/request/delete-company-holiday',
+        timeOffShowCompanyHolidaysUrl = phpVars.basePath + '/request/manage-company-holidays';
+    
     /**
      * Initializes binding
      */
     this.initialize = function () {
         $(document).ready(function () {
             timeOffCompanyHolidayHandler.handleLoadingCompanyHolidayList();
+            timeOffCompanyHolidayHandler.handleAddNewCompanyHoliday();
+            timeOffCompanyHolidayHandler.handleDeleteCompanyHoliday();
         });
     }
     
@@ -18,7 +24,7 @@ var timeOffCompanyHolidayHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.handleLoadingCompanyHolidayList = function () {
+    this.handleLoadingCompanyHolidayList = function() {
         $('#company-holiday-list').DataTable({
             dom: 'ltrip', //fltirp',
             searching: true,
@@ -48,6 +54,81 @@ var timeOffCompanyHolidayHandler = new function ()
         })
         .on("error.dt", function (e, settings, techNote, message) {
             console.log("An error has been reported by DataTables: ", message);
+        });
+    }
+    
+    this.handleAddNewCompanyHoliday = function() {
+        $(".submitAddCompanyHoliday").click(function() {
+            if( !timeOffCommon.empty( $("#newCompanyHoliday").val() ) ) {
+                timeOffCompanyHolidayHandler.saveNewCompanyHoliday( $("#newCompanyHoliday").val() );
+            }
+        });
+    }
+    
+    this.handleDeleteCompanyHoliday = function() {
+        $(document).on('click','.submitDeleteCompanyHoliday', function() {
+            var selectedCompanyHoliday = $(this).data('date');
+            $("#dialogConfirmDeleteCompanyHoliday").dialog({
+                modal : true,
+                buttons : {
+                    No : function() {
+                        $(this).dialog("close");
+                    },
+                    Yes : function() {
+                        timeOffCompanyHolidayHandler.deleteCompanyHoliday( selectedCompanyHoliday );
+                    }
+                }
+            });
+//            console.log( "Delete date " + $(this).data('date') );
+//            if( !timeOffCommon.empty( $("#newCompanyHoliday").val() ) ) {
+//                timeOffCompanyHolidayHandler.saveNewCompanyHoliday( $("#newCompanyHoliday").val() );
+//            }
+        });
+    }
+    
+    this.deleteCompanyHoliday = function( selectedCompanyHoliday ) {
+        $.ajax({
+            url : timeOffDeleteCompanyHolidayUrl,
+            type : 'POST',
+            data : {
+                request : {
+                    date : selectedCompanyHoliday
+                }
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                window.location.href = timeOffShowCompanyHolidaysUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was some error.');
+            return;
+        });
+    }
+    
+    this.saveNewCompanyHoliday = function( newCompanyHoliday ) {
+        $.ajax({
+            url : timeOffSubmitNewCompanyHolidayUrl,
+            type : 'POST',
+            data : {
+                request : {
+                    date : $("#newCompanyHoliday").val()
+                }
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                window.location.href = timeOffShowCompanyHolidaysUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was some error.');
+            return;
         });
     }
 };

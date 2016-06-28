@@ -52,6 +52,32 @@ return [
                 'child_routes' => []
             ],
             
+            'addCompanyHoliday' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/add-company-holiday',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'addCompanyHoliday'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'deleteCompanyHoliday' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/delete-company-holiday',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'deleteCompanyHoliday'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             /**
              * Handle Proxies - people authorized to submit
              * on behalf of someone else.

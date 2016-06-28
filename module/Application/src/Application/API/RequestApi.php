@@ -95,6 +95,36 @@ class RequestApi extends ApiController {
         return new JsonModel( $this->getCompanyHolidaysDatatable( $_POST ) );
     }
     
+    public function addCompanyHolidayAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $data['date'] = $post['request']['date'];
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $TimeOffRequestSettings->addCompanyHoliday( $data );
+        
+        $result = new JsonModel([
+            'success' => true,
+            'date' => $post['request']['date']
+        ]);
+        
+        return $result;
+    }
+    
+    public function deleteCompanyHolidayAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $data['date'] = $post['request']['date'];
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $TimeOffRequestSettings->deleteCompanyHoliday( $data );
+        
+        $result = new JsonModel([
+            'success' => true,
+            'date' => $post['request']['date']
+        ]);
+        
+        return $result;
+    }
+    
     public function getCompanyHolidaysDatatable( $data = null )
     {
         /**
@@ -109,8 +139,8 @@ class RequestApi extends ApiController {
          */
         $draw = $data['draw'] ++;
 
-        $TimeOffRequests = new \Request\Model\TimeOffRequests();
-        $companyHolidays = $TimeOffRequests->getCompanyHolidays();
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $companyHolidays = $TimeOffRequestSettings->getCompanyHolidays();
         
         $data = [];
         foreach ( $companyHolidays as $ctr => $holiday ) {
@@ -119,7 +149,7 @@ class RequestApi extends ApiController {
             
             $data[] = [
                 'DATE' => $holiday,
-                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+                'ACTIONS' => '<a class="btn btn-form-primary btn-xs submitDeleteCompanyHoliday" data-date="' . $holiday . '">Delete</a>'
             ];
         }
 
