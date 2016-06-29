@@ -836,7 +836,7 @@ var timeOffCreateRequestHandler = new function() {
     this.printEmployeePTORemaining = function() {
         $("#employeePTORemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
-        console.log( "PTO REMAINING", timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) );
+        
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) <= 0) {
             $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
             $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
@@ -865,7 +865,7 @@ var timeOffCreateRequestHandler = new function() {
     this.printEmployeeFloatRemaining = function() {
         $("#employeeFloatRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
-        console.log( "FLOAT REMAINING", timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) );
+        
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) <= 0) {
             $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
             $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
