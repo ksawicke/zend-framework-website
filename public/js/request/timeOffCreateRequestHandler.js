@@ -837,14 +837,14 @@ var timeOffCreateRequestHandler = new function() {
         $("#employeePTORemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
         
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) <= 0) {
+        if (employeePTORemaining <= 0) {
             $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
             $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
             $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').addClass('red');
         } else {
             $('div.buttonDisappearPTO button').removeClass('categoryTimeExceeded');
-            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
-            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').addClass('red');
+            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) < 0) {
             $('#warnPTO').show();
@@ -866,7 +866,7 @@ var timeOffCreateRequestHandler = new function() {
         $("#employeeFloatRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
         
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) <= 0) {
+        if (employeeFloatRemaining <= 0) {
             $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
             $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
             $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').addClass('red');

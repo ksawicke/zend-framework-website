@@ -582,12 +582,17 @@ var timeOffViewRequestHandler = new function ()
      * Prints the Remaining PTO time for selected employee.
      */
     this.printEmployeePTORemaining = function () {
-//    	console.log("WHOOOOOOOOOOOOA", employeePTORemaining);
-        $("#employeePTORemainingHours").html(timeOffViewRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
-        if (timeOffViewRequestHandler.setTwoDecimalPlaces(employeePTORemaining) <= 0) {
-            $('.buttonDisappearPTO').addClass('hidden');
+        $("#employeePTORemainingHours").html(
+            timeOffViewRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
+        
+        if (employeePTORemaining <= 0) {
+            $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
+            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
+            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').addClass('red');
         } else {
-            $('.buttonDisappearPTO').removeClass('hidden');
+            $('div.buttonDisappearPTO button').removeClass('categoryTimeExceeded');
+            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
     }
 
@@ -599,11 +604,17 @@ var timeOffViewRequestHandler = new function ()
      * Prints the Remaining Float time for selected employee.
      */
     this.printEmployeeFloatRemaining = function () {
-        $("#employeeFloatRemainingHours").html(timeOffViewRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
-        if (timeOffViewRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) <= 0) {
-            $('.buttonDisappearFloat').addClass('hidden');
+        $("#employeeFloatRemainingHours").html(
+            timeOffViewRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
+        
+        if (employeeFloatRemaining <= 0) {
+            $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').addClass('red');
         } else {
-            $('.buttonDisappearFloat').removeClass('hidden');
+            $('div.buttonDisappearFloat button').removeClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
         }
     }
 
@@ -797,7 +808,7 @@ var timeOffViewRequestHandler = new function ()
      * Rounds a number to two decimal places.
      */
     this.setTwoDecimalPlaces = function (num) {
-        return parseFloat(Math.round(num * 100) / 100).toFixed(2);
+        return parseFloat( Math.round(num) ).toFixed(2);
     }
 
     /**
