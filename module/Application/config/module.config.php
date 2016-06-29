@@ -39,6 +39,19 @@ return [
                 'child_routes' => []
             ],
             
+            'getEmployeeProfile' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/get-employee-profile',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'getEmployeeProfile'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'getCompanyHolidays' => [
                 'type' => 'segment',
                 'options' => [

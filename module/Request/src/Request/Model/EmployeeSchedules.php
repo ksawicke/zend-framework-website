@@ -91,5 +91,14 @@ class EmployeeSchedules extends BaseDB {
                   "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->request['byEmployee'] . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );   
     }
+    
+    public function getEmployeeProfile( $employeeNumber = null )
+    {
+        $rawSql = "SELECT SEND_CAL_INV_ME, SEND_CAL_INV_RPT FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES " .
+                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "'";
+        $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return $employeeData;
+    }
 
 }

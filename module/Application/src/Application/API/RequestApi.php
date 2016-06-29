@@ -240,6 +240,29 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    public function getEmployeeProfileAction()
+    {
+        $EmployeeSchedules = new EmployeeSchedules();
+        $post = $this->getRequest()->getPost();
+        
+        try {
+            $employeeData = $EmployeeSchedules->getEmployeeProfile( $post->employeeNumber );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'sendInvitationsForMyself' => $employeeData['SEND_CAL_INV_ME'],
+                'sendInvitationsForMyReports' => $employeeData['SEND_CAL_INV_RPT']
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
+        
+        return $result;
+    }
+    
     public function submitEmployeeScheduleRequestAction()
     {
         $EmployeeSchedules = new EmployeeSchedules();
