@@ -98,7 +98,6 @@ var timeOffEmployeeProfileHandler = new function ()
             dataType : 'json'
         })
         .success(function(json) {
-            // {success: true, sendInvitationsForMyself: "1", sendInvitationsForMyReports: "1"}
             sendInvitationsForMyself = json.sendInvitationsForMyself;
             sendInvitationsForMyReports = json.sendInvitationsForMyReports;
             if( sendInvitationsForMyself==1 ) {
