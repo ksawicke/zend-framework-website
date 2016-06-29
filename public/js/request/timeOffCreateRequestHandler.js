@@ -836,10 +836,15 @@ var timeOffCreateRequestHandler = new function() {
     this.printEmployeePTORemaining = function() {
         $("#employeePTORemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) <= 0) {
-            $('.buttonDisappearPTO').addClass('hidden');
+        
+        if (employeePTORemaining <= 0) {
+            $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
+            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
+            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').addClass('red');
         } else {
-            $('.buttonDisappearPTO').removeClass('hidden');
+            $('div.buttonDisappearPTO button').removeClass('categoryTimeExceeded');
+            $('div.buttonDisappearPTO .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) < 0) {
             $('#warnPTO').show();
@@ -860,10 +865,15 @@ var timeOffCreateRequestHandler = new function() {
     this.printEmployeeFloatRemaining = function() {
         $("#employeeFloatRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) <= 0) {
-            $('.buttonDisappearFloat').addClass('hidden');
+        
+        if (employeeFloatRemaining <= 0) {
+            $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').addClass('red');
         } else {
-            $('.buttonDisappearFloat').removeClass('hidden');
+            $('div.buttonDisappearFloat button').removeClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) < 0) {
             $('#warnFloat').show();
