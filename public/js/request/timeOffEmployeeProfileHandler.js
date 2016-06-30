@@ -16,11 +16,21 @@ var timeOffEmployeeProfileHandler = new function ()
      */
     this.initialize = function() {
         $(document).ready( function() {            
-            $(document).on('click', '.cmn-toggle', function() {
-                //timeOffProxyHandler.handleToggleProxy( $(this).data('proxy-employee-number'), $(this).data('status') );
-            });
-            
             timeOffEmployeeProfileHandler.getEmployeeProfile( phpVars.employee_number );
+            timeOffEmployeeProfileHandler.handleToggleCalendarInvitesToMe();
+            timeOffEmployeeProfileHandler.handleToggleCalendarInvitesForReports();
+        });
+    }
+    
+    this.handleToggleCalendarInvitesToMe = function() {
+        $("#send_cal_inv_me").click(function() {
+            console.log( "TEST", $(this).data('employee-number') );
+        });
+    }
+    
+    this.handleToggleCalendarInvitesForReports = function() {
+        $("#send_cal_inv_rpt").click(function() {
+            console.log( "TEST", $(this).data('employee-number') );
         });
     }
     
@@ -101,10 +111,10 @@ var timeOffEmployeeProfileHandler = new function ()
             sendInvitationsForMyself = json.sendInvitationsForMyself;
             sendInvitationsForMyReports = json.sendInvitationsForMyReports;
             if( sendInvitationsForMyself==1 ) {
-                $( "#cmn-toggle-1").prop('checked', true);
+                $( "#send_cal_inv_me").prop('checked', true);
             }
             if( sendInvitationsForMyReports==1 ) {
-                $( "#cmn-toggle-2").prop('checked', true);
+                $( "#send_cal_inv_rpt").prop('checked', true);
             }
             return;
         }).error(function() {

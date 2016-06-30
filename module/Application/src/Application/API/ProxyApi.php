@@ -64,7 +64,7 @@ class ProxyApi extends ApiController {
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'STATUS' => '<div class="switch">' .
-                            '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"' . $checked .
+                            '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat proxy-toggle" type="checkbox"' . $checked .
                             ' data-proxy-employee-number="' . $request['PROXY_EMPLOYEE_NUMBER'] . '"' .
                             ' data-status="' . $request['STATUS'] . '">' .
                             '<label for="cmn-toggle-' . $ctr . '"></label>' .

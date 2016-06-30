@@ -120,7 +120,7 @@ var timeOffProxyHandler = new function ()
                 $("#requestFor").select2("val", "");
             });
             
-            $(document).on('click', '.cmn-toggle', function() {
+            $(document).on('click', '.proxy-toggle', function() {
                 timeOffProxyHandler.handleToggleProxy( $(this).data('proxy-employee-number'), $(this).data('status') );
             });
             

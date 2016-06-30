@@ -36,18 +36,16 @@
 
 <strong>Send me calendar invites for requests made for me</strong><br />
 <div class="switch">
-    <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-proxy-employee-number="123123"
-           data-status="blah">
-    <label for="cmn-toggle-1"></label>
+    <input id="send_cal_inv_me" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
+           data-employee-number="123123">
+    <label for="send_cal_inv_me"></label>
 </div>
 
 <?php if( $isManager=="Y" ) { ?>
 <strong>Send me calendar invites for my reports (direct and indirect)</strong><br />
 <div class="switch">
-    <input id="cmn-toggle-2" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-proxy-employee-number="123123"
-           data-status="blah">
-    <label for="cmn-toggle-2"></label>
+    <input id="send_cal_inv_rpt" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
+           data-employee-number="978798">
+    <label for="send_cal_inv_rpt"></label>
 </div>
 <?php } ?>
