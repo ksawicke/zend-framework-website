@@ -24,13 +24,35 @@ var timeOffEmployeeProfileHandler = new function ()
     
     this.handleToggleCalendarInvitesToMe = function() {
         $("#send_cal_inv_me").click(function() {
-            console.log( "TEST", $(this).data('employee-number') );
+            timeOffEmployeeProfileHandler.toggleSendCalendarInvites( $(this).data('employee-number'), 'me' );
         });
     }
     
     this.handleToggleCalendarInvitesForReports = function() {
         $("#send_cal_inv_rpt").click(function() {
-            console.log( "TEST", $(this).data('employee-number') );
+            timeOffEmployeeProfileHandler.toggleSendCalendarInvites( $(this).data('employee-number'), 'rpt' );
+        });
+    }
+    
+    this.toggleSendCalendarInvites = function( employeeNumber, type ) {
+        $.ajax({
+            url : timeOffToggleSendCalendarInvitesUrl,
+            type : 'POST',
+            data : {
+                EMPLOYEE_NUMBER : employeeNumber,
+                TYPE : type
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                // Do nothing
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was an error submitting request to add a proxy.');
+            return;
         });
     }
     

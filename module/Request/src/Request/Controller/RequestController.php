@@ -135,6 +135,7 @@ class RequestController extends AbstractActionController
         
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'employeeNumber' => $this->employeeNumber,
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),

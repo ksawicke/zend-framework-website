@@ -177,6 +177,25 @@ class RequestApi extends ApiController {
         return $result;
     }
     
+    protected function toggleCalendarInviteAction()
+    {
+        $EmployeeSchedules = new EmployeeSchedules();
+        $post = $this->getRequest()->getPost();
+        
+        try {
+            $EmployeeSchedules->toggleCalendarInvites( $post );
+        
+            $result = new JsonModel([
+                'success' => true
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }
+    }
+    
     /**
      * Appends request data.
      * 

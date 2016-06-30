@@ -37,7 +37,7 @@
 <strong>Send me calendar invites for requests made for me</strong><br />
 <div class="switch">
     <input id="send_cal_inv_me" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-employee-number="123123">
+           data-employee-number="<?php echo $employeeNumber; ?>">
     <label for="send_cal_inv_me"></label>
 </div>
 
@@ -45,7 +45,7 @@
 <strong>Send me calendar invites for my reports (direct and indirect)</strong><br />
 <div class="switch">
     <input id="send_cal_inv_rpt" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-employee-number="978798">
+           data-employee-number="<?php echo $employeeNumber; ?>">
     <label for="send_cal_inv_rpt"></label>
 </div>
 <?php } ?>

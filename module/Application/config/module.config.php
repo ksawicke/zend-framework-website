@@ -52,6 +52,19 @@ return [
                 'child_routes' => []
             ],
             
+            'toggleCalendarInvite' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/calendar-invite-toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'toggleCalendarInvite'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'getCompanyHolidays' => [
                 'type' => 'segment',
                 'options' => [
