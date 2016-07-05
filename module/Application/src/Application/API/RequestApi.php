@@ -1209,9 +1209,9 @@ class RequestApi extends ApiController {
         echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1209 - $employeeData';
         var_dump( $employeeData );
         echo '</pre>';
-        if( $employeeProfile['SEND_CAL_INV_ME'] || $employeeProfile['SEND_CAL_INV_RPT'] ) {
-            $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CAL_INV_ME'],
-                $employeeProfile['SEND_CAL_INV_RPT'] );
+        if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
+            $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
+                $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
         }
         echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1205 - $calendarInviteData';
         var_dump( $calendarInviteData );

@@ -94,8 +94,14 @@ class EmployeeSchedules extends BaseDB {
     
     public function getEmployeeProfile( $employeeNumber = null )
     {
-        $rawSql = "SELECT SEND_CAL_INV_ME, SEND_CAL_INV_RPT FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES " .
-                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "'";
+        $rawSql = "select sch.SEND_CAL_INV_ME AS SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE, sch2.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MANAGER
+                   FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch
+                   LEFT JOIN table(timeoff_get_employee_data('002', '" . $employeeNumber . "', 'Y')) as data
+                   ON TRIM(data.EMPLOYEE_NUMBER) = TRIM(sch.EMPLOYEE_NUMBER)
+                   LEFT JOIN TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch2
+                   ON TRIM(sch2.EMPLOYEE_NUMBER) = TRIM(data.MANAGER_EMPLOYEE_NUMBER)
+                   WHERE TRIM(sch.EMPLOYEE_NUMBER) = '" . $employeeNumber . "'";
+        
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
