@@ -264,21 +264,13 @@ class RequestApi extends ApiController {
         $EmployeeSchedules = new EmployeeSchedules();
         $post = $this->getRequest()->getPost();
         
-        $TimeOffRequests = new TimeOffRequests();
-        $a = $TimeOffRequests->findRequestCalendarInviteData( 100980 );
-        
-        echo '<pre>';
-        var_dump( $a );
-        die( '</pre>' );
-        
-        
         try {
             $employeeData = $EmployeeSchedules->getEmployeeProfile( $post->employeeNumber );
         
             $result = new JsonModel([
                 'success' => true,
-                'sendInvitationsForMyself' => $employeeData['SEND_CAL_INV_ME'],
-                'sendInvitationsForMyReports' => $employeeData['SEND_CAL_INV_RPT']
+                'sendInvitationsForMyself' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
+                'sendInvitationsForMyReports' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS']
             ]);
         } catch ( Exception $ex ) {
             $result = new JsonModel([
@@ -809,10 +801,6 @@ class RequestApi extends ApiController {
     
     public function sendCalendarInvitationsForRequestToEnabledUsers( $post )
     {
-        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 809 - $post';
-        var_dump( $post );
-        echo '</pre>';
-        
         if( array_key_exists( 'request', $post ) ) {
             $forEmployeeNumber = $post['request']['forEmployee']['EMPLOYEE_NUMBER'];
         } else {
@@ -1193,9 +1181,9 @@ class RequestApi extends ApiController {
         $EmployeeSchedules = new EmployeeSchedules();
         $employeeProfile = $EmployeeSchedules->getEmployeeProfile( $forEmployeeNumber );
         
-        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1195 - $employeeProfile';
-        var_dump( $employeeProfile );
-        echo '</pre>';
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1195 - $employeeProfile';
+//        var_dump( $employeeProfile );
+//        echo '</pre>';
 //        die( "......" );
         
         $OutlookHelper = new OutlookHelper();
@@ -1206,16 +1194,16 @@ class RequestApi extends ApiController {
         $dateRequestBlocks = $RequestEntry->getRequestObject( $post['request_id'] );
         $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
         
-        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1209 - $employeeData';
-        var_dump( $employeeData );
-        echo '</pre>';
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1209 - $employeeData';
+//        var_dump( $employeeData );
+//        echo '</pre>';
         if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
             $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
                 $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
         }
-        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1205 - $calendarInviteData';
-        var_dump( $calendarInviteData );
-        echo '</pre>';
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1205 - $calendarInviteData';
+//        var_dump( $calendarInviteData );
+//        echo '</pre>';
         
         /**
          * <pre>sendCalendarInvitationsForRequestToEnabledUsers line 809 - $postobject(Zend\Stdlib\Parameters)#122 (1) {
@@ -1813,13 +1801,13 @@ class RequestApi extends ApiController {
 
          */
         
-        die( ".,.,.,.,.,.,.,." );
+//        die( ".,.,.,.,.,.,.,." );
         
         //$employeeProfile['SEND_CAL_INV_ME']
         //$employeeProfile['SEND_CAL_INV_RPT']
 
         /** Send calendar invites for this request **/
-        $isSent = $this->sendCalendarInvitationsForRequest( $post );
+//        $isSent = $this->sendCalendarInvitationsForRequest( $post );
     }
     
     /**
@@ -1828,18 +1816,18 @@ class RequestApi extends ApiController {
      * @param type $post
      * @return type
      */
-    public function sendCalendarInvitationsForRequest( $post )
-    {
-        $OutlookHelper = new OutlookHelper();
-        $RequestEntry = new RequestEntry();
-        $TimeOffRequests = new TimeOffRequests();
-        $Employee = new Employee();
-        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
-        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-        
-        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
-    }
+//    public function sendCalendarInvitationsForRequest( $post )
+//    {
+//        $OutlookHelper = new OutlookHelper();
+//        $RequestEntry = new RequestEntry();
+//        $TimeOffRequests = new TimeOffRequests();
+//        $Employee = new Employee();
+//        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+//        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+//        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+//        
+//        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
+//    }
  
     /**
      * Handles the manager denied process.

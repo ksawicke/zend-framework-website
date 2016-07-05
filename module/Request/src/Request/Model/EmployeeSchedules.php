@@ -94,7 +94,9 @@ class EmployeeSchedules extends BaseDB {
     
     public function getEmployeeProfile( $employeeNumber = null )
     {
-        $rawSql = "select sch.SEND_CAL_INV_ME AS SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE, sch2.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MANAGER
+        $rawSql = "select sch.SEND_CAL_INV_ME AS SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE,
+                   sch.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS,
+                   sch2.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MANAGER
                    FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch
                    LEFT JOIN table(timeoff_get_employee_data('002', '" . $employeeNumber . "', 'Y')) as data
                    ON TRIM(data.EMPLOYEE_NUMBER) = TRIM(sch.EMPLOYEE_NUMBER)
@@ -113,7 +115,7 @@ class EmployeeSchedules extends BaseDB {
         $which = $this->getCalendarInvitationField( $post ) . " = '" . ( $currentToggleValue=="1" ? "0" : "1" ) . "' ";
         $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
                   $which . 
-                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";
+                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";s
         \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
     }
     
