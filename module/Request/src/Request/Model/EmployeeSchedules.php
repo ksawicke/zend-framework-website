@@ -115,7 +115,7 @@ class EmployeeSchedules extends BaseDB {
         $which = $this->getCalendarInvitationField( $post ) . " = '" . ( $currentToggleValue=="1" ? "0" : "1" ) . "' ";
         $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
                   $which . 
-                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";s
+                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";
         \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
     }
     

@@ -44,14 +44,9 @@ var timeOffEmployeeProfileHandler = new function ()
             },
             dataType : 'json'
         }).success(function(json) {
-            if (json.success == true) {
-                // Do nothing
-            } else {
-                alert(json.message);
-            }
             return;
         }).error(function() {
-            console.log('There was an error submitting request to add a proxy.');
+            console.log('There was an error submitting request to change calendar invites preferences.');
             return;
         });
     }

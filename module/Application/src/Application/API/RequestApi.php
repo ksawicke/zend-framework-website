@@ -185,13 +185,21 @@ class RequestApi extends ApiController {
         try {
             $EmployeeSchedules->toggleCalendarInvites( $post );
         
-            $result = new JsonModel([
+            /**
+             * 200: Success.
+             */
+            $this->getResponse()->setStatusCode( 200 );
+            return new JsonModel([
                 'success' => true
             ]);
         } catch ( Exception $ex ) {
-            $result = new JsonModel([
+             /**
+             * 500: An error has occurred so the request couldn't be completed.
+             */
+            $this->getResponse()->setStatusCode( 500 );
+            return new JsonModel([
                 'success' => false,
-                'message' => 'There was an error submitting your request. Please try again.'
+                'message' => 'There was an error changing the calendar invite setting. Please try again.'
             ]);
         }
     }
