@@ -10,7 +10,29 @@ use Zend\Db\ResultSet\ResultSet;
 class TimeOffRequestSettings extends BaseDB {
     
     /**
-     * Returns a list of comapny holidays.
+     * Returns an array of emails to override in certain application areas.
+     * 
+     * @return type
+     */
+    public function getEmailOverrides()
+    {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'settings' => 'TIMEOFF_REQUEST_SETTINGS' ] )
+                ->columns( [ 'SYSTEM_VALUE' => 'SYSTEM_VALUE' ] )
+                ->where( [ 'settings.SYSTEM_KEY' => 'emailOverrideList' ] );
+
+        try {
+            $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+            $emailOverrideList = json_decode( $request->SYSTEM_VALUE );            
+        } catch ( Exception $e ) {
+            var_dump( $e );
+        }
+        
+        return $emailOverrideList;
+    }
+    
+    /**
+     * Returns a list of company holidays.
      * 
      * @return type
      */

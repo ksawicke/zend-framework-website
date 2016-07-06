@@ -58,13 +58,10 @@ class RequestApi extends ApiController {
     
     public function __construct()
     {
-        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-                                           'sarah_koogle@swifttrans.com',
-                                           'heather_baehr@swifttrans.com',
-                                           'jessica_yanez@swifttrans.com',
-                                           'nedra_munoz@swifttrans.com'
-        ];
-        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $emailOverrideList = $TimeOffRequestSettings->getEmailOverrides();
+        $this->testingEmailAddressList = $emailOverrideList->testing;
+        $this->developmentEmailAddressList = $emailOverrideList->development;
     }
     
     /**
