@@ -1,0 +1,20 @@
+<h4>Manage Email Overrides</h4>
+
+<div class="alert alert-info" role="alert">
+    When testing this application, we don't want to send actual emails and calendar invites to the actual employees we're making requests.
+    Provide a comma separated list of individual email addresses you want to send to instead. Example: bob_jones@swifttrans.com,john_doe@swifttrans.com
+</div>
+
+<strong>Override Emails - UAT</strong>
+<br />
+<textarea style="width:50%;" rows="2" id="emailOverridesUAT"></textarea>
+<br style="clear:both;"/>
+
+<strong>Override Emails - DEV</strong>
+<br />
+<textarea style="width:50%;" rows="2" id="emailOverridesDEV"></textarea>
+<br style="clear:both;"/>
+
+<button type="button" class="btn btn-form-primary btn-sm submitModifyEmailOverrides">Save settings</button>
+
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffEmailOverrideHandler.js"></script>
