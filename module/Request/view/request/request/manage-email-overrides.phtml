@@ -1,21 +1,35 @@
 <h4>Manage Email Overrides</h4>
 
-<div class="alert alert-info" role="alert">
-    When testing this application, we don't want to send actual emails and calendar invites to the actual employees we're making requests.
-    Provide a comma separated list of individual email addresses you want to send to instead. Example: bob_jones@swifttrans.com,john_doe@swifttrans.com
-</div>
+<?php if( ENVIRONMENT!='production' ) { ?>
 
-<strong>Override emails and calendar invites</strong><br />
-<div class="switch">
-    <input id="override_emails" class="cmn-toggle cmn-toggle-round-flat" type="checkbox">
-    <label for="override_emails"></label>
-</div>
+    <div class="alert alert-info" role="alert">
+        When testing this application, we don't want to send actual emails and calendar invites to the actual employees we're making requests.
+        Provide a comma separated list of individual email addresses you want to send to instead. Example: bob_jones@swifttrans.com,john_doe@swifttrans.com
+    </div>
 
-<strong>Email Override List</strong>
-<br />
-<textarea style="width:50%;" rows="2" id="emailOverrideList"></textarea>
-<br style="clear:both;"/>
+    <div id="warningEmailOverridesTurnedOff" class="alert alert-danger" role="alert">
+        WARNING: You have turned off the Email Override feature. This means that emails and calendar invites will go to employees or manager/supervisors for requests you are testing out.
+    </div>
 
-<button type="button" class="btn btn-form-primary btn-sm submitEditEmailOverrides">Save settings</button>
+    <strong>Override emails and calendar invites</strong><br />
+    <div class="switch">
+        <input id="override_emails" class="cmn-toggle cmn-toggle-round-flat" type="checkbox">
+        <label for="override_emails"></label>
+    </div>
 
-<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffEmailOverrideHandler.js"></script>
+    <strong>Email Override List</strong>
+    <br />
+    <textarea style="width:50%;" rows="2" id="emailOverrideList"></textarea>
+    <br style="clear:both;"/>
+
+    <button type="button" class="btn btn-form-primary btn-sm submitEditEmailOverrides">Save settings</button>
+
+    <script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffEmailOverrideHandler.js"></script>
+
+<?php } else { ?>
+
+    <div class="alert alert-danger" role="alert">
+        This feature can only be accessed in a non-production environment.
+    </div>
+
+<?php } ?>

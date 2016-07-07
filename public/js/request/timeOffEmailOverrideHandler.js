@@ -42,11 +42,20 @@ var timeOffEmailOverrideHandler = new function ()
                 $( "#override_emails").prop('checked', true);
             }
             $("#emailOverrideList").val( json.emailOverrideList );
+            timeOffEmailOverrideHandler.warnIfFeatureTurnedOff();
             return;
         }).error(function() {
             console.log('There was an error loading the email override list.');
             return;
         });
+    }
+    
+    this.warnIfFeatureTurnedOff = function() {
+        if( overrideEmails==1 ) {
+            $("#warningEmailOverridesTurnedOff").hide();
+        } else {
+            $("#warningEmailOverridesTurnedOff").show();
+        }
     }
     
     this.getOverrideEmails = function() {
@@ -61,6 +70,7 @@ var timeOffEmailOverrideHandler = new function ()
         $("#override_emails").click(function() {
             newOverrideEmails = ( overrideEmails==1 ? 0 : 1 );
             timeOffEmailOverrideHandler.setOverrideEmails( newOverrideEmails );
+            timeOffEmailOverrideHandler.warnIfFeatureTurnedOff();
         });
     }
     
