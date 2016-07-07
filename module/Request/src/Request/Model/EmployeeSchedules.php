@@ -91,5 +91,45 @@ class EmployeeSchedules extends BaseDB {
                   "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->request['byEmployee'] . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );   
     }
+    
+    public function getEmployeeProfile( $employeeNumber = null )
+    {
+        $rawSql = "select sch.SEND_CAL_INV_ME AS SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE,
+                   sch.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS,
+                   sch2.SEND_CAL_INV_RPT AS SEND_CALENDAR_INVITATIONS_TO_MANAGER
+                   FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch
+                   LEFT JOIN table(timeoff_get_employee_data('002', '" . $employeeNumber . "', 'Y')) as data
+                   ON TRIM(data.EMPLOYEE_NUMBER) = TRIM(sch.EMPLOYEE_NUMBER)
+                   LEFT JOIN TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch2
+                   ON TRIM(sch2.EMPLOYEE_NUMBER) = TRIM(data.MANAGER_EMPLOYEE_NUMBER)
+                   WHERE TRIM(sch.EMPLOYEE_NUMBER) = '" . $employeeNumber . "'";
+        
+        $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return $employeeData;
+    }
+    
+    public function toggleCalendarInvites( $post = null )
+    {
+        $currentToggleValue = $this->getCurrentCalendarInviteSetting( $post );
+        $which = $this->getCalendarInvitationField( $post ) . " = '" . ( $currentToggleValue=="1" ? "0" : "1" ) . "' ";
+        $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
+                  $which . 
+                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";
+        \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+    }
+    
+    public function getCurrentCalendarInviteSetting( $post = null )
+    {
+        $field = $this->getCalendarInvitationField( $post );
+        $rawSql = "SELECT " . $field . " FROM TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";
+        $record = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+        return $record->{$field};
+    }
+    
+    private function getCalendarInvitationField( $post )
+    {
+        return "SEND_CAL_INV_" . ( $post->TYPE=="me" ? "ME" : "RPT" );
+    }
 
 }

@@ -39,6 +39,58 @@ return [
                 'child_routes' => []
             ],
             
+            'getEmployeeProfile' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/get-employee-profile',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'getEmployeeProfile'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'getEmailOverrideSettings' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/get-email-override-settings',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'getEmailOverrideSettings'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+                        
+            'editEmailOverrideSettings' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/edit-email-override-settings',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'editEmailOverrideSettings'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'toggleCalendarInvite' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/calendar-invite-toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'toggleCalendarInvite'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'getCompanyHolidays' => [
                 'type' => 'segment',
                 'options' => [

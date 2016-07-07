@@ -126,13 +126,26 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         return $vEvents;
     }
 
-    protected function buildCalendarRequestObject( $calendarInviteData, $employeeData ) {
-        return [
-            'datesRequested' => $calendarInviteData['datesRequested'],
-            'for' => $employeeData,
+    protected function buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
+        $subject = strtoupper( trim( $employeeData['EMPLOYEE_NAME'] ) ) . ' - APPROVED TIME OFF';
+        $to = trim( $employeeData['EMAIL_ADDRESS'] ) . ',' . trim( $employeeData['MANAGER_EMAIL_ADDRESS'] );
+        if( $sendToEmployee ) {
+            $participants[] = [ 'name' => ucwords( strtolower( trim( $employeeData['EMPLOYEE_NAME'] ) ) ), 'email' => trim( $employeeData['EMAIL_ADDRESS'] ) ];
+        }
+        if( $sendToManager ) {
+            $participants[] = [ 'name' => ucwords( strtolower( trim( $employeeData['MANAGER_NAME'] ) ) ), 'email' => trim( $employeeData['MANAGER_EMAIL_ADDRESS'] ) ];
+        }
+        if( ENVIRONMENT=='development' ) {
+            $to = implode( ',', $this->developmentEmailAddressList );
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
+        if( ENVIRONMENT=='testing' ) {
+            $to = implode( ',', $this->testingEmailAddressList );
+            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
+        }
+        return [ 'datesRequested' => $calendarInviteData['datesRequested'], 'for' => $employeeData['EMPLOYEE_NAME'],
             'organizer' => [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ],
-            'to' => 'kevin_sawicke@swifttrans.com',
-            'participants' => [ [ 'name' => 'Kevin Sawicke', 'email' => 'kevin_sawicke@swifttrans.com' ] ]
+            'subject' => $subject, 'to' => $to,  'participants' => $participants
         ];
     }
 
@@ -140,23 +153,8 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
      * Add appointment for day, all day event
      * @return type
      */
-    public function addToCalendar( $calendarInviteData, $employeeData ) {
-        $calendarRequestObject = $this->buildCalendarRequestObject( $calendarInviteData, $employeeData );
-        $for = trim( $calendarRequestObject['for']['EMPLOYEE_NAME'] );
-        $forEmail = trim( $calendarRequestObject['for']['EMAIL_ADDRESS'] );
-        $manager = trim( $calendarRequestObject['for']['MANAGER_NAME'] );
-        $managerEmail = trim( $calendarRequestObject['for']['MANAGER_EMAIL_ADDRESS'] );
-        $subject = strtoupper( $for ) . ' - APPROVED TIME OFF';
-        $to = $calendarRequestObject['to'];
-        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
-            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
-        }
-        if( ENVIRONMENT==='development' ) {
-            $to = implode( ',', $this->developmentEmailAddressList );
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = implode( ',', $this->testingEmailAddressList );
-        }
+    public function addToCalendar( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
+        $calendarRequestObject = $this->buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager );
         
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );
@@ -166,11 +164,11 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
 
             $message = $this->outputBeginVCalendar() .
                     $this->outputVTimezone() .
-                    $this->outputVEvents( $request, $subject, $descriptionString, $calendarRequestObject['organizer']['name'], $calendarRequestObject['organizer']['email'], $participantsText ) .
+                    $this->outputVEvents( $request, $calendarRequestObject['subject'], $descriptionString, $calendarRequestObject['organizer']['name'], $calendarRequestObject['organizer']['email'], $participantsText ) .
                     $this->outputEndVCalendar();
 
             $headers .= $message;
-            $mailsent = mail( $to, $subject, $message, $headers );
+            $mailsent = mail( $calendarRequestObject['to'], $calendarRequestObject['subject'], $message, $headers );
         }
 
         return ($mailsent) ? (true) : (false);

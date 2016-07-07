@@ -1,6 +1,8 @@
-<h4>Edit Employee Profile</h4>
+<h4>Allow Others to Request on My Behalf</h4>
 
-<br />
+<div class="alert alert-info" role="alert">
+    Here, you may select proxies, or other individuals that can submit Time Off requests on your behalf.
+</div>
 
 <table id="proxy-list" class="display" style="width:100%;">
     <thead>
@@ -18,51 +20,32 @@
 <button type="button" class="btn btn-form-primary btn-sm submitAddProxyRequest">Add Proxy</button>
 <button type="button" class="btn btn-form-primary btn-sm clearProxyRequest">Clear</button>
 
-<!--div class="tab-pane" id="tab-demo5">
-    <div class="col-md-1 col-lg-1 moveDown">
-        <strong>Proxies:</strong>
-    </div>
-    <div class="col-md-8 col-lg-8">
-        <div id="warnNoProxiesSelected" style="display:none;">
-            <div class="alert alert-danger" role="alert">
-                <i class="fa fa-warning"></i> <strong>You do not have any proxies set up.</strong>
-            </div>
-        </div>
-        
-        <div id="warnErrorLoadingProxies" style="display:none;">
-            <div class="alert alert-danger" role="alert">
-                <i class="fa fa-warning"></i> <strong>Error loading proxies.</strong>
-            </div>
-        </div>
-        
-        <table class="employeeProxies">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                </tr>
-            </thead>
-            <tbody id="employeeProxiesBody">
-            </tbody>
-        </table>
-        
-        <br style="clear:both;" />
-        
-        <select id="requestFor" class="requestFor form-control">
-        </select><span class="categoryCloseIcon requestIsForMe glyphicon glyphicon-remove-circle red"></span>
-        <br />
-        <br />
-        <button type="button" class="btn btn-form-primary btn-lg submitAddProxyRequest">Add Proxy</button>
-    </div>
-    <div class="col-md-3 col-lg-3">
-        
-    </div>
-</div>
-
-<br style="clear:both;" /-->
-
 <script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/datatables/datatables.js"></script>
 <script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffProxyHandler.js"></script>
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffEmployeeProfileHandler.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 
 <?php echo $this->partial( 'request/partials/dialogSelectAProxy.phtml' ); ?>
+
+
+<br /><br />
+
+
+<h4>Manage Calendar Invites</h4>
+
+<strong>Send me calendar invites for requests made for me</strong><br />
+<div class="switch">
+    <input id="send_cal_inv_me" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
+           data-employee-number="<?php echo $employeeNumber; ?>">
+    <label for="send_cal_inv_me"></label>
+</div>
+
+<?php if( $isManager=="Y" ) { ?>
+<strong>Send me calendar invites for my reports (direct and indirect)</strong><br />
+<div class="switch">
+    <input id="send_cal_inv_rpt" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
+           data-employee-number="<?php echo $employeeNumber; ?>">
+    <label for="send_cal_inv_rpt"></label>
+</div>
+<?php } ?>

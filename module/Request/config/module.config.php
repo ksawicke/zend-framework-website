@@ -105,6 +105,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'manageEmailOverrides' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/manage-email-overrides',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'manageEmailOverrides'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'create2' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

@@ -53,18 +53,17 @@ class RequestApi extends ApiController {
      * 
      * @var unknown
      */
-    public $testingEmailAddressList = null;
-    public $developmentEmailAddressList = null;
+    public $emailOverrideList = '';
+    
+    public $overrideEmails = 0;
     
     public function __construct()
     {
-        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-                                           'sarah_koogle@swifttrans.com',
-                                           'heather_baehr@swifttrans.com',
-                                           'jessica_yanez@swifttrans.com',
-                                           'nedra_munoz@swifttrans.com'
-        ];
-        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $emailOverrideList = $TimeOffRequestSettings->getEmailOverrideList();
+        
+        $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ? $emailOverrideList : '' );
+        $this->overrideEmails = $TimeOffRequestSettings->getOverrideEmailsSetting();
     }
     
     /**
@@ -90,6 +89,56 @@ class RequestApi extends ApiController {
         return $post;
     }
     
+    public function getEmailOverrideSettingsAction()
+    {
+        $emailOverrideList = implode( ",", $this->emailOverrideList );
+        $result = new JsonModel([
+            'success' => true,
+            'emailOverrideList' => $emailOverrideList,
+            'overrideEmails' => $this->overrideEmails
+        ]);
+        
+        return $result;
+    }
+    
+    public function editEmailOverrideSettingsAction()
+    {
+        $post = $this->getRequest()->getPost();
+        
+        $newEmailOverrideList = explode( ",", $post->NEW_EMAIL_OVERRIDE_LIST );
+        $emailsValidate = true;
+        foreach( $newEmailOverrideList as $ctr => $email ) {
+            if( !filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+                $emailsValidate = false;
+                break;
+            }
+        }
+        
+        if( $emailsValidate ) {
+            sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
+            $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+            $TimeOffRequestSettings->editEmailOverrideList( $newEmailOverrideList );
+            $TimeOffRequestSettings->editEmailOverride( $post->OVERRIDE_EMAILS );
+        
+            $this->getResponse()->setStatusCode( 200 );
+            $result = new JsonModel([
+                'success' => true,
+                'post' => $post,
+                'emailOverrideList' => $post->NEW_EMAIL_OVERRIDE_LIST,
+                'overrideEmails' => $post->OVERRIDE_EMAILS
+            ]);
+        } else {
+            sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
+            $this->getResponse()->setStatusCode( 500 );
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error saving the email override list. Please make sure all email addresses are in a valid format, and separated by a comma.'
+            ]);
+        }
+        
+        return $result;
+    }
+    
     public function getCompanyHolidaysAction()
     {
         return new JsonModel( $this->getCompanyHolidaysDatatable( $_POST ) );
@@ -102,6 +151,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $TimeOffRequestSettings->addCompanyHoliday( $data );
         
+        $this->getResponse()->setStatusCode( 200 );
         $result = new JsonModel([
             'success' => true,
             'date' => $post['request']['date']
@@ -117,6 +167,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $TimeOffRequestSettings->deleteCompanyHoliday( $data );
         
+        $this->getResponse()->setStatusCode( 200 );
         $result = new JsonModel([
             'success' => true,
             'date' => $post['request']['date']
@@ -175,6 +226,33 @@ class RequestApi extends ApiController {
          * return result
          */
         return $result;
+    }
+    
+    protected function toggleCalendarInviteAction()
+    {
+        $EmployeeSchedules = new EmployeeSchedules();
+        $post = $this->getRequest()->getPost();
+        
+        try {
+            $EmployeeSchedules->toggleCalendarInvites( $post );
+        
+            /**
+             * 200: Success.
+             */
+            $this->getResponse()->setStatusCode( 200 );
+            return new JsonModel([
+                'success' => true
+            ]);
+        } catch ( Exception $ex ) {
+             /**
+             * 500: An error has occurred so the request couldn't be completed.
+             */
+            $this->getResponse()->setStatusCode( 500 );
+            return new JsonModel([
+                'success' => false,
+                'message' => 'There was an error changing the calendar invite setting. Please try again.'
+            ]);
+        }
     }
     
     /**
@@ -238,6 +316,29 @@ class RequestApi extends ApiController {
             "EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMAIL_ADDRESS");
         
         return $post;
+    }
+    
+    public function getEmployeeProfileAction()
+    {
+        $EmployeeSchedules = new EmployeeSchedules();
+        $post = $this->getRequest()->getPost();
+        
+        try {
+            $employeeData = $EmployeeSchedules->getEmployeeProfile( $post->employeeNumber );
+        
+            $result = new JsonModel([
+                'success' => true,
+                'sendInvitationsForMyself' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
+                'sendInvitationsForMyReports' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS']
+            ]);
+        } catch ( Exception $ex ) {
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ]);
+        }        
+        
+        return $result;
     }
     
     public function submitEmployeeScheduleRequestAction()
@@ -319,7 +420,10 @@ class RequestApi extends ApiController {
             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
         
         if( $isRequestToBeAutoApproved ) {
+            $post['request_id'] = $requestId;
             $this->emailRequestToEmployee( $requestId, $post );
+            $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
+            
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
                 'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
@@ -398,12 +502,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         $Email = new EmailFactory(
@@ -431,12 +531,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         $Email = new EmailFactory(
@@ -466,12 +562,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         
@@ -502,12 +594,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         
@@ -540,12 +628,8 @@ class RequestApi extends ApiController {
         
         $to = $emailVariables['forEmail'];
         $cc = $emailVariables['managerEmail'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         
@@ -701,8 +785,8 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
         } else {
-            /** Send calendar invites for this request **/
-            $isSent = $this->sendCalendarInvitationsForRequest( $post );
+            $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
+                        
             $RequestEntry = new RequestEntry();
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
             
@@ -754,24 +838,1035 @@ class RequestApi extends ApiController {
         return $result;
     }
     
+    public function sendCalendarInvitationsForRequestToEnabledUsers( $post )
+    {
+        if( array_key_exists( 'request', $post ) ) {
+            $forEmployeeNumber = $post['request']['forEmployee']['EMPLOYEE_NUMBER'];
+        } else {
+            $forEmployeeNumber = $post['loggedInUserEmployeeNumber'];
+        }
+        
+        /**
+         * $post example:
+         * 
+         * If auto-approved:
+         * 
+         * object(Zend\Stdlib\Parameters)#122 (1) {
+            ["storage":"ArrayObject":private]=>
+            array(1) {
+              ["request"]=>
+              array(4) {
+                ["forEmployee"]=>
+                array(76) {
+                  ["EMPLOYER_NUMBER"]=>
+                  string(3) "002"
+                  ["EMPLOYEE_NUMBER"]=>
+                  string(6) "366124"
+                  ["EMPLOYEE_NAME"]=>
+                  string(13) "NEDRA A MUNOZ"
+                  ["EMPLOYEE_COMMON_NAME"]=>
+                  string(5) "NEDRA"
+                  ["EMPLOYEE_LAST_NAME"]=>
+                  string(5) "MUNOZ"
+                  ["EMPLOYEE_DESCRIPTION"]=>
+                  string(21) "MUNOZ, NEDRA (366124)"
+                  ["EMPLOYEE_DESCRIPTION_ALT"]=>
+                  string(20) "NEDRA MUNOZ (366124)"
+                  ["EMAIL_ADDRESS"]=>
+                  string(26) "nedra_munoz@swifttrans.com"
+                  ["LEVEL_1"]=>
+                  string(5) "10100"
+                  ["LEVEL_2"]=>
+                  string(2) "IT"
+                  ["LEVEL_3"]=>
+                  string(5) "DV00X"
+                  ["LEVEL_4"]=>
+                  string(5) "92510"
+                  ["POSITION_CODE"]=>
+                  string(6) "AZITBA"
+                  ["POSITION_TITLE"]=>
+                  string(25) "PHOAZ-IT BUSINESS ANALYST"
+                  ["EMPLOYEE_HIRE_DATE"]=>
+                  string(9) "1/19/2015"
+                  ["SALARY_TYPE"]=>
+                  string(1) "S"
+                  ["MANAGER_EMPLOYEE_NUMBER"]=>
+                  string(6) "229589"
+                  ["MANAGER_NAME"]=>
+                  string(12) "MARY JACKSON"
+                  ["MANAGER_COMMON_NAME"]=>
+                  string(4) "MARY"
+                  ["MANAGER_LAST_NAME"]=>
+                  string(7) "JACKSON"
+                  ["MANAGER_DESCRIPTION"]=>
+                  string(22) "JACKSON, MARY (229589)"
+                  ["MANAGER_DESCRIPTION_ALT"]=>
+                  string(21) "MARY JACKSON (229589)"
+                  ["MANAGER_EMAIL_ADDRESS"]=>
+                  string(27) "Mary_Jackson@swifttrans.com"
+                  ["MANAGER_POSITION_CODE"]=>
+                  string(6) "MESITP"
+                  ["MANAGER_POSITION_TITLE"]=>
+                  string(23) "SAVTN-SR IT PROJECT LDR"
+                  ["PTO_EARNED"]=>
+                  string(6) "180.00"
+                  ["PTO_TAKEN"]=>
+                  string(6) "104.00"
+                  ["PTO_UNAPPROVED"]=>
+                  string(4) "8.00"
+                  ["PTO_PENDING"]=>
+                  string(3) ".00"
+                  ["PTO_PENDING_TMP"]=>
+                  string(5) "16.00"
+                  ["PTO_PENDING_TOTAL"]=>
+                  string(5) "24.00"
+                  ["PTO_REMAINING"]=>
+                  string(5) "52.00"
+                  ["FLOAT_EARNED"]=>
+                  string(5) "16.00"
+                  ["FLOAT_TAKEN"]=>
+                  string(5) "16.00"
+                  ["FLOAT_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["FLOAT_REMAINING"]=>
+                  string(3) ".00"
+                  ["SICK_EARNED"]=>
+                  string(3) ".00"
+                  ["SICK_TAKEN"]=>
+                  string(3) ".00"
+                  ["SICK_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["SICK_REMAINING"]=>
+                  string(3) ".00"
+                  ["GF_EARNED"]=>
+                  string(3) ".00"
+                  ["GF_TAKEN"]=>
+                  string(3) ".00"
+                  ["GF_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["GF_PENDING"]=>
+                  string(3) ".00"
+                  ["GF_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["GF_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["GF_REMAINING"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["UNPAID_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["SCHEDULE_MON"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_TUE"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_WED"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_THU"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_FRI"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_SAT"]=>
+                  string(3) ".00"
+                  ["SCHEDULE_SUN"]=>
+                  string(3) ".00"
+                }
+                ["byEmployee"]=>
+                array(76) {
+                  ["EMPLOYER_NUMBER"]=>
+                  string(3) "002"
+                  ["EMPLOYEE_NUMBER"]=>
+                  string(6) "229589"
+                  ["EMPLOYEE_NAME"]=>
+                  string(12) "MARY JACKSON"
+                  ["EMPLOYEE_COMMON_NAME"]=>
+                  string(4) "MARY"
+                  ["EMPLOYEE_LAST_NAME"]=>
+                  string(7) "JACKSON"
+                  ["EMPLOYEE_DESCRIPTION"]=>
+                  string(22) "JACKSON, MARY (229589)"
+                  ["EMPLOYEE_DESCRIPTION_ALT"]=>
+                  string(21) "MARY JACKSON (229589)"
+                  ["EMAIL_ADDRESS"]=>
+                  string(27) "Mary_Jackson@swifttrans.com"
+                  ["LEVEL_1"]=>
+                  string(5) "34100"
+                  ["LEVEL_2"]=>
+                  string(2) "IT"
+                  ["LEVEL_3"]=>
+                  string(5) "DV00X"
+                  ["LEVEL_4"]=>
+                  string(5) "92510"
+                  ["POSITION_CODE"]=>
+                  string(6) "MESITP"
+                  ["POSITION_TITLE"]=>
+                  string(23) "SAVTN-SR IT PROJECT LDR"
+                  ["EMPLOYEE_HIRE_DATE"]=>
+                  string(9) "6/01/2006"
+                  ["SALARY_TYPE"]=>
+                  string(1) "S"
+                  ["MANAGER_EMPLOYEE_NUMBER"]=>
+                  string(5) "49602"
+                  ["MANAGER_NAME"]=>
+                  string(14) "DAVID E TOMLIN"
+                  ["MANAGER_COMMON_NAME"]=>
+                  string(4) "DAVE"
+                  ["MANAGER_LAST_NAME"]=>
+                  string(6) "TOMLIN"
+                  ["MANAGER_DESCRIPTION"]=>
+                  string(20) "TOMLIN, DAVE (49602)"
+                  ["MANAGER_DESCRIPTION_ALT"]=>
+                  string(19) "DAVE TOMLIN (49602)"
+                  ["MANAGER_EMAIL_ADDRESS"]=>
+                  string(26) "Dave_Tomlin@swifttrans.com"
+                  ["MANAGER_POSITION_CODE"]=>
+                  string(6) "AZITDI"
+                  ["MANAGER_POSITION_TITLE"]=>
+                  string(27) "PHOAZ-DIR IT INFRASTRUCTURE"
+                  ["PTO_EARNED"]=>
+                  string(7) "1436.67"
+                  ["PTO_TAKEN"]=>
+                  string(7) "1200.00"
+                  ["PTO_UNAPPROVED"]=>
+                  string(5) "16.00"
+                  ["PTO_PENDING"]=>
+                  string(3) ".00"
+                  ["PTO_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["PTO_PENDING_TOTAL"]=>
+                  string(5) "16.00"
+                  ["PTO_REMAINING"]=>
+                  string(6) "220.67"
+                  ["FLOAT_EARNED"]=>
+                  string(6) "160.00"
+                  ["FLOAT_TAKEN"]=>
+                  string(6) "152.00"
+                  ["FLOAT_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["FLOAT_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["FLOAT_REMAINING"]=>
+                  string(4) "8.00"
+                  ["SICK_EARNED"]=>
+                  string(6) "243.33"
+                  ["SICK_TAKEN"]=>
+                  string(6) "120.00"
+                  ["SICK_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["SICK_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["SICK_REMAINING"]=>
+                  string(6) "123.33"
+                  ["GF_EARNED"]=>
+                  string(3) ".00"
+                  ["GF_TAKEN"]=>
+                  string(3) ".00"
+                  ["GF_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["GF_PENDING"]=>
+                  string(3) ".00"
+                  ["GF_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["GF_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["GF_REMAINING"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["UNEXCUSED_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["BEREAVEMENT_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["CIVIC_DUTY_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["UNPAID_UNAPPROVED"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING_TMP"]=>
+                  string(3) ".00"
+                  ["UNPAID_PENDING_TOTAL"]=>
+                  string(3) ".00"
+                  ["SCHEDULE_MON"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_TUE"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_WED"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_THU"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_FRI"]=>
+                  string(4) "8.00"
+                  ["SCHEDULE_SAT"]=>
+                  string(3) ".00"
+                  ["SCHEDULE_SUN"]=>
+                  string(3) ".00"
+                }
+                ["dates"]=>
+                array(1) {
+                  [0]=>
+                  array(4) {
+                    ["date"]=>
+                    string(10) "2016-07-12"
+                    ["day_of_week"]=>
+                    string(3) "TUE"
+                    ["type"]=>
+                    string(1) "P"
+                    ["hours"]=>
+                    string(4) "8.00"
+                  }
+                }
+                ["reason"]=>
+                string(17) "test auto approve"
+              }
+            }
+          }
+         * 
+         * Otherwise...
+         * 
+         * object(Zend\Stdlib\Parameters)#122 (1) {
+            ["storage":"ArrayObject":private]=>
+            array(4) {
+              ["request_id"]=>
+              string(6) "101032"
+              ["formDirty"]=>
+              string(5) "false"
+              ["selectedDatesNew"]=>
+              array(1) {
+                [0]=>
+                array(5) {
+                  ["date"]=>
+                  string(10) "08/01/2016"
+                  ["hours"]=>
+                  string(4) "8.00"
+                  ["category"]=>
+                  string(12) "timeOffFloat"
+                  ["requestId"]=>
+                  string(6) "101032"
+                  ["fieldDirty"]=>
+                  string(5) "false"
+                }
+              }
+              ["loggedInUserEmployeeNumber"]=>
+              string(5) "49499"
+            }
+          }
+         */
+        
+        $EmployeeSchedules = new EmployeeSchedules();
+        $employeeProfile = $EmployeeSchedules->getEmployeeProfile( $forEmployeeNumber );
+        
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1195 - $employeeProfile';
+//        var_dump( $employeeProfile );
+//        echo '</pre>';
+//        die( "......" );
+        
+        $OutlookHelper = new OutlookHelper();
+        $RequestEntry = new RequestEntry();
+        $TimeOffRequests = new TimeOffRequests();
+        $Employee = new Employee();
+        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post['request_id'] );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $post['request_id'] );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1209 - $employeeData';
+//        var_dump( $employeeData );
+//        echo '</pre>';
+        if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
+            $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
+                $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
+        }
+//        echo '<pre>sendCalendarInvitationsForRequestToEnabledUsers line 1205 - $calendarInviteData';
+//        var_dump( $calendarInviteData );
+//        echo '</pre>';
+        
+        /**
+         * <pre>sendCalendarInvitationsForRequestToEnabledUsers line 809 - $postobject(Zend\Stdlib\Parameters)#122 (1) {
+  ["storage":"ArrayObject":private]=>
+  array(2) {
+    ["request"]=>
+    array(4) {
+      ["forEmployee"]=>
+      array(76) {
+        ["EMPLOYER_NUMBER"]=>
+        string(3) "002"
+        ["EMPLOYEE_NUMBER"]=>
+        string(6) "366124"
+        ["EMPLOYEE_NAME"]=>
+        string(13) "NEDRA A MUNOZ"
+        ["EMPLOYEE_COMMON_NAME"]=>
+        string(5) "NEDRA"
+        ["EMPLOYEE_LAST_NAME"]=>
+        string(5) "MUNOZ"
+        ["EMPLOYEE_DESCRIPTION"]=>
+        string(21) "MUNOZ, NEDRA (366124)"
+        ["EMPLOYEE_DESCRIPTION_ALT"]=>
+        string(20) "NEDRA MUNOZ (366124)"
+        ["EMAIL_ADDRESS"]=>
+        string(26) "nedra_munoz@swifttrans.com"
+        ["LEVEL_1"]=>
+        string(5) "10100"
+        ["LEVEL_2"]=>
+        string(2) "IT"
+        ["LEVEL_3"]=>
+        string(5) "DV00X"
+        ["LEVEL_4"]=>
+        string(5) "92510"
+        ["POSITION_CODE"]=>
+        string(6) "AZITBA"
+        ["POSITION_TITLE"]=>
+        string(25) "PHOAZ-IT BUSINESS ANALYST"
+        ["EMPLOYEE_HIRE_DATE"]=>
+        string(9) "1/19/2015"
+        ["SALARY_TYPE"]=>
+        string(1) "S"
+        ["MANAGER_EMPLOYEE_NUMBER"]=>
+        string(6) "229589"
+        ["MANAGER_NAME"]=>
+        string(12) "MARY JACKSON"
+        ["MANAGER_COMMON_NAME"]=>
+        string(4) "MARY"
+        ["MANAGER_LAST_NAME"]=>
+        string(7) "JACKSON"
+        ["MANAGER_DESCRIPTION"]=>
+        string(22) "JACKSON, MARY (229589)"
+        ["MANAGER_DESCRIPTION_ALT"]=>
+        string(21) "MARY JACKSON (229589)"
+        ["MANAGER_EMAIL_ADDRESS"]=>
+        string(27) "Mary_Jackson@swifttrans.com"
+        ["MANAGER_POSITION_CODE"]=>
+        string(6) "MESITP"
+        ["MANAGER_POSITION_TITLE"]=>
+        string(23) "SAVTN-SR IT PROJECT LDR"
+        ["PTO_EARNED"]=>
+        string(6) "180.00"
+        ["PTO_TAKEN"]=>
+        string(6) "104.00"
+        ["PTO_UNAPPROVED"]=>
+        string(5) "96.00"
+        ["PTO_PENDING"]=>
+        string(3) ".00"
+        ["PTO_PENDING_TMP"]=>
+        string(5) "16.00"
+        ["PTO_PENDING_TOTAL"]=>
+        string(6) "112.00"
+        ["PTO_REMAINING"]=>
+        string(6) "-36.00"
+        ["FLOAT_EARNED"]=>
+        string(5) "16.00"
+        ["FLOAT_TAKEN"]=>
+        string(5) "16.00"
+        ["FLOAT_UNAPPROVED"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING_TMP"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["FLOAT_REMAINING"]=>
+        string(3) ".00"
+        ["SICK_EARNED"]=>
+        string(3) ".00"
+        ["SICK_TAKEN"]=>
+        string(3) ".00"
+        ["SICK_UNAPPROVED"]=>
+        string(3) ".00"
+        ["SICK_PENDING"]=>
+        string(3) ".00"
+        ["SICK_PENDING_TMP"]=>
+        string(3) ".00"
+        ["SICK_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["SICK_REMAINING"]=>
+        string(3) ".00"
+        ["GF_EARNED"]=>
+        string(3) ".00"
+        ["GF_TAKEN"]=>
+        string(3) ".00"
+        ["GF_UNAPPROVED"]=>
+        string(3) ".00"
+        ["GF_PENDING"]=>
+        string(3) ".00"
+        ["GF_PENDING_TMP"]=>
+        string(3) ".00"
+        ["GF_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["GF_REMAINING"]=>
+        string(3) ".00"
+        ["UNEXCUSED_UNAPPROVED"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING_TMP"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_UNAPPROVED"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING_TMP"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_UNAPPROVED"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING_TMP"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["UNPAID_UNAPPROVED"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING_TMP"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["SCHEDULE_MON"]=>
+        string(4) "8.00"
+        ["SCHEDULE_TUE"]=>
+        string(4) "8.00"
+        ["SCHEDULE_WED"]=>
+        string(4) "8.00"
+        ["SCHEDULE_THU"]=>
+        string(4) "8.00"
+        ["SCHEDULE_FRI"]=>
+        string(4) "8.00"
+        ["SCHEDULE_SAT"]=>
+        string(3) ".00"
+        ["SCHEDULE_SUN"]=>
+        string(3) ".00"
+      }
+      ["byEmployee"]=>
+      array(76) {
+        ["EMPLOYER_NUMBER"]=>
+        string(3) "002"
+        ["EMPLOYEE_NUMBER"]=>
+        string(6) "229589"
+        ["EMPLOYEE_NAME"]=>
+        string(12) "MARY JACKSON"
+        ["EMPLOYEE_COMMON_NAME"]=>
+        string(4) "MARY"
+        ["EMPLOYEE_LAST_NAME"]=>
+        string(7) "JACKSON"
+        ["EMPLOYEE_DESCRIPTION"]=>
+        string(22) "JACKSON, MARY (229589)"
+        ["EMPLOYEE_DESCRIPTION_ALT"]=>
+        string(21) "MARY JACKSON (229589)"
+        ["EMAIL_ADDRESS"]=>
+        string(27) "Mary_Jackson@swifttrans.com"
+        ["LEVEL_1"]=>
+        string(5) "34100"
+        ["LEVEL_2"]=>
+        string(2) "IT"
+        ["LEVEL_3"]=>
+        string(5) "DV00X"
+        ["LEVEL_4"]=>
+        string(5) "92510"
+        ["POSITION_CODE"]=>
+        string(6) "MESITP"
+        ["POSITION_TITLE"]=>
+        string(23) "SAVTN-SR IT PROJECT LDR"
+        ["EMPLOYEE_HIRE_DATE"]=>
+        string(9) "6/01/2006"
+        ["SALARY_TYPE"]=>
+        string(1) "S"
+        ["MANAGER_EMPLOYEE_NUMBER"]=>
+        string(5) "49602"
+        ["MANAGER_NAME"]=>
+        string(14) "DAVID E TOMLIN"
+        ["MANAGER_COMMON_NAME"]=>
+        string(4) "DAVE"
+        ["MANAGER_LAST_NAME"]=>
+        string(6) "TOMLIN"
+        ["MANAGER_DESCRIPTION"]=>
+        string(20) "TOMLIN, DAVE (49602)"
+        ["MANAGER_DESCRIPTION_ALT"]=>
+        string(19) "DAVE TOMLIN (49602)"
+        ["MANAGER_EMAIL_ADDRESS"]=>
+        string(26) "Dave_Tomlin@swifttrans.com"
+        ["MANAGER_POSITION_CODE"]=>
+        string(6) "AZITDI"
+        ["MANAGER_POSITION_TITLE"]=>
+        string(27) "PHOAZ-DIR IT INFRASTRUCTURE"
+        ["PTO_EARNED"]=>
+        string(7) "1436.67"
+        ["PTO_TAKEN"]=>
+        string(7) "1200.00"
+        ["PTO_UNAPPROVED"]=>
+        string(5) "16.00"
+        ["PTO_PENDING"]=>
+        string(3) ".00"
+        ["PTO_PENDING_TMP"]=>
+        string(3) ".00"
+        ["PTO_PENDING_TOTAL"]=>
+        string(5) "16.00"
+        ["PTO_REMAINING"]=>
+        string(6) "220.67"
+        ["FLOAT_EARNED"]=>
+        string(6) "160.00"
+        ["FLOAT_TAKEN"]=>
+        string(6) "152.00"
+        ["FLOAT_UNAPPROVED"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING_TMP"]=>
+        string(3) ".00"
+        ["FLOAT_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["FLOAT_REMAINING"]=>
+        string(4) "8.00"
+        ["SICK_EARNED"]=>
+        string(6) "243.33"
+        ["SICK_TAKEN"]=>
+        string(6) "120.00"
+        ["SICK_UNAPPROVED"]=>
+        string(3) ".00"
+        ["SICK_PENDING"]=>
+        string(3) ".00"
+        ["SICK_PENDING_TMP"]=>
+        string(3) ".00"
+        ["SICK_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["SICK_REMAINING"]=>
+        string(6) "123.33"
+        ["GF_EARNED"]=>
+        string(3) ".00"
+        ["GF_TAKEN"]=>
+        string(3) ".00"
+        ["GF_UNAPPROVED"]=>
+        string(3) ".00"
+        ["GF_PENDING"]=>
+        string(3) ".00"
+        ["GF_PENDING_TMP"]=>
+        string(3) ".00"
+        ["GF_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["GF_REMAINING"]=>
+        string(3) ".00"
+        ["UNEXCUSED_UNAPPROVED"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING_TMP"]=>
+        string(3) ".00"
+        ["UNEXCUSED_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_UNAPPROVED"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING_TMP"]=>
+        string(3) ".00"
+        ["BEREAVEMENT_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_UNAPPROVED"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING_TMP"]=>
+        string(3) ".00"
+        ["CIVIC_DUTY_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["UNPAID_UNAPPROVED"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING_TMP"]=>
+        string(3) ".00"
+        ["UNPAID_PENDING_TOTAL"]=>
+        string(3) ".00"
+        ["SCHEDULE_MON"]=>
+        string(4) "8.00"
+        ["SCHEDULE_TUE"]=>
+        string(4) "8.00"
+        ["SCHEDULE_WED"]=>
+        string(4) "8.00"
+        ["SCHEDULE_THU"]=>
+        string(4) "8.00"
+        ["SCHEDULE_FRI"]=>
+        string(4) "8.00"
+        ["SCHEDULE_SAT"]=>
+        string(3) ".00"
+        ["SCHEDULE_SUN"]=>
+        string(3) ".00"
+      }
+      ["dates"]=>
+      array(1) {
+        [0]=>
+        array(4) {
+          ["date"]=>
+          string(10) "2016-07-12"
+          ["day_of_week"]=>
+          string(3) "TUE"
+          ["type"]=>
+          string(1) "P"
+          ["hours"]=>
+          string(4) "8.00"
+        }
+      }
+      ["reason"]=>
+      string(17) "test auto approve"
+    }
+    ["request_id"]=>
+    string(6) "101045"
+  }
+}
+</pre><pre>sendCalendarInvitationsForRequestToEnabledUsers line 1195 - $employeeProfileobject(ArrayObject)#427 (1) {
+  ["storage":"ArrayObject":private]=>
+  array(2) {
+    ["SEND_CAL_INV_ME"]=>
+    string(1) "1"
+    ["SEND_CAL_INV_RPT"]=>
+    string(1) "1"
+  }
+}
+</pre><pre>sendCalendarInvitationsForRequestToEnabledUsers line 1209 - $employeeDataobject(ArrayObject)#426 (1) {
+  ["storage":"ArrayObject":private]=>
+  array(76) {
+    ["EMPLOYER_NUMBER"]=>
+    string(3) "002"
+    ["EMPLOYEE_NUMBER"]=>
+    string(6) "366124"
+    ["EMPLOYEE_NAME"]=>
+    string(13) "NEDRA A MUNOZ"
+    ["EMPLOYEE_COMMON_NAME"]=>
+    string(5) "NEDRA"
+    ["EMPLOYEE_LAST_NAME"]=>
+    string(5) "MUNOZ"
+    ["EMPLOYEE_DESCRIPTION"]=>
+    string(21) "MUNOZ, NEDRA (366124)"
+    ["EMPLOYEE_DESCRIPTION_ALT"]=>
+    string(20) "NEDRA MUNOZ (366124)"
+    ["EMAIL_ADDRESS"]=>
+    string(26) "nedra_munoz@swifttrans.com"
+    ["LEVEL_1"]=>
+    string(5) "10100"
+    ["LEVEL_2"]=>
+    string(2) "IT"
+    ["LEVEL_3"]=>
+    string(5) "DV00X"
+    ["LEVEL_4"]=>
+    string(5) "92510"
+    ["POSITION_CODE"]=>
+    string(6) "AZITBA"
+    ["POSITION_TITLE"]=>
+    string(25) "PHOAZ-IT BUSINESS ANALYST"
+    ["EMPLOYEE_HIRE_DATE"]=>
+    string(9) "1/19/2015"
+    ["SALARY_TYPE"]=>
+    string(1) "S"
+    ["MANAGER_EMPLOYEE_NUMBER"]=>
+    string(6) "229589"
+    ["MANAGER_NAME"]=>
+    string(12) "MARY JACKSON"
+    ["MANAGER_COMMON_NAME"]=>
+    string(4) "MARY"
+    ["MANAGER_LAST_NAME"]=>
+    string(7) "JACKSON"
+    ["MANAGER_DESCRIPTION"]=>
+    string(22) "JACKSON, MARY (229589)"
+    ["MANAGER_DESCRIPTION_ALT"]=>
+    string(21) "MARY JACKSON (229589)"
+    ["MANAGER_EMAIL_ADDRESS"]=>
+    string(27) "Mary_Jackson@swifttrans.com"
+    ["MANAGER_POSITION_CODE"]=>
+    string(6) "MESITP"
+    ["MANAGER_POSITION_TITLE"]=>
+    string(23) "SAVTN-SR IT PROJECT LDR"
+    ["PTO_EARNED"]=>
+    string(6) "180.00"
+    ["PTO_TAKEN"]=>
+    string(6) "104.00"
+    ["PTO_UNAPPROVED"]=>
+    string(6) "104.00"
+    ["PTO_PENDING"]=>
+    string(3) ".00"
+    ["PTO_PENDING_TMP"]=>
+    string(5) "16.00"
+    ["PTO_PENDING_TOTAL"]=>
+    string(6) "120.00"
+    ["PTO_REMAINING"]=>
+    string(6) "-44.00"
+    ["FLOAT_EARNED"]=>
+    string(5) "16.00"
+    ["FLOAT_TAKEN"]=>
+    string(5) "16.00"
+    ["FLOAT_UNAPPROVED"]=>
+    string(3) ".00"
+    ["FLOAT_PENDING"]=>
+    string(3) ".00"
+    ["FLOAT_PENDING_TMP"]=>
+    string(3) ".00"
+    ["FLOAT_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["FLOAT_REMAINING"]=>
+    string(3) ".00"
+    ["SICK_EARNED"]=>
+    string(3) ".00"
+    ["SICK_TAKEN"]=>
+    string(3) ".00"
+    ["SICK_UNAPPROVED"]=>
+    string(3) ".00"
+    ["SICK_PENDING"]=>
+    string(3) ".00"
+    ["SICK_PENDING_TMP"]=>
+    string(3) ".00"
+    ["SICK_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["SICK_REMAINING"]=>
+    string(3) ".00"
+    ["GF_EARNED"]=>
+    string(3) ".00"
+    ["GF_TAKEN"]=>
+    string(3) ".00"
+    ["GF_UNAPPROVED"]=>
+    string(3) ".00"
+    ["GF_PENDING"]=>
+    string(3) ".00"
+    ["GF_PENDING_TMP"]=>
+    string(3) ".00"
+    ["GF_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["GF_REMAINING"]=>
+    string(3) ".00"
+    ["UNEXCUSED_UNAPPROVED"]=>
+    string(3) ".00"
+    ["UNEXCUSED_PENDING"]=>
+    string(3) ".00"
+    ["UNEXCUSED_PENDING_TMP"]=>
+    string(3) ".00"
+    ["UNEXCUSED_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["BEREAVEMENT_UNAPPROVED"]=>
+    string(3) ".00"
+    ["BEREAVEMENT_PENDING"]=>
+    string(3) ".00"
+    ["BEREAVEMENT_PENDING_TMP"]=>
+    string(3) ".00"
+    ["BEREAVEMENT_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["CIVIC_DUTY_UNAPPROVED"]=>
+    string(3) ".00"
+    ["CIVIC_DUTY_PENDING"]=>
+    string(3) ".00"
+    ["CIVIC_DUTY_PENDING_TMP"]=>
+    string(3) ".00"
+    ["CIVIC_DUTY_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["UNPAID_UNAPPROVED"]=>
+    string(3) ".00"
+    ["UNPAID_PENDING"]=>
+    string(3) ".00"
+    ["UNPAID_PENDING_TMP"]=>
+    string(3) ".00"
+    ["UNPAID_PENDING_TOTAL"]=>
+    string(3) ".00"
+    ["SCHEDULE_MON"]=>
+    string(4) "8.00"
+    ["SCHEDULE_TUE"]=>
+    string(4) "8.00"
+    ["SCHEDULE_WED"]=>
+    string(4) "8.00"
+    ["SCHEDULE_THU"]=>
+    string(4) "8.00"
+    ["SCHEDULE_FRI"]=>
+    string(4) "8.00"
+    ["SCHEDULE_SAT"]=>
+    string(3) ".00"
+    ["SCHEDULE_SUN"]=>
+    string(3) ".00"
+  }
+}
+</pre><pre>sendCalendarInvitationsForRequestToEnabledUsers line 1205 - $calendarInviteDataarray(2) {
+  ["datesRequested"]=>
+  array(1) {
+    [0]=>
+    array(4) {
+      ["start"]=>
+      string(10) "2016-07-12"
+      ["end"]=>
+      string(10) "2016-07-12"
+      ["type"]=>
+      string(3) "PTO"
+      ["hours"]=>
+      string(4) "8.00"
+    }
+  }
+  ["for"]=>
+  object(ArrayObject)#423 (1) {
+    ["storage":"ArrayObject":private]=>
+    array(33) {
+      ["EMPLOYER_NUMBER"]=>
+      string(3) "002"
+      ["EMPLOYEE_NUMBER"]=>
+      string(9) "   366124"
+      ["LEVEL_1"]=>
+      string(5) "10100"
+      ["LEVEL_2"]=>
+      string(5) "IT   "
+      ["LEVEL_3"]=>
+      string(5) "DV00X"
+      ["LEVEL_4"]=>
+      string(5) "92510"
+      ["COMMON_NAME"]=>
+      string(20) "NEDRA               "
+      ["FIRST_NAME"]=>
+      string(18) "NEDRA             "
+      ["MIDDLE_INITIAL"]=>
+      string(1) "A"
+      ["LAST_NAME"]=>
+      string(18) "MUNOZ             "
+      ["POSITION"]=>
+      string(6) "AZITBA"
+      ["POSITION_TITLE"]=>
+      string(30) "PHOAZ-IT BUSINESS ANALYST     "
+      ["EMAIL_ADDRESS"]=>
+      string(75) "nedra_munoz@swifttrans.com                                                 "
+      ["EMPLOYEE_HIRE_DATE"]=>
+      string(10) " 1/19/2015"
+      ["GRANDFATHERED_EARNED"]=>
+      string(3) ".00"
+      ["GRANDFATHERED_TAKEN"]=>
+      string(3) ".00"
+      ["PTO_EARNED"]=>
+      string(6) "180.00"
+      ["PTO_TAKEN"]=>
+      string(6) "104.00"
+      ["FLOAT_EARNED"]=>
+      string(5) "16.00"
+      ["FLOAT_TAKEN"]=>
+      string(5) "16.00"
+      ["SICK_EARNED"]=>
+      string(3) ".00"
+      ["SICK_TAKEN"]=>
+      string(3) ".00"
+      ["COMPANY_MANDATED_EARNED"]=>
+      string(3) ".00"
+      ["COMPANY_MANDATED_TAKEN"]=>
+      string(3) ".00"
+      ["DRIVER_SICK_EARNED"]=>
+      string(3) ".00"
+      ["DRIVER_SICK_TAKEN"]=>
+      string(3) ".00"
+      ["MANAGER_EMPLOYER_NUMBER"]=>
+      string(3) "002"
+      ["MANAGER_EMPLOYEE_NUMBER"]=>
+      string(9) "   229589"
+      ["MANAGER_POSITION_TITLE"]=>
+      string(30) "SAVTN-SR IT PROJECT LDR       "
+      ["MANAGER_FIRST_NAME"]=>
+      string(18) "MARY              "
+      ["MANAGER_MIDDLE_INITIAL"]=>
+      string(1) " "
+      ["MANAGER_LAST_NAME"]=>
+      string(18) "JACKSON           "
+      ["MANAGER_EMAIL_ADDRESS"]=>
+      string(75) "Mary_Jackson@swifttrans.com                                                "
+    }
+  }
+}
+</pre>.,.,.,.,.,.,.,.
+
+
+         */
+        
+//        die( ".,.,.,.,.,.,.,." );
+        
+        //$employeeProfile['SEND_CAL_INV_ME']
+        //$employeeProfile['SEND_CAL_INV_RPT']
+
+        /** Send calendar invites for this request **/
+//        $isSent = $this->sendCalendarInvitationsForRequest( $post );
+    }
+    
     /**
      * Sends Outlook calendar invitations for an approved request.
      * 
      * @param type $post
      * @return type
      */
-    public function sendCalendarInvitationsForRequest( $post )
-    {
-        $OutlookHelper = new OutlookHelper();
-        $RequestEntry = new RequestEntry();
-        $TimeOffRequests = new TimeOffRequests();
-        $Employee = new Employee();
-        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
-        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-        
-        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
-    }
+//    public function sendCalendarInvitationsForRequest( $post )
+//    {
+//        $OutlookHelper = new OutlookHelper();
+//        $RequestEntry = new RequestEntry();
+//        $TimeOffRequests = new TimeOffRequests();
+//        $Employee = new Employee();
+//        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
+//        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+//        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+//        
+//        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
+//    }
  
     /**
      * Handles the manager denied process.
@@ -874,7 +1969,7 @@ class RequestApi extends ApiController {
                 'Status changed to Completed PAFs' );
 
             /** Send calendar invites for this request **/
-            $isSent = $this->sendCalendarInvitationsForRequest( $post );
+            $isSent = $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
             
             /** Log sending calendar invites **/
             $TimeOffRequestLog->logEntry(

@@ -135,6 +135,7 @@ class RequestController extends AbstractActionController
         
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'employeeNumber' => $this->employeeNumber,
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
@@ -165,6 +166,20 @@ class RequestController extends AbstractActionController
     }
     
     public function manageCompanyHolidaysAction()
+    {
+        $Employee = new \Request\Model\Employee();
+        
+        return new ViewModel([
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
+    
+    public function manageEmailOverridesAction()
     {
         $Employee = new \Request\Model\Employee();
         

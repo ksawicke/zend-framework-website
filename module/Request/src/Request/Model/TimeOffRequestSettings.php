@@ -9,8 +9,79 @@ use Zend\Db\ResultSet\ResultSet;
 
 class TimeOffRequestSettings extends BaseDB {
     
+    public function getOverrideEmailsSetting()
+    {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'settings' => 'TIMEOFF_REQUEST_SETTINGS' ] )
+                ->columns( [ 'SYSTEM_VALUE' => 'SYSTEM_VALUE' ] )
+                ->where( [ 'settings.SYSTEM_KEY' => 'overrideEmails' ] );
+
+        try {
+            $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+            $emailOverrideList = json_decode( $request->SYSTEM_VALUE );            
+        } catch ( Exception $e ) {
+            var_dump( $e );
+        }
+        
+        return $emailOverrideList;
+    }
+    
     /**
-     * Returns a list of comapny holidays.
+     * Returns an array of emails to override in certain application areas.
+     * 
+     * @return type
+     */
+    public function getEmailOverrideList()
+    {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'settings' => 'TIMEOFF_REQUEST_SETTINGS' ] )
+                ->columns( [ 'SYSTEM_VALUE' => 'SYSTEM_VALUE' ] )
+                ->where( [ 'settings.SYSTEM_KEY' => 'emailOverrideList' ] );
+
+        try {
+            $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+            $emailOverrideList = json_decode( $request->SYSTEM_VALUE );            
+        } catch ( Exception $e ) {
+            var_dump( $e );
+        }
+        
+        return $emailOverrideList;
+    }
+    
+    public function editEmailOverride( $emailOverride = null )
+    {
+        $return = false;
+        $rawSql = "UPDATE TIMEOFF_REQUEST_SETTINGS SET SYSTEM_VALUE = '" . $emailOverride .
+                      "' WHERE SYSTEM_KEY = 'overrideEmails'";
+            
+        try {
+            \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+            $return = true;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to edit email override setting: " . $e->getMessage() );
+        }
+        
+        return $return;
+    }
+    
+    public function editEmailOverrideList( $emailOverrideList = null )
+    {
+        $return = false;
+        $rawSql = "UPDATE TIMEOFF_REQUEST_SETTINGS SET SYSTEM_VALUE = '" . json_encode( $emailOverrideList, JSON_UNESCAPED_SLASHES ) .
+                      "' WHERE SYSTEM_KEY = 'emailOverrideList'";
+            
+        try {
+            \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+            $return = true;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to edit email override list: " . $e->getMessage() );
+        }
+        
+        return $return;
+    }
+    
+    /**
+     * Returns a list of company holidays.
      * 
      * @return type
      */
