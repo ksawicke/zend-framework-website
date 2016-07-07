@@ -29,7 +29,7 @@ var timeOffEmailOverrideHandler = new function ()
             dataType : 'json'
         })
         .success(function(json) {
-            console.log( json );
+            $("#emailOverrideList").val( json.emailOverrideList );
             return;
         }).error(function() {
             console.log('There was an error loading the email override list.');

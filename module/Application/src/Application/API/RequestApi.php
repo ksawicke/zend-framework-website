@@ -88,9 +88,10 @@ class RequestApi extends ApiController {
     
     public function getEmailOverrideListAction()
     {
+        $emailOverrideList = implode( ",", $this->emailOverrideList );
         $result = new JsonModel([
             'success' => true,
-            'emailOverrideList' => 'kevin_sawicke@swifttrans.com'
+            'emailOverrideList' => $emailOverrideList
         ]);
         
         return $result;
