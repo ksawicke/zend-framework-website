@@ -31,6 +31,22 @@ class TimeOffRequestSettings extends BaseDB {
         return $emailOverrideList;
     }
     
+    public function editEmailOverrideList( $mailOverrideList = null )
+    {
+        $return = false;
+        $rawSql = "UPDATE TIMEOFF_REQUEST_SETTINGS SET SYSTEM_VALUE = '" . json_encode( $mailOverrideList, JSON_UNESCAPED_SLASHES ) .
+                      "' WHERE SYSTEM_KEY = 'emailOverrideList'";
+            
+        try {
+            \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+            $return = true;
+        } catch ( Exception $e ) {
+            throw new \Exception( "Error when trying to edit email override list: " . $e->getMessage() );
+        }
+        
+        return $return;
+    }
+    
     /**
      * Returns a list of company holidays.
      * 

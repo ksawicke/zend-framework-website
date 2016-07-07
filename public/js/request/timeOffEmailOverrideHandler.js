@@ -16,7 +16,8 @@ var timeOffEmailOverrideHandler = new function ()
         $(document).ready( function() {            
             timeOffEmailOverrideHandler.getEmailOverrideList();
             $(document).on('click', '.submitEditEmailOverrides', function() {
-                timeOffEmailOverrideHandler.handleSubmitEditEmailOverrides();
+                timeOffEmailOverrideHandler.handlePleaseWaitStatus( $(this) );
+                timeOffEmailOverrideHandler.handleSubmitEditEmailOverrides( $(this) );
             });
         });
     }
@@ -41,7 +42,7 @@ var timeOffEmailOverrideHandler = new function ()
         });
     }
     
-    this.handleSubmitEditEmailOverrides = function() {
+    this.handleSubmitEditEmailOverrides = function( selectedButton ) {
         $.ajax({
             url : timeOffEditEmailOverrideListUrl,
             type : 'POST',
@@ -52,12 +53,36 @@ var timeOffEmailOverrideHandler = new function ()
             dataType : 'json'
         })
         .success(function(json) {
-            console.log( "edited email override list" );
+            timeOffEmailOverrideHandler.undoWaitStatus( selectedButton );
             return;
-        }).error(function() {
-            console.log('There was an error loading the email override list.');
+        }).error(function(request, status, error) {
+            var jsonValue = $.parseJSON( request.responseText );
+            alert( jsonValue.message );
             return;
         });
+    }
+    
+    /**
+     * Handles showing the user the API action is being processed.
+     * 
+     * @param {type} selectedButton
+     * @returns {undefined}
+     */
+    this.handlePleaseWaitStatus = function( selectedButton ) {
+        $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
+        //selectedButton.addClass( 'disabled' );
+        selectedButton.blur(); // Click out of button.
+        
+        // Add a spinning icon and a couple of spaces before the button text.
+        selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
+    }
+    
+    this.undoWaitStatus = function( selectedButton ) {
+        $( '.btn' ).removeClass( 'disabled' ); // Disable all buttons from being selected first.
+        selectedButton.blur(); // Click out of button.
+        
+        // Add a spinning icon and a couple of spaces before the button text.
+        selectedButton.html( 'Save settings' );
     }
 }
 

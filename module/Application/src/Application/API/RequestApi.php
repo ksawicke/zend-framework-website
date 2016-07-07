@@ -110,6 +110,9 @@ class RequestApi extends ApiController {
         }
         
         if( $emailsValidate ) {
+            $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+            $TimeOffRequestSettings->editEmailOverrideList( $newEmailOverrideList );
+        
             $this->getResponse()->setStatusCode( 200 );
             $result = new JsonModel([
                 'success' => true,
