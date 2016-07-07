@@ -52,26 +52,26 @@ return [
                 'child_routes' => []
             ],
             
-            'getEmailOverrideList' => [
+            'getEmailOverrideSettings' => [
                 'type' => 'segment',
                 'options' => [
-                    'route' => '/api/request/get-email-override-list',
+                    'route' => '/api/request/get-email-override-settings',
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
-                        'action' => 'getEmailOverrideList'
+                        'action' => 'getEmailOverrideSettings'
                     ]
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
                         
-            'editEmailOverrideList' => [
+            'editEmailOverrideSettings' => [
                 'type' => 'segment',
                 'options' => [
-                    'route' => '/api/request/edit-email-override-list',
+                    'route' => '/api/request/edit-email-override-settings',
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
-                        'action' => 'editEmailOverrideList'
+                        'action' => 'editEmailOverrideSettings'
                     ]
                 ],
                 'may_terminate' => 1,

@@ -4,8 +4,10 @@
  */
 var timeOffEmailOverrideHandler = new function ()
 {
-    var timeOffGetEmailOverrideListUrl = phpVars.basePath + '/api/request/get-email-override-list',
-        timeOffEditEmailOverrideListUrl = phpVars.basePath + '/api/request/edit-email-override-list';
+    var timeOffGetEmailOverrideSettingsUrl = phpVars.basePath + '/api/request/get-email-override-settings',
+        timeOffEditEmailOverrideSettingsUrl = phpVars.basePath + '/api/request/edit-email-override-settings',
+        timeOffToggleOverrideEmailsUrl = phpVars.basePath + '/api/request/email-override-toggle',
+        overrideEmails = 0;
 
     /**
      * What to run on initialize of this class.
@@ -14,7 +16,8 @@ var timeOffEmailOverrideHandler = new function ()
      */
     this.initialize = function() {
         $(document).ready( function() {            
-            timeOffEmailOverrideHandler.getEmailOverrideList();
+            timeOffEmailOverrideHandler.getEmailOverrideSettings();
+            timeOffEmailOverrideHandler.handleToggleEmailOverrides();
             $(document).on('click', '.submitEditEmailOverrides', function() {
                 timeOffEmailOverrideHandler.handlePleaseWaitStatus( $(this) );
                 timeOffEmailOverrideHandler.handleSubmitEditEmailOverrides( $(this) );
@@ -23,17 +26,21 @@ var timeOffEmailOverrideHandler = new function ()
     }
     
     /**
-     * Gets the current list for email overrides.
+     * Gets the current email override settings.
      * 
      * @returns {undefined}
      */
-    this.getEmailOverrideList = function() {
+    this.getEmailOverrideSettings = function() {
         $.ajax({
-            url : timeOffGetEmailOverrideListUrl,
+            url : timeOffGetEmailOverrideSettingsUrl,
             type : 'POST',
             dataType : 'json'
         })
         .success(function(json) {
+            overrideEmails = json.overrideEmails;
+            if( overrideEmails==1 ) {
+                $( "#override_emails").prop('checked', true);
+            }
             $("#emailOverrideList").val( json.emailOverrideList );
             return;
         }).error(function() {
@@ -42,12 +49,28 @@ var timeOffEmailOverrideHandler = new function ()
         });
     }
     
+    this.getOverrideEmails = function() {
+        return overrideEmails;
+    }
+    
+    this.setOverrideEmails = function(newOverrideEmails) {
+        overrideEmails = newOverrideEmails;
+    }
+    
+    this.handleToggleEmailOverrides = function() {
+        $("#override_emails").click(function() {
+            newOverrideEmails = ( overrideEmails==1 ? 0 : 1 );
+            timeOffEmailOverrideHandler.setOverrideEmails( newOverrideEmails );
+        });
+    }
+    
     this.handleSubmitEditEmailOverrides = function( selectedButton ) {
         $.ajax({
-            url : timeOffEditEmailOverrideListUrl,
+            url : timeOffEditEmailOverrideSettingsUrl,
             type : 'POST',
             data : {
                 CREATED_BY : phpVars.employee_number,
+                OVERRIDE_EMAILS: timeOffEmailOverrideHandler.getOverrideEmails(),
                 NEW_EMAIL_OVERRIDE_LIST : $("#emailOverrideList").val()
             },
             dataType : 'json'
@@ -84,6 +107,23 @@ var timeOffEmailOverrideHandler = new function ()
         
         // Add a spinning icon and a couple of spaces before the button text.
         selectedButton.html( 'Save settings' );
+    }
+    
+    this.toggleOverrideEmails = function( employeeNumber, type ) {
+        $.ajax({
+            url : timeOffToggleOverrideEmailsUrl,
+            type : 'POST',
+            data : {
+                EMPLOYEE_NUMBER : employeeNumber,
+                TYPE : type
+            },
+            dataType : 'json'
+        }).success(function(json) {
+            return;
+        }).error(function() {
+            console.log('There was an error submitting request to change calendar invites preferences.');
+            return;
+        });
     }
 }
 

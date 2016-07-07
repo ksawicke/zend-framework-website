@@ -55,12 +55,15 @@ class RequestApi extends ApiController {
      */
     public $emailOverrideList = '';
     
+    public $overrideEmails = 0;
+    
     public function __construct()
     {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
-        $emailOverrideList = $TimeOffRequestSettings->getEmailOverrides();
+        $emailOverrideList = $TimeOffRequestSettings->getEmailOverrideList();
         
         $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ? $emailOverrideList : '' );
+        $this->overrideEmails = $TimeOffRequestSettings->getOverrideEmailsSetting();
     }
     
     /**
@@ -86,20 +89,22 @@ class RequestApi extends ApiController {
         return $post;
     }
     
-    public function getEmailOverrideListAction()
+    public function getEmailOverrideSettingsAction()
     {
         $emailOverrideList = implode( ",", $this->emailOverrideList );
         $result = new JsonModel([
             'success' => true,
-            'emailOverrideList' => $emailOverrideList
+            'emailOverrideList' => $emailOverrideList,
+            'overrideEmails' => $this->overrideEmails
         ]);
         
         return $result;
     }
     
-    public function editEmailOverrideListAction()
+    public function editEmailOverrideSettingsAction()
     {
         $post = $this->getRequest()->getPost();
+        
         $newEmailOverrideList = explode( ",", $post->NEW_EMAIL_OVERRIDE_LIST );
         $emailsValidate = true;
         foreach( $newEmailOverrideList as $ctr => $email ) {
@@ -113,12 +118,14 @@ class RequestApi extends ApiController {
             sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
             $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
             $TimeOffRequestSettings->editEmailOverrideList( $newEmailOverrideList );
+            $TimeOffRequestSettings->editEmailOverride( $post->OVERRIDE_EMAILS );
         
             $this->getResponse()->setStatusCode( 200 );
             $result = new JsonModel([
                 'success' => true,
                 'post' => $post,
-                'emailOverrideList' => $post->NEW_EMAIL_OVERRIDE_LIST
+                'emailOverrideList' => $post->NEW_EMAIL_OVERRIDE_LIST,
+                'overrideEmails' => $post->OVERRIDE_EMAILS
             ]);
         } else {
             sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
