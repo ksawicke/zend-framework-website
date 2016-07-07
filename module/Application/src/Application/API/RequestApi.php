@@ -110,6 +110,7 @@ class RequestApi extends ApiController {
         }
         
         if( $emailsValidate ) {
+            sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
             $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
             $TimeOffRequestSettings->editEmailOverrideList( $newEmailOverrideList );
         
@@ -120,6 +121,7 @@ class RequestApi extends ApiController {
                 'emailOverrideList' => $post->NEW_EMAIL_OVERRIDE_LIST
             ]);
         } else {
+            sleep( 1 ); // Wait 1 second so the user sees the button showing the saving process taking place.
             $this->getResponse()->setStatusCode( 500 );
             $result = new JsonModel([
                 'success' => false,
