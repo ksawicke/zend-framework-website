@@ -58,6 +58,7 @@ var timeOffEmailOverrideHandler = new function ()
         }).error(function(request, status, error) {
             var jsonValue = $.parseJSON( request.responseText );
             alert( jsonValue.message );
+            timeOffEmailOverrideHandler.undoWaitStatus( selectedButton );
             return;
         });
     }
