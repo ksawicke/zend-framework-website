@@ -53,15 +53,14 @@ class RequestApi extends ApiController {
      * 
      * @var unknown
      */
-    public $testingEmailAddressList = null;
-    public $developmentEmailAddressList = null;
+    public $emailOverrideList = '';
     
     public function __construct()
     {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $emailOverrideList = $TimeOffRequestSettings->getEmailOverrides();
-        $this->testingEmailAddressList = $emailOverrideList->testing;
-        $this->developmentEmailAddressList = $emailOverrideList->development;
+        
+        $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ? $emailOverrideList : '' );
     }
     
     /**
@@ -85,6 +84,16 @@ class RequestApi extends ApiController {
         }
         
         return $post;
+    }
+    
+    public function getEmailOverrideListAction()
+    {
+        $result = new JsonModel([
+            'success' => true,
+            'emailOverrideList' => 'kevin_sawicke@swifttrans.com'
+        ]);
+        
+        return $result;
     }
     
     public function getCompanyHolidaysAction()
@@ -448,12 +457,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         $Email = new EmailFactory(
@@ -481,12 +486,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         $Email = new EmailFactory(
@@ -516,12 +517,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         
@@ -552,12 +549,8 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         
@@ -590,12 +583,8 @@ class RequestApi extends ApiController {
         
         $to = $emailVariables['forEmail'];
         $cc = $emailVariables['managerEmail'];
-        if( ENVIRONMENT==='development' ) {
-            $to = $this->developmentEmailAddressList;
-            $cc = '';
-        }
-        if( ENVIRONMENT==='testing' ) {
-            $to = $this->testingEmailAddressList;
+        if( !empty( $this->emailOverrideList ) ) {
+            $to = $this->emailOverrideList;
             $cc = '';
         }
         

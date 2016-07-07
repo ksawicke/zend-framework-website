@@ -52,6 +52,19 @@ return [
                 'child_routes' => []
             ],
             
+            'getEmailOverrideList' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/get-email-override-list',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'getEmailOverrideList'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'toggleCalendarInvite' => [
                 'type' => 'segment',
                 'options' => [
