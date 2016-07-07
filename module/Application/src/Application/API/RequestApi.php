@@ -97,6 +97,36 @@ class RequestApi extends ApiController {
         return $result;
     }
     
+    public function editEmailOverrideListAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $newEmailOverrideList = explode( ",", $post->NEW_EMAIL_OVERRIDE_LIST );
+        $emailsValidate = true;
+        foreach( $newEmailOverrideList as $ctr => $email ) {
+            if( !filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+                $emailsValidate = false;
+                break;
+            }
+        }
+        
+        if( $emailsValidate ) {
+            $this->getResponse()->setStatusCode( 200 );
+            $result = new JsonModel([
+                'success' => true,
+                'post' => $post,
+                'emailOverrideList' => $post->NEW_EMAIL_OVERRIDE_LIST
+            ]);
+        } else {
+            $this->getResponse()->setStatusCode( 500 );
+            $result = new JsonModel([
+                'success' => false,
+                'message' => 'There was an error saving the email override list. Please make sure all email addresses are in a valid format, and separated by a comma.'
+            ]);
+        }
+        
+        return $result;
+    }
+    
     public function getCompanyHolidaysAction()
     {
         return new JsonModel( $this->getCompanyHolidaysDatatable( $_POST ) );
@@ -109,6 +139,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $TimeOffRequestSettings->addCompanyHoliday( $data );
         
+        $this->getResponse()->setStatusCode( 200 );
         $result = new JsonModel([
             'success' => true,
             'date' => $post['request']['date']
@@ -124,6 +155,7 @@ class RequestApi extends ApiController {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $TimeOffRequestSettings->deleteCompanyHoliday( $data );
         
+        $this->getResponse()->setStatusCode( 200 );
         $result = new JsonModel([
             'success' => true,
             'date' => $post['request']['date']

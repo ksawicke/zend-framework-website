@@ -64,6 +64,19 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+                        
+            'editEmailOverrideList' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/edit-email-override-list',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'editEmailOverrideList'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             
             'toggleCalendarInvite' => [
                 'type' => 'segment',
