@@ -80,6 +80,22 @@ class TimeOffRequestSettings extends BaseDB {
         return $return;
     }
     
+    protected function sortArrayOfDates( $dateArray )
+    {
+        $orderByDate = [];
+        foreach ($dateArray as $key => $date) {
+            $orderByDate[$key] = strtotime($date);
+        }
+
+        array_multisort($orderByDate, SORT_ASC, $dateArray);
+
+        foreach( $orderByDate as $key => $strtotime ) {
+            $dateArray[$key] = date( "m/d/Y", $strtotime );
+        }
+
+        return $dateArray;
+    }
+    
     /**
      * Returns a list of company holidays.
      * 
@@ -94,7 +110,7 @@ class TimeOffRequestSettings extends BaseDB {
 
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
-            $companyHolidays = json_decode( $request->SYSTEM_VALUE );
+            $companyHolidays = $this->sortArrayOfDates( json_decode( $request->SYSTEM_VALUE ) );
         } catch ( Exception $e ) {
             var_dump( $e );
         }
