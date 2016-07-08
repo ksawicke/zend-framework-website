@@ -55,15 +55,22 @@ class RequestApi extends ApiController {
      */
     public $emailOverrideList = '';
     
+    /**
+     * Setting to allow us to override the actual email address(es) used to send emails and calendar invites.
+     * If set to 1 then we will use those email address(es).
+     * This feature will only work in DEV or UAT environments.
+     * 
+     * @var integer 
+     */
     public $overrideEmails = 0;
     
     public function __construct()
     {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $emailOverrideList = $TimeOffRequestSettings->getEmailOverrideList();
-        
-        $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ? $emailOverrideList : '' );
         $this->overrideEmails = $TimeOffRequestSettings->getOverrideEmailsSetting();
+        $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ?
+            $emailOverrideList : '' );
     }
     
     /**
@@ -502,7 +509,7 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( !empty( $this->emailOverrideList ) ) {
+        if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
         }
@@ -531,7 +538,7 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        if( !empty( $this->emailOverrideList ) ) {
+        if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
         }
@@ -562,7 +569,7 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( !empty( $this->emailOverrideList ) ) {
+        if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
         }
@@ -594,7 +601,7 @@ class RequestApi extends ApiController {
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
         $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        if( !empty( $this->emailOverrideList ) ) {
+        if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
         }
@@ -628,7 +635,7 @@ class RequestApi extends ApiController {
         
         $to = $emailVariables['forEmail'];
         $cc = $emailVariables['managerEmail'];
-        if( !empty( $this->emailOverrideList ) ) {
+        if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
         }
