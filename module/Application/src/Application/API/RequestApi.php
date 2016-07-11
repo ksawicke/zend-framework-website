@@ -1963,9 +1963,9 @@ class RequestApi extends ApiController {
                 ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
                 ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
 
-            /** Change status to Completed PAFs */
+            /** Change status to Pending AS400 Upload */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
-                $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
+                $TimeOffRequests->getRequestStatusCode( 'pendingAS400Upload' ),
                 $post->request_id,
                 $post->review_request_reason );
 
@@ -1973,7 +1973,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Status changed to Completed PAFs' );
+                'Status changed to Pending AS400 Upload' );
 
             /** Send calendar invites for this request **/
             $isSent = $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
