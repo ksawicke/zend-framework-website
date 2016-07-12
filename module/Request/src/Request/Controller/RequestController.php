@@ -208,6 +208,7 @@ class RequestController extends AbstractActionController
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
+            'isSupervisor' => \Login\Helper\UserSession::getUserSessionVariable('IS_SUPERVISOR'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
                                 'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
@@ -267,7 +268,8 @@ class RequestController extends AbstractActionController
         $managerView = $this->params()->fromRoute('manager-view');
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
-        if($isLoggedInUserManager!=="Y") {
+        $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
+        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -276,6 +278,7 @@ class RequestController extends AbstractActionController
         
         $view = new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
+            'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
             'managerView' => $managerView,
             'managerViewName' => $this->managerViewName[$managerView],
             'employeeNumber' => $this->employeeNumber,

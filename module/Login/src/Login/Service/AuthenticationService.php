@@ -35,6 +35,11 @@ class AuthenticationService implements AuthenticationServiceInterface
         return $this->loginMapper->isManager($employeeNumber);
     }
     
+    public function isSupervisor($employeeNumber)
+    {
+        return $this->loginMapper->isSupervisor($employeeNumber);
+    }
+    
     public function isPayroll($employeeNumber)
     {
         return $this->loginMapper->isPayroll($employeeNumber);

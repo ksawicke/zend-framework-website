@@ -127,9 +127,18 @@ class LoginMapper implements LoginMapperInterface
     {
         $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
     
-        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        $data = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
     
-        return $data[0]->IS_MANAGER;
+        return $data->IS_MANAGER;
+    }
+    
+    public function isSupervisor($employeeNumber = null)
+    {
+        $rawSql = "select is_supervisor('002', '" . $employeeNumber . "') AS IS_SUPERVISOR FROM sysibm.sysdummy1";
+    
+        $data = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
+    
+        return $data->IS_SUPERVISOR;
     }
     
     /**

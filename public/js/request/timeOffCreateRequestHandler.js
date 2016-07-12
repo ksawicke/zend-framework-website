@@ -100,19 +100,20 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is opened
                  */
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
-                if ( ( loggedInUserData.isManager === "Y" &&
-                       loggedInUserData.isPayrollAdmin === "N" &&
-                       loggedInUserData.isPayrollAssistant === "N" ) ||
-                       loggedInUserData.isProxy === "Y"
+                if ( ( loggedInUserData.isManager == "Y" &&
+                       loggedInUserData.isSupervisor == "Y" &&
+                       loggedInUserData.isPayrollAdmin == "N" &&
+                       loggedInUserData.isPayrollAssistant == "N" ) ||
+                       loggedInUserData.isProxy == "Y"
                    ) {
                     /**
-                     * Allow user to search their reports (for Managers) and/or
+                     * Allow user to search their reports (for Managers/Supervisors) and/or
                      * employees for which they are a proxy.
                      */
                     $("span").remove(".select2CustomTag");
                     var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
                 }
-                if( loggedInUserData.isManager === "Y" && loggedInUserData.isPayrollAdmin === "N" ) {
+                if( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) && loggedInUserData.isPayrollAdmin == "N" ) {
                     $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter === 'B') ? ' checked'
                             : '')
@@ -470,6 +471,7 @@ var timeOffCreateRequestHandler = new function() {
                 console.log( "QQQQQQ", json.loggedInUserData );
                 loggedInUserData = json.employeeData;
                 loggedInUserData.isManager = json.loggedInUserData.isManager;
+                loggedInUserData.isSupervisor = json.loggedInUserData.isSupervisor;
                 loggedInUserData.isPayroll = json.loggedInUserData.isPayroll;
                 loggedInUserData.isPayrollAdmin = json.loggedInUserData.isPayrollAdmin;
                 loggedInUserData.isPayrollAssistant = json.loggedInUserData.isPayrollAssistant;
@@ -1357,6 +1359,7 @@ var timeOffCreateRequestHandler = new function() {
     this.checkAllowRequestOnBehalfOf = function() {
         console.log( "@@@@", loggedInUserData );
         if ( ( loggedInUserData.isManager == "Y" ||
+               loggedInUserData.isSupervisor == "Y" || 
                loggedInUserData.isPayrollAdmin == "Y" ||
                loggedInUserData.isPayrollAssistant == "Y" ||
                loggedInUserData.isProxy === "Y" )
@@ -1384,12 +1387,12 @@ var timeOffCreateRequestHandler = new function() {
                 delay : 250,
                 data : function(params) {
                     return {
-                    search : params.term,
-                             directReportFilter : directReportFilter,
-                             employeeNumber : phpVars.employee_number,
-                             isProxy : loggedInUserData.isProxy,
-                             proxyFor : loggedInUserData.proxyFor,
-                             page : params.page
+                        search : params.term,
+                        directReportFilter : directReportFilter,
+                        employeeNumber : phpVars.employee_number,
+                        isProxy : loggedInUserData.isProxy,
+                        proxyFor : loggedInUserData.proxyFor,
+                        page : params.page
                     };
                 },
                 processResults : function(data, params) {
