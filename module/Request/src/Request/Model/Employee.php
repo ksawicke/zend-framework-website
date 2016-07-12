@@ -268,9 +268,22 @@ class Employee extends BaseDB {
      */
     public function isManager( $employeeNumber = null ) {
         $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
-        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+        $isManagerData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
-        return $isSupervisorData[0]->IS_MANAGER;
+        return $isManagerData->IS_MANAGER;
+    }
+    
+    /**
+     * Returns whether employee is a Supervisor or not.
+     * 
+     * @param type $employeeNumber  Integer, up to 9 places. Does not need to be justified.
+     * @return type boolean  "Y" or "N"
+     */
+    public function isSupervisor( $employeeNumber = null ) {
+        $rawSql = "select is_supervisor('002', '" . $employeeNumber . "') AS IS_SUPERVISOR FROM sysibm.sysdummy1";
+        $isSupervisorData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return $isSupervisorData->IS_SUPERVISOR;
     }
     
     /**

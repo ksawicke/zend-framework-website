@@ -46,11 +46,13 @@ class LoginController extends AbstractActionController
                 
                 $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
                 $isManager = $this->authenticationService->isManager($employeeNumber);
+                $isSupervisor = $this->authenticationService->isSupervisor($employeeNumber);
                 $isPayroll = $this->authenticationService->isPayroll($employeeNumber);
                 $isPayrollAdmin = $this->authenticationService->isPayrollAdmin($employeeNumber);
                 $isPayrollAssistant = $this->authenticationService->isPayrollAssistant($employeeNumber);
                 $isProxy = $this->authenticationService->isProxy($employeeNumber);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_MANAGER', $isManager);
+                \Login\Helper\UserSession::setUserSessionVariable('IS_SUPERVISOR', $isSupervisor);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL', $isPayroll);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL_ADMIN', $isPayrollAdmin);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL_ASSISTANT', $isPayrollAssistant);

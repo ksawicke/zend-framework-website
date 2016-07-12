@@ -2,7 +2,7 @@
 
 <br />
 
-<?php if($isLoggedInUserManager==="Y") { ?>
+<?php if($isLoggedInUserManager=="Y" || $isLoggedInUserSupervisor=="Y") { ?>
 
 <table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
     <thead>

@@ -1,5 +1,6 @@
 <?php
 $isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
+$isSupervisor = \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' );
 $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
 $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
 $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
@@ -9,6 +10,7 @@ $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAY
     <strong>The following is information used for troubleshooting in non-Production environments.</strong>
 
     Is Manager: <?php echo $isManager; ?><br />
+    Is Supervisor: <?php echo $isSupervisor; ?><br />
     Is Payroll: <?php echo $isPayroll; ?><br />
     Is Payroll Administrator: <?php echo $isPayrollAdmin; ?><br />
     Is Payroll Assistant: <?php echo $isPayrollAssistant; ?><br />

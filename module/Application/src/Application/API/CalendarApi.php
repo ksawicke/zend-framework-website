@@ -163,6 +163,7 @@ class CalendarApi extends ApiController {
             'success' => true,
             'employeeData' => $employeeData,
             'loggedInUserData' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
+                                    'isSupervisor' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' ),
                                     'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
                                     'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
                                     'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
