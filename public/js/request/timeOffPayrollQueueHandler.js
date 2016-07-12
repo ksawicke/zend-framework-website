@@ -81,7 +81,7 @@ var timeOffPayrollQueueHandler = new function ()
                 {"data": "APPROVER_QUEUE"},
                 {"data": "REQUEST_STATUS_DESCRIPTION"},
                 {"data": "REQUESTED_HOURS"},
-                {"data": "REQUEST_REASON"},
+                {"data": "LAST_PAYROLL_COMMENT"},
                 {"data": "MIN_DATE_REQUESTED"},
                 {"data": "ACTIONS"}
             ],

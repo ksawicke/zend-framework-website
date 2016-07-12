@@ -30,6 +30,8 @@ var timeOffApproveRequestHandler = new function ()
             var data = {
                 request_id: $("#requestId").val(),
                 review_request_reason: $("#reviewRequestReason").val(),
+                manager_comment: $("#managerComment").val(),
+                payroll_comment: $("#payrollComment").val(),
                 formDirty: formDirty,
                 selectedDatesNew: selectedDatesNew,
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()

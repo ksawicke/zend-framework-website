@@ -22,18 +22,20 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
 /**
- * Description of TimeoffRequestLog
+ * Manages log entries for Time Off Requests.
  *
  * @author sawik
  */
 class TimeoffRequestLog extends BaseDB {
 
-    public function logEntry( $requestId = null, $employeeNumber = null, $comment = null ) {
+    public function logEntry( $requestId = null, $employeeNumber = null, $comment = null, $isPayroll = "N" ) {
+        $commentType = ( $isPayroll=="Y" ? "P" : "S" );
         $logEntry = new Insert( 'timeoff_request_log' );
         $logEntry->values( [
             'REQUEST_ID' => $requestId,
             'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $employeeNumber ),
-            'COMMENT' => $comment
+            'COMMENT' => $comment,
+            'COMMENT_TYPE' => $commentType
         ] );
         $sql = new Sql( $this->adapter );
         $stmt = $sql->prepareStatementForSqlObject( $logEntry );

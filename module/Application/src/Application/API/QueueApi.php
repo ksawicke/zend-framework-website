@@ -273,7 +273,7 @@ class QueueApi extends ApiController {
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
-                'REQUEST_REASON' => $request['REQUEST_REASON'],
+                'LAST_PAYROLL_COMMENT' => $request['LAST_PAYROLL_COMMENT'],
                 'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
