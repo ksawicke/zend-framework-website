@@ -2127,7 +2127,13 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Status changed to Update Checks by ' . UserSession::getFullUserInfo() . 
                 ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
-
+            
+            if( !empty( $post->payroll_comment ) ) {
+                $TimeOffRequestLog->logEntry(
+                    $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), $post->payroll_comment,
+                    UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
+            }
+            
             $result = new JsonModel([
                 'success' => true,
                 'request_id' => $post->request_id

@@ -174,7 +174,12 @@ class PayrollQueues extends BaseDB {
                 SELECT
                 request.REQUEST_ID AS REQUEST_ID,
                 TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
-                request.REQUEST_REASON AS REQUEST_REASON,
+                (
+		    SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
+		    COMMENT_TYPE = 'P'
+		    ORDER BY CREATE_TIMESTAMP DESC
+		    FETCH FIRST 1 ROWS ONLY
+		) AS LAST_PAYROLL_COMMENT,
                 status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
                 (
                     SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
@@ -204,7 +209,7 @@ class PayrollQueues extends BaseDB {
                      "APPROVER_QUEUE",
                      "REQUEST_STATUS_DESCRIPTION",
                      "REQUESTED_HOURS",
-                     "REQUEST_REASON",
+                     "LAST_PAYROLL_COMMENT",
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];

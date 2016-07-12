@@ -256,7 +256,7 @@
                                         <?php
                                         foreach( $timeoffRequestData['LOG_ENTRIES'] as $ctr => $entry ) {
                                             echo '<tr>';
-                                            echo '<td>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
+                                            echo '<td' . ( $entry['COMMENT_TYPE']=="P" ? ' class="payrollComment"' : '') . '>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
                                             echo '</tr>';
                                         }
                                         ?>
@@ -272,7 +272,7 @@
                         <div class="form-group">
                             <label for="inputPassword3" class="col-lg-3 col-md-3 text-right">Approval Actions</label>
                             <div class="ccol-lg-9 col-md-9">
-                                <?php if( $isPayrollReviewRequired ) { ?>
+                                <?php if( $isPayrollReviewRequired && $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Payroll Approval" ) { ?>
                                 <div class="alert alert-danger" role="alert">
                                     <i class="fa fa-exclamation-circle"></i> <strong>Payroll Approval Required</strong><br /><br />
                                     This request exceeded the employee's remaining time in certain category/ies and requires Payroll Approval.
@@ -290,12 +290,14 @@
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
+                                        <textarea rows="4" cols="80" id="managerComment" name="managerComment"></textarea>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
                                     
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
+                                        <textarea rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>

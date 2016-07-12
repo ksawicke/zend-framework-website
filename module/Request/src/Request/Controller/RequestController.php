@@ -10,6 +10,7 @@ use Zend\Session\Container;
 use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 use \Request\Helper\ValidationHelper;
+use \Login\Helper\UserSession;
 
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
@@ -351,7 +352,7 @@ class RequestController extends AbstractActionController
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
-        $timeOffRequestData = $TimeOffRequests->findRequest( $requestId );
+        $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
         
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
