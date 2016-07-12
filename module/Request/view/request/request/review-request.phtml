@@ -256,7 +256,7 @@
                                         <?php
                                         foreach( $timeoffRequestData['LOG_ENTRIES'] as $ctr => $entry ) {
                                             echo '<tr>';
-                                            echo '<td>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
+                                            echo '<td' . ( $entry['COMMENT_TYPE']=="P" ? ' class="payrollComment"' : '') . '>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
                                             echo '</tr>';
                                         }
                                         ?>

@@ -446,7 +446,7 @@ class TimeOffRequests extends BaseDB {
      * @param integer $requestId    Request ID
      * @return array
      */
-    public function findRequest( $requestId ) {
+    public function findRequest( $requestId, $isPayroll = "N" ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
                 ->columns( [ 'REQUEST_ID' => 'REQUEST_ID', 'EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_STATUS' => 'REQUEST_STATUS', 'CREATE_USER' => 'CREATE_USER',
@@ -470,7 +470,7 @@ class TimeOffRequests extends BaseDB {
         
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
-        $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId );
+        $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId, $isPayroll );
         $request['CHANGES_MADE'] = $this->findLastRequestChangeMade( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
         $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m/d/Y" );
@@ -529,9 +529,10 @@ class TimeOffRequests extends BaseDB {
      * @param integer $requestId   Request ID
      * @return array
      */
-    public function findRequestLogEntries( $requestId = null ) {
-        $rawSql = "SELECT COMMENT, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
-                   TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " ORDER
+    public function findRequestLogEntries( $requestId = null, $isPayroll = "N" ) {
+        $nonPayrollAndClause = ( $isPayroll=="N" ? " AND COMMENT_TYPE = 'S'" : "" );
+        $rawSql = "SELECT COMMENT, COMMENT_TYPE, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+                   TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " " . $nonPayrollAndClause . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
         
         $logEntries = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
