@@ -269,6 +269,7 @@ class QueueApi extends ApiController {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
             
             $data[] = [
+                'CYCLE_CODE' => $request['CYCLE_CODE'],
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
@@ -284,6 +285,7 @@ class QueueApi extends ApiController {
         
         $recordsTotal = $PayrollQueues->countUpdateChecksQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countUpdateChecksQueueItems( $_POST, true );
+        
 
         /**
          * prepare return result

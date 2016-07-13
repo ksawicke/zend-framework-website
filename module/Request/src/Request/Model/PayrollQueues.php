@@ -135,45 +135,36 @@ class PayrollQueues extends BaseDB {
      */
     public function countUpdateChecksQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
-        FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
-        
         $where = [];
-        $where[] = "request.REQUEST_STATUS = 'U'";
-            
         if( $isFiltered ) {
-            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
-                            )";
-            }
+            $where[] = ( ($data['columns'][0]['search']['value']!=="" && $data['columns'][0]['search']['value']!=="All") ?
+                        "payroll_master_file.PYCYC = '" . $data['columns'][0]['search']['value'] . "'" : "payroll_master_file.PYCYC IS NOT NULL" );
         }
-        $rawSql .=  " WHERE " . implode( " AND ", $where );
         
-        $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
-
-        return (int) $queueData['RCOUNT'];
-    }
-
-    /**
-     * Get Manager Queue data to display in data table.
-     * 
-     * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
-     * @return array
-     */
-    public function getUpdateChecksQueue( $data = null ) {
+        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+            $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                        )";
+        }
+        $where[] = "request.REQUEST_STATUS = 'U'";
+        
+        $connector = "";
+        if( count($where)==1 ) {
+            $connector = "";
+        } elseif( count($where)>1 ) {
+            $connector = " AND ";
+        }
+        $whereStatement = " WHERE " . implode( $connector, $where );
         $rawSql = "       
-        SELECT DATA2.* FROM (
+        SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
-                ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
+                ROW_NUMBER () OVER (ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID) AS ROW_NUMBER,
                 DATA.* FROM (
                 SELECT
                 request.REQUEST_ID AS REQUEST_ID,
                 TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
+	        payroll_master_file.PYCYC AS CYCLE_CODE,
                 (
 		    SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
 		    COMMENT_TYPE = 'P'
@@ -200,9 +191,66 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+	    INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'U'
-            ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
+            " . $whereStatement . "
+            ) AS DATA
+        ) AS DATA2";
+        
+        $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
+
+        return (int) $queueData['RCOUNT'];
+    }
+
+    /**
+     * Get Manager Queue data to display in data table.
+     * 
+     * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
+     * @return array
+     */
+    public function getUpdateChecksQueue( $data = null ) {
+        $where1 = ( ($data['columns'][0]['search']['value']!=="" && $data['columns'][0]['search']['value']!=="All") ?
+                    "AND payroll_master_file.PYCYC = '" . $data['columns'][0]['search']['value'] . "'" : "" );
+        
+        $rawSql = "       
+        SELECT DATA2.* FROM (
+            SELECT
+                ROW_NUMBER () OVER (ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID) AS ROW_NUMBER,
+                DATA.* FROM (
+                SELECT
+                request.REQUEST_ID AS REQUEST_ID,
+                TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
+	        payroll_master_file.PYCYC AS CYCLE_CODE,
+                (
+		    SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
+		    COMMENT_TYPE = 'P'
+		    ORDER BY CREATE_TIMESTAMP DESC
+		    FETCH FIRST 1 ROWS ONLY
+		) AS LAST_PAYROLL_COMMENT,
+                status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
+                (
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS REQUESTED_HOURS,
+                (
+                    SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS MIN_DATE_REQUESTED,
+                (
+                    SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS MAX_DATE_REQUESTED,
+
+                TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
+                TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
+                TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
+		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+                TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
+            FROM TIMEOFF_REQUESTS request
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+	    INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
+            WHERE request.REQUEST_STATUS = 'U' " . $where1 . "
+	    ) AS DATA
         ) AS DATA2";
 
         $columns = [ "EMPLOYEE_DESCRIPTION",
@@ -225,7 +273,7 @@ class PayrollQueues extends BaseDB {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
         
-        $rawSql .=  " WHERE " . implode( " AND ", $where );
+        $rawSql .=  " WHERE " . implode( " AND ", $where ) . " ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID";
         
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 

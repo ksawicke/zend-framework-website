@@ -40,11 +40,12 @@ var reloadByStatusDT = function() {
 <table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display dataTable" style="width:100%;">
     <thead>
         <tr>
+            <?php echo ( $this->payrollView == 'update-checks' ? '<th>Cycle Code</th>' : '' ); ?>
             <th>Employee</th>
             <th>Approver queue</th>
             <th>Request Status</th>
             <th>Hours Requested</th>
-            <th><?php echo ( $this->payrollView === 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
+            <th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
             <th>First Day<br />Requested</th>
             <th>Actions</th>
         </tr>
