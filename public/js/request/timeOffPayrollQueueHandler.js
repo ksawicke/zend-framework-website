@@ -77,6 +77,7 @@ var timeOffPayrollQueueHandler = new function ()
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
             columns: [
+                {"data": "CYCLE_CODE"},
                 {"data": "EMPLOYEE_DESCRIPTION"},
                 {"data": "APPROVER_QUEUE"},
                 {"data": "REQUEST_STATUS_DESCRIPTION"},
@@ -98,6 +99,32 @@ var timeOffPayrollQueueHandler = new function ()
                     });
                 },
                 type: "POST",
+            },
+            initComplete: function () {
+                var table = $('#payroll-queue-update-checks').DataTable();
+        
+                table.columns().every( function () {
+                    var column = this;
+                    var idx = this.index();
+                    var title = table.column( idx ).header();
+                    
+                    if( $(title).html()=="Cycle Code" ) {
+                        var select = $('<br /><select><option value="All" selected>All</option></select>')
+                            .appendTo( $(column.header()) )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search( val ? val : '', true, false )
+                                    .draw();
+                            } );
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                        } );
+                    }
+                } );
             }
         })
         .on("error.dt", function (e, settings, techNote, message) {
