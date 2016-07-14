@@ -8,7 +8,7 @@ class ValidationHelper {
     
     /**
      * Checks if a request exceeds employee's remaining PTO, Float, Sick, or Grandfathered time.
-     * Also check if a request contains Bereavement.
+     * Also check if a request contains Civic Duty.
      * 
      * @param integer $requestId
      * @param integer $employeeNumber
@@ -33,7 +33,7 @@ class ValidationHelper {
         if($requestData['GRANDFATHERED'] > $employeeData['GF_REMAINING']) {
             return true;
         }
-        if($requestData['BEREAVEMENT'] > 0) {
+        if($requestData['CIVIC_DUTY'] > 0) {
             return true;
         }
         
