@@ -8,6 +8,7 @@ class ValidationHelper {
     
     /**
      * Checks if a request exceeds employee's remaining PTO, Float, Sick, or Grandfathered time.
+     * Also check if a request contains Bereavement.
      * 
      * @param integer $requestId
      * @param integer $employeeNumber
@@ -20,16 +21,6 @@ class ValidationHelper {
         $requestData = $Employee->checkHoursRequestedPerCategory( $requestId );
         $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
         
-//         echo '<pre>';
-//         print_r( $requestData );
-//         echo '</pre>';
-        
-//         echo '<pre>';
-//         print_r( $employeeData );
-//         echo '</pre>';
-        
-//         exit();
-        
         if($requestData['PTO'] > $employeeData['PTO_REMAINING']) {
             return true;
         }
@@ -40,6 +31,9 @@ class ValidationHelper {
             return true;
         }
         if($requestData['GRANDFATHERED'] > $employeeData['GF_REMAINING']) {
+            return true;
+        }
+        if($requestData['BEREAVEMENT'] > 0) {
             return true;
         }
         

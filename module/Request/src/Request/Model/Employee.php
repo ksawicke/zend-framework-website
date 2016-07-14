@@ -381,7 +381,11 @@ class Employee extends BaseDB {
             (
                     SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
                     AND entry.request_code = 'R'
-            ) AS GRANDFATHERED
+            ) AS GRANDFATHERED,
+            (
+                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    AND entry.request_code = 'B'
+            ) AS BEREAVEMENT
             FROM TIMEOFF_REQUESTS request
             WHERE request.REQUEST_ID = '" . $requestId . "'";
 
