@@ -849,7 +849,7 @@ var timeOffCreateRequestHandler = new function() {
             $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) < 0) {
-            $('#warnPTO').show();
+            //$('#warnPTO').show();
         }
     }
 
@@ -878,7 +878,7 @@ var timeOffCreateRequestHandler = new function() {
             $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) < 0) {
-            $('#warnFloat').show();
+//            $('#warnFloat').show();
         }
     }
 
@@ -902,7 +902,7 @@ var timeOffCreateRequestHandler = new function() {
             $('.buttonDisappearSick').removeClass('hidden');
         }
         if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) < 0) {
-            $('#warnSick').show();
+//            $('#warnSick').show();
         }
     }
 
