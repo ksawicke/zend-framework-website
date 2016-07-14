@@ -661,7 +661,7 @@ class RequestApi extends ApiController {
     {
         $updatesMadeToForm = false;
         
-        if( $post->formDirty=="true" ) {
+        if( isset($post->formDirst) && $post->formDirty=="true" ) {
             $updatesMadeToForm = true;
             
             $TimeOffRequests = new TimeOffRequests();
@@ -763,7 +763,7 @@ class RequestApi extends ApiController {
         if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld ) {
             $payrollReviewRequiredReason = '';
             if( $isPayrollReviewRequired ) {
-                $payrollReviewRequiredReason = 'Payroll review required because of insufficient hours.';
+                $payrollReviewRequiredReason = 'Payroll review required because of insufficient hours in one or more categories, and/or Bereavement requested.';
             }
             if( $isFirstDateRequestedTooOld ) {
                 $payrollReviewRequiredReason = 'Payroll review required because one or more days requested is at least 14 days old.';
