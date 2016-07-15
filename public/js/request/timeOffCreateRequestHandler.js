@@ -100,8 +100,7 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is opened
                  */
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
-                if ( ( loggedInUserData.isManager == "Y" &&
-                       loggedInUserData.isSupervisor == "Y" &&
+                if ( ( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) &&
                        loggedInUserData.isPayrollAdmin == "N" &&
                        loggedInUserData.isPayrollAssistant == "N" ) ||
                        loggedInUserData.isProxy == "Y"
@@ -115,33 +114,34 @@ var timeOffCreateRequestHandler = new function() {
                 }
                 if( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) && loggedInUserData.isPayrollAdmin == "N" ) {
                     $filter += '<input type="radio" name="directReportFilter" value="B"'
-                        + ((directReportFilter === 'B') ? ' checked'
+                        + ((directReportFilter == 'B') ? ' checked'
                             : '')
                         + '> Both&nbsp;&nbsp;&nbsp;'
                         + '<input type="radio" name="directReportFilter" value="D"'
-                        + ((directReportFilter === 'D') ? ' checked'
+                        + ((directReportFilter == 'D') ? ' checked'
                             : '')
                         + '> Direct Reports&nbsp;&nbsp;&nbsp;'
                         + '<input type="radio" name="directReportFilter" value="I"'
-                        + ((directReportFilter === 'I') ? ' checked'
+                        + ((directReportFilter == 'I') ? ' checked'
                             : '')
                         + '> Indirect Reports&nbsp;&nbsp;&nbsp;';
                 }
-                if( loggedInUserData.isProxy === "Y" ) {
-                    if( loggedInUserData.isManager === "N" &&
-                        loggedInUserData.isPayrollAdmin === "N" &&
-                        loggedInUserData.isPayrollAssistant === "N" ) {
+                if( loggedInUserData.isProxy == "Y" ) {
+                    if( loggedInUserData.isManager == "N" &&
+                        loggedInUserData.isSupervisor == "N" && 
+                        loggedInUserData.isPayrollAdmin == "N" &&
+                        loggedInUserData.isPayrollAssistant == "N" ) {
                         directReportFilter = 'P';
                     }
                     $filter += '<input type="radio" name="directReportFilter" value="P"'
-                        + ((directReportFilter === 'P' ) ? ' checked'
+                        + ((directReportFilter == 'P' ) ? ' checked'
                             : '')
                         + '> Employees For Whom I Am Authorized to Submit Requests';
                 }
-                if ( ( loggedInUserData.isManager === "Y" &&
-                       loggedInUserData.isPayrollAdmin === "N" &&
-                       loggedInUserData.isPayrollAssistant === "N" ) ||
-                       loggedInUserData.isProxy === "Y"
+                if ( ( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor ) &&
+                       loggedInUserData.isPayrollAdmin == "N" &&
+                       loggedInUserData.isPayrollAssistant == "N" ) ||
+                       loggedInUserData.isProxy == "Y"
                    ) {
                         $filter += '</form>';
                         $("<span class='select2CustomTag' style='padding-left:6px;'>"
