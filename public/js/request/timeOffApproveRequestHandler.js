@@ -45,7 +45,7 @@ var timeOffApproveRequestHandler = new function ()
                     break;
                     
                 case 'managerActionDenyRequest':
-                    timeOffApproveRequestHandler.managerActionDenyRequest( data );
+                    timeOffApproveRequestHandler.managerActionDenyRequest( data, $(this) );
                     break;
                     
                 case 'payrollActionApproveRequest':
@@ -53,7 +53,7 @@ var timeOffApproveRequestHandler = new function ()
                     break;
                     
                 case 'payrollActionDenyRequest':
-                    timeOffApproveRequestHandler.payrollActionDenyRequest( data );
+                    timeOffApproveRequestHandler.payrollActionDenyRequest( data, $(this) );
                     break;
                     
                     
@@ -83,6 +83,14 @@ var timeOffApproveRequestHandler = new function ()
         // Add a spinning icon and a couple of spaces before the button text.
         selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
+    
+    this.stopPleaseWaitStatus = function( selectedButton ) {
+        $( '.btn' ).removeClass( 'disabled' ); // Disable all buttons from being selected first.
+        selectedButton.blur(); // Click out of button.
+        
+        // Remove spinning icon
+        selectedButton.html('Deny');
+    }
 
     /**
      * Submits Manager approval response to API.
@@ -99,9 +107,13 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.managerActionDenyRequest = function( data ) {
-        timeOffApproveRequestHandler.roundTripAPICall(
-            data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
+    this.managerActionDenyRequest = function( data, selectedButton ) {
+        // sawik TODO: Implement this feature.
+        // 07-15-16 Tell them this is not yet implemented.
+        alert( "Sorry, Charlie. This feature is not yet implemented." );
+        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
+//        timeOffApproveRequestHandler.roundTripAPICall(
+//            data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
     }
     
     /**
@@ -119,9 +131,13 @@ var timeOffApproveRequestHandler = new function ()
      * 
      * @returns {undefined}
      */
-    this.payrollActionDenyRequest = function( data ) {
-        timeOffApproveRequestHandler.roundTripAPICall(
-            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
+    this.payrollActionDenyRequest = function( data, selectedButton ) {
+        // sawik TODO: Implement this feature.
+        // 07-15-16 Tell them this is not yet implemented.
+        alert( "Sorry, Charlie. This feature is not yet implemented." );
+        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
+//        timeOffApproveRequestHandler.roundTripAPICall(
+//            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
     }
     
     /**
