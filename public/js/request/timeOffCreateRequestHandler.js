@@ -215,9 +215,25 @@ var timeOffCreateRequestHandler = new function() {
             if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
                 requestReason = $("#requestReason").val();
+                timeOffCreateRequestHandler.handlePleaseWaitStatus( $(this) );
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             }
         });
+    }
+    
+    /**
+     * Handles showing the user the API action is being processed.
+     * 
+     * @param {type} selectedButton
+     * @returns {undefined}
+     */
+    this.handlePleaseWaitStatus = function( selectedButton ) {
+        $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
+        //selectedButton.addClass( 'disabled' );
+        selectedButton.blur(); // Click out of button.
+        
+        // Add a spinning icon and a couple of spaces before the button text.
+        selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
     
     this.verifyBereavementHoursPerRequest = function() {
