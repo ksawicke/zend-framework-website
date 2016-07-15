@@ -215,9 +215,25 @@ var timeOffCreateRequestHandler = new function() {
             if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
                 requestReason = $("#requestReason").val();
+                timeOffCreateRequestHandler.handlePleaseWaitStatus( $(this) );
                 timeOffCreateRequestHandler.submitTimeOffRequest();
             }
         });
+    }
+    
+    /**
+     * Handles showing the user the API action is being processed.
+     * 
+     * @param {type} selectedButton
+     * @returns {undefined}
+     */
+    this.handlePleaseWaitStatus = function( selectedButton ) {
+        $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
+        //selectedButton.addClass( 'disabled' );
+        selectedButton.blur(); // Click out of button.
+        
+        // Add a spinning icon and a couple of spaces before the button text.
+        selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
     
     this.verifyBereavementHoursPerRequest = function() {
@@ -1690,14 +1706,14 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Add the following to the day requested:
      * 1. Day of week (i.e. MON, TUE)
-     * 2. Default hours for this employee's schedule.
+     * 2. Default hours for this employee's schedule, unless Float.
      *
      * @param {string} object
      * @returns {object}     */
     this.formatDayRequested = function(object) {
         object.dow = moment(object.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         var scheduleDay = "SCHEDULE_" + object.dow;
-        object.hours = requestForEmployeeObject[scheduleDay];
+        object.hours = ( ( object.category=="timeOffFloat" ) ? '8.00' : requestForEmployeeObject[scheduleDay] );
         return object;
     }
     
