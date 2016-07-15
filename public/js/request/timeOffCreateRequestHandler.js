@@ -1690,14 +1690,14 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Add the following to the day requested:
      * 1. Day of week (i.e. MON, TUE)
-     * 2. Default hours for this employee's schedule.
+     * 2. Default hours for this employee's schedule, unless Float.
      *
      * @param {string} object
      * @returns {object}     */
     this.formatDayRequested = function(object) {
         object.dow = moment(object.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         var scheduleDay = "SCHEDULE_" + object.dow;
-        object.hours = requestForEmployeeObject[scheduleDay];
+        object.hours = ( ( object.category=="timeOffFloat" ) ? '8.00' : requestForEmployeeObject[scheduleDay] );
         return object;
     }
     

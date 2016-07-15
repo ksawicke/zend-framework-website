@@ -86,6 +86,9 @@ class CalendarApi extends ApiController {
         $startYear = null;
         $startMonth = null;
         
+        if( empty( $post->calendarsToLoad ) ) {
+            $post->calendarsToLoad = 3;
+        }
         if( !empty( $post->appendDatesAsHighlighted ) ) {
             \Request\Helper\Calendar::setPreHighlightedDates($post->appendDatesAsHighlighted);
         }
@@ -129,9 +132,10 @@ class CalendarApi extends ApiController {
             ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] ), $post->requestId );
         
 //        echo '<pre>';
-//        var_dump( $highlightDates );
+//        var_dump( $post );
 //        echo '</pre>';
 //        die( ">>>>>" );
+        
         
         if( $post->calendarsToLoad==1) {
             $threeCalendars = \Request\Helper\Calendar::getOneCalendar( $startYear, $startMonth, $highlightDates, $post->requestId );
