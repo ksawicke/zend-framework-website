@@ -269,11 +269,11 @@ var timeOffCreateRequestHandler = new function() {
             }
         });
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-            if( requestForEmployeeObject.SALARY_TYPE==='S' &&
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] != 8 ) {
+            if( requestForEmployeeObject.SALARY_TYPE=='S' &&
+                selectedDatesNewHoursByDate[selectedDateNewObject.date] < 8 ) {
                 validates = false;
             }
-            if( requestForEmployeeObject.SALARY_TYPE==='H' &&
+            if( requestForEmployeeObject.SALARY_TYPE=='H' &&
                 ( selectedDatesNewHoursByDate[selectedDateNewObject.date] > 12 ||
                   selectedDatesNewHoursByDate[selectedDateNewObject.date] < 0 )
               ) {
