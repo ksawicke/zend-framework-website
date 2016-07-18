@@ -758,7 +758,7 @@ class PayrollQueues extends BaseDB {
      * @param type $data
      * @return type
      */
-    public function getManagerActionEmailQueue( $data = null, $params = [] )
+    public function getManagerActionEmailQueue( $data = [], $params = [] )
     {
         $singleManager = "";
         $warnType = "";

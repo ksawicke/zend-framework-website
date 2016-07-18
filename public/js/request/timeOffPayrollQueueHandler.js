@@ -26,7 +26,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingPendingPayrollQueue = function () {
         $('#payroll-queue-pending-payroll-approval').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -70,7 +70,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingUpdateChecksQueue = function () {
         $('#payroll-queue-update-checks').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -141,7 +141,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingCompletedPAFsQueue = function () {
         $('#payroll-queue-completed-pafs').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -185,7 +185,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingPendingAS400UploadQueue = function () {
         $('#payroll-queue-pending-as400-upload').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -229,7 +229,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingDeniedQueue = function () {
         $('#payroll-queue-denied').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -273,7 +273,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingByStatusQueue = function () {    
         $('#payroll-queue-by-status').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
@@ -353,7 +353,7 @@ var timeOffPayrollQueueHandler = new function ()
      */
     this.handleLoadingManagerActionQueue = function () {
         $('#payroll-queue-manager-action').DataTable({
-            dom: 'fltirp',
+            dom: 'ftirp',
             searching: true,
             processing: true,
             serverSide: true,
