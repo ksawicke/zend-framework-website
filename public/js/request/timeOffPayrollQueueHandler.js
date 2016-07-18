@@ -30,6 +30,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
@@ -73,6 +74,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
@@ -143,6 +145,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
@@ -186,6 +189,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
@@ -229,6 +233,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },
@@ -352,6 +357,7 @@ var timeOffPayrollQueueHandler = new function ()
             searching: true,
             processing: true,
             serverSide: true,
+            pageLength: 50,
             oLanguage: {
                 sProcessing: "<img src='" + phpVars.basePath + "/img/loading/clock.gif'>"
             },

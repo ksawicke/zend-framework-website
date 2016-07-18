@@ -594,8 +594,8 @@ class QueueApi extends ApiController {
         $recordsTotal = 0;
         $recordsFiltered = 0;
         
-        $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false );
-        $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true );
+        $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+        $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
 
         /**
          * prepare return result
