@@ -594,8 +594,8 @@ class QueueApi extends ApiController {
         $recordsTotal = 0;
         $recordsFiltered = 0;
         
-        $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false );
-        $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true );
+        $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+        $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
 
         /**
          * prepare return result
@@ -620,29 +620,26 @@ class QueueApi extends ApiController {
         return $result;
     }
     
-    public function getManagerActionEmailDataAction( $data = null )
+    public function getManagerActionEmailDataAction( $data = [] )
     {
-        $ManagerQueues = new \Request\Model\ManagerQueues();
-        $queueData = $ManagerQueues->getManagerActionEmailQueue( $data ); // 'MANAGER_EMPLOYEE_NUMBER' => '229589'
+        $warnType = 'OLD_REQUESTS';
+        $warnTypeBody = "It has been more than 3 days since this request was made and requires your approval.";
+        $PayrollQueues = new \Request\Model\PayrollQueues();
+        $queueData = $PayrollQueues->getManagerActionEmailQueue( $data, [ 'WARN_TYPE' => $warnType ]);
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
-        if( array_key_exists( 'WARN_TYPE', $data ) ) {
-            if( $data['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $warnTypeBody = "It has been more than 3 days since this request was made and requires your approval.";
-            }
-            if( $data['WARN_TYPE'] === 'BEFORE_PAYROLL_RUN' ) {
-                $warnTypeBody = "We are about to do a Payroll run, and this request requires your approval.";
-            }
+        if( $warnType == 'BEFORE_PAYROLL_RUN' ) {
+            $warnTypeBody = "We are about to do a Payroll run, and this request requires your approval.";
         }
         
         foreach( $queueData as $key => $queue ) {
             $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
                 $renderer->basePath( '/request/review-request/' . $queue['REQUEST_ID'] );
             $to = $queue['MANAGER_EMAIL_ADDRESS'];
-            if( ENVIRONMENT==='development' ) {
+            if( ENVIRONMENT=='development' ) {
                 $to = $this->developmentEmailAddressList;
                 $cc = '';
             }
-            if( ENVIRONMENT==='testing' ) {
+            if( ENVIRONMENT=='testing' ) {
                 $to = $this->testingEmailAddressList;
                 $cc = '';
             }

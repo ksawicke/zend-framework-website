@@ -682,30 +682,70 @@ class PayrollQueues extends BaseDB {
         return $queueData;
     }
     
-    public function countManagerActionQueueItems( $data = null, $isFiltered = false )
+    public function countManagerActionQueueItems( $data = null, $isFiltered = false, $params = [] )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
-        FROM TIMEOFF_REQUESTS request
+        $singleManager = "";
+        $warnType = "";
+        if( $isFiltered ) {
+            if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
+                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
+            }
+        }
+        if( array_key_exists( 'WARN_TYPE', $params ) ) {
+            if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
+                $warnType = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
+            }
+        }
+        $rawSql = "
+        SELECT COUNT(*) AS RCOUNT FROM (
+            SELECT
+                ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
+                DATA.* FROM (
+                SELECT
+                request.REQUEST_ID AS REQUEST_ID,
+                TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
+                request.REQUEST_REASON AS REQUEST_REASON,
+                status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
+                (
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS REQUESTED_HOURS,
+                (
+                    SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS MIN_DATE_REQUESTED,
+                (
+                    SELECT MAX(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                ) AS MAX_DATE_REQUESTED,
+                TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION_ALT,
+                TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
+                TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
+		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+                TRIM(manager_addons.PREN) AS MANAGER_EMPLOYEE_NUMBER,
+                TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS,
+                CREATE_TIMESTAMP,
+                date( CREATE_TIMESTAMP ) as CREATE_DATE
+            FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS";
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
+            WHERE request.REQUEST_STATUS = 'P' 
+                  " . $singleManager . "
+            ORDER BY
+                MIN_DATE_REQUESTED ASC
+            ) AS DATA
+        ) AS DATA2" . $warnType;
         
         $where = [];
-        $where[] = "request.REQUEST_STATUS = 'P'";
-        
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
                             )";
             }
         }
         
-        $where[] = "( date( CREATE_TIMESTAMP ) <= '" . $this->getManagerWarnDateToApproveRequests() . "' )";
-        
-        $rawSql .=  ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
+        $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
@@ -718,7 +758,7 @@ class PayrollQueues extends BaseDB {
      * @param type $data
      * @return type
      */
-    public function getManagerActionEmailQueue( $data = null, $params = [] )
+    public function getManagerActionEmailQueue( $data = [], $params = [] )
     {
         $singleManager = "";
         $warnType = "";
@@ -727,7 +767,7 @@ class PayrollQueues extends BaseDB {
         }
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $warnType = " AND ( date( CREATE_TIMESTAMP ) <= '" . $this->getManagerWarnDateToApproveRequests() . "' )";
+                $warnType = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
             }
         }
         $rawSql = "
@@ -764,11 +804,10 @@ class PayrollQueues extends BaseDB {
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P' 
                   " . $singleManager . "
-                  " . $warnType . "
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
-        ) AS DATA2";
+        ) AS DATA2" . $warnType;
         
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
