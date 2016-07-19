@@ -1162,11 +1162,17 @@ var timeOffCreateRequestHandler = new function() {
 //        console.log( "CHECK BEFORE MARKING AS DELETED", selectedDatesNew );
 //        console.log( " >> " + deleteIndex );
 //        console.log( "...." );
+
+        console.log( "DELETE TEST....." );
+        console.log( "selectedDatesNew", selectedDatesNew );
+        console.log( "deleteIndex", deleteIndex );
+        selectedDatesNew.splice(deleteIndex, 1);
         
-        selectedDatesNew[deleteIndex].fieldDirty = true;
-        selectedDatesNew[deleteIndex].delete = true;
-        $('#formDirty').val('true');
-        
+        // BEGIN: IF ON MANAGER/PAYROLL FORM OK TO HANDLE THIS WAY....
+//        selectedDatesNew[deleteIndex].fieldDirty = true;
+//        selectedDatesNew[deleteIndex].delete = true;
+//        $('#formDirty').val('true');
+        // /END
 //        console.log( "CHECK AFTER MARKING AS DELETED", selectedDatesNew );
 //        console.log( "formDirty", $('#formDirty').val() );
         
