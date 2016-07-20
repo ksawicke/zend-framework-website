@@ -1225,8 +1225,8 @@ var timeOffCreateRequestHandler = new function() {
      * Adds date to current request
      */
     this.addDateToRequest = function(obj) {
-        console.log( "addDateToRequest", obj );
         selectedDatesNew.push(obj);
+        timeOffCreateRequestHandler.addTime(obj.category, obj.hours)
     }
 
     /**
