@@ -333,16 +333,23 @@ var timeOffCreateRequestHandler = new function() {
             var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen(),
-                selectedDate = selectedCalendarDateObject.data("date");
+                selectedDate = selectedCalendarDateObject.data("date"),
+                isSelected = timeOffCreateRequestHandler.isSelected( $(this) ),
+                isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) );
             
             console.log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
             console.log( "!!! selectedCalendarDateObject = ", selectedCalendarDateObject );
             console.log( "!!! isCompanyHoliday = ", isCompanyHoliday );
             console.log( "!!! isBeingReviewed = ", isHandledFromReviewRequestScreen );
-            console.log( "!!! selectedDatesNew = ", selectedDatesNew );
             console.log( "!!! selectedTimeOffCategory = ", selectedTimeOffCategory );
             console.log( "!!! formDirty = ", $('#formDirty').val() );
             console.log( "!!! selectedDate = ", selectedDate );
+            console.log( "!!! isSelected = ", isSelected );
+            
+            if( isSelected.isSelected === false ) {
+                timeOffCreateRequestHandler.addDateToRequest( isSelected.obj );
+            }
+            console.log( "!!! selectedDatesNew = ", selectedDatesNew );
             timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
             
 //            if( $('#formDirty').val()=="false" ) {
@@ -1185,8 +1192,8 @@ var timeOffCreateRequestHandler = new function() {
      * Determines if the date is selected and returns an object we can handle later.
      */
     this.isSelected = function(object) {
-        console.log('object', object);
-        console.log('boo ya check', j)
+//        console.log('object', object);
+//        console.log('boo ya check', j)
         var thisDate = object.data('date');
         var thisCategory = selectedTimeOffCategory;
         var thisHours = defaultHours;
