@@ -351,11 +351,12 @@ var timeOffCreateRequestHandler = new function() {
             console.log( "!!! isSelected = ", isSelected );
             console.log( "!!! isSelected typeof " + typeof isSelected.isSelected );
             console.log( "!!! isSelected.isSelected = " + isSelected.isSelected );
-            timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
-//            } else {
-//                console.log( "!!! method = ", method );
-//                timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
-//            }
+            if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
+                timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
+            } else {
+                console.log( "!!! method = ", method );
+                timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
+            }
             console.log( "!!! selectedDatesNew = ", selectedDatesNew );
             timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
             
@@ -1257,7 +1258,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.removeDateFromRequest = function( method, isSelected ) {
         var index = isSelected.deleteIndex;
-        timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
+        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
         switch( method ) {
             case 'do':
                 selectedDatesNew.splice(index, 1);
