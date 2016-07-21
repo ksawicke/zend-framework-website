@@ -1250,13 +1250,13 @@ var timeOffCreateRequestHandler = new function() {
     
     /**
      * Removes a date or marks a date as deleted from current request
+     * 
+     * @param {type} method
+     * @param {type} isSelected
+     * @returns {undefined}
      */
     this.removeDateFromRequest = function( method, isSelected ) {
         var index = isSelected.deleteIndex;
-        console.log( ">>> method ", method );
-//        console.log( ">>> isSelected ", isSelected );
-        console.log( ">>> selectedDate ", selectedDatesNew[index] );
-//        var index = isSelected.deleteIndex;
         timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
         switch( method ) {
             case 'do':
@@ -1278,6 +1278,9 @@ var timeOffCreateRequestHandler = new function() {
 
     /**
      * Removes a date from the request.
+     * 
+     * @param {type} object
+     * @returns {undefined}
      */
     this.toggleDateFromRequest = function(object) {
         var selectedDate = object.data('date');
