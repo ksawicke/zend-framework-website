@@ -327,12 +327,17 @@ var timeOffCreateRequestHandler = new function() {
 //            }
         });
     }
+    
+    this.getMethodToModifyDates = function() {
+        var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+        return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
+    }
 
     this.handleClickCalendarDateAlternate = function() {
         $(document).on('click', '.calendar-day', function() {
             var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
-                isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen(),
+                method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
                 isSelected = timeOffCreateRequestHandler.isSelected( $(this) ),
                 isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) );
@@ -340,14 +345,15 @@ var timeOffCreateRequestHandler = new function() {
             console.log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
             console.log( "!!! selectedCalendarDateObject = ", selectedCalendarDateObject );
             console.log( "!!! isCompanyHoliday = ", isCompanyHoliday );
-            console.log( "!!! isBeingReviewed = ", isHandledFromReviewRequestScreen );
             console.log( "!!! selectedTimeOffCategory = ", selectedTimeOffCategory );
             console.log( "!!! formDirty = ", $('#formDirty').val() );
             console.log( "!!! selectedDate = ", selectedDate );
             console.log( "!!! isSelected = ", isSelected );
             
             if( isSelected.isSelected === false ) {
-                timeOffCreateRequestHandler.addDateToRequest( isSelected.obj );
+                timeOffCreateRequestHandler.addDateToRequest( method, isSelected.dateObject );
+            } else {
+                timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected.deleteIndex );
             }
             console.log( "!!! selectedDatesNew = ", selectedDatesNew );
             timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
@@ -1189,11 +1195,9 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Determines if the date is selected and returns an object we can handle later.
+     * Determines if the date and category is selected and returns an object we can handle later.
      */
     this.isSelected = function(object) {
-//        console.log('object', object);
-//        console.log('boo ya check', j)
         var thisDate = object.data('date');
         var thisCategory = selectedTimeOffCategory;
         var thisHours = defaultHours;
@@ -1205,81 +1209,55 @@ var timeOffCreateRequestHandler = new function() {
         var isSelected = false;
         var deleteIndex = null;
         for (var i = 0; i < selectedDatesNew.length; i++) {
-            if (selectedDatesNew[i].date === thisDate && selectedDatesNew[i].category != thisCategory) {
-                isSelected = true;
+            if (selectedDatesNew[i].date == thisDate && selectedDatesNew[i].category == thisCategory) {
                 return {
-                    isSelected : isSelected,
+                    isSelected : true,
                     deleteIndex : i,
-                    obj : obj
+                    dateObject : obj
                 };
             }
         }
         return {
             isSelected : isSelected,
             deleteIndex : i,
-            obj : obj
+            dateObject : obj
         };
     }
 
+    this.getLastSelectedDateIndex = function() {
+       return selectedDatesNew.length - 1;
+    }
+    
     /**
      * Adds date to current request
      */
-    this.addDateToRequest = function(obj) {
-        selectedDatesNew.push(obj);
-        timeOffCreateRequestHandler.addTime(obj.category, obj.hours)
+    this.addDateToRequest = function( method, dateObject ) {
+        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
+        selectedDatesNew.push( dateObject );
+        var lastIndex = timeOffCreateRequestHandler.getLastSelectedDateIndex();
+        if( method == 'mark' ) {
+            selectedDatesNew[lastIndex].fieldDirty = true;
+            selectedDatesNew[lastIndex].add = true;
+            $('#formDirty').val('true');
+        }
     }
-
+    
     /**
-     * Removes a date from current request
+     * Removes a date or marks a date as deleted from current request
      */
-    this.removeDateFromRequest = function(deleteIndex) {
-//        console.log( "CHECK BEFORE MARKING AS DELETED", selectedDatesNew );
-//        console.log( " >> " + deleteIndex );
-//        console.log( "...." );
-
-        console.log( "DELETE TEST....." );
-//        console.log( "selectedDatesNew[deleteIndex]", selectedDatesNew[deleteIndex] );
-//        console.log( "selectedDatesNew", selectedDatesNew );
-//        console.log( "deleteIndex", deleteIndex );
-//        selectedDatesNew.splice(deleteIndex, 1);
-        
-        // BEGIN: IF ON MANAGER/PAYROLL FORM OK TO HANDLE THIS WAY....
-        var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
-        if( isBeingReviewed ) {
-            if( selectedDatesNew[key].hasOwnProperty('delete') && selectedDatesNew[key].delete===true ) {
-                console.log( "REVIEWED>>RESTORE" );
-                delete selectedDatesNew[deleteIndex].fieldDirty;
-                delete selectedDatesNew[deleteIndex].delete;
-                $('#formDirty').val('false');
-            } else {
-                console.log( "REVIEWED>>DELETE" );
+    this.removeDateFromRequest = function( method, deleteIndex ) {
+        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
+        switch( method ) {
+            case 'do':
+                selectedDatesNew.splice(deleteIndex, 1);
+                break;
+                
+            case 'mark':
                 selectedDatesNew[deleteIndex].fieldDirty = true;
                 selectedDatesNew[deleteIndex].delete = true;
                 $('#formDirty').val('true');
-            }
-            console.log( "YAYAYA" );
-        } else {
-            console.log( "CREATE>>DELETE" );
-            selectedDatesNew.splice(deleteIndex, 1);
+                break
         }
-        console.log( "WOW", selectedDatesNew );
-        
-//        console.log( "selectedDatesNew[deleteIndex]", selectedDatesNew[deleteIndex] );
-//        $('#formDirty').val('true');
-//        delete selectedDatesNew[deleteIndex].fieldDirty;
-//        delete selectedDatesNew[deleteIndex].delete;
-//        console.log( "selectedDatesNew[deleteIndex]", selectedDatesNew[deleteIndex] );
-        // /END
-        // 
-        // delete selectedDatesNew[deleteIndex].fieldDirty
-        // 
-//        console.log( "CHECK AFTER MARKING AS DELETED", selectedDatesNew );
-//        console.log( "formDirty", $('#formDirty').val() );
-        
-        timeOffCreateRequestHandler.drawHoursRequested();
-        timeOffCreateRequestHandler.highlightDates();
-        
-//        selectedDatesNew.splice(deleteIndex, 1);
     }
 
     /**
