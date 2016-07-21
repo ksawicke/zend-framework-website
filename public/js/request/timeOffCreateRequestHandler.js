@@ -349,12 +349,13 @@ var timeOffCreateRequestHandler = new function() {
             console.log( "!!! formDirty = ", $('#formDirty').val() );
             console.log( "!!! selectedDate = ", selectedDate );
             console.log( "!!! isSelected = ", isSelected );
-            
-            if( isSelected.isSelected === false ) {
-                timeOffCreateRequestHandler.addDateToRequest( method, isSelected.dateObject );
-            } else {
-                timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected.deleteIndex );
-            }
+            console.log( "!!! isSelected typeof " + typeof isSelected.isSelected );
+            console.log( "!!! isSelected.isSelected = " + isSelected.isSelected );
+            timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
+//            } else {
+//                console.log( "!!! method = ", method );
+//                timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
+//            }
             console.log( "!!! selectedDatesNew = ", selectedDatesNew );
             timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
             
@@ -598,7 +599,6 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.addLoadedDatesAsSelected = function( highlightDates, request_id ) {
-        console.log( "MEAT MOUNTAIN", highlightDates );
         for (key in highlightDates) {
             var obj = {
                 date : highlightDates[key].REQUEST_DATE,
@@ -1232,30 +1232,45 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Adds date to current request
      */
-    this.addDateToRequest = function( method, dateObject ) {
-        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
-        selectedDatesNew.push( dateObject );
-        var lastIndex = timeOffCreateRequestHandler.getLastSelectedDateIndex();
+    this.addDateToRequest = function( method, isSelected ) {
+        var index = isSelected.deleteIndex;
+        timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
+        selectedDatesNew.push( isSelected.dateObject );
         if( method == 'mark' ) {
-            selectedDatesNew[lastIndex].fieldDirty = true;
-            selectedDatesNew[lastIndex].add = true;
-            $('#formDirty').val('true');
+            if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
+                selectedDatesNew[index].delete = false;
+                selectedDatesNew[index].fieldDirty = false;
+            } else {
+                selectedDatesNew[index].fieldDirty = true;
+                selectedDatesNew[index].add = true;
+                $('#formDirty').val('true');
+            }
         }
     }
     
     /**
      * Removes a date or marks a date as deleted from current request
      */
-    this.removeDateFromRequest = function( method, deleteIndex ) {
-        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
+    this.removeDateFromRequest = function( method, isSelected ) {
+        var index = isSelected.deleteIndex;
+        console.log( ">>> method ", method );
+//        console.log( ">>> isSelected ", isSelected );
+        console.log( ">>> selectedDate ", selectedDatesNew[index] );
+//        var index = isSelected.deleteIndex;
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
         switch( method ) {
             case 'do':
-                selectedDatesNew.splice(deleteIndex, 1);
+                selectedDatesNew.splice(index, 1);
                 break;
                 
             case 'mark':
-                selectedDatesNew[deleteIndex].fieldDirty = true;
-                selectedDatesNew[deleteIndex].delete = true;
+                if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
+                    delete selectedDatesNew[index].fieldDirty;
+                    delete selectedDatesNew[index].delete;
+                } else {
+                    selectedDatesNew[index].fieldDirty = true;
+                    selectedDatesNew[index].delete = true;
+                }
                 $('#formDirty').val('true');
                 break
         }
@@ -1268,7 +1283,8 @@ var timeOffCreateRequestHandler = new function() {
         var selectedDate = object.data('date');
         var isSelected = timeOffCreateRequestHandler.isSelected(object);
         var isDateDisabled = timeOffCreateRequestHandler.isDateDisabled(object);
-        if (isSelected.isSelected === false) {
+        if (isSelected.isSelected===false) {
+            console.log( "CHICKEN" );
             var obj = {
                 date : selectedDate,
                 hours : defaultHours,
@@ -1276,7 +1292,10 @@ var timeOffCreateRequestHandler = new function() {
             };
             timeOffCreateRequestHandler.addDateToRequest(obj);
         } else {
-
+            console.log( "ROOF" );
+            var selectedIndex = isSelected.deleteIndex;
+            selectedDatesNew[selectedIndex].delete = false;
+            selectedDatesNew[selectedIndex].fieldDirty = false;
         }
     }
 
