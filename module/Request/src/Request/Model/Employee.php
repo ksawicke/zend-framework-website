@@ -800,7 +800,7 @@ class Employee extends BaseDB {
 //               entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' 
 //            ORDER BY REQUEST_DATE ASC";
         
-        $rawSql = "select entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
+        $rawSql = "select entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
             FROM TIMEOFF_REQUEST_ENTRIES entry
             INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE

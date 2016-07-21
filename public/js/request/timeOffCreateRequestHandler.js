@@ -598,6 +598,7 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.addLoadedDatesAsSelected = function( highlightDates, request_id ) {
+        console.log( "MEAT MOUNTAIN", highlightDates );
         for (key in highlightDates) {
             var obj = {
                 date : highlightDates[key].REQUEST_DATE,
