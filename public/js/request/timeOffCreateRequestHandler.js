@@ -349,6 +349,11 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
     
+    /**
+     * Handle clicking on a calendar date.
+     * 
+     * @returns {undefined}
+     */
     this.handleClickCalendarDateAlternate = function() {
         $(document).on('click', '.calendar-day', function() {
             var selectedCalendarDateObject = $(this),

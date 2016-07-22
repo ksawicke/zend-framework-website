@@ -703,7 +703,7 @@ class RequestApi extends ApiController {
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
-        if( isset($post->formDirty) && $post->formDirty==true ) {
+        if( isset($post->formDirty) && $post->formDirty=="true" ) {
             $updatesMadeToForm = true;
             $TimeOffRequests = new TimeOffRequests();
             foreach( $post->selectedDatesNew as $ctr => $entry ) {
@@ -781,7 +781,7 @@ class RequestApi extends ApiController {
                 'Request modified by ' . UserSession::getFullUserInfo() );
 
             $this->emailChangesToRequestMade( $post );
-        }
+        }        
         
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
@@ -995,11 +995,6 @@ class RequestApi extends ApiController {
         
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
-        
-//        echo '<pre>';
-//        var_dump( $updatesToFormMade );
-//        die('</pre>');
-        
         if( $updatesToFormMade ) {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,

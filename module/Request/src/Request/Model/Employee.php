@@ -806,7 +806,7 @@ class Employee extends BaseDB {
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
             WHERE
               trim(request.EMPLOYEE_NUMBER)='" . $employeeNumber . "' AND 
-              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' " . $andRequestId . "
+              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND IS_DELETED = 0 " . $andRequestId . "
             ORDER BY REQUEST_DATE ASC";
                 
         $statement = $this->adapter->query( $rawSql );
