@@ -803,7 +803,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
                 ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
-                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                ( (!empty( $post->manager_comment )) ? ' with the comment: ' . $post->manager_comment : '' ) );
             
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -833,7 +833,7 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Approved by ' . UserSession::getFullUserInfo() .
-                (!empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' ) );
             
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -1014,7 +1014,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
                 ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
-                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                ( (!empty( $post->payroll_comment )) ? ' with the comment: ' . $post->payroll_comment : '' ) );
 
             /** Change status to Pending AS400 Upload */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(

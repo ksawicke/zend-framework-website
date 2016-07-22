@@ -371,6 +371,8 @@ var timeOffCreateRequestHandler = new function() {
                     $('#formDirty').val('true'); // This method allows us to see if form was edited.
                 }
             }
+            timeOffCreateRequestHandler.sortDatesSelected();
+            timeOffCreateRequestHandler.drawHoursRequested();
         });
     }
     
@@ -741,23 +743,23 @@ var timeOffCreateRequestHandler = new function() {
                 dates : selectedDatesNew,
                 reason : requestReason
             } };
-        console.log( "requestData", requestData );
-//        $.ajax({
-//            url : timeOffSubmitTimeOffRequestUrl,
-//            type : 'POST',
-//            data : requestData,
-//            dataType : 'json'
-//        }).success(function(json) {
-//            if (json.success == true) {
-//                window.location.href = timeOffSubmitTimeOffSuccessUrl;
-//            } else {
-//                alert(json.message);
-//            }
-//            return;
-//        }).error(function() {
-//            console.log('There was some error.');
-//            return;
-//        });
+//        console.log( "requestData", requestData );
+        $.ajax({
+            url : timeOffSubmitTimeOffRequestUrl,
+            type : 'POST',
+            data : requestData,
+            dataType : 'json'
+        }).success(function(json) {
+            if (json.success == true) {
+                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+            } else {
+                alert(json.message);
+            }
+            return;
+        }).error(function() {
+            console.log('There was some error.');
+            return;
+        });
     };
     
     /**
