@@ -665,7 +665,7 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsUpdated( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']==true &&
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
                  !array_key_exists( 'delete', $entry ) ) ? true : false );
     }
     
@@ -677,7 +677,7 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsDeleted( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']==true &&
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
                  array_key_exists( 'delete', $entry ) ) ? true : false );
     }
     
@@ -690,7 +690,7 @@ class RequestApi extends ApiController {
     private function requestEntryIsAdded( $entry )
     {
         return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
-                 array_key_exists( 'add', $entry ) ) ? true : false );
+                 array_key_exists( 'add', $entry ) && $entry['add']=="true" ) ? true : false );
     }
     
     /**
@@ -706,7 +706,6 @@ class RequestApi extends ApiController {
         if( isset($post->formDirty) && $post->formDirty==true ) {
             $updatesMadeToForm = true;
             $TimeOffRequests = new TimeOffRequests();
-
             foreach( $post->selectedDatesNew as $ctr => $entry ) {
                 if( $this->requestEntryIsUpdated( $entry ) ) {
                     $data = [ 'ENTRY_ID' => $entry['entryId'],

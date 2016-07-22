@@ -333,6 +333,22 @@ var timeOffCreateRequestHandler = new function() {
         return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
     }
 
+    this.confirmIfUserWantsToRequestOffCompanyHoliday = function() {
+        $("#dialogConfirmSelectHoliday").dialog({
+            modal : true,
+            closeOnEscape: false,
+            buttons : {
+                Yes : function() {
+                    $(this).dialog("close");
+                    timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeOffCategory, selectedCalendarDateObject );
+                },
+                No : function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+    
     this.handleClickCalendarDateAlternate = function() {
         $(document).on('click', '.calendar-day', function() {
             var selectedCalendarDateObject = $(this),
@@ -342,27 +358,19 @@ var timeOffCreateRequestHandler = new function() {
                 isSelected = timeOffCreateRequestHandler.isSelected( $(this) ),
                 isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) );
             
-            console.log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-            console.log( "!!! selectedCalendarDateObject = ", selectedCalendarDateObject );
-            console.log( "!!! isCompanyHoliday = ", isCompanyHoliday );
-            console.log( "!!! selectedTimeOffCategory = ", selectedTimeOffCategory );
-            console.log( "!!! formDirty = ", $('#formDirty').val() );
-            console.log( "!!! selectedDate = ", selectedDate );
-            console.log( "!!! isSelected = ", isSelected );
-            console.log( "!!! isSelected typeof " + typeof isSelected.isSelected );
-            console.log( "!!! isSelected.isSelected = " + isSelected.isSelected );
-            if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
-                timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
+            if( isCompanyHoliday ) {
+                timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
-                console.log( "!!! method = ", method );
-                timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
+                if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
+                    timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
+                } else {
+                    timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
+                }
+                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+                if( $('#formDirty').val()=="false" ) {
+                    $('#formDirty').val('true'); // This method allows us to see if form was edited.
+                }
             }
-            console.log( "!!! selectedDatesNew = ", selectedDatesNew );
-            timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-            
-//            if( $('#formDirty').val()=="false" ) {
-//                $('#formDirty').val('true'); // This method allows us to see if form was edited.
-//            }
         });
     }
     
@@ -1257,7 +1265,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.removeDateFromRequest = function( method, isSelected ) {
         var index = isSelected.deleteIndex;
-        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
+        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, Number( selectedDatesNew[index].hours ) );
         switch( method ) {
             case 'do':
                 selectedDatesNew.splice(index, 1);
