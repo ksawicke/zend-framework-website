@@ -657,46 +657,79 @@ class RequestApi extends ApiController {
         $Email->send();
     }
     
+    /**
+     * Returns boolean if request entry was marked as edited.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsUpdated( $entry )
+    {
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']==true &&
+                 !array_key_exists( 'delete', $entry ) ) ? true : false );
+    }
+    
+    /**
+     * Returns boolean if request entry was marked to be deleted.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsDeleted( $entry )
+    {
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']==true &&
+                 array_key_exists( 'delete', $entry ) ) ? true : false );
+    }
+    
+    /**
+     * Returns boolean if request entry was added.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsAdded( $entry )
+    {
+        return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
+                 array_key_exists( 'add', $entry ) ) ? true : false );
+    }
+    
+    /**
+     * Checks if updates have been made to original request submitted.
+     * 
+     * @param type $post
+     * @param type $requestedDatesOld
+     * @return boolean
+     */
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
-        
-        if( isset($post->formDirst) && $post->formDirty=="true" ) {
+        if( isset($post->formDirty) && $post->formDirty==true ) {
             $updatesMadeToForm = true;
-            
             $TimeOffRequests = new TimeOffRequests();
 
-            foreach( $post->selectedDatesNew as $ctr => $request ) {
-                if( array_key_exists( 'entryId', $request ) &&
-                    $request['fieldDirty']=="true" &&
-                    !array_key_exists( 'delete', $request )
-                  ) {         
-                    $data = [ 'ENTRY_ID' => $request['entryId'],
+            foreach( $post->selectedDatesNew as $ctr => $entry ) {
+                if( $this->requestEntryIsUpdated( $entry ) ) {
+                    $data = [ 'ENTRY_ID' => $entry['entryId'],
                               'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $request['date'],
-                              'REQUESTED_HOURS' => $request['hours'],
-                              'REQUEST_CATEGORY' => $request['category'],
-                              'REQUEST_DAY_OF_WEEK' => $request['dow']
+                              'REQUEST_DATE' => $entry['date'],
+                              'REQUESTED_HOURS' => $entry['hours'],
+                              'REQUEST_CATEGORY' => $entry['category'],
+                              'REQUEST_DAY_OF_WEEK' => $entry['dow']
                             ];
                     
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
                     $TimeOffRequests->updateRequestEntry( $data );
                 }
-                if( array_key_exists( 'entryId', $request ) &&
-                    $request['fieldDirty']=="true" &&
-                    array_key_exists( 'delete', $request )
-                  ) {
+                if( $this->requestEntryIsDeleted( $entry ) ) {
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
-                    $TimeOffRequests->markRequestEntryAsDeleted( $request['entryId'] );
+                    $TimeOffRequests->markRequestEntryAsDeleted( $entry['entryId'] );
                 }
-                if( !array_key_exists( 'entryId', $request ) &&
-                    !array_key_exists( 'requestId', $request )
-                  ) {
+                if( $this->requestEntryIsAdded( $entry ) ) {
                     $data = [ 'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $request['date'],
-                              'REQUESTED_HOURS' => $request['hours'],
-                              'REQUEST_CATEGORY' => $request['category'],
-                              'REQUEST_DAY_OF_WEEK' => $request['dow']
+                              'REQUEST_DATE' => $entry['date'],
+                              'REQUESTED_HOURS' => $entry['hours'],
+                              'REQUEST_CATEGORY' => $entry['category'],
+                              'REQUEST_DAY_OF_WEEK' => $entry['dow']
                             ];
                     
                     $TimeOffRequests->addRequestEntry( $data );
@@ -707,9 +740,8 @@ class RequestApi extends ApiController {
             $TimeOffRequests = new TimeOffRequests();
             $newRequest = $TimeOffRequests->findRequest( $post->request_id );
             
-            $update_detail = [
-                'old' => $requestedDatesOld,
-                'new' => $newRequest['ENTRIES']
+            $update_detail = [ 'old' => $requestedDatesOld,
+                               'new' => $newRequest['ENTRIES']
             ];
             
             $TimeOffRequests->addRequestUpdate( $post->loggedInUserEmployeeNumber, $post->request_id, $update_detail );
@@ -965,6 +997,10 @@ class RequestApi extends ApiController {
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         
+//        echo '<pre>';
+//        var_dump( $updatesToFormMade );
+//        die('</pre>');
+        
         if( $updatesToFormMade ) {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
@@ -1009,7 +1045,8 @@ class RequestApi extends ApiController {
         } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
-                'message' => 'There was an error submitting your request. Please try again.'
+                'message' => 'There was an error submitting your request. Please try again.',
+                'ex' => $ex
             ]);
         }        
         

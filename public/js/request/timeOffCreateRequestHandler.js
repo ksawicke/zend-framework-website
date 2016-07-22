@@ -727,32 +727,29 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.submitTimeOffRequest = function() {
-//        console.log( "PE", loggedInUserData );
-        $.ajax({
-            url : timeOffSubmitTimeOffRequestUrl,
-            type : 'POST',
-            data : {
-                request : {
-                    forEmployee : {
-                        EMPLOYEE_NUMBER : requestForEmployeeNumber
-                    },
-                    byEmployee : loggedInUserData,
-                    dates : selectedDatesNew,
-                    reason : requestReason
-                }
-            },
-            dataType : 'json'
-        }).success(function(json) {
-            if (json.success == true) {
-                window.location.href = timeOffSubmitTimeOffSuccessUrl;
-            } else {
-                alert(json.message);
-            }
-            return;
-        }).error(function() {
-            console.log('There was some error.');
-            return;
-        });
+        var requestData = { request : {
+                forEmployee : { EMPLOYEE_NUMBER : requestForEmployeeNumber },
+                byEmployee : loggedInUserData,
+                dates : selectedDatesNew,
+                reason : requestReason
+            } };
+        console.log( "requestData", requestData );
+//        $.ajax({
+//            url : timeOffSubmitTimeOffRequestUrl,
+//            type : 'POST',
+//            data : requestData,
+//            dataType : 'json'
+//        }).success(function(json) {
+//            if (json.success == true) {
+//                window.location.href = timeOffSubmitTimeOffSuccessUrl;
+//            } else {
+//                alert(json.message);
+//            }
+//            return;
+//        }).error(function() {
+//            console.log('There was some error.');
+//            return;
+//        });
     };
     
     /**
@@ -1234,7 +1231,9 @@ var timeOffCreateRequestHandler = new function() {
      * Adds date to current request
      */
     this.addDateToRequest = function( method, isSelected ) {
-        var index = isSelected.deleteIndex;
+        var index = isSelected.deleteIndex,
+            dateObject = isSelected.dateObject;
+        dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
         selectedDatesNew.push( isSelected.dateObject );
         if( method == 'mark' ) {

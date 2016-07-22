@@ -26,7 +26,7 @@ var timeOffApproveRequestHandler = new function ()
     this.handleApiButtonClick = function() {
         $('body').on('click', '.apiRequest', function () {
             var apiaction = $(this).attr("data-apiaction");
-            var formDirty = $("#formDirty").val();
+            var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             var data = {
                 request_id: $("#requestId").val(),
                 review_request_reason: $("#reviewRequestReason").val(),
@@ -36,6 +36,8 @@ var timeOffApproveRequestHandler = new function ()
                 selectedDatesNew: selectedDatesNew,
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
+            
+//            console.log( "data", data );
             
             timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
             
