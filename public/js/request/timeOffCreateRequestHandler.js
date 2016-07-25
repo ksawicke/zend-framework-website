@@ -328,6 +328,66 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
     
+    /**
+     * Handles splitting hours based on the day selected and the employee's schedule.
+     * 
+     * @param {type} calendarDateObject
+     * @param {type} deleteKey
+     * @param {type} copy
+     * @param {type} newOne
+     * @param {type} oldHours
+     * @returns {undefined}
+     */
+    this.prepareToSplitDataFromRequest = function( calendarDateObject, deleteKey, copy, newOne ) {
+        var oldHours = copy.hours;
+        var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+        var scheduleDay = "SCHEDULE_" + dow;
+        var hoursScheduledThisDay = requestForEmployeeObject[scheduleDay];
+        
+        if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
+            if( hoursScheduledThisDay < 10 ) {
+                timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
+            } else {
+                copy.hours = copy.category==="timeOffFloat" ? 8 : hoursScheduledThisDay - 8;
+                newOne.hours = hoursScheduledThisDay - copy.hours;
+                timeOffCreateRequestHandler.performSplitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
+            }
+        }
+        else {
+            copy.hours = hoursScheduledThisDay / 2;
+            newOne.hours = copy.hours;
+            timeOffCreateRequestHandler.performSplitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
+        }
+    }
+    
+    /**
+     * Takes current selected day and performs the split.
+     * 
+     * @param object calendarDateObject
+     * @param object copy
+     * @param object newOne
+     * @param integer deleteKey
+     * @param integer oldHours
+     * 
+     * @returns {undefined}
+     */
+    this.performSplitTime = function( calendarDateObject, copy, newOne, deleteKey, oldHours ) {        
+        /** Remove the first date from the request. Recalculate the remaining time. **/
+        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
+        timeOffCreateRequestHandler.addTime(copy.category, 0-oldHours);
+        calendarDateObject.removeClass(copy.category + "Selected");
+        
+        /** Add the first date again with new split time. Recalculate the remaining time. **/
+        timeOffCreateRequestHandler.addDateToRequest(copy);
+        timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
+        
+        /** Add the second date with the new split time. Recalculate the remaining time. **/
+        /** For now we'll highlight the calendar with the second category. **/
+        timeOffCreateRequestHandler.addDateToRequest(newOne);
+        timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
+        calendarDateObject.addClass(newOne.category + "Selected");
+    }
+    
     this.getMethodToModifyDates = function() {
         var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
@@ -1242,23 +1302,63 @@ var timeOffCreateRequestHandler = new function() {
        return selectedDatesNew.length - 1;
     }
     
+    this.datesAlreadyInRequestArray = function( dateObject ) {
+        var found = null;
+        $.each( selectedDatesNew, function( index, requestedDateObject ) {
+            if( requestedDateObject.date==dateObject.date ) {
+                found = index;
+            }
+        });
+        return found;
+    }
+    
     /**
      * Adds date to current request
      */
     this.addDateToRequest = function( method, isSelected ) {
         var index = isSelected.deleteIndex,
-            dateObject = isSelected.dateObject;
+            dateObject = isSelected.dateObject,
+            found = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
-        selectedDatesNew.push( isSelected.dateObject );
-        if( method == 'mark' ) {
-            if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
-                selectedDatesNew[index].delete = false;
-                selectedDatesNew[index].fieldDirty = false;
-            } else {
-                selectedDatesNew[index].fieldDirty = true;
-                selectedDatesNew[index].add = true;
-                $('#formDirty').val('true');
+        
+        if( found!=null ) {
+            // Split time.
+            console.log( "-------------------------" );
+            console.log( "Split time..." );
+            console.log( " >>> selectedDatesNew object to copy", selectedDatesNew[found] );
+            console.log( " >>> new object", dateObject );
+            dateObject.hours = 4;
+            console.log( "-------------------------" );
+            
+            /** Adjust the # of hours for first category. **/
+            selectedDatesNew[found].hours = 4;
+            timeOffCreateRequestHandler.addTime(selectedDatesNew[found].category, 0-selectedDatesNew[found].hours);
+            selectedDatesNew.push( dateObject );
+//            timeOffCreateRequestHandler.addTime( dateObject.category, 4 );
+            
+//            calendarDateObject.removeClass(selectedDatesNew[found].category + "Selected");
+
+            /** Add the first date again with new split time. Recalculate the remaining time. **/
+//            timeOffCreateRequestHandler.addDateToRequest(copy);
+//            timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
+
+            /** Add the second date with the new split time. Recalculate the remaining time. **/
+            /** For now we'll highlight the calendar with the second category. **/
+//            timeOffCreateRequestHandler.addDateToRequest(newOne);
+//            timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
+//            calendarDateObject.addClass(newOne.category + "Selected");
+        } else {
+            timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
+            selectedDatesNew.push( isSelected.dateObject );
+            if( method == 'mark' ) {
+                if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
+                    selectedDatesNew[index].delete = false;
+                    selectedDatesNew[index].fieldDirty = false;
+                } else {
+                    selectedDatesNew[index].fieldDirty = true;
+                    selectedDatesNew[index].add = true;
+                    $('#formDirty').val('true');
+                }
             }
         }
     }
