@@ -162,8 +162,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.handleCalendarNavigation();
             timeOffCreateRequestHandler.handleToggleLegend();
             timeOffCreateRequestHandler.handleClickCategory();
-            timeOffCreateRequestHandler.handleClickCalendarDateAlternate();
-//            timeOffCreateRequestHandler.handleClickCalendarDate();
+            timeOffCreateRequestHandler.handleClickCalendarDate();
 //            timeOffCreateRequestHandler.handleRemoveDateFromRequest();
 //            timeOffCreateRequestHandler.handleChangeHoursForDateManually();
             timeOffCreateRequestHandler.verifyNewRequest();
@@ -360,34 +359,6 @@ var timeOffCreateRequestHandler = new function() {
         }
     }
     
-    /**
-     * Takes current selected day and performs the split.
-     * 
-     * @param object calendarDateObject
-     * @param object copy
-     * @param object newOne
-     * @param integer deleteKey
-     * @param integer oldHours
-     * 
-     * @returns {undefined}
-     */
-    this.performSplitTime = function( calendarDateObject, copy, newOne, deleteKey, oldHours ) {        
-        /** Remove the first date from the request. Recalculate the remaining time. **/
-        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
-        timeOffCreateRequestHandler.addTime(copy.category, 0-oldHours);
-        calendarDateObject.removeClass(copy.category + "Selected");
-        
-        /** Add the first date again with new split time. Recalculate the remaining time. **/
-        timeOffCreateRequestHandler.addDateToRequest(copy);
-        timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
-        
-        /** Add the second date with the new split time. Recalculate the remaining time. **/
-        /** For now we'll highlight the calendar with the second category. **/
-        timeOffCreateRequestHandler.addDateToRequest(newOne);
-        timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
-        calendarDateObject.addClass(newOne.category + "Selected");
-    }
-    
     this.getMethodToModifyDates = function() {
         var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
@@ -414,22 +385,28 @@ var timeOffCreateRequestHandler = new function() {
      * 
      * @returns {undefined}
      */
-    this.handleClickCalendarDateAlternate = function() {
+    this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
             var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
                 isSelected = timeOffCreateRequestHandler.isSelected( $(this) ),
-                isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) );
+                dateObject = isSelected.dateObject,
+                isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) ),
+                foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject );
             
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
-                if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
-                    timeOffCreateRequestHandler.removeDateFromRequest( method, isSelected );
+                isSelected.dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+        
+                if( foundIndex!==null ) {
+                    timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
+                } else if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
+                    timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
                 } else {
-                    timeOffCreateRequestHandler.addDateToRequest( method, isSelected );
+                    timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                 }
                 timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 if( $('#formDirty').val()=="false" ) {
@@ -448,55 +425,7 @@ var timeOffCreateRequestHandler = new function() {
     this.isHandledFromReviewRequestScreen = function() {
         return ( typeof timeOffApproveRequestHandler==="object" ? true : false );
     }
-
-    /**
-     * Handle clicking a calendar date
-     */
-    this.handleClickCalendarDate = function() {
-        $(document).on('click', '.calendar-day', function() {
-            var selectedCalendarDateObject = $(this);
-            if( selectedCalendarDateObject.hasClass("calendar-day-holiday") ) {
-                $("#dialogConfirmSelectHoliday").dialog({
-                    modal : true,
-                    closeOnEscape: false,
-                    buttons : {
-                        Yes : function() {
-                            $(this).dialog("close");
-                            timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeOffCategory, selectedCalendarDateObject );
-                        },
-                        No : function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
-            } else {
-                timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeOffCategory, selectedCalendarDateObject );
-            }
-            if( $('#formDirty').val()=="false" ) {
-                $('#formDirty').val('true'); // This method allows us to see if form was edited.
-            }
-        });
-    }
     
-    /**
-     * Marks a day as requested off.
-     * 
-     * @param {type} selectedTimeOffCategory
-     * @param {type} currentObject
-     * @returns {undefined}
-     */
-    this.markDayAsRequestedOff = function( selectedTimeOffCategory, selectedCalendarDateObject ) {
-//        console.log( "selectedTimeOffCategory", selectedTimeOffCategory );
-//        console.log( "selectedCalendarDateObject", selectedCalendarDateObject );
-        var dateObject = {
-            category : selectedTimeOffCategory,
-            date : selectedCalendarDateObject.data('date')
-        };
-        if (selectedTimeOffCategory !== null && "undefined" !== typeof dateObject.date) {
-            timeOffCreateRequestHandler.updateRequestDates( dateObject, selectedCalendarDateObject );
-        }
-    }
-
     /**
      * Handle clicking category
      */
@@ -1313,60 +1242,44 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     /**
+     * Splits a date requested
+     * 
+     * @param {type} method
+     * @param {type} isSelected
+     * @returns {undefined}
+     */
+    this.splitRequestedDate = function( method, isSelected, foundIndex ) {
+        var dateObject = isSelected.dateObject,
+            scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] ),
+            hoursFirst = scheduleThisDay / 2,
+            hoursSecond = hoursFirst;
+    
+        selectedDatesNew[foundIndex].hours = hoursFirst;
+        dateObject.hours = hoursSecond;
+        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
+        selectedDatesNew.push( dateObject );
+        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+    }
+    
+    /**
      * Adds date to current request
      */
-    this.addDateToRequest = function( method, isSelected ) {
+    this.addRequestedDate = function( method, isSelected ) {
         var index = isSelected.deleteIndex,
             dateObject = isSelected.dateObject,
             found = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         
-        if( found!=null ) {
-            // Split time.
-            console.log( "-------------------------" );
-            console.log( "Split time..." );
-            console.log( "   >>> selectedDatesNew object to copy", selectedDatesNew[found] );
-            console.log( "   >>> new object", dateObject );
-            console.log( "-------------------------" );
-            
-            /** Adjust the # of hours for first category. **/
-            var scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] );
-            var hoursFirst = scheduleThisDay / 2;
-            var hoursSecond = hoursFirst;
-            selectedDatesNew[found].hours = hoursFirst;
-            dateObject.hours = hoursSecond;
-            console.log( "   >>> ", scheduleThisDay );
-            timeOffCreateRequestHandler.addTime(selectedDatesNew[found].category, 0-hoursFirst);
-            selectedDatesNew.push( dateObject );
-            console.log( "   >>> splitteded", selectedDatesNew );
-            console.log( "   >>> requestForEmployeeObject", requestForEmployeeObject );
-            
-//            console.log( "   >>> ", requestForEmployeeObject["SCHEDULE_" + dateObject.dow]);
-            timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
-            
-//            calendarDateObject.removeClass(selectedDatesNew[found].category + "Selected");
-
-            /** Add the first date again with new split time. Recalculate the remaining time. **/
-//            timeOffCreateRequestHandler.addDateToRequest(copy);
-//            timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
-
-            /** Add the second date with the new split time. Recalculate the remaining time. **/
-            /** For now we'll highlight the calendar with the second category. **/
-//            timeOffCreateRequestHandler.addDateToRequest(newOne);
-//            timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
-//            calendarDateObject.addClass(newOne.category + "Selected");
-        } else {
-            timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
-            selectedDatesNew.push( isSelected.dateObject );
-            if( method == 'mark' ) {
-                if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
-                    selectedDatesNew[index].delete = false;
-                    selectedDatesNew[index].fieldDirty = false;
-                } else {
-                    selectedDatesNew[index].fieldDirty = true;
-                    selectedDatesNew[index].add = true;
-                    $('#formDirty').val('true');
-                }
+        timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
+        selectedDatesNew.push( isSelected.dateObject );
+        if( method == 'mark' ) {
+            if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
+                selectedDatesNew[index].delete = false;
+                selectedDatesNew[index].fieldDirty = false;
+            } else {
+                selectedDatesNew[index].fieldDirty = true;
+                selectedDatesNew[index].add = true;
+                $('#formDirty').val('true');
             }
         }
     }
@@ -1378,7 +1291,7 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} isSelected
      * @returns {undefined}
      */
-    this.removeDateFromRequest = function( method, isSelected ) {
+    this.removeRequestedDate = function( method, isSelected ) {
         var index = isSelected.deleteIndex;
         timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, Number( selectedDatesNew[index].hours ) );
         switch( method ) {
@@ -1914,22 +1827,7 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.sortDatesSelected();
         timeOffCreateRequestHandler.drawHoursRequested();
     }
-
-    /**
-     * Add date requested to the array
-     *
-     * @param {object} calendarDateObject
-     * @param {object} object
-     * @returns {none}     */
-    this.addDataToRequest = function(calendarDateObject, object) {
-//        console.log( "ADD@" );
-        object = timeOffCreateRequestHandler.formatDayRequested(object);
-        timeOffCreateRequestHandler.addDateToRequest(object);
-        timeOffCreateRequestHandler.addTime(object.category, object.hours);
-        timeOffCreateRequestHandler.highlightDates();
-        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
-    }
-    
+       
     /**
      * Shows warning that request needs Payroll review if first date
      * requested is 14 or more days old.
