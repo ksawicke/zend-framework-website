@@ -1325,16 +1325,24 @@ var timeOffCreateRequestHandler = new function() {
             // Split time.
             console.log( "-------------------------" );
             console.log( "Split time..." );
-            console.log( " >>> selectedDatesNew object to copy", selectedDatesNew[found] );
-            console.log( " >>> new object", dateObject );
-            dateObject.hours = 4;
+            console.log( "   >>> selectedDatesNew object to copy", selectedDatesNew[found] );
+            console.log( "   >>> new object", dateObject );
             console.log( "-------------------------" );
             
             /** Adjust the # of hours for first category. **/
-            selectedDatesNew[found].hours = 4;
-            timeOffCreateRequestHandler.addTime(selectedDatesNew[found].category, 0-selectedDatesNew[found].hours);
+            var scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] );
+            var hoursFirst = scheduleThisDay / 2;
+            var hoursSecond = hoursFirst;
+            selectedDatesNew[found].hours = hoursFirst;
+            dateObject.hours = hoursSecond;
+            console.log( "   >>> ", scheduleThisDay );
+            timeOffCreateRequestHandler.addTime(selectedDatesNew[found].category, 0-hoursFirst);
             selectedDatesNew.push( dateObject );
-//            timeOffCreateRequestHandler.addTime( dateObject.category, 4 );
+            console.log( "   >>> splitteded", selectedDatesNew );
+            console.log( "   >>> requestForEmployeeObject", requestForEmployeeObject );
+            
+//            console.log( "   >>> ", requestForEmployeeObject["SCHEDULE_" + dateObject.dow]);
+            timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
             
 //            calendarDateObject.removeClass(selectedDatesNew[found].category + "Selected");
 
