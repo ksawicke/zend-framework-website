@@ -308,8 +308,13 @@ var timeOffCreateRequestHandler = new function() {
     this.handleRemoveDateFromRequest = function() {
         $(document).on('click', '.remove-date-requested', function() {
             var deleteKey = $(this).attr('data-selecteddatesnew-key'),
-                category = $(this).attr('data-categroy');
+                category = $(this).attr('data-categroy'),
+                method = timeOffCreateRequestHandler.getMethodToModifyDates(),
+                isSelected = timeOffCreateRequestHandler.isSelected( $(this) );
             timeOffCreateRequestHandler.deleteRequestedDateByIndex( deleteKey, category );
+            timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+            timeOffCreateRequestHandler.sortDatesSelected();
+            timeOffCreateRequestHandler.drawHoursRequested();
         });
     }
     
@@ -360,6 +365,7 @@ var timeOffCreateRequestHandler = new function() {
                     timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
                 } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                     timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+                    timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
                 } else {
                     timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                 }
@@ -1151,6 +1157,38 @@ var timeOffCreateRequestHandler = new function() {
     this.setTwoDecimalPlaces = function(num) {
         return parseFloat( Math.round(num) ).toFixed(2);
     }
+    
+    this.getRemainingRequestedTimeByDate = function( thisDate ) {
+        for (var index = 0; index < selectedDatesNew.length; index++) {
+            if ( selectedDatesNew[index].date==thisDate &&
+                 ( selectedDatesNew[index].hours < 8 || selectedDatesNew[index].hours > 12 ) )  {
+                return index;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Will readjust time for a requested date/category if we remove split time.
+     * 
+     * @param {type} method
+     * @param {type} isSelected
+     * @returns {undefined}
+     */
+    this.adjustRemainingDate = function( method, isSelected ) {
+        var indexRemaining = timeOffCreateRequestHandler.getRemainingRequestedTimeByDate( isSelected.dateObject.date );
+        console.log( "LOOOOK", indexRemaining );
+        console.log( selectedDatesNew[indexRemaining] );
+        if( indexRemaining!=null &&
+            ( selectedDatesNew[indexRemaining].hours < 8 || selectedDatesNew[indexRemaining].hours > 12 ) ) {
+            
+            var remainingTime = selectedDatesNew[indexRemaining].hours,
+                remainingCategory = selectedDatesNew[indexRemaining].category,   
+                scheduleDOW = Number( requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow] );
+            selectedDatesNew[indexRemaining].hours = scheduleDOW;
+            timeOffCreateRequestHandler.addTime( remainingCategory, scheduleDOW-remainingTime );
+        }
+    }
 
     /**
      * Determines if the date and category is selected and returns an object we can handle later.
@@ -1162,25 +1200,17 @@ var timeOffCreateRequestHandler = new function() {
         dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
         var obj = {
             date : thisDate,
-            hours : Number( requestForEmployeeObject["SCHEDULE_" + dow] ),
+            hours : ( selectedTimeOffCategory=="timeOffFloat" ? "8.00" : Number( requestForEmployeeObject["SCHEDULE_" + dow] ) ),
             category : selectedTimeOffCategory
         };
         var isSelected = false;
         var deleteIndex = null;
         for (var i = 0; i < selectedDatesNew.length; i++) {
             if (selectedDatesNew[i].date == thisDate && selectedDatesNew[i].category == thisCategory) {
-                return {
-                    isSelected : true,
-                    deleteIndex : i,
-                    dateObject : obj
-                };
+                return { isSelected : true, deleteIndex : i, dateObject : obj };
             }
         }
-        return {
-            isSelected : isSelected,
-            deleteIndex : i,
-            dateObject : obj
-        };
+        return { isSelected : isSelected, deleteIndex : i, dateObject : obj };
     }
 
     this.getLastSelectedDateIndex = function() {
@@ -1271,7 +1301,7 @@ var timeOffCreateRequestHandler = new function() {
                 break
         }
     }
-
+    
     this.getHoursRequestedHeader = function() {
         return '<strong>Hours Requested:</strong><br /><br />' +
                '<table class="employeeSchedule" style="width:100%">' +
