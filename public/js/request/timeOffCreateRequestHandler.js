@@ -313,38 +313,6 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
     
-    /**
-     * Handles splitting hours based on the day selected and the employee's schedule.
-     * 
-     * @param {type} calendarDateObject
-     * @param {type} deleteKey
-     * @param {type} copy
-     * @param {type} newOne
-     * @param {type} oldHours
-     * @returns {undefined}
-     */
-    this.prepareToSplitDataFromRequest = function( calendarDateObject, deleteKey, copy, newOne ) {
-        var oldHours = copy.hours;
-        var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        var scheduleDay = "SCHEDULE_" + dow;
-        var hoursScheduledThisDay = requestForEmployeeObject[scheduleDay];
-        
-        if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
-            if( hoursScheduledThisDay < 10 ) {
-                timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
-            } else {
-                copy.hours = copy.category==="timeOffFloat" ? 8 : hoursScheduledThisDay - 8;
-                newOne.hours = hoursScheduledThisDay - copy.hours;
-                timeOffCreateRequestHandler.performSplitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
-            }
-        }
-        else {
-            copy.hours = hoursScheduledThisDay / 2;
-            newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.performSplitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
-        }
-    }
-    
     this.getMethodToModifyDates = function() {
         var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
@@ -385,9 +353,12 @@ var timeOffCreateRequestHandler = new function() {
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
-                if( foundIndex!==null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory ) {
+                if( foundIndex!==null && ( selectedDatesNew[foundIndex].category=="timeOffFloat" || selectedTimeOffCategory=="timeOffFloat" ) ) {
+                    timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
+                    return;
+                } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory ) {
                     timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
-                } else if( isSelected.isSelected === true && typeof isSelected.isSelected === 'boolean' ) {
+                } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                     timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
                 } else {
                     timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
@@ -1236,11 +1207,12 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
-        var dateObject = isSelected.dateObject,
-            scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] ),
-            hoursFirst = scheduleThisDay / 2,
-            hoursSecond = hoursFirst;
-    
+        var dateObject = isSelected.dateObject;
+        dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+        scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] ),
+        hoursFirst = scheduleThisDay / 2,
+        hoursSecond = hoursFirst;
+        
         selectedDatesNew[foundIndex].hours = hoursFirst;
         dateObject.hours = hoursSecond;
         timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
@@ -1299,6 +1271,42 @@ var timeOffCreateRequestHandler = new function() {
         }
     }
 
+    this.getHoursRequestedHeader = function() {
+        return '<strong>Hours Requested:</strong><br /><br />' +
+               '<table class="employeeSchedule" style="width:100%">' +
+               '<thead>' +
+                    '<tr>' +
+                        '<th style="width:40px;">Day</th>' +
+                        '<th style="width:60px;">Date</th>' +
+                        '<th style="width:40px;">Hours</th>' +
+                        '<th>Category</th>' +
+                        '<th style="width:15px;text-align:center;">Delete</th>' +
+                    '</tr>' +
+                '</thead>' +
+                '<tbody>';
+    }
+    
+    this.getHoursRequestedRow = function( dow, hideMe, selectedIndex ) {
+        return '<tr' + hideMe + '>' +
+            '<td>' + dow + '</td>' +
+            '<td>' + selectedDatesNew[selectedIndex].date + '</td>' +
+            '<td><input class="selectedDateHours" value="' +
+            timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[selectedIndex].hours) +
+            '" data-key="' + selectedIndex + '" ' +
+            timeOffCreateRequestHandler.disableHoursInputField( selectedDatesNew[selectedIndex].category ) + '></td>' +
+            '<td>' +
+            '<span class="badge ' + selectedDatesNew[selectedIndex].category + '">' +
+            timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[selectedIndex].category) +
+            '</span>' +
+            '</td>' +
+            '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
+            'data-date="' + selectedDatesNew[selectedIndex].date + '" ' +
+            'data-category="' + selectedDatesNew[selectedIndex].category + '" ' +
+            'data-selecteddatesnew-key="' + selectedIndex + '" ' +
+            'title="Remove date from request">' + '</span></td>' +
+            '</tr>';
+    }
+
     /**
      * Draws form fields we can submit for the user.
      */
@@ -1312,72 +1320,38 @@ var timeOffCreateRequestHandler = new function() {
         totalGrandfatheredRequested = 0;
         totalApprovedNoPayRequested = 0;
             
-        datesSelectedDetailsHtml = '<strong>Hours Requested:</strong><br /><br />' +
-                    
-                                    '<table class="employeeSchedule" style="width:100%">' +
-                                         '<thead>' +
-                                             '<tr>' +
-                                                 '<th style="width:40px;">Day</th>' +
-                                                 '<th style="width:60px;">Date</th>' +
-                                                 '<th style="width:40px;">Hours</th>' +
-                                                 '<th>Category</th>' +
-                                                 '<th style="width:15px;text-align:center;">Delete</th>' +
-                                             '</tr>' +
-                                         '</thead>' +
-                                         '<tbody>';
+        datesSelectedDetailsHtml = timeOffCreateRequestHandler.getHoursRequestedHeader();
         
-        
-        for (var key = 0; key < selectedDatesNew.length; key++) {
-            var dow = moment(selectedDatesNew[key].date, "MM/DD/YYYY").format("ddd").toUpperCase();
-            var hideMe = ( selectedDatesNew[key].hasOwnProperty('delete') && selectedDatesNew[key].delete===true ?
+        for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
+            var dow = moment(selectedDatesNew[selectedIndex].date, "MM/DD/YYYY").format("ddd").toUpperCase();
+            var hideMe = ( selectedDatesNew[selectedIndex].hasOwnProperty('delete') && selectedDatesNew[selectedIndex].delete===true ?
                            ' style="display:none;"' : '' );
-            if( selectedDatesNew[key].hasOwnProperty('delete') && selectedDatesNew[key].delete===true ) {
-                console.log( "DELETE???????", selectedDatesNew[key] );
-            }
-                console.log( selectedDatesNew[key].date + " :: " + hideMe );
-                datesSelectedDetailsHtml += '<tr' + hideMe + '>' +
-                                            '<td>' + dow + '</td>' +
-                                            '<td>' + selectedDatesNew[key].date + '</td>' +
-                                            '<td><input class="selectedDateHours" value="' +
-                                            timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[key].hours) +
-                                            '" data-key="' + key + '" ' +
-                                            timeOffCreateRequestHandler.disableHoursInputField() + '></td>' +
-                                            '<td>' +
-                                            '<span class="badge ' + selectedDatesNew[key].category + '">' +
-                                            timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[key].category) +
-                                            '</span>' +
-                                            '</td>' +
-                                            '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
-                                            'data-date="' + selectedDatesNew[key].date + '" ' +
-                                            'data-category="' + selectedDatesNew[key].category + '" ' +
-                                            'data-selecteddatesnew-key="' + key + '" ' +
-                                            'title="Remove date from request">' + '</span></td>' +
-                                            '</tr>';
+            datesSelectedDetailsHtml += timeOffCreateRequestHandler.getHoursRequestedRow( dow, hideMe, selectedIndex );
 
-            switch (selectedDatesNew[key].category) {
+            switch (selectedDatesNew[selectedIndex].category) {
                 case 'timeOffPTO':
-                    totalPTORequested += parseInt(selectedDatesNew[key].hours, 10);
+                    totalPTORequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffFloat':
-                    totalFloatRequested += parseInt(selectedDatesNew[key].hours, 10);
+                    totalFloatRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffSick':
-                    totalSickRequested += parseInt(selectedDatesNew[key].hours, 10);
+                    totalSickRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffUnexcusedAbsence':
-                    totalUnexcusedAbsenceRequested += parseInt( selectedDatesNew[key].hours, 10);
+                    totalUnexcusedAbsenceRequested += parseInt( selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffBereavement':
-                    totalBereavementRequested += parseInt(selectedDatesNew[key].hours, 10);
+                    totalBereavementRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffCivicDuty':
-                    totalCivicDutyRequested += parseInt(selectedDatesNew[key].hours, 10);
+                    totalCivicDutyRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffGrandfathered':
-                        totalGrandfatheredRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        totalGrandfatheredRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
                 case 'timeOffApprovedNoPay':
-                        totalApprovedNoPayRequested += parseInt(selectedDatesNew[key].hours, 10);
+                        totalApprovedNoPayRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
                     break;
             }
         }
@@ -1398,8 +1372,11 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.printEmployeePTORemaining();
     }
     
-    this.disableHoursInputField = function() {
-        return settingsDisableHoursInputFields===true ? ' disabled="disabled"' : '';
+    this.disableHoursInputField = function( category ) {
+        if( timeOffCommon.empty( category ) ) {
+            return settingsDisableHoursInputFields===true ? ' disabled="disabled"' : '';
+        }
+        return category==="timeOffFloat" ? ' disabled="disabled"' : '';
     }
 
     /**
@@ -1604,40 +1581,6 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Splits a date
-     */
-    this.splitDateRequested = function(dateRequestObject) {
-        var selectedDate = timeOffCreateRequestHandler.isSelected(dateRequestObject);
-        if (selectedTimeOffCategory != null) {
-            /**
-             * Let's find exact keys where the date is the date selected
-             */
-            allowSplitDate = timeOffCreateRequestHandler.allowSplitDate(selectedDate);
-            //console.log("allowSplitDate", allowSplitDate);
-            if (allowSplitDate.allowSplitDate === true) {
-                var item = allowSplitDate.items[0];
-                var index = item.index;
-                /** Update to number of split hours **/
-                selectedDatesNew[index].hours = 4;
-                /** Add back the split hours to the selected category **/
-                timeOffCreateRequestHandler.subtractTime(selectedDatesNew[index].category, 4);
-                /**
-                 * Add the date to the request object
-                 */
-                var obj = {
-                    date : item.date,
-                    hours : 4,
-                    category : selectedTimeOffCategory
-                };
-                selectedDatesNew.push(obj);
-                timeOffCreateRequestHandler.addTime(selectedTimeOffCategory, 4);
-                timeOffCreateRequestHandler.drawHoursRequested();
-                timeOffCreateRequestHandler.sortDatesSelected();
-            }
-        }
-    }
-
-    /**
      * Warns user to take Grandfathered time off first if there is a balance.
      * 
      * @returns {undefined}
@@ -1839,76 +1782,6 @@ var timeOffCreateRequestHandler = new function() {
         selectedDatesNew.splice(deleteIndex, 1);
         timeOffCreateRequestHandler.drawHoursRequested();
 //        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
-    }
-
-    /**
-     * Handles splitting hours based on the day selected and the employee's schedule.
-     * 
-     * @param {type} calendarDateObject
-     * @param {type} deleteKey
-     * @param {type} copy
-     * @param {type} newOne
-     * @param {type} oldHours
-     * @returns {undefined}
-     */
-    this.splitDataFromRequest = function( calendarDateObject, deleteKey, copy, newOne ) {
-        var oldHours = copy.hours;
-        var dow = moment(copy.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        var scheduleDay = "SCHEDULE_" + dow;
-        var hoursScheduledThisDay = requestForEmployeeObject[scheduleDay];
-        
-        if( copy.category==="timeOffFloat" || newOne.category==="timeOffFloat" ) {
-            if( hoursScheduledThisDay < 10 ) {
-                timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
-            } else {
-                copy.hours = copy.category==="timeOffFloat" ? 8 : hoursScheduledThisDay - 8;
-                newOne.hours = hoursScheduledThisDay - copy.hours;
-                timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
-            }
-        }
-        else {
-            copy.hours = hoursScheduledThisDay / 2;
-            newOne.hours = copy.hours;
-            timeOffCreateRequestHandler.splitTime( calendarDateObject, copy, newOne, deleteKey, oldHours );
-        }
-    }
-    
-    /**
-     * Takes current selected day and performs the split.
-     * 
-     * @param object calendarDateObject
-     * @param object copy
-     * @param object newOne
-     * @param integer deleteKey
-     * @param integer oldHours
-     * 
-     * @returns {undefined}
-     */
-    this.splitTime = function( calendarDateObject, copy, newOne, deleteKey, oldHours ) {
-//        console.log( "----------------------------" );
-//        console.log( "CHECK calendarDateObject", calendarDateObject );
-//        console.log( "CHECK deleteKey", deleteKey );
-//        console.log( "CHECK selectedDatesNew", selectedDatesNew );
-//        console.log( "CHECK copy", copy );
-//        console.log( "CHECK newOne", newOne );
-//        console.log( "CHECK deleteKey", deleteKey );
-//        console.log( "CHECK oldHours", oldHours );
-//        console.log( "----------------------------" );
-        
-        /** Remove the first date from the request. Recalculate the remaining time. **/
-        timeOffCreateRequestHandler.removeDateFromRequest(deleteKey);
-        timeOffCreateRequestHandler.addTime(copy.category, 0-oldHours);
-        calendarDateObject.removeClass(copy.category + "Selected");
-        
-        /** Add the first date again with new split time. Recalculate the remaining time. **/
-        timeOffCreateRequestHandler.addDateToRequest(copy);
-        timeOffCreateRequestHandler.addTime(copy.category, Number(copy.hours));
-        
-        /** Add the second date with the new split time. Recalculate the remaining time. **/
-        /** For now we'll highlight the calendar with the second category. **/
-        timeOffCreateRequestHandler.addDateToRequest(newOne);
-        timeOffCreateRequestHandler.addTime(newOne.category, Number(newOne.hours));
-        calendarDateObject.addClass(newOne.category + "Selected");
     }
 
     /**
