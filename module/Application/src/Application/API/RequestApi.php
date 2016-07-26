@@ -657,46 +657,78 @@ class RequestApi extends ApiController {
         $Email->send();
     }
     
+    /**
+     * Returns boolean if request entry was marked as edited.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsUpdated( $entry )
+    {
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
+                 !array_key_exists( 'delete', $entry ) ) ? true : false );
+    }
+    
+    /**
+     * Returns boolean if request entry was marked to be deleted.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsDeleted( $entry )
+    {
+        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
+                 array_key_exists( 'delete', $entry ) ) ? true : false );
+    }
+    
+    /**
+     * Returns boolean if request entry was added.
+     * 
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsAdded( $entry )
+    {
+        return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
+                 array_key_exists( 'add', $entry ) && $entry['add']=="true" ) ? true : false );
+    }
+    
+    /**
+     * Checks if updates have been made to original request submitted.
+     * 
+     * @param type $post
+     * @param type $requestedDatesOld
+     * @return boolean
+     */
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
-        
-        if( isset($post->formDirst) && $post->formDirty=="true" ) {
+        if( isset($post->formDirty) && $post->formDirty=="true" ) {
             $updatesMadeToForm = true;
-            
             $TimeOffRequests = new TimeOffRequests();
-
-            foreach( $post->selectedDatesNew as $ctr => $request ) {
-                if( array_key_exists( 'entryId', $request ) &&
-                    $request['fieldDirty']=="true" &&
-                    !array_key_exists( 'delete', $request )
-                  ) {         
-                    $data = [ 'ENTRY_ID' => $request['entryId'],
+            foreach( $post->selectedDatesNew as $ctr => $entry ) {
+                if( $this->requestEntryIsUpdated( $entry ) ) {
+                    $data = [ 'ENTRY_ID' => $entry['entryId'],
                               'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $request['date'],
-                              'REQUESTED_HOURS' => $request['hours'],
-                              'REQUEST_CATEGORY' => $request['category'],
-                              'REQUEST_DAY_OF_WEEK' => $request['dow']
+                              'REQUEST_DATE' => $entry['date'],
+                              'REQUESTED_HOURS' => $entry['hours'],
+                              'REQUEST_CATEGORY' => $entry['category'],
+                              'REQUEST_DAY_OF_WEEK' => $entry['dow']
                             ];
                     
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
                     $TimeOffRequests->updateRequestEntry( $data );
                 }
-                if( array_key_exists( 'entryId', $request ) &&
-                    $request['fieldDirty']=="true" &&
-                    array_key_exists( 'delete', $request )
-                  ) {
+                if( $this->requestEntryIsDeleted( $entry ) ) {
                     $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
-                    $TimeOffRequests->markRequestEntryAsDeleted( $request['entryId'] );
+                    $TimeOffRequests->markRequestEntryAsDeleted( $entry['entryId'] );
                 }
-                if( !array_key_exists( 'entryId', $request ) &&
-                    !array_key_exists( 'requestId', $request )
-                  ) {
+                if( $this->requestEntryIsAdded( $entry ) ) {
                     $data = [ 'REQUEST_ID' => $post->request_id,
-                              'REQUEST_DATE' => $request['date'],
-                              'REQUESTED_HOURS' => $request['hours'],
-                              'REQUEST_CATEGORY' => $request['category'],
-                              'REQUEST_DAY_OF_WEEK' => $request['dow']
+                              'REQUEST_DATE' => $entry['date'],
+                              'REQUESTED_HOURS' => $entry['hours'],
+                              'REQUEST_CATEGORY' => $entry['category'],
+                              'REQUEST_DAY_OF_WEEK' => $entry['dow']
                             ];
                     
                     $TimeOffRequests->addRequestEntry( $data );
@@ -707,9 +739,8 @@ class RequestApi extends ApiController {
             $TimeOffRequests = new TimeOffRequests();
             $newRequest = $TimeOffRequests->findRequest( $post->request_id );
             
-            $update_detail = [
-                'old' => $requestedDatesOld,
-                'new' => $newRequest['ENTRIES']
+            $update_detail = [ 'old' => $requestedDatesOld,
+                               'new' => $newRequest['ENTRIES']
             ];
             
             $TimeOffRequests->addRequestUpdate( $post->loggedInUserEmployeeNumber, $post->request_id, $update_detail );
@@ -750,7 +781,7 @@ class RequestApi extends ApiController {
                 'Request modified by ' . UserSession::getFullUserInfo() );
 
             $this->emailChangesToRequestMade( $post );
-        }
+        }        
         
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
@@ -772,7 +803,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
                 ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
-                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                ( (!empty( $post->manager_comment )) ? ' with the comment: ' . $post->manager_comment : '' ) );
             
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -802,7 +833,7 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Approved by ' . UserSession::getFullUserInfo() .
-                (!empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' ) );
             
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -964,7 +995,6 @@ class RequestApi extends ApiController {
         
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
-        
         if( $updatesToFormMade ) {
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
@@ -979,7 +1009,7 @@ class RequestApi extends ApiController {
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
                 ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
-                ( (!empty( $post->review_request_reason )) ? ' with the comment: ' . $post->review_request_reason : '' ) );
+                ( (!empty( $post->payroll_comment )) ? ' with the comment: ' . $post->payroll_comment : '' ) );
 
             /** Change status to Pending AS400 Upload */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -1009,7 +1039,8 @@ class RequestApi extends ApiController {
         } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
-                'message' => 'There was an error submitting your request. Please try again.'
+                'message' => 'There was an error submitting your request. Please try again.',
+                'ex' => $ex
             ]);
         }        
         
