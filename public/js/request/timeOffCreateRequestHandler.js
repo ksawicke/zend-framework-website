@@ -1159,9 +1159,10 @@ var timeOffCreateRequestHandler = new function() {
         var thisDate = object.data('date');
         var thisCategory = selectedTimeOffCategory;
         var thisHours = defaultHours;
+        dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
         var obj = {
             date : thisDate,
-            hours : '8.00',
+            hours : Number( requestForEmployeeObject["SCHEDULE_" + dow] ),
             category : selectedTimeOffCategory
         };
         var isSelected = false;
