@@ -16,6 +16,7 @@ var timeOffPayrollQueueHandler = new function ()
             timeOffPayrollQueueHandler.handleLoadingDeniedQueue();
             timeOffPayrollQueueHandler.handleLoadingByStatusQueue();
             timeOffPayrollQueueHandler.handleLoadingManagerActionQueue();
+//            timeOffPayrollQueueHandler.handleApproveUpdateChecksRequest();
         });
     }
     

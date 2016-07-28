@@ -12,8 +12,10 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
         redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
+        redirectUpdateChecksQueue = phpVars.basePath + '/request/view-payroll-queue/update-checks',
+        timeOffApproveRequestInUpdateChecksQueue = phpVars.basePath + '/api/request/approve-update-checks-request',
         doRealDelete = false;
-
+    
     /**
      * Initializes binding
      */
@@ -28,7 +30,7 @@ var timeOffApproveRequestHandler = new function ()
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             var data = {
-                request_id: $("#requestId").val(),
+                request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
                 review_request_reason: $("#reviewRequestReason").val(),
                 manager_comment: $("#managerComment").val(),
                 payroll_comment: $("#payrollComment").val(),
@@ -36,44 +38,48 @@ var timeOffApproveRequestHandler = new function ()
                 selectedDatesNew: selectedDatesNew,
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
-
-//            console.log( "data", data );
-
+            
+            console.log( "data", data );
+            
             timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
-
+            
             switch( apiaction ) {
                 case 'managerActionApproveRequest':
                     timeOffApproveRequestHandler.managerActionApproveRequest( data );
                     break;
-
+                    
                 case 'managerActionDenyRequest':
                     timeOffApproveRequestHandler.managerActionDenyRequest( data, $(this) );
                     break;
-
+                    
                 case 'payrollActionApproveRequest':
                     timeOffApproveRequestHandler.payrollActionApproveRequest( data );
                     break;
-
+                    
                 case 'payrollActionDenyRequest':
                     timeOffApproveRequestHandler.payrollActionDenyRequest( data, $(this) );
                     break;
-
-
+                    
+                    
                 case 'payrollActionUpload':
                     timeOffApproveRequestHandler.payrollActionUpload( data );
                     break;
-
-
+                    
+                    
                 case 'payrollActionUpdateOfficeChecks':
                     timeOffApproveRequestHandler.payrollActionUpdateOfficeChecks( data );
+                    break;
+                    
+                case 'payrollActionCompleteRequest':
+                    timeOffApproveRequestHandler.payrollActionCompleteRequest( data );
                     break;
             }
         });
     }
-
+    
     /**
      * Handles showing the user the API action is being processed.
-     *
+     * 
      * @param {type} selectedButton
      * @returns {undefined}
      */
@@ -81,22 +87,22 @@ var timeOffApproveRequestHandler = new function ()
         $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
         //selectedButton.addClass( 'disabled' );
         selectedButton.blur(); // Click out of button.
-
+        
         // Add a spinning icon and a couple of spaces before the button text.
         selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
-
+    
     this.stopPleaseWaitStatus = function( selectedButton ) {
         $( '.btn' ).removeClass( 'disabled' ); // Disable all buttons from being selected first.
         selectedButton.blur(); // Click out of button.
-
+        
         // Remove spinning icon
         selectedButton.html('Deny');
     }
 
     /**
      * Submits Manager approval response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.managerActionApproveRequest = function( data ) {
@@ -106,74 +112,62 @@ var timeOffApproveRequestHandler = new function ()
 
     /**
      * Submits Manager deny response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.managerActionDenyRequest = function( data, selectedButton ) {
         // sawik TODO: Implement this feature.
         // 07-15-16 Tell them this is not yet implemented.
-        //        alert( "Sorry, Charlie. This feature is not yet implemented." );
-        if ($.trim($("#managerComment").val()) == '') {
-            $("#managerCommentError").removeClass("hidden");
-        } else {
-            $("#managerCommentError").addClass("hidden");
-        }
-
+        alert( "Sorry, Charlie. This feature is not yet implemented." );
+        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
 //        timeOffApproveRequestHandler.roundTripAPICall(
 //            data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
-        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
     }
-
+    
     /**
      * Submits Payroll approval response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.payrollActionApproveRequest = function( data ) {
         timeOffApproveRequestHandler.roundTripAPICall(
             data, apiSubmitPayrollApprovedUrl, redirectManagerApprovedCompleteUrl, "Unable to Approve Request." );
     }
-
+    
     /**
      * Submits Payroll denied response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.payrollActionDenyRequest = function( data, selectedButton ) {
         // sawik TODO: Implement this feature.
         // 07-15-16 Tell them this is not yet implemented.
-//        alert( "Sorry, Charlie. This feature is not yet implemented." );
-        if ($.trim($("#payrollComment").val()) == '') {
-            $("#payrollCommentError").removeClass("hidden");
-//            alert('where is my comment');
-        } else {
-            $("#payrollCommentError").addClass("hidden");
-        }
+        alert( "Sorry, Charlie. This feature is not yet implemented." );
         timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
 //        timeOffApproveRequestHandler.roundTripAPICall(
 //            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
     }
-
+    
     /**
      * Submits Payroll upload response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.payrollActionUpload = function( data ) {
         timeOffApproveRequestHandler.roundTripAPICall(
             data, apiSubmitPayrollUploadUrl, redirectManagerApprovedCompleteUrl, "Unable to Upload Request." );
     }
-
+    
     /**
      * Submits Payroll update checks response to API.
-     *
+     * 
      * @returns {undefined}
      */
     this.payrollActionUpdateOfficeChecks = function( data ) {
         timeOffApproveRequestHandler.roundTripAPICall(
             data, apiSubmitPayrollUpdateChecksUrl, redirectManagerApprovedCompleteUrl, "Unable to mark as Update Checks." );
     }
-
+    
     this.roundTripAPICall = function( data, initialUrl, successUrl, errorMessage ) {
         $.ajax({
             url: initialUrl,
@@ -193,6 +187,11 @@ var timeOffApproveRequestHandler = new function ()
             console.log( errorMessage );
             return;
         });
+    }
+    
+    this.payrollActionCompleteRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, timeOffApproveRequestInUpdateChecksQueue, redirectUpdateChecksQueue, "Unable to mark as Completed PAF." );
     }
 };
 
