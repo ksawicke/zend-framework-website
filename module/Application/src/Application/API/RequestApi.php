@@ -938,19 +938,23 @@ class RequestApi extends ApiController {
         echo '</pre>';
         die();
 
+        /* Instantiate new classes */
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
+
+        /* get all needed data */
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         $employeeData = $Employee->findEmployeeTimeOffData( $requestData['EMPLOYEE_NUMBER'] );
 
         /** Log supervisor deny with comment **/
-        $TimeOffRequestLog->logEntry(
-            $post->request_id,
-            UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
-            'Time off request denied by ' . UserSession::getFullUserInfo() .
+        $TimeOffRequestLog->setRequestId($post->reqauest_id)
+                          ->setEmployeeNumber(UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'))
+                          ->setComment('Time off request denied by ' . UserSession::getFullUserInfo() .
             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
             ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' )));
+
+        $TimeOffRequestLog->logEntry();
 
         /** Change status to Denied */
         $requestReturnData = $TimeOffRequests->submitApprovalResponse(
