@@ -225,8 +225,8 @@ div.container {
     margin-top:-20px;
 }
 .caret-up {
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid rgba(0, 0, 0, 0);
     border-right: 4px solid rgba(0, 0, 0, 0);
     border-bottom: 4px solid;
@@ -628,7 +628,7 @@ div#calendarWrapper >a {
 div#calendarWrapper:hover >a {
     display:block;
 }
-div#calendarWrapper:before{	
+div#calendarWrapper:before{
     content:'';
     background: #000;
     position:absolute;
@@ -1147,7 +1147,7 @@ button .full-width {
     color: #777;
 }
 
-/** Alerts **/    
+/** Alerts **/
 .autoCloseMessage {
     margin-left:12px;
 }
@@ -1354,4 +1354,8 @@ div.buttons {
 .payrollComment {
     font-weight: bold;
     color: red;
+}
+
+.borderColorRed {
+    border-color: red;
 }
