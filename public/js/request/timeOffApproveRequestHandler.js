@@ -114,9 +114,11 @@ var timeOffApproveRequestHandler = new function ()
         // 07-15-16 Tell them this is not yet implemented.
         //        alert( "Sorry, Charlie. This feature is not yet implemented." );
         if ($.trim($("#managerComment").val()) == '') {
-            $("#managerCommentError").removeClass("hidden");
+            $("#noCommentEnteredWarning").removeClass("hidden");
+            $("#managerComment").addClass("borderColorRed");
         } else {
-            $("#managerCommentError").addClass("hidden");
+            $("#noCommentEnteredWarning").addClass("hidden");
+            $("#managerComment").removeClass("borderColorRed");
         }
 
 //        timeOffApproveRequestHandler.roundTripAPICall(
@@ -144,10 +146,11 @@ var timeOffApproveRequestHandler = new function ()
         // 07-15-16 Tell them this is not yet implemented.
 //        alert( "Sorry, Charlie. This feature is not yet implemented." );
         if ($.trim($("#payrollComment").val()) == '') {
-            $("#payrollCommentError").removeClass("hidden");
-//            alert('where is my comment');
+            $("#noCommentEnteredWarning").removeClass("hidden");
+            $("#payrollComment").addClass("borderColorRed");
         } else {
-            $("#payrollCommentError").addClass("hidden");
+            $("#noCommentEnteredWarning").addClass("hidden");
+            $("#payrollComment").removeClass("borderColorRed");
         }
         timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
 //        timeOffApproveRequestHandler.roundTripAPICall(

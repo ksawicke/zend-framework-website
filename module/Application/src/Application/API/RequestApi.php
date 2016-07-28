@@ -958,6 +958,9 @@ class RequestApi extends ApiController {
             $post->request_id,
             $post->review_request_reason );
 
+        /* Change IS_DELETED to 1 for timeoff_request_entries */
+        $TimeOffRequests->markRequestEntryAsDeleted( $post->request_id );
+
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([
                 'success' => true,

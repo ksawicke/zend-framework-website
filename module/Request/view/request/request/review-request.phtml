@@ -285,13 +285,16 @@
 //                                    $buttonDisabled = " disabled";
 //                                }
                                 ?>
-
+                                <div id="noCommentEnteredWarning" class="hidden">
+                                    <div class="alert alert-danger" role="alert">
+                                        <strong>A comment must be entered when action is denied.</strong>
+                                    </div>
+                                </div>
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea rows="4" cols="80" id="managerComment" name="managerComment"></textarea>
-                                        <div class="hidden parsley-errorUserid" id="managerCommentError">This action requires a comment.</div>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
@@ -299,7 +302,6 @@
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
-                                        <div class="hidden parsley-errorUserid" id="payrollCommentError">This action requires a comment.</div>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>
