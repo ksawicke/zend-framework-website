@@ -2,13 +2,13 @@
 
 namespace Request\Model;
 
-use Zend\Db\Sql\Delete;
+// use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\ResultSet;
+// use Zend\Db\Sql\Expression;
+// use Zend\Db\Adapter\Driver\ResultInterface;
+// use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 
 /**
@@ -18,30 +18,30 @@ use Request\Model\BaseDB;
  *
  */
 class TimeOffRequests extends BaseDB {
-    
+
     public $employeeColumns;
-    
+
     public $supervisorAddonColumns;
-    
+
     public $requesterAddonColumns;
-    
+
     public $requestStatuses;
-    
+
     public $requestStatusText;
-    
+
     public $timeOffRequestColumns;
-    
+
     public $timeOffRequestEntryColumns;
-    
+
     protected $typesToCodes;
-    
+
     protected $categoryToClass;
-    
+
     protected $codesToKronos;
 
     public function __construct() {
         parent::__construct();
-        
+
         $this->employeeColumns = [
             'EMPLOYER_NUMBER' => 'PRER',
             'EMPLOYEE_NUMBER' => 'PREN',
@@ -81,7 +81,7 @@ class TimeOffRequests extends BaseDB {
             'DRIVER_SICK_TAKEN' => 'PRAC6T',
 //             'DRIVER_SICK_AVAILABLE' => 'PRAC6E - employee.PRAC6T' // Need to manually add the table alias on 2nd field
         ];
-        
+
         $this->supervisorAddonColumns = [
             'MANAGER_EMPLOYER_NUMBER' => 'PRER',
             'MANAGER_EMPLOYEE_NUMBER' => 'PREN',
@@ -91,7 +91,7 @@ class TimeOffRequests extends BaseDB {
             'MANAGER_LAST_NAME' => 'PRLNM',
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
-        
+
         $this->requesterAddonColumns = [
             'REQUESTER_EMPLOYER_NUMBER' => 'PRER',
             'REQUESTER_EMPLOYEE_NUMBER' => 'PREN',
@@ -101,7 +101,7 @@ class TimeOffRequests extends BaseDB {
             'REQUESTER_LAST_NAME' => 'PRLNM',
             'REQUESTER_EMAIL_ADDRESS' => 'PREML1'
         ];
-        
+
         $this->timeOffRequestColumns = [
             'REQUEST_ID' => 'REQUEST_ID',
             'REQUEST_REASON' => 'REQUEST_REASON',
@@ -109,13 +109,13 @@ class TimeOffRequests extends BaseDB {
             'REQUEST_STATUS' => 'REQUEST_STATUS',
             'REQUESTER_EMPLOYEE_ID' => 'CREATE_USER'
         ];
-        
+
         $this->timeOffRequestEntryColumns = [
             'REQUEST_DATE' => 'REQUEST_DATE',
             'REQUESTED_HOURS' => 'REQUESTED_HOURS',
             'REQUEST_CODE' => 'REQUEST_CODE'
         ];
-        
+
         $this->requestStatuses = [
             'denied' => 'D',
             'approved' => 'A',
@@ -126,7 +126,7 @@ class TimeOffRequests extends BaseDB {
             'pendingPayrollApproval' => 'Y',
             'updateChecks' => 'U'
         ];
-        
+
         $this->requestStatusText = [
             'D' => 'denied',
             'A' => 'approved',
@@ -137,7 +137,7 @@ class TimeOffRequests extends BaseDB {
             'Y' => 'pendingPayrollApproval',
             'U' => 'updateChecks'
         ];
-        
+
         $this->typesToCodes = [
             'timeOffPTO' => 'P',
             'timeOffFloat' => 'K',
@@ -148,7 +148,7 @@ class TimeOffRequests extends BaseDB {
             'timeOffGrandfathered' => 'R',
             'timeOffApprovedNoPay' => 'A'
         ];
-        
+
         $this->categoryToClass = [
             'PTO' => 'timeOffPTO',
             'Float' => 'timeOffFloat',
@@ -159,7 +159,7 @@ class TimeOffRequests extends BaseDB {
             'Grandfathered' => 'timeOffGrandfathered',
             'ApprovedNoPay' => 'timeOffApprovedNoPay'
         ];
-        
+
         $this->codesToClass = [
             'P' => 'timeOffPTO',
             'K' => 'timeOffFloat',
@@ -170,7 +170,7 @@ class TimeOffRequests extends BaseDB {
             'R' => 'timeOffGrandfathered',
             'A' => 'timeOffApprovedNoPay'
         ];
-        
+
         $this->codesToCategory = [
             'P' => 'PTO',
             'K' => 'Float',
@@ -181,7 +181,7 @@ class TimeOffRequests extends BaseDB {
             'R' => 'Grandfathered',
             'A' => 'Unpaid Time Off'
         ];
-        
+
         $this->codesToKronos = [
             'P' => 'PTO',
             'R' => 'GFVAC',
@@ -191,10 +191,10 @@ class TimeOffRequests extends BaseDB {
             'V' => 'VA'
         ];
     }
-    
+
     /**
      * Returns a list of comapny holidays.
-     * 
+     *
      * @return type
      */
     public function getCompanyHolidays()
@@ -207,16 +207,16 @@ class TimeOffRequests extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $companyHolidays = json_decode( $request->SYSTEM_VALUE );
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             var_dump( $e );
         }
-        
+
         return $companyHolidays;
     }
-    
+
     /**
      * Generates json encoded value of request data.
-     * 
+     *
      * @param type $request
      * @return type
      */
@@ -227,16 +227,16 @@ class TimeOffRequests extends BaseDB {
                               'REQUEST_CODE' => $request['REQUEST_CODE']
                             ] );
     }
-    
+
     /**
      * Copies the Request Entries based on Request ID to archive table.
-     * 
+     *
      * @param type $requestId
      */
     public function copyRequestEntriesToArchive( $requestId = null )
     {
         $requestEntries = $this->findRequestEntries( $requestId );
-        
+
         /**
          * ENTRY_ARCHIVE_ID    1000
          * REQUEST_ID          20498
@@ -244,9 +244,9 @@ class TimeOffRequests extends BaseDB {
          * REQUEST_DATA        { [ 'REQUEST_DATE': '2016-01-01', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
                                  [ 'REQUEST_DATE': '2016-01-02', 'REQUESTED_HOURS': '8.00', REQUEST_CODE: 'P' ],
          *                     }
-         * 
+         *
          */
-        
+
         foreach( $requestEntries as $ctr => $request ) {
             $action = new Insert( 'timeoff_request_entries_archive' );
             $action->values( [ 'REQUEST_ID' => $request['REQUEST_ID'],
@@ -260,15 +260,15 @@ class TimeOffRequests extends BaseDB {
                 $requestEntryId = $result->getGeneratedValue();
 
                 return $requestEntryId;
-            } catch ( Exception $e ) {
+            } catch ( \Exception $e ) {
                 throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
             }
         }
     }
-    
+
     /**
      * Updates a Request Entry.
-     * 
+     *
      * @param type $entryId
      */
     public function updateRequestEntry( $data = [] )
@@ -280,14 +280,14 @@ class TimeOffRequests extends BaseDB {
                    WHERE ENTRY_ID = '" . $data['ENTRY_ID'] . "'";
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
-        } catch( Exception $e ) {
+        } catch( \Exception $e ) {
             throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Marks a Request Entry as Deleted.
-     * 
+     *
      * @param type $entryId
      */
     public function markRequestEntryAsDeleted( $entryId = null )
@@ -295,14 +295,14 @@ class TimeOffRequests extends BaseDB {
         $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE ENTRY_ID = '" . $entryId . "'";
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
-        } catch( Exception $e ) {
+        } catch( \Exception $e ) {
             throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Adds a Request Entry.
-     * 
+     *
      * @param type $data
      */
     public function addRequestEntry( $data = [] )
@@ -320,16 +320,16 @@ class TimeOffRequests extends BaseDB {
         try {
             $result = $stmt->execute();
             $requestEntryId = $result->getGeneratedValue();
-            
+
             return $requestEntryId;
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Save a json object of old/new request info.
-     * 
+     *
      * @param type $create_user
      * @param type $request_id
      * @param type $update_detail
@@ -349,21 +349,21 @@ class TimeOffRequests extends BaseDB {
         try {
             $result = $stmt->execute();
             $requestEntryId = $result->getGeneratedValue();
-            
+
             return $requestEntryId;
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Error when trying to add request update entry: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Draws a nicely formatted table of the requested days to display on the review request screen.
-     * 
+     *
      * @param array $entries    Array of requested days.
      * @return string
      */
     public function drawHoursRequested( $entries )
-    {        
+    {
         $htmlData = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
         foreach( $entries as $ctr => $data ) {
             $data = (object) $data;
@@ -371,20 +371,20 @@ class TimeOffRequests extends BaseDB {
             $date = new \DateTime( $data->REQUEST_DATE );
             $date = $date->format( "m/d/Y" );
             $htmlData .= '<tr>' .
-                '<td>' . $data->REQUEST_DAY_OF_WEEK . '</td>' . 
-                '<td>' . $date . '</td>' . 
+                '<td>' . $data->REQUEST_DAY_OF_WEEK . '</td>' .
+                '<td>' . $date . '</td>' .
                 '<td>' . $data->REQUESTED_HOURS . '</td>' .
                 '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
                 '</tr>';
         }
         $htmlData .= '</tbody></table>';
-        
+
         return $htmlData;
     }
-    
+
     /**
      * Records a new Time Off request for an employee.
-     * 
+     *
      * @param array $post
      * @return array    Return the Request ID generated.
      * @throws \Exception
@@ -395,9 +395,9 @@ class TimeOffRequests extends BaseDB {
 //        echo '<pre>REQUEST POST:';
 //        var_dump( $post );
 //        echo '</pre>';
-//        
+//
 //        die();
-        
+
         /** Insert record into TIMEOFF_REQUESTS * */
         $action = new Insert( 'timeoff_requests' );
         $action->values( [
@@ -411,7 +411,7 @@ class TimeOffRequests extends BaseDB {
         $stmt = $sql->prepareStatementForSqlObject( $action );
         try {
             $result = $stmt->execute();
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
 
@@ -431,7 +431,7 @@ class TimeOffRequests extends BaseDB {
             $stmt = $sql->prepareStatementForSqlObject( $action );
             try {
                 $result = $stmt->execute();
-            } catch ( Exception $e ) {
+            } catch ( \Exception $e ) {
                 throw new \Exception( "Can't execute statement: " . $e->getMessage() );
             }
         }
@@ -442,7 +442,7 @@ class TimeOffRequests extends BaseDB {
 
     /**
      * Returns the data associated with a single request for time off.
-     * 
+     *
      * @param integer $requestId    Request ID
      * @return array
      */
@@ -464,25 +464,25 @@ class TimeOffRequests extends BaseDB {
 
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             var_dump( $e );
         }
-        
+
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId, $isPayroll );
         $request['CHANGES_MADE'] = $this->findLastRequestChangeMade( $requestId );
         $doh = new \DateTime( $request['EMPLOYEE_HIRE_DATE'] );
         $request['EMPLOYEE_HIRE_DATE'] = $doh->format( "m/d/Y" );
-        
+
         $this->employeeData = \Request\Helper\Format::trimData( $request );
-                
+
         return $request;
     }
-    
+
     /**
      * Submits approval for Time Off request.
-     * 
+     *
      * @param string $action
      * @param integer $requestId
      * @param string $reviewRequestReason
@@ -500,7 +500,7 @@ class TimeOffRequests extends BaseDB {
 
     /**
      * Returns the individual entries associated with a single request.
-     * 
+     *
      * @param integer $requestId    Request ID
      * @return array
      */
@@ -516,16 +516,16 @@ class TimeOffRequests extends BaseDB {
 
         try {
             $entries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             var_dump( $e );
         }
 
         return $entries;
     }
-    
+
     /**
      * Returns the log entries associated with a single request.
-     * 
+     *
      * @param integer $requestId   Request ID
      * @return array
      */
@@ -534,38 +534,38 @@ class TimeOffRequests extends BaseDB {
         $rawSql = "SELECT COMMENT, COMMENT_TYPE, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " " . $nonPayrollAndClause . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
-        
+
         $logEntries = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $logEntries;
     }
-    
+
     public function findLastRequestChangeMade( $requestId = null ) {
         $rawSql = "SELECT CREATE_USER, CREATE_TIMESTAMP, UPDATE_DETAIL
                    FROM TIMEOFF_REQUEST_UPDATES
                    WHERE REQUEST_ID = " . $requestId . "
                    ORDER BY CREATE_TIMESTAMP DESC
                    FETCH FIRST 1 ROWS ONLY";
-        
+
         $change = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
         $change['UPDATE_DETAIL'] = json_decode( $change['UPDATE_DETAIL'] );
 
         return $change;
     }
-    
+
     /**
      * Get count of Entries by Request ID.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return integer
      */
     public function countTimeoffRequested( $requestId = null )
     {
-        $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS       
+        $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS
         FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId;
-        
+
         $timeOffData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
-        
+
         return $timeOffData['TOTAL_REQUESTED_HOURS'];
     }
 
@@ -617,10 +617,10 @@ class TimeOffRequests extends BaseDB {
 
         return [ 'datesRequested' => $datesRequested, 'for' => $result2 ];
     }
-    
+
     /**
      * Get the one character abbreviated Status
-     * 
+     *
      * @param string $shortname Camelcase queue name (i.e. pendingManagerApproval)
      * @return NULL|string
      */
