@@ -12,8 +12,10 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
         redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
+        redirectUpdateChecksQueue = phpVars.basePath + '/request/view-payroll-queue/update-checks',
+        timeOffApproveRequestInUpdateChecksQueue = phpVars.basePath + '/api/request/approve-update-checks-request',
         doRealDelete = false;
-
+    
     /**
      * Initializes binding
      */
@@ -28,7 +30,7 @@ var timeOffApproveRequestHandler = new function ()
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             var data = {
-                request_id: $("#requestId").val(),
+                request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
                 review_request_reason: $("#reviewRequestReason").val(),
                 manager_comment: $("#managerComment").val(),
                 payroll_comment: $("#payrollComment").val(),
@@ -37,7 +39,7 @@ var timeOffApproveRequestHandler = new function ()
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
             
-//            console.log( "data", data );
+            console.log( "data", data );
             
             timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
             
@@ -66,6 +68,10 @@ var timeOffApproveRequestHandler = new function ()
                     
                 case 'payrollActionUpdateOfficeChecks':
                     timeOffApproveRequestHandler.payrollActionUpdateOfficeChecks( data );
+                    break;
+                    
+                case 'payrollActionCompleteRequest':
+                    timeOffApproveRequestHandler.payrollActionCompleteRequest( data );
                     break;
             }
         });
@@ -181,6 +187,11 @@ var timeOffApproveRequestHandler = new function ()
             console.log( errorMessage );
             return;
         });
+    }
+    
+    this.payrollActionCompleteRequest = function( data ) {
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, timeOffApproveRequestInUpdateChecksQueue, redirectUpdateChecksQueue, "Unable to mark as Completed PAF." );
     }
 };
 

@@ -22,7 +22,7 @@ class Logger {
     
     public function logEntry( $entryText = null )
     {
-        error_log( '[' . $this->getTimestamp() . '] ' $entryText . PHP_EOL, 3, $this->applicationLogFile );
+        error_log( '[' . $this->getTimestamp() . '] ' . $entryText . PHP_EOL, 3, $this->applicationLogFile );
     }
     
     public function getTimestamp()

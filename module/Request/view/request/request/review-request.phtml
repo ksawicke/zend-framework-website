@@ -266,7 +266,9 @@
                         </div>
                         
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
-                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) &&
+                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
+                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks"
+                                ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
                         <div class="form-group">
@@ -303,6 +305,11 @@
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpdateOfficeChecks">Update Checks</button>
                                     <?php } ?>
+                                        
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" &&
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionCompleteRequest">Approve</button>
+                                    <?php } ?>
                                 </p>
                             </div>
                         </div>
@@ -319,7 +326,7 @@
 
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>
+<!--script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script-->
 
 <?php
 // $timeoffRequestData['EMPLOYEE_DATA']

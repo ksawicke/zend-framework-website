@@ -299,6 +299,19 @@ return [
                 'child_routes' => []
             ],
             
+            'approveUpdateChecksRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/approve-update-checks-request',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'approveUpdateChecksRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
             'submitPayrollDenied' => [
                 'type' => 'segment',
                 'options' => [
