@@ -115,7 +115,6 @@ var timeOffApproveRequestHandler = new function ()
         //        alert( "Sorry, Charlie. This feature is not yet implemented." );
         if ($.trim($("#managerComment").val()) == '') {
             $("#managerCommentError").removeClass("hidden");
-            alert('where is my comment');
         } else {
             $("#managerCommentError").addClass("hidden");
         }
@@ -143,7 +142,13 @@ var timeOffApproveRequestHandler = new function ()
     this.payrollActionDenyRequest = function( data, selectedButton ) {
         // sawik TODO: Implement this feature.
         // 07-15-16 Tell them this is not yet implemented.
-        alert( "Sorry, Charlie. This feature is not yet implemented." );
+//        alert( "Sorry, Charlie. This feature is not yet implemented." );
+        if ($.trim($("#payrollComment").val()) == '') {
+            $("#payrollCommentError").removeClass("hidden");
+//            alert('where is my comment');
+        } else {
+            $("#payrollCommentError").addClass("hidden");
+        }
         timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
 //        timeOffApproveRequestHandler.roundTripAPICall(
 //            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
