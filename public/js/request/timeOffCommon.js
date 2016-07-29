@@ -4,7 +4,7 @@
  */
 var timeOffCommon = new function ()
 {
-	// Test.
+	// Test!
     var timeOffSubmitEmployeeScheduleRequestUrl = phpVars.basePath + '/api/employee-schedule',
         employeeScheduleFormErrors = 0;
     
