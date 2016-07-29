@@ -47,7 +47,7 @@ var reloadByStatusDT = function() {
             <th>Hours Requested</th>
             <th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
             <th>First Day<br />Requested</th>
-            <th>Actions</th>
+            <th style="width:150px;">Actions</th>
         </tr>
     </thead>
 </table>
@@ -68,3 +68,6 @@ var reloadByStatusDT = function() {
 
 <script type="text/javascript" src="<?php echo $this->basePath( 'js/datatables/datatables.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo $this->basePath( 'js/request/timeOffPayrollQueueHandler.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffCreateRequestHandler.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
+<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>

@@ -266,7 +266,9 @@
                         </div>
 
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
-                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ) &&
+                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
+                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks"
+                                ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
                         <div class="form-group">
@@ -306,6 +308,11 @@
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpdateOfficeChecks">Update Checks</button>
+                                    <?php } ?>
+
+                                    <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" &&
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
+                                        <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionCompleteRequest">Approve</button>
                                     <?php } ?>
                                 </p>
                             </div>

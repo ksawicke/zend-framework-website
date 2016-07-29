@@ -276,7 +276,9 @@ class QueueApi extends ApiController {
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'LAST_PAYROLL_COMMENT' => $request['LAST_PAYROLL_COMMENT'],
                 'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
-                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>&nbsp;' .
+                             '<a href="#"><button type="button" class="btn btn-form-primary btn-xs apiRequest"' .
+                             ' data-request-id="' . $request['REQUEST_ID'] . '" data-apiaction="payrollActionCompleteRequest">Approve</button></a>'
             ];
         }
 

@@ -235,6 +235,52 @@ class RequestApi extends ApiController {
         return $result;
     }
 
+    /**
+     * Handle an API request to approve a request in the Update Checks queue.
+     *
+     * @return JsonModel
+     */
+    public function approveUpdateChecksRequestAction()
+    {
+        $post = $this->getRequest()->getPost();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+
+        if( $requestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ) {
+            /** Change status to Completed PAFs */
+            $requestReturnData = $TimeOffRequests->submitApprovalResponse(
+                $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
+                $post->request_id );
+
+            /** Log status change to Pending AS400 Upload **/
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Status changed to Completed PAFs' );
+
+            $result = new JsonModel( [
+                'success' => true,
+                'request_id' => $requestReturnData['request_id'],
+                'action' => 'A',
+                'request_id' => $post->request_id
+            ] );
+        } else {
+            $result = new JsonModel( [
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.',
+                'request_id' => $post->request_id
+            ] );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Toggles option to receive calendar invites.
+     *
+     * @return JsonModel
+     */
     protected function toggleCalendarInviteAction()
     {
         $EmployeeSchedules = new EmployeeSchedules();
@@ -250,7 +296,7 @@ class RequestApi extends ApiController {
             return new JsonModel([
                 'success' => true
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -338,7 +384,7 @@ class RequestApi extends ApiController {
                 'sendInvitationsForMyself' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
                 'sendInvitationsForMyReports' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS']
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -360,7 +406,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'byEmployee' => $post->request['byEmployee']
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1041,7 +1087,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.',
@@ -1092,7 +1138,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1142,7 +1188,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1192,7 +1238,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
