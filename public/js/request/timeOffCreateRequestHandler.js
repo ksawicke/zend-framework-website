@@ -354,7 +354,9 @@ var timeOffCreateRequestHandler = new function() {
                 dateObject = isSelected.dateObject,
                 isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) ),
                 foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject );
-            
+            if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
+            	return;
+            }
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
