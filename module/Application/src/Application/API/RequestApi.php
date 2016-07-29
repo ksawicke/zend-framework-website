@@ -934,36 +934,34 @@ class RequestApi extends ApiController {
         $post = $this->getRequest()->getPost();
 
         echo '<pre>Manager Denied this request...';
+        var_dump($post->manager_comment);
         var_dump( $post );
         echo '</pre>';
         die();
 
-        /* Instantiate new classes */
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
-
-        /* get all needed data */
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         $employeeData = $Employee->findEmployeeTimeOffData( $requestData['EMPLOYEE_NUMBER'] );
 
+        $post->review_request_reason = $post->manager_comment;
+
+        $this->emailDeniedNoticeToEmployee( $post );
+
         /** Log supervisor deny with comment **/
-        $TimeOffRequestLog->setRequestId($post->reqauest_id)
-                          ->setEmployeeNumber(UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'))
-                          ->setComment('Time off request denied by ' . UserSession::getFullUserInfo() .
+        $TimeOffRequestLog->logEntry(
+            $post->request_id,
+            UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
+            'Time off request denied by ' . UserSession::getFullUserInfo() .
             ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
             ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' )));
-
-        $TimeOffRequestLog->logEntry();
 
         /** Change status to Denied */
         $requestReturnData = $TimeOffRequests->submitApprovalResponse(
             $TimeOffRequests->getRequestStatusCode( 'denied' ),
             $post->request_id,
             $post->review_request_reason );
-
-        /* Change IS_DELETED to 1 for timeoff_request_entries */
-        $TimeOffRequests->markRequestEntryAsDeleted( $post->request_id );
 
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([

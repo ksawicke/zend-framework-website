@@ -112,17 +112,19 @@ var timeOffApproveRequestHandler = new function ()
     this.managerActionDenyRequest = function( data, selectedButton ) {
         // sawik TODO: Implement this feature.
         // 07-15-16 Tell them this is not yet implemented.
-        //        alert( "Sorry, Charlie. This feature is not yet implemented." );
+        alert( "Sorry, Charlie. This feature is not yet (fully) implemented." );
         if ($.trim($("#managerComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#managerComment").addClass("borderColorRed");
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#managerComment").removeClass("borderColorRed");
+
+            timeOffApproveRequestHandler.roundTripAPICall(
+                    data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
+
         }
 
-//        timeOffApproveRequestHandler.roundTripAPICall(
-//            data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
         timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
     }
 
