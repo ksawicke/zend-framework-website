@@ -365,10 +365,11 @@ var timeOffCreateRequestHandler = new function() {
                 } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                     timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
                     timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 } else {
                     timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 }
-                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 if( $('#formDirty').val()=="false" ) {
                     $('#formDirty').val('true'); // This method allows us to see if form was edited.
                 }
@@ -1070,6 +1071,17 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesPendingApproval.push(obj);
         }
     }
+    
+    this.unhighlightSelectedCategoriesByDate = function( object ) {
+    	object.removeClass('timeOffPTOSelected');
+    	object.removeClass('timeOffFloatSelected');
+        object.removeClass('timeOffSickSelected');
+        object.removeClass('timeOffGrandfatheredSelected');
+        object.removeClass('timeOffBereavementSelected');
+        object.removeClass('timeOffApprovedNoPaySelected');
+        object.removeClass('timeOffCivicDutySelected');
+        object.removeClass('timeOffUnexcusedAbsenceSelected');
+    }
 
     this.highlightDates = function() {
 //        console.log( "CHECK>>>>>> " + doRealDelete );
@@ -1260,7 +1272,7 @@ var timeOffCreateRequestHandler = new function() {
 	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
 	        selectedDatesNew.push( dateObject );
 	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
-	        timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[foundIndex].date );
+	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
     }
     
@@ -1691,6 +1703,7 @@ var timeOffCreateRequestHandler = new function() {
         if( timeOffCommon.empty( category ) ) {
             category = selectedTimeOffCategory;
         }
+        timeOffCreateRequestHandler.unhighlightSelectedCategoriesByDate($("td[data-date='" + date + "']"));
         $("td[data-date='" + date + "']").toggleClass( category + "Selected" );
     }
 
