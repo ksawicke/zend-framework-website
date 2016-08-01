@@ -1253,12 +1253,14 @@ var timeOffCreateRequestHandler = new function() {
         
         if( hoursFirst<=0 || hoursSecond<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+        	return;
         } else {
 	        selectedDatesNew[foundIndex].hours = hoursFirst;
 	        dateObject.hours = hoursSecond;
 	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
 	        selectedDatesNew.push( dateObject );
 	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+	        timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[foundIndex].date );
         }
     }
     
