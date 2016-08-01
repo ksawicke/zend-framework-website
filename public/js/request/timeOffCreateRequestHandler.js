@@ -360,10 +360,6 @@ var timeOffCreateRequestHandler = new function() {
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
-//                if( foundIndex!==null && ( selectedDatesNew[foundIndex].category=="timeOffFloat" || selectedTimeOffCategory=="timeOffFloat" ) ) {
-//                    timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
-//                    return;
-//                } else
                 if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory ) {
                     timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
                 } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
@@ -1257,12 +1253,13 @@ var timeOffCreateRequestHandler = new function() {
         
         if( hoursFirst<=0 || hoursSecond<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+        } else {
+	        selectedDatesNew[foundIndex].hours = hoursFirst;
+	        dateObject.hours = hoursSecond;
+	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
+	        selectedDatesNew.push( dateObject );
+	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
         }
-        selectedDatesNew[foundIndex].hours = hoursFirst;
-        dateObject.hours = hoursSecond;
-        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
-        selectedDatesNew.push( dateObject );
-        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
     }
     
     /**
