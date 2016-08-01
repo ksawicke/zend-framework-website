@@ -1091,15 +1091,15 @@ var timeOffCreateRequestHandler = new function() {
         /***
          *  var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
             if( isBeingReviewed ) {
-                if( selectedDatesNew[key].hasOwnProperty('delete') && selectedDatesNew[key].delete===true ) {
+                if( selectedDatesNew[key].hasOwnProperty('isDeleted') && selectedDatesNew[key].isDeleted===true ) {
                     console.log( "REVIEWED>>RESTORE" );
                     delete selectedDatesNew[deleteIndex].fieldDirty;
-                    delete selectedDatesNew[deleteIndex].delete;
+                    delete selectedDatesNew[deleteIndex].isDeleted;
                     $('#formDirty').val('false');
                 } else {
                     console.log( "REVIEWED>>DELETE" );
                     selectedDatesNew[deleteIndex].fieldDirty = true;
-                    selectedDatesNew[deleteIndex].delete = true;
+                    selectedDatesNew[deleteIndex].isDeleted = true;
                     $('#formDirty').val('true');
                 }
                 console.log( "YAYAYA" );
@@ -1113,7 +1113,7 @@ var timeOffCreateRequestHandler = new function() {
                 $(this).addClass("today");
             }
             for (var i = 0; i < selectedDatesNew.length; i++) {
-                var isDeleted = (selectedDatesNew[i].hasOwnProperty('delete') && selectedDatesNew[i].delete===true);
+                var isDeleted = (selectedDatesNew[i].hasOwnProperty('isDeleted') && selectedDatesNew[i].isDeleted===true);
                 var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
                 console.log( "isBeingReviewed", isBeingReviewed );
                 console.log( "@@@ > " + selectedDatesNew[i].date );
@@ -1265,12 +1265,12 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.addTime( isSelected.dateObject.category, isSelected.dateObject.hours );
         selectedDatesNew.push( isSelected.dateObject );
         if( method == 'mark' ) {
-            if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
-                selectedDatesNew[index].delete = false;
+            if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
+                selectedDatesNew[index].isDeleted = false;
                 selectedDatesNew[index].fieldDirty = false;
             } else {
                 selectedDatesNew[index].fieldDirty = true;
-                selectedDatesNew[index].add = true;
+                selectedDatesNew[index].isAdded = true;
                 $('#formDirty').val('true');
             }
         }
@@ -1292,15 +1292,15 @@ var timeOffCreateRequestHandler = new function() {
                 break;
                 
             case 'mark':
-                if( selectedDatesNew[index].hasOwnProperty('delete') && selectedDatesNew[index].delete===true ) {
+                if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
                     delete selectedDatesNew[index].fieldDirty;
-                    delete selectedDatesNew[index].delete;
+                    delete selectedDatesNew[index].isDeleted;
                 } else {
                     selectedDatesNew[index].fieldDirty = true;
-                    selectedDatesNew[index].delete = true;
+                    selectedDatesNew[index].isDeleted = true;
                 }
                 $('#formDirty').val('true');
-                break
+                break;
         }
     }
     
@@ -1357,7 +1357,7 @@ var timeOffCreateRequestHandler = new function() {
         
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
             var dow = moment(selectedDatesNew[selectedIndex].date, "MM/DD/YYYY").format("ddd").toUpperCase();
-            var hideMe = ( selectedDatesNew[selectedIndex].hasOwnProperty('delete') && selectedDatesNew[selectedIndex].delete===true ?
+            var hideMe = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                            ' style="display:none;"' : '' );
             datesSelectedDetailsHtml += timeOffCreateRequestHandler.getHoursRequestedRow( dow, hideMe, selectedIndex );
 
