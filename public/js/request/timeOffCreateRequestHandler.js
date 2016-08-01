@@ -360,18 +360,16 @@ var timeOffCreateRequestHandler = new function() {
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
-                if( foundIndex!==null && ( selectedDatesNew[foundIndex].category=="timeOffFloat" || selectedTimeOffCategory=="timeOffFloat" ) ) {
-                    timeOffCreateRequestHandler.alertUserUnableToSplitFloat();
-                    return;
-                } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory ) {
+                if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory ) {
                     timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
                 } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                     timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
                     timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 } else {
                     timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 }
-                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 if( $('#formDirty').val()=="false" ) {
                     $('#formDirty').val('true'); // This method allows us to see if form was edited.
                 }
@@ -1073,6 +1071,17 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesPendingApproval.push(obj);
         }
     }
+    
+    this.unhighlightSelectedCategoriesByDate = function( object ) {
+    	object.removeClass('timeOffPTOSelected');
+    	object.removeClass('timeOffFloatSelected');
+        object.removeClass('timeOffSickSelected');
+        object.removeClass('timeOffGrandfatheredSelected');
+        object.removeClass('timeOffBereavementSelected');
+        object.removeClass('timeOffApprovedNoPaySelected');
+        object.removeClass('timeOffCivicDutySelected');
+        object.removeClass('timeOffUnexcusedAbsenceSelected');
+    }
 
     this.highlightDates = function() {
 //        console.log( "CHECK>>>>>> " + doRealDelete );
@@ -1202,7 +1211,7 @@ var timeOffCreateRequestHandler = new function() {
         dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
         var obj = {
             date : thisDate,
-            hours : ( selectedTimeOffCategory=="timeOffFloat" ? "8.00" : Number( requestForEmployeeObject["SCHEDULE_" + dow] ) ),
+            hours : ( selectedTimeOffCategory=="timeOffFloat" ? 8.00 : Number( requestForEmployeeObject["SCHEDULE_" + dow] ) ),
             category : selectedTimeOffCategory
         };
         var isSelected = false;
@@ -1242,15 +1251,29 @@ var timeOffCreateRequestHandler = new function() {
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        scheduleThisDay = Number( requestForEmployeeObject["SCHEDULE_" + dateObject.dow] ),
-        hoursFirst = scheduleThisDay / 2,
-        hoursSecond = hoursFirst;
+        scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
+        if( selectedDatesNew[foundIndex].category=="timeOffFloat" ) {
+        	hoursFirst = 8;
+        	hoursSecond = scheduleThisDay - hoursFirst;
+        } else if( dateObject.category=="timeOffFloat" ) {
+        	hoursSecond = 8;
+        	hoursFirst = scheduleThisDay - hoursSecond;
+        } else {
+        	hoursFirst = scheduleThisDay / 2;
+        	hoursSecond = scheduleThisDay / 2;
+        }
         
-        selectedDatesNew[foundIndex].hours = hoursFirst;
-        dateObject.hours = hoursSecond;
-        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
-        selectedDatesNew.push( dateObject );
-        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+        if( hoursFirst<=0 || hoursSecond<=0 ) {
+        	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+        	return;
+        } else {
+	        selectedDatesNew[foundIndex].hours = hoursFirst;
+	        dateObject.hours = hoursSecond;
+	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
+	        selectedDatesNew.push( dateObject );
+	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
+        }
     }
     
     /**
@@ -1630,12 +1653,12 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     /**
-     * Warns user they can not split float time.
+     * Warns user they can not split time selected.
      * 
      * @returns {undefined}
      */
-    this.alertUserUnableToSplitFloat = function() {
-        $("#dialogUnableToSplitFloatAlert").dialog({
+    this.alertUserUnableToSplitTime = function() {
+        $("#dialogUnableToSplitTimeAlert").dialog({
             modal : true,
             buttons : {
                 Ok : function() {
@@ -1680,6 +1703,7 @@ var timeOffCreateRequestHandler = new function() {
         if( timeOffCommon.empty( category ) ) {
             category = selectedTimeOffCategory;
         }
+        timeOffCreateRequestHandler.unhighlightSelectedCategoriesByDate($("td[data-date='" + date + "']"));
         $("td[data-date='" + date + "']").toggleClass( category + "Selected" );
     }
 
