@@ -248,6 +248,10 @@ class RequestApi extends ApiController {
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
         
         if( $requestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ) {
+            /** Log Approval **/
+            $TimeOffRequestLog->logEntry( $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Payroll approved by ' . UserSession::getFullUserInfo() );
+            
             /** Change status to Completed PAFs */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
                 $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
@@ -712,7 +716,7 @@ class RequestApi extends ApiController {
     private function requestEntryIsUpdated( $entry )
     {
         return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 !array_key_exists( 'delete', $entry ) ) ? true : false );
+                 !array_key_exists( 'isDeleted', $entry ) ) ? true : false );
     }
     
     /**
@@ -724,7 +728,7 @@ class RequestApi extends ApiController {
     private function requestEntryIsDeleted( $entry )
     {
         return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 array_key_exists( 'delete', $entry ) ) ? true : false );
+                 array_key_exists( 'isDeleted', $entry ) ) ? true : false );
     }
     
     /**
@@ -736,7 +740,7 @@ class RequestApi extends ApiController {
     private function requestEntryIsAdded( $entry )
     {
         return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
-                 array_key_exists( 'add', $entry ) && $entry['add']=="true" ) ? true : false );
+                 array_key_exists( 'isAdded', $entry ) && $entry['isAdded']=="true" ) ? true : false );
     }
     
     /**
