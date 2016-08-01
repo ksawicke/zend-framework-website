@@ -251,7 +251,7 @@ class RequestApi extends ApiController {
             /** Log Approval **/
             $TimeOffRequestLog->logEntry( $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Payroll approved by ' . UserSession::getFullUserInfo() );
-            
+
             /** Change status to Completed PAFs */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
                 $TimeOffRequests->getRequestStatusCode( 'completedPAFs' ),
@@ -990,7 +990,10 @@ class RequestApi extends ApiController {
         $employeeData = $Employee->findEmployeeTimeOffData( $requestData['EMPLOYEE_NUMBER'] );
 
         $post->review_request_reason = $post->manager_comment;
-        $post->request['forEmployee'] = $requestData['EMPLOYEE_DATA'];
+
+        $post->request['forEmployee']['EMAIL_ADDRESS'] = $requestData['EMPLOYEE_DATA']->EMAIL_ADDRESS;
+        $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] = $requestData['EMPLOYEE_DATA']->MANAGER_EMAIL_ADDRESS;
+        $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] = $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT;
 
         $this->emailDeniedNoticeToEmployee( $post );
 
