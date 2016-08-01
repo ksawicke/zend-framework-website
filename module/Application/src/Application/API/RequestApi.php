@@ -296,7 +296,7 @@ class RequestApi extends ApiController {
             return new JsonModel([
                 'success' => true
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -384,7 +384,7 @@ class RequestApi extends ApiController {
                 'sendInvitationsForMyself' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
                 'sendInvitationsForMyReports' => $employeeData['SEND_CALENDAR_INVITATIONS_TO_MY_REPORTS']
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -406,7 +406,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'byEmployee' => $post->request['byEmployee']
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1082,7 +1082,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.',
@@ -1104,6 +1104,7 @@ class RequestApi extends ApiController {
         $post = $this->getRequest()->getPost();
         $post = $this->appendRequestData( $post );
         $post = $this->addRequestForEmployeeData( $post );
+
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -1133,7 +1134,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1183,7 +1184,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'
@@ -1233,7 +1234,7 @@ class RequestApi extends ApiController {
                 'success' => true,
                 'request_id' => $post->request_id
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             $result = new JsonModel([
                 'success' => false,
                 'message' => 'There was an error submitting your request. Please try again.'

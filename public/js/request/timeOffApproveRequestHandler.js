@@ -116,9 +116,6 @@ var timeOffApproveRequestHandler = new function ()
      * @returns {undefined}
      */
     this.managerActionDenyRequest = function( data, selectedButton ) {
-        // sawik TODO: Implement this feature.
-        // 07-15-16 Tell them this is not yet implemented.
-
         if ($.trim($("#managerComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#managerComment").addClass("borderColorRed");
@@ -152,7 +149,7 @@ var timeOffApproveRequestHandler = new function ()
     this.payrollActionDenyRequest = function( data, selectedButton ) {
         // sawik TODO: Implement this feature.
         // 07-15-16 Tell them this is not yet implemented.
-//      alert( "Sorry, Charlie. This feature is not yet implemented." );
+      alert( "Sorry, Charlie. This feature is not yet implemented." );
         if ($.trim($("#payrollComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
