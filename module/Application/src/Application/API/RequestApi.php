@@ -979,12 +979,6 @@ class RequestApi extends ApiController {
     {
         $post = $this->getRequest()->getPost();
 
-        echo '<pre>Manager Denied this request...';
-        var_dump($post->manager_comment);
-        var_dump( $post );
-        echo '</pre>';
-        die();
-
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -992,6 +986,7 @@ class RequestApi extends ApiController {
         $employeeData = $Employee->findEmployeeTimeOffData( $requestData['EMPLOYEE_NUMBER'] );
 
         $post->review_request_reason = $post->manager_comment;
+        $post->request['forEmployee'] = $requestData['EMPLOYEE_DATA'];
 
         $this->emailDeniedNoticeToEmployee( $post );
 
