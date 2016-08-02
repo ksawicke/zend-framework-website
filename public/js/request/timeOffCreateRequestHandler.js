@@ -1204,10 +1204,10 @@ var timeOffCreateRequestHandler = new function() {
                 remainingCategory = selectedDatesNew[indexRemaining].category,   
                 scheduleDOW = requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
             selectedDatesNew[indexRemaining].hours = scheduleDOW;
-            console.log( ">>>>>>>> REMAINING CAT", remainingCategory );
-            console.log( ">>>>>>>> SCHEDULE DOW", scheduleDOW );
-            console.log( ">>>>>>>> REMAINING TIME", remainingTime );
-//            timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
+//            console.log( ">>>>>>>> REMAINING CAT", remainingCategory );
+//            console.log( ">>>>>>>> SCHEDULE DOW", scheduleDOW );
+//            console.log( ">>>>>>>> REMAINING TIME", remainingTime );
+            timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
         }
     }
 
@@ -1273,25 +1273,14 @@ var timeOffCreateRequestHandler = new function() {
         	hoursSecond = scheduleThisDay / 2;
         }
         
-        console.log( "hoursFirst", hoursFirst );
-        console.log( "hoursSecond", hoursSecond );
-        
         if( hoursFirst<=0 || hoursSecond<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
         	return;
         } else {
 	        selectedDatesNew[foundIndex].hours = hoursFirst;
 	        dateObject.hours = hoursSecond;
-	        
-	        console.log( " >> CAT " + selectedDatesNew[foundIndex].category );
-	        console.log( " >> ADDTIME " + Number( 0-hoursSecond ) );
-	        
 	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursSecond);
 	        selectedDatesNew.push( dateObject );
-	        
-	        console.log( " >> CAT " + dateObject.category );
-	        console.log( " >> ADDTIME " + hoursSecond );
-	        
 	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
 	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
