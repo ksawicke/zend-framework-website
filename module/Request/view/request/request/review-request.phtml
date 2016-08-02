@@ -296,14 +296,14 @@
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
-                                        <textarea rows="4" cols="80" id="managerComment" name="managerComment"></textarea>
+                                        <textarea maxlength="500" rows="4" cols="80" id="managerComment" name="managerComment"></textarea>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
-                                        <textarea rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
+                                        <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>
