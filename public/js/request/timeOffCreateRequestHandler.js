@@ -1204,9 +1204,6 @@ var timeOffCreateRequestHandler = new function() {
                 remainingCategory = selectedDatesNew[indexRemaining].category,   
                 scheduleDOW = requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
             selectedDatesNew[indexRemaining].hours = scheduleDOW;
-//            console.log( ">>>>>>>> REMAINING CAT", remainingCategory );
-//            console.log( ">>>>>>>> SCHEDULE DOW", scheduleDOW );
-//            console.log( ">>>>>>>> REMAINING TIME", remainingTime );
             timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
         }
     }
