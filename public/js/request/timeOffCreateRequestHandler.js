@@ -1261,30 +1261,28 @@ var timeOffCreateRequestHandler = new function() {
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        console.log( "DOW", dateObject );
+//        console.log( "DOW", dateObject );
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
+        
         if( selectedDatesNew[foundIndex].category=="timeOffFloat" ) {
-        	console.log( "A" );
+//        	console.log( "A" );
         	hoursFirst = 8;
         	hoursSecond = scheduleThisDay - hoursFirst;
-        	
-        	// Add back the time first for the category we're going to end up splitting.
-	        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
         } else if( dateObject.category=="timeOffFloat" ) {
-        	console.log( "B" );
+//        	console.log( "B" );
         	hoursSecond = 8;
         	hoursFirst = scheduleThisDay - hoursSecond;
-        	
-        	// Add back the time first for the category we're going to end up splitting.
-	        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
         } else {
-        	console.log( "C" );
+//        	console.log( "C" );
         	hoursFirst = scheduleThisDay / 2;
         	hoursSecond = scheduleThisDay / 2;
         }
+       
+//        console.log( "hoursFirst", hoursFirst );
+//        console.log( "hoursSecond", hoursSecond );
         
-        console.log( "hoursFirst", hoursFirst );
-        console.log( "hoursSecond", hoursSecond );
+        // Add back the time first for the category we're going to end up splitting.
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
         
         // Subtract the split times
         timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, hoursFirst);
@@ -1296,12 +1294,10 @@ var timeOffCreateRequestHandler = new function() {
         } else {
 	        selectedDatesNew[foundIndex].hours = hoursFirst;
 	        dateObject.hours = hoursSecond;
-	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
-	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
-	        console.log( "BBB", dateObject.hours );
-	        console.log( "BBB-- " + dateObject.category );
-	        
-	        
+//	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
+//	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
+//	        console.log( "BBB", dateObject.hours );
+//	        console.log( "BBB-- " + dateObject.category );
 	        
 	        //timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, (0-selectedDatesNew[foundIndex].hours));
 	        selectedDatesNew.push( dateObject );
