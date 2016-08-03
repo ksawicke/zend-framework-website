@@ -1204,6 +1204,9 @@ var timeOffCreateRequestHandler = new function() {
                 remainingCategory = selectedDatesNew[indexRemaining].category,   
                 scheduleDOW = requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
             selectedDatesNew[indexRemaining].hours = scheduleDOW;
+            console.log( "remainingCategory", remainingCategory );
+            console.log( "scheduleDOW", scheduleDOW );
+            console.log( "remainingTime", remainingTime );
             timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
         }
     }
@@ -1258,17 +1261,32 @@ var timeOffCreateRequestHandler = new function() {
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+//        console.log( "DOW", dateObject );
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
+        
         if( selectedDatesNew[foundIndex].category=="timeOffFloat" ) {
+//        	console.log( "A" );
         	hoursFirst = 8;
         	hoursSecond = scheduleThisDay - hoursFirst;
         } else if( dateObject.category=="timeOffFloat" ) {
+//        	console.log( "B" );
         	hoursSecond = 8;
         	hoursFirst = scheduleThisDay - hoursSecond;
         } else {
+//        	console.log( "C" );
         	hoursFirst = scheduleThisDay / 2;
         	hoursSecond = scheduleThisDay / 2;
         }
+       
+//        console.log( "hoursFirst", hoursFirst );
+//        console.log( "hoursSecond", hoursSecond );
+        
+        // Add back the time first for the category we're going to end up splitting.
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
+        
+        // Subtract the split times
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, hoursFirst);
+        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
         
         if( hoursFirst<=0 || hoursSecond<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
@@ -1276,9 +1294,14 @@ var timeOffCreateRequestHandler = new function() {
         } else {
 	        selectedDatesNew[foundIndex].hours = hoursFirst;
 	        dateObject.hours = hoursSecond;
-	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursSecond);
+//	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
+//	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
+//	        console.log( "BBB", dateObject.hours );
+//	        console.log( "BBB-- " + dateObject.category );
+	        
+	        //timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, (0-selectedDatesNew[foundIndex].hours));
 	        selectedDatesNew.push( dateObject );
-	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+	        //timeOffCreateRequestHandler.addTime( dateObject.category, hoursFirst );
 	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
     }
