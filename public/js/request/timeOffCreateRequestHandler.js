@@ -925,13 +925,10 @@ var timeOffCreateRequestHandler = new function() {
     this.printEmployeeSickRemaining = function() {
         $("#employeeSickRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hours");
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) <= 0) {
+        if ( employeeSickRemaining <= 0) {
             $('.buttonDisappearSick').addClass('hidden');
         } else {
             $('.buttonDisappearSick').removeClass('hidden');
-        }
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) < 0) {
-//            $('#warnSick').show();
         }
     }
 
@@ -947,13 +944,13 @@ var timeOffCreateRequestHandler = new function() {
      * Prints the Remaining Grandfathered time for selected employee.
      */
     this.printEmployeeGrandfatheredRemaining = function() {
-        $("#employeeGrandfatheredRemainingHours").html(
+    	$("#employeeGrandfatheredRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hours");
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) <= 0) {
-            $('.buttonDisappearGrandfathered').addClass('hidden');
+        if ( employeeGrandfatheredRemaining <= 0 ) {
+            $('.buttonDisappearSick').addClass('hidden');
+        } else {
+            $('.buttonDisappearSick').removeClass('hidden');
         }
-//            console.log("employeeGrandfatheredRemaining",
-//            employeeGrandfatheredRemaining);
     }
 
     /**
@@ -1172,8 +1169,7 @@ var timeOffCreateRequestHandler = new function() {
      * Rounds a number to two decimal places.
      */
     this.setTwoDecimalPlaces = function(num) {
-    	return Number( num ).toFixed(2);
-//        return parseFloat( Math.round(num) ).toFixed(2);
+        return parseFloat( Math.round(num) ).toFixed(2);
     }
     
     this.getRemainingRequestedTimeByDate = function( thisDate ) {
@@ -1251,6 +1247,52 @@ var timeOffCreateRequestHandler = new function() {
         return ( counter===1 ? found : null );
     }
     
+    this.getSplitHours = function( firstObject, secondObject ) {
+//    	console.log( "CHECK 1st", firstObject );
+//    	console.log( "CHECK 2nd", secondObject );
+    	hoursFirst = 0;
+    	hoursSecond = 0;
+    	
+    	// Need to determine if the GF or Sick time left is a smaller amount
+    	// then use that appropriately.
+    	// Example, hardcoding GF = 1.34 and Sick = 1.22
+    	// So Float 8 and GF 1.34 instead of Float 8 and Schedule - 8
+    	hoursGF = 1.34;
+    	hoursS = 1.22;
+    	
+    	if( firstObject.category=="timeOffGrandfathered" && hoursGF < 4 ) {
+    		hoursFirst = hoursGF;
+    	}
+    	if( secondObject.category=="timeOffGrandfathered" && hoursGF < 4 ) {
+    		hoursSecond = hoursGF;
+    	}
+    	if( firstObject.category=="timeOffSick" && hoursS < 4 ) {
+    		hoursFirst = hoursS;
+    	}
+    	if( secondObject.category=="timeOffSick" && hoursS < 4 ) {
+    		hoursSecond = hoursS;
+    	}
+    	
+    	console.log( "X", hoursFirst );
+    	console.log( "X", hoursSecond );
+    	
+    	if( firstObject.category=="timeOffFloat" ) {
+        	hoursFirst = 8;
+        	hoursSecond = scheduleThisDay - hoursFirst;
+        } else if( secondObject.category=="timeOffFloat" ) {
+        	hoursSecond = 8;
+        	hoursFirst = scheduleThisDay - hoursSecond;
+        } else {
+        	hoursFirst = scheduleThisDay / 2;
+        	hoursSecond = scheduleThisDay / 2;
+        }
+    	
+    	return splitHours = {
+    		first: hoursFirst,
+    		second: hoursSecond
+    	};
+    }
+    
     /**
      * Splits a date requested
      * 
@@ -1261,39 +1303,24 @@ var timeOffCreateRequestHandler = new function() {
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-//        console.log( "DOW", dateObject );
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
         
-        if( selectedDatesNew[foundIndex].category=="timeOffFloat" ) {
-//        	console.log( "A" );
-        	hoursFirst = 8;
-        	hoursSecond = scheduleThisDay - hoursFirst;
-        } else if( dateObject.category=="timeOffFloat" ) {
-//        	console.log( "B" );
-        	hoursSecond = 8;
-        	hoursFirst = scheduleThisDay - hoursSecond;
-        } else {
-//        	console.log( "C" );
-        	hoursFirst = scheduleThisDay / 2;
-        	hoursSecond = scheduleThisDay / 2;
-        }
-       
-//        console.log( "hoursFirst", hoursFirst );
-//        console.log( "hoursSecond", hoursSecond );
+        var splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject );
+        console.log( "splitHours", splitHours );
         
         // Add back the time first for the category we're going to end up splitting.
         timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
         
         // Subtract the split times
-        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, hoursFirst);
-        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first );
+        timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second );
         
-        if( hoursFirst<=0 || hoursSecond<=0 ) {
+        if( splitHours.first<=0 || splitHours.second<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
         	return;
         } else {
-	        selectedDatesNew[foundIndex].hours = hoursFirst;
-	        dateObject.hours = hoursSecond;
+	        selectedDatesNew[foundIndex].hours = splitHours.first;
+	        dateObject.hours = splitHours.second;
 //	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
 //	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
 //	        console.log( "BBB", dateObject.hours );
@@ -1304,6 +1331,11 @@ var timeOffCreateRequestHandler = new function() {
 	        //timeOffCreateRequestHandler.addTime( dateObject.category, hoursFirst );
 	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
+        
+        console.log( "CATEGORY 1-- " + selectedDatesNew[foundIndex].category );
+        console.log( "CATEGORY 2-- " + dateObject.category );
+        console.log( "Grandfathered Remaining-- " + employeeGrandfatheredRemaining );
+        console.log( "Sick Remaining-- " + employeeSickRemaining );
     }
     
     /**
