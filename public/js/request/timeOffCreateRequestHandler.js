@@ -1273,7 +1273,7 @@ var timeOffCreateRequestHandler = new function() {
     	console.log( "hoursSecond", hoursSecond );
     	
     	if( firstObject.category=="timeOffFloat" ) {
-        	hoursFirst = timeOffFloat;
+        	hoursFirst = 8;
         	hoursSecond = ( hoursSecond==0 ? scheduleThisDay - hoursFirst : hoursSecond );
         } else if( secondObject.category=="timeOffFloat" ) {
         	hoursSecond = 8;
