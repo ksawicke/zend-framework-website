@@ -1369,3 +1369,7 @@ div.buttons {
     max-width: 250px;
     word-wrap: break-word;
 }
+
+.breakLongWordDiv {
+    word-wrap: break-word;
+}
