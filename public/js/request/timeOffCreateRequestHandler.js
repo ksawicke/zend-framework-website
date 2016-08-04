@@ -924,9 +924,9 @@ var timeOffCreateRequestHandler = new function() {
         $("#employeeSickRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hours");
         if ( employeeSickRemaining <= 0) {
-            $('.buttonDisappearSick').addClass('hidden');
+        	$('.buttonDisappearSick').addClass('hidden');
         } else {
-            $('.buttonDisappearSick').removeClass('hidden');
+        	$('.buttonDisappearSick').removeClass('hidden');
         }
     }
 
@@ -945,9 +945,9 @@ var timeOffCreateRequestHandler = new function() {
     	$("#employeeGrandfatheredRemainingHours").html(
             timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hours");
         if ( employeeGrandfatheredRemaining <= 0 ) {
-            $('.buttonDisappearSick').addClass('hidden');
+        	$('.buttonDisappearGrandfathered').addClass('hidden');
         } else {
-            $('.buttonDisappearSick').removeClass('hidden');
+        	$('.buttonDisappearGrandfathered').removeClass('hidden');
         }
     }
 
