@@ -1359,3 +1359,7 @@ div.buttons {
 .borderColorRed {
     border-color: red;
 }
+
+.hrefDisabled {
+    color: gray;
+}

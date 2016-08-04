@@ -19,41 +19,41 @@ use Request\Model\BaseDB;
  */
 class PayrollQueues extends BaseDB {
 
-    public $timePeriodToElapseBeforeWarningManagerToApproveRequests; 
-    
+    public $timePeriodToElapseBeforeWarningManagerToApproveRequests;
+
     public function __construct() {
         parent::__construct();
-        
+
         $this->timePeriodToElapseBeforeWarningManagerToApproveRequests = '-3 days';
     }
-    
+
     /**
      * Get count of Denied Queue data
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
     public function countDeniedQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'D'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
@@ -61,12 +61,12 @@ class PayrollQueues extends BaseDB {
 
     /**
      * Get Manager Queue data to display in data table.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return array
      */
     public function getDeniedQueue( $data = null ) {
-        $rawSql = "       
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -89,7 +89,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -108,28 +108,28 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     /**
      * Get count of Manager Queue data
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
@@ -140,15 +140,15 @@ class PayrollQueues extends BaseDB {
             $where[] = ( ($data['columns'][0]['search']['value']!=="" && $data['columns'][0]['search']['value']!=="All") ?
                         "payroll_master_file.PYCYC = '" . $data['columns'][0]['search']['value'] . "'" : "payroll_master_file.PYCYC IS NOT NULL" );
         }
-        
+
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         $where[] = "request.REQUEST_STATUS = 'U'";
-        
+
         $connector = "";
         if( count($where)==1 ) {
             $connector = "";
@@ -156,7 +156,7 @@ class PayrollQueues extends BaseDB {
             $connector = " AND ";
         }
         $whereStatement = " WHERE " . implode( $connector, $where );
-        $rawSql = "       
+        $rawSql = "
         SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID) AS ROW_NUMBER,
@@ -164,13 +164,13 @@ class PayrollQueues extends BaseDB {
                 SELECT
                 request.REQUEST_ID AS REQUEST_ID,
                 TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
-	        payroll_master_file.PYCYC AS CYCLE_CODE,
+          payroll_master_file.PYCYC AS CYCLE_CODE,
                 (
-		    SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
-		    COMMENT_TYPE = 'P'
-		    ORDER BY CREATE_TIMESTAMP DESC
-		    FETCH FIRST 1 ROWS ONLY
-		) AS LAST_PAYROLL_COMMENT,
+        SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
+        COMMENT_TYPE = 'P'
+        ORDER BY CREATE_TIMESTAMP DESC
+        FETCH FIRST 1 ROWS ONLY
+    ) AS LAST_PAYROLL_COMMENT,
                 status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
                 (
                     SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
@@ -185,18 +185,18 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-	    INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
+      INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $whereStatement . "
             ) AS DATA
         ) AS DATA2";
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
@@ -204,15 +204,19 @@ class PayrollQueues extends BaseDB {
 
     /**
      * Get Manager Queue data to display in data table.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return array
      */
     public function getUpdateChecksQueue( $data = null ) {
+
+        if ($data === null) {
+            $data['columns'][0]['search']['value'] = 'All';
+        }
         $where1 = ( ($data['columns'][0]['search']['value']!=="" && $data['columns'][0]['search']['value']!=="All") ?
                     "AND payroll_master_file.PYCYC = '" . $data['columns'][0]['search']['value'] . "'" : "" );
-        
-        $rawSql = "       
+
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID) AS ROW_NUMBER,
@@ -220,13 +224,13 @@ class PayrollQueues extends BaseDB {
                 SELECT
                 request.REQUEST_ID AS REQUEST_ID,
                 TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
-	        payroll_master_file.PYCYC AS CYCLE_CODE,
+          payroll_master_file.PYCYC AS CYCLE_CODE,
                 (
-		    SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
-		    COMMENT_TYPE = 'P'
-		    ORDER BY CREATE_TIMESTAMP DESC
-		    FETCH FIRST 1 ROWS ONLY
-		) AS LAST_PAYROLL_COMMENT,
+        SELECT CASE WHEN COMMENT IS NOT NULL THEN COMMENT ELSE '.....' END FROM timeoff_request_log log WHERE log.request_id = request.request_id AND
+        COMMENT_TYPE = 'P'
+        ORDER BY CREATE_TIMESTAMP DESC
+        FETCH FIRST 1 ROWS ONLY
+    ) AS LAST_PAYROLL_COMMENT,
                 status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
                 (
                     SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
@@ -241,16 +245,16 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-	    INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
+      INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'U' " . $where1 . "
-	    ) AS DATA
+      ) AS DATA
         ) AS DATA2";
 
         $columns = [ "EMPLOYEE_DESCRIPTION",
@@ -261,54 +265,58 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
-        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+        if( isset($data['search']) && array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
-        if( $data !== null ) {
+        if( $data !== null && isset($data['start'])) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
-        $rawSql .=  " WHERE " . implode( " AND ", $where ) . " ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID";
-        
+
+        if (count($where) != 0) {
+            $rawSql .=  " WHERE " . implode( " AND ", $where );
+        }
+
+        $rawSql .=  " ORDER BY CYCLE_CODE, EMPLOYEE_DESCRIPTION, REQUEST_ID";
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     public function countPendingPayrollApprovalQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'Y'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
     }
-    
+
     public function getPendingPayrollApprovalQueue( $data = null )
     {
-        $rawSql = "       
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -331,7 +339,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		'PAYROLL' as APPROVER_QUEUE,
+    'PAYROLL' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -350,54 +358,54 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     public function countCompletedPAFsQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'F'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
     }
-    
+
     public function getCompletedPAFsQueue( $data = null )
     {
-        $rawSql = "       
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -420,7 +428,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -439,54 +447,54 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     public function countPendingAS400UploadQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
         INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'S'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
     }
-    
+
     public function getPendingAS400UploadQueue( $data = null )
     {
-        $rawSql = "       
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -509,7 +517,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -528,25 +536,25 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     public function countByStatusQueueItems( $data = null, $isFiltered = false )
     {
         $where1 = "";
@@ -554,7 +562,7 @@ class PayrollQueues extends BaseDB {
             $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
                     "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
         }
-        
+
         $rawSql = "SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -577,24 +585,24 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS 
+            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
-        
+
         $where2 = [];
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where2[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
             }
             if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
@@ -605,18 +613,18 @@ class PayrollQueues extends BaseDB {
             }
         }
         $rawSql .=  ( !empty( $where2 ) ? " WHERE " . implode( " AND ", $where2 ) : "" );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
-        
+
         return (int) $queueData['RCOUNT'];
     }
-    
+
     public function getByStatusQueue( $data = null )
     {
         $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
                     "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
-        
-        $rawSql = "       
+
+        $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
@@ -639,7 +647,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -657,12 +665,12 @@ class PayrollQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where2 = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where2[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( array_key_exists( 'startDate', $data) && !empty( $data['startDate'] ) ) {
@@ -674,14 +682,14 @@ class PayrollQueues extends BaseDB {
         if( $data !== null ) {
             $where2[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  ( !empty( $where2 ) ? " WHERE " . implode( " AND ", $where2 ) : "" );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $queueData;
     }
-    
+
     public function countManagerActionQueueItems( $data = null, $isFiltered = false, $params = [] )
     {
         $singleManager = "";
@@ -718,7 +726,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION_ALT,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREN) AS MANAGER_EMPLOYEE_NUMBER,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS,
                 CREATE_TIMESTAMP,
@@ -728,33 +736,33 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'P' 
+            WHERE request.REQUEST_STATUS = 'P'
                   " . $singleManager . "
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
         ) AS DATA2" . $warnType;
-        
+
         $where = [];
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
-        
+
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
-        
+
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
     }
-    
+
     /**
      * Returns all requests where we need to send Manager a notification to take action.
-     * 
+     *
      * @param type $data
      * @return type
      */
@@ -792,7 +800,7 @@ class PayrollQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION_ALT,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREN) AS MANAGER_EMPLOYEE_NUMBER,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS,
                 CREATE_TIMESTAMP,
@@ -802,35 +810,35 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'P' 
+            WHERE request.REQUEST_STATUS = 'P'
                   " . $singleManager . "
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
         ) AS DATA2" . $warnType;
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null && array_key_exists( 'start', $data ) && array_key_exists( 'length', $data ) &&
             !empty( $data['start'] ) && !empty( $data['length'] ) ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
     }
-    
+
     /**
      * Returns the date where we need to warn manager of requests in their queue they need to action.
-     * 
+     *
      * @return type
      */
     private function getManagerWarnDateToApproveRequests()

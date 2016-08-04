@@ -14,6 +14,7 @@ use \Login\Helper\UserSession;
 
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
+use Request\Helper\PHPExcel\PHPExcel;
 
 class RequestController extends AbstractActionController
 {
@@ -390,23 +391,29 @@ class RequestController extends AbstractActionController
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getManagerActionEmailQueue( [], [ 'WARN_TYPE' => 'OLD_REQUESTS' ]);
-        switch ($queue) {
-            case 'update_checks':
-                $this->outputReportManagerActionNeeded( $queueData );
-                break;
-            case 'manager-action':
-                $this->outputReportManagerActionNeeded( $queueData );
-                break;
-        }
+        $this->outputReportManagerActionNeeded( $queueData );
+
+        exit;
+    }
+
+    public function downloadUpdateChecksAction()
+    {
+        $queue = $this->params()->fromRoute('queue');
+        $PayrollQueues = new \Request\Model\PayrollQueues();
+        echo "<pre>";
+        $queueData = $PayrollQueues->getUpdateChecksQueue();
+        var_dump($queueData);
+        $this->outputUpdatesCheckQueue( $queueData );
+
         exit;
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
     {
         /** Include PHPExcel */
-        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-        require_once( $path );
-        $objPHPExcel = new \PHPExcel();
+//         $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
+//         require_once( $path );
+        $objPHPExcel = new PHPExcel();
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -453,4 +460,55 @@ class RequestController extends AbstractActionController
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
     }
+
+    private function outputUpdatesCheckQueue( $spreadsheetRows = [] )
+    {
+        $objPHPExcel = new PHPExcel();
+
+        // Initialize spreadsheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet = $objPHPExcel->getActiveSheet();
+        $worksheet->setTitle('test worksheet');
+        $worksheet->setCellValue('A1', 'Employee');
+        $worksheet->setCellValue('B1', 'Approver Queue');
+        $worksheet->setCellValue('C1', 'Request Status');
+        $worksheet->setCellValue('D1', 'Hours Requested');
+        $worksheet->setCellValue('E1', 'Last Payroll Comment');
+        $worksheet->setCellValue('F1', 'First Day Requested');
+        $worksheet->getStyle('A1')->getFont()->setBold(true);
+        $worksheet->getStyle('B1')->getFont()->setBold(true);
+        $worksheet->getStyle('C1')->getFont()->setBold(true);
+        $worksheet->getStyle('D1')->getFont()->setBold(true);
+        $worksheet->getStyle('E1')->getFont()->setBold(true);
+        $worksheet->getStyle('F1')->getFont()->setBold(true);
+        $worksheet->getColumnDimension('A')->setWidth(26.00);
+        $worksheet->getColumnDimension('B')->setWidth(26.00);
+        $worksheet->getColumnDimension('C')->setWidth(26.00);
+        $worksheet->getColumnDimension('D')->setWidth(16.00);
+        $worksheet->getColumnDimension('E')->setWidth(16.00);
+        $worksheet->getColumnDimension('F')->setWidth(16.00);
+
+        foreach($spreadsheetRows as $key => $spreadsheetRow)
+        {
+            $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+
+            $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION']);
+            $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
+            $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
+            $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
+            $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
+                \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
+            $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['LAST_PAYROLL_COMMENT']);
+            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+        }
+
+        // Redirect output to a client's web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="UpdatesCheckQueue_' . date('Ymd-his') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
 }

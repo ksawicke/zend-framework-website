@@ -216,9 +216,9 @@ $config = [
             ],
 
             'downloadReportManagerActionNeeded' => [
-                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
-                    'route' => '/request/download-report-manager-action-needed/[:queue]',
+                    'route' => '/request/download-report-manager-action-needed',
                     'defaults' => [
                         'controller' => 'RequestController',
                         'action' => 'downloadReportManagerActionNeeded'
@@ -226,7 +226,20 @@ $config = [
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
-            ]
+            ],
+
+            'downloadUpdateChecks' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/download-update-checks',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'downloadUpdateChecks'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
 
         ]
     ],
