@@ -47,7 +47,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/pending-payroll-approval",
@@ -172,7 +173,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/completed-pafs",
@@ -216,7 +218,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/pending-as400-upload",
@@ -260,7 +263,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/denied",
@@ -304,7 +308,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/by-status",
@@ -384,7 +389,8 @@ var timeOffPayrollQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/payroll/manager-action",
