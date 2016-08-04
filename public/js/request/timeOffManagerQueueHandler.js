@@ -12,10 +12,10 @@ var timeOffManagerQueueHandler = new function ()
             timeOffManagerQueueHandler.loadPendingManagerApprovalQueue();
         });
     }
-    
+
     /**
      * Loads Pending Manager Approval Queue.
-     * 
+     *
      * @returns {undefined}
      */
     this.loadPendingManagerApprovalQueue = function() {
@@ -39,7 +39,8 @@ var timeOffManagerQueueHandler = new function ()
             order: [],
             columnDefs: [{"orderable": false,
                     "targets": [1, 2, 3, 4, 6]
-                }
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
                 url: phpVars.basePath + "/api/queue/manager/p",
