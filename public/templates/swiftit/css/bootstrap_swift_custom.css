@@ -1359,3 +1359,13 @@ div.buttons {
 .borderColorRed {
     border-color: red;
 }
+
+.columnWidth115 {
+    width: 115px;
+    max-width: 115px;
+}
+
+.breakLongWord {
+    max-width: 250px;
+    word-wrap: break-word;
+}
