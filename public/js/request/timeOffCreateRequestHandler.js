@@ -1006,11 +1006,17 @@ var timeOffCreateRequestHandler = new function() {
                 timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
                 break;
             case 'timeOffPTO':
+            	console.log( " >>> PTO Remaining was " + employeePTORemaining );
+            	console.log( " >>> hours added " + hours );
                 employeePTORemaining -= hours;
+                console.log( " >>> PTO Remaining now " + employeePTORemaining );
                 timeOffCreateRequestHandler.printEmployeePTORemaining();
                 break;
             case 'timeOffFloat':
+            	console.log( " >>> Float Remaining was " + employeeFloatRemaining );
+            	console.log( " >>> hours added " + hours );
                 employeeFloatRemaining -= hours;
+                console.log( " >>> Float Remaining now " + employeeFloatRemaining );
                 timeOffCreateRequestHandler.printEmployeeFloatRemaining();
                 break;
             case 'timeOffSick':
@@ -1166,7 +1172,8 @@ var timeOffCreateRequestHandler = new function() {
      * Rounds a number to two decimal places.
      */
     this.setTwoDecimalPlaces = function(num) {
-        return parseFloat( Math.round(num) ).toFixed(2);
+    	return Number( num ).toFixed(2);
+//        return parseFloat( Math.round(num) ).toFixed(2);
     }
     
     this.getRemainingRequestedTimeByDate = function( thisDate ) {
@@ -1195,9 +1202,12 @@ var timeOffCreateRequestHandler = new function() {
             
             var remainingTime = selectedDatesNew[indexRemaining].hours,
                 remainingCategory = selectedDatesNew[indexRemaining].category,   
-                scheduleDOW = Number( requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow] );
+                scheduleDOW = requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
             selectedDatesNew[indexRemaining].hours = scheduleDOW;
-            timeOffCreateRequestHandler.addTime( remainingCategory, scheduleDOW-remainingTime );
+            console.log( "remainingCategory", remainingCategory );
+            console.log( "scheduleDOW", scheduleDOW );
+            console.log( "remainingTime", remainingTime );
+            timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
         }
     }
 
@@ -1251,17 +1261,32 @@ var timeOffCreateRequestHandler = new function() {
     this.splitRequestedDate = function( method, isSelected, foundIndex ) {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+//        console.log( "DOW", dateObject );
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
+        
         if( selectedDatesNew[foundIndex].category=="timeOffFloat" ) {
+//        	console.log( "A" );
         	hoursFirst = 8;
         	hoursSecond = scheduleThisDay - hoursFirst;
         } else if( dateObject.category=="timeOffFloat" ) {
+//        	console.log( "B" );
         	hoursSecond = 8;
         	hoursFirst = scheduleThisDay - hoursSecond;
         } else {
+//        	console.log( "C" );
         	hoursFirst = scheduleThisDay / 2;
         	hoursSecond = scheduleThisDay / 2;
         }
+       
+//        console.log( "hoursFirst", hoursFirst );
+//        console.log( "hoursSecond", hoursSecond );
+        
+        // Add back the time first for the category we're going to end up splitting.
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
+        
+        // Subtract the split times
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, hoursFirst);
+        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
         
         if( hoursFirst<=0 || hoursSecond<=0 ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
@@ -1269,9 +1294,14 @@ var timeOffCreateRequestHandler = new function() {
         } else {
 	        selectedDatesNew[foundIndex].hours = hoursFirst;
 	        dateObject.hours = hoursSecond;
-	        timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, 0-hoursFirst);
+//	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
+//	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
+//	        console.log( "BBB", dateObject.hours );
+//	        console.log( "BBB-- " + dateObject.category );
+	        
+	        //timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, (0-selectedDatesNew[foundIndex].hours));
 	        selectedDatesNew.push( dateObject );
-	        timeOffCreateRequestHandler.addTime( dateObject.category, hoursSecond );
+	        //timeOffCreateRequestHandler.addTime( dateObject.category, hoursFirst );
 	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
     }
@@ -1703,7 +1733,6 @@ var timeOffCreateRequestHandler = new function() {
         if( timeOffCommon.empty( category ) ) {
             category = selectedTimeOffCategory;
         }
-        timeOffCreateRequestHandler.unhighlightSelectedCategoriesByDate($("td[data-date='" + date + "']"));
         $("td[data-date='" + date + "']").toggleClass( category + "Selected" );
     }
 
@@ -1834,7 +1863,8 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} object
      * @returns {undefined} */
     this.deleteRequestedDateByIndex = function( deleteIndex ) {
-        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
+        console.log( "CHECKING...", selectedDatesNew[deleteIndex] );
+    	timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
         timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[deleteIndex].date, selectedDatesNew[deleteIndex].category );
         selectedDatesNew.splice(deleteIndex, 1);
         timeOffCreateRequestHandler.drawHoursRequested();
