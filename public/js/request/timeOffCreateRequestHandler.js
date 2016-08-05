@@ -907,8 +907,8 @@ var timeOffCreateRequestHandler = new function() {
      * Prints the Remaining PTO time for selected employee.
      */
     this.printEmployeePTORemaining = function() {
-        $("#employeePTORemainingHours").html(
-            employeePTORemaining + " hours");
+    	$("#employeePTORemainingHours").html(
+    			parseFloat( employeePTORemaining ).toFixed(2) + " hours");
         
         if (employeePTORemaining <= 0) {
             $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
@@ -1180,8 +1180,8 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Rounds a number to two decimal places.
      */
-    this.setTwoDecimalPlaces = function(num) {
-        return parseFloat( Math.round(num) ).toFixed(2);
+    this.setTwoDecimalPlaces = function( numberToFormat ) {
+        return numberToFormat.toFixed(2);
     }
     
     this.getRemainingRequestedTimeByDate = function( thisDate ) {
@@ -1346,7 +1346,7 @@ var timeOffCreateRequestHandler = new function() {
     	} else if( dateObject.category=="timeOffSick" && employeeSickRemaining <= 8 ) {
     		hoursToAdd = employeeSickRemaining;
     	}
-    	return hoursToAdd; // Ensure integer, two decimals
+    	return hoursToAdd;
     }
     
     /**
@@ -1416,12 +1416,12 @@ var timeOffCreateRequestHandler = new function() {
                 '<tbody>';
     }
     
-    this.getHoursRequestedRow = function( dow, hideMe, selectedIndex ) {
+    this.getHoursRequestedRow = function( dow, hideMe, selectedIndex ) {    	
         return '<tr' + hideMe + '>' +
             '<td>' + dow + '</td>' +
             '<td>' + selectedDatesNew[selectedIndex].date + '</td>' +
             '<td><input class="selectedDateHours" value="' +
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(selectedDatesNew[selectedIndex].hours) +
+            parseFloat( selectedDatesNew[selectedIndex].hours ).toFixed(2) +
             '" data-key="' + selectedIndex + '" ' +
             timeOffCreateRequestHandler.disableHoursInputField( selectedDatesNew[selectedIndex].category ) + '></td>' +
             '<td>' +
