@@ -357,6 +357,18 @@ var timeOffCreateRequestHandler = new function() {
             if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
             	return;
             }
+//            if( employeeGrandfatheredRemaining <= 0 ) {
+//            	alert( "Grandfathered time has been used up." );
+//            }
+//            if( employeeSickRemaining <= 0 ) {
+//            	alert( "Sick Time has been used up." );
+//            }
+            if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining <= 0 ) {
+            	return;
+            }
+            if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining <= 0 ) {
+            	return;
+            }
             if( isCompanyHoliday ) {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
@@ -481,8 +493,8 @@ var timeOffCreateRequestHandler = new function() {
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadCalendars = function(employeeNumber, calendarsToLoad, request_id) {
-        var month = (new Date()).getMonth() + 1;
-        var year = (new Date()).getFullYear();
+    	var month = (new Date()).getMonth() + 1,
+        	year = (new Date()).getFullYear();
         timeOffCreateRequestHandler.clearSelectedDates();
         $.ajax({
             url : timeOffLoadCalendarUrl,
@@ -522,7 +534,7 @@ var timeOffCreateRequestHandler = new function() {
             if( calendarsToLoad===3 ) {
                 timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
             }
-            timeOffCreateRequestHandler.setHours(json.employeeData);
+            timeOffCreateRequestHandler.updateButtonsWithEmployeeHours(json.employeeData);
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
@@ -547,13 +559,29 @@ var timeOffCreateRequestHandler = new function() {
                 $("#datesSelectedDetails").html("");
                 timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates, request_id );
                 timeOffCreateRequestHandler.drawHoursRequested( 'update-', json.calendarData.highlightDates );
-                console.log( "selectedDatesNew updated", selectedDatesNew );
             }
+            timeOffCreateRequestHandler.postLoadCalendarButtonAdjust( requestForEmployeeObject );
             return;
         }).error(function() {
             console.log('There was some error.');
             return;
         });
+    }
+    
+    /**
+     * Decide if we want to hide any category buttons per business rules.
+     */
+    this.postLoadCalendarButtonAdjust = function( requestForEmployeeObject ) {
+    	if( parseFloat(requestForEmployeeObject.GF_REMAINING).toFixed(2) <= 0 ) {
+    		$(".buttonDisappearGrandfathered").addClass( "hidden" );
+    	} else {
+    		$(".buttonDisappearGrandfathered").removeClass( "hidden" );
+    	}
+    	if( parseFloat(requestForEmployeeObject.SICK_REMAINING).toFixed(2) <= 0 ) {
+    		$(".buttonDisappearSick").addClass( "hidden" );
+    	} else {
+    		$(".buttonDisappearSick").removeClass( "hidden" );
+    	}
     }
     
     /**
@@ -604,21 +632,48 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Update buttons with hour data.
+     * Update buttons with employee hours.
      */
-    this.setHours = function(employeeData) {
-        timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+    this.updateButtonsWithEmployeeHours = function(employeeData) {
+    	/** Grandfathered **/
+    	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
         timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+        timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
+        
+        /** PTO **/
         timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
         timeOffCreateRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeePTORemaining();
+        timeOffCreateRequestHandler.printEmployeePTOPending();
+        
+        /** Float **/
         timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
         timeOffCreateRequestHandler.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeFloatRemaining();
+        timeOffCreateRequestHandler.printEmployeeFloatPending();
+        
+        /** Sick **/
         timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
         timeOffCreateRequestHandler.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeSickRemaining();
+        timeOffCreateRequestHandler.printEmployeeSickPending();
+        
+        /** Unexcused Absence **/
         timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
+        
+        /** Bereavement **/
         timeOffCreateRequestHandler.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeBereavementPending();
+        
+        /** Civic Duty **/
         timeOffCreateRequestHandler.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
+        
+        /** Approved No Pay **/
         timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
     }
 
     /**
@@ -767,96 +822,85 @@ var timeOffCreateRequestHandler = new function() {
      * Prints the Remaining PTO time for selected employee.
      */
     this.setEmployeePTORemaining = function(ptoRemaining) {
-        employeePTORemaining = ptoRemaining;
-        timeOffCreateRequestHandler.printEmployeePTORemaining();
+        employeePTORemaining = parseFloat(ptoRemaining).toFixed(2);
     }
 
     /**
      * Prints the Pending PTO time for selected employee.
      */
     this.setEmployeePTOPending = function(ptoPending) {
-        employeePTOPending = ptoPending;
-        timeOffCreateRequestHandler.printEmployeePTOPending();
+        employeePTOPending = parseFloat(ptoPending).toFixed(2);
     }
 
     /**
      * Sets the Remaining Float time for selected employee.
      */
     this.setEmployeeFloatRemaining = function(floatRemaining) {
-        employeeFloatRemaining = Number( floatRemaining );
-        timeOffCreateRequestHandler.printEmployeeFloatRemaining();
+        employeeFloatRemaining = parseFloat(floatRemaining).toFixed(2);
     }
 
     /**
      * Sets the Pending Float time for selected employee.
      */
     this.setEmployeeFloatPending = function(floatPending) {
-        employeeFloatPending = Number( floatPending );
-        timeOffCreateRequestHandler.printEmployeeFloatPending();
+        employeeFloatPending = parseFloat(floatPending).toFixed(2);
     }
 
     /**
      * Sets the Remaining Sick time for selected employee.
      */
     this.setEmployeeSickRemaining = function(sickRemaining) {
-        employeeSickRemaining = Number( sickRemaining );
-        timeOffCreateRequestHandler.printEmployeeSickRemaining();
+        employeeSickRemaining = parseFloat(sickRemaining).toFixed(2);
     }
 
     /**
      * Sets the Pending Sick time for selected employee.
      */
     this.setEmployeeSickPending = function(sickPending) {
-        var employeeSickPending = Number( sickPending );
-        timeOffCreateRequestHandler.printEmployeeSickPending();
+        employeeSickPending = parseFloat(sickPending).toFixed(2);
     }
 
     /**
      * Sets the Remaining Grandfathered time for selected employee.
      */
     this.setEmployeeGrandfatheredRemaining = function(grandfatheredRemaining) {
-        employeeGrandfatheredRemaining = Number( grandfatheredRemaining );
-        timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+        employeeGrandfatheredRemaining = parseFloat(grandfatheredRemaining).toFixed(2);
     }
 
     /**
      * Sets the Pending Grandfathered time for selected employee.
      */
     this.setEmployeeGrandfatheredPending = function(grandfatheredPending) {
-        var employeeGrandfatheredPending = Number( grandfatheredPending );
-        timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
+        employeeGrandfatheredPending = parseFloat(grandfatheredPending).toFixed(2);
     }
 
     /**
      * Sets the Pending Unexcused Absence time for selected employee.
      */
     this.setEmployeeUnexcusedAbsencePending = function(unexcusedAbsencePending) {
-        var employeeUnexcusedAbsencePending = Number( unexcusedAbsencePending );
-        timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
+        employeeUnexcusedAbsencePending = parseFloat(unexcusedAbsencePending).toFixed(2);
     }
 
     /**
      * Sets the Pending Bereavement time for selected employee.
      */
     this.setEmployeeBereavementPending = function(bereavementPending) {
-        var employeeBereavementPending = Number( bereavementPending );
-        timeOffCreateRequestHandler.printEmployeeBereavementPending();
+        employeeBereavementPending = parseFloat(bereavementPending).toFixed(2);
+        
     }
 
     /**
      * Sets the Pending Civic Duty time for selected employee.
      */
     this.setEmployeeCivicDutyPending = function(civicDutyPending) {
-        employeeCivicDutyPending = Number( civicDutyPending );
-        timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
+        employeeCivicDutyPending = parseFloat(civicDutyPending).toFixed(2);
     }
 
     /**
      * Sets the Pending Time Off Without Pay time for selected employee.
      */
     this.setEmployeeApprovedNoPayPending = function(approvedNoPayPending) {
-        employeeApprovedNoPayPending = Number( approvedNoPayPending );
-        timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
+        employeeApprovedNoPayPending = parseFloat(approvedNoPayPending).toFixed(2);
     }
 
     /**
@@ -864,7 +908,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.printEmployeePTORemaining = function() {
         $("#employeePTORemainingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) + " hours");
+            employeePTORemaining + " hours");
         
         if (employeePTORemaining <= 0) {
             $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
@@ -875,25 +919,20 @@ var timeOffCreateRequestHandler = new function() {
             $('div.buttonDisappearPTO .categoryButtonRemainingLabel').removeClass('red');
             $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTORemaining) < 0) {
-            //$('#warnPTO').show();
-        }
     }
 
     /**
      * Prints the Pending PTO time for selected employee.
      */
     this.printEmployeePTOPending = function() {
-        $("#employeePTOPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeePTOPending) + " hours");
+        $("#employeePTOPendingHours").html( employeePTOPending + " hours");
     }
 
     /**
      * Prints the Remaining Float time for selected employee.
      */
     this.printEmployeeFloatRemaining = function() {
-        $("#employeeFloatRemainingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) + " hours");
+        $("#employeeFloatRemainingHours").html( parseFloat(employeeFloatRemaining).toFixed(2) + " hours" );
         
         if (employeeFloatRemaining <= 0) {
             $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
@@ -904,91 +943,69 @@ var timeOffCreateRequestHandler = new function() {
             $('div.buttonDisappearFloat .categoryButtonRemainingLabel').removeClass('red');
             $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
         }
-        if (timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatRemaining) < 0) {
-//            $('#warnFloat').show();
-        }
     }
 
     /**
      * Prints the Pending Float time for selected employee.
      */
     this.printEmployeeFloatPending = function() {
-        $("#employeeFloatPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeFloatPending) + " hours");
+        $("#employeeFloatPendingHours").html( parseFloat(employeeFloatPending).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Remaining Sick time for selected employee.
      */
     this.printEmployeeSickRemaining = function() {
-        $("#employeeSickRemainingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickRemaining) + " hours");
-        if ( employeeSickRemaining <= 0) {
-        	$('.buttonDisappearSick').addClass('hidden');
-        } else {
-        	$('.buttonDisappearSick').removeClass('hidden');
-        }
+        $("#employeeSickRemainingHours").html( parseFloat(employeeSickRemaining).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Pending Sick time for selected employee.
      */
     this.printEmployeeSickPending = function() {
-        $("#employeeSickPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeSickPending) + " hours");
+        $("#employeeSickPendingHours").html( parseFloat(employeeSickPending).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Remaining Grandfathered time for selected employee.
      */
     this.printEmployeeGrandfatheredRemaining = function() {
-    	$("#employeeGrandfatheredRemainingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) + " hours");
-        if ( employeeGrandfatheredRemaining <= 0 ) {
-        	$('.buttonDisappearGrandfathered').addClass('hidden');
-        } else {
-        	$('.buttonDisappearGrandfathered').removeClass('hidden');
-        }
+    	$("#employeeGrandfatheredRemainingHours").html( parseFloat(employeeGrandfatheredRemaining).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Pending Grandfathered time for selected employee.
      */
     this.printEmployeeGrandfatheredPending = function() {
-        $("#employeeGrandfatheredPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredPending) + " hours");
+        $("#employeeGrandfatheredPendingHours").html( parseFloat(employeeGrandfatheredPending).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Pending Unexcused Absence time for selected employee.
      */
     this.printEmployeeUnexcusedAbsencePending = function() {
-        $("#employeeUnexcusedAbsencePendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeUnexcusedAbsencePending) + " hours");
+        $("#employeeUnexcusedAbsencePendingHours").html( parseFloat(employeeUnexcusedAbsencePending).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Pending Bereavement time for selected employee.
      */
     this.printEmployeeBereavementPending = function() {
-        $("#employeeBereavementPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeBereavementPending) + " hours");
+        $("#employeeBereavementPendingHours").html( parseFloat(employeeBereavementPending).toFixed(2) + " hours" );
     }
 
     /**
      * Prints the Pending Civic Duty time for selected employee.
      */
     this.printEmployeeCivicDutyPending = function() {
-        $("#employeeCivicDutyPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeCivicDutyPending) + " hours");
-    }
+        $("#employeeCivicDutyPendingHours").html( parseFloat(employeeCivicDutyPending).toFixed(2) + " hours" );
+    } 
 
     /**
      * Prints the Pending Time Off Without Pay time for selected employee.
      */
     this.printEmployeeApprovedNoPayPending = function() {
-        $("#employeeApprovedNoPayPendingHours").html(
-            timeOffCreateRequestHandler.setTwoDecimalPlaces(employeeApprovedNoPayPending) + " hours");
+        $("#employeeApprovedNoPayPendingHours").html( parseFloat(employeeApprovedNoPayPending).toFixed(2) + " hours" );
     }
 
     /**
@@ -1000,20 +1017,17 @@ var timeOffCreateRequestHandler = new function() {
                 employeeGrandfatheredRemaining -= hours;
                 timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
                 break;
+                
             case 'timeOffPTO':
-            	console.log( " >>> PTO Remaining was " + employeePTORemaining );
-            	console.log( " >>> hours added " + hours );
                 employeePTORemaining -= hours;
-                console.log( " >>> PTO Remaining now " + employeePTORemaining );
                 timeOffCreateRequestHandler.printEmployeePTORemaining();
                 break;
+                
             case 'timeOffFloat':
-            	console.log( " >>> Float Remaining was " + employeeFloatRemaining );
-            	console.log( " >>> hours added " + hours );
                 employeeFloatRemaining -= hours;
-                console.log( " >>> Float Remaining now " + employeeFloatRemaining );
                 timeOffCreateRequestHandler.printEmployeeFloatRemaining();
                 break;
+                
             case 'timeOffSick':
                 employeeSickRemaining -= hours;
                 timeOffCreateRequestHandler.printEmployeeSickRemaining();
@@ -1305,10 +1319,7 @@ var timeOffCreateRequestHandler = new function() {
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
         
         var splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject, scheduleThisDay );
-        var totalHoursForThisSplit = splitHours.first.hours + splitHours.second.hours;
-//        console.log( "splitHours", splitHours );
-//        console.log( "totalHoursForThisSplit", totalHoursForThisSplit );
-//        console.log( "scheduleThisDay", scheduleThisDay );
+        totalHoursForThisSplit = splitHours.first.hours + splitHours.second.hours;
         
         if( splitHours.first.hours<=0 || splitHours.second.hours<=0 || totalHoursForThisSplit < scheduleThisDay ) {
         	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
@@ -1323,40 +1334,19 @@ var timeOffCreateRequestHandler = new function() {
             
 	        selectedDatesNew[foundIndex].hours = splitHours.first.hours;
 	        dateObject.hours = splitHours.second.hours;
-//	        console.log( "AAA", selectedDatesNew[foundIndex].hours );
-//	        console.log( "AAA-- " + selectedDatesNew[foundIndex].category );
-//	        console.log( "BBB", dateObject.hours );
-//	        console.log( "BBB-- " + dateObject.category );
-	        
-	        //timeOffCreateRequestHandler.addTime(selectedDatesNew[foundIndex].category, (0-selectedDatesNew[foundIndex].hours));
 	        selectedDatesNew.push( dateObject );
-	        //timeOffCreateRequestHandler.addTime( dateObject.category, hoursFirst );
 	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
         }
-        
-//        console.log( "CATEGORY 1-- " + selectedDatesNew[foundIndex].category );
-//        console.log( "CATEGORY 2-- " + dateObject.category );
-//        console.log( "Grandfathered Remaining-- " + employeeGrandfatheredRemaining );
-//        console.log( "Sick Remaining-- " + employeeSickRemaining );
     }
     
     this.getHoursToAdd = function( dateObject ) {
     	var hoursToAdd = dateObject.hours;
-    	console.log( "T", dateObject );
-    	console.log( "T", employeeGrandfatheredRemaining );
-    	console.log( "T", employeeSickRemaining );
-    	if( employeeGrandfatheredRemaining <= 4 ) {
-    		console.log( "LESS GF" );
-    	} else {
-    		console.log( "ENOUGH GF" );
-    	}
     	if( dateObject.category=="timeOffGrandfathered" && employeeGrandfatheredRemaining <= 8 ) {
     		hoursToAdd = employeeGrandfatheredRemaining;
-    		console.log( "T", employeeGrandfatheredRemaining );
     	} else if( dateObject.category=="timeOffSick" && employeeSickRemaining <= 8 ) {
     		hoursToAdd = employeeSickRemaining;
     	}
-    	return hoursToAdd;
+    	return hoursToAdd; // Ensure integer, two decimals
     }
     
     /**
@@ -1368,10 +1358,7 @@ var timeOffCreateRequestHandler = new function() {
             found = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject ),
             hoursToAdd = timeOffCreateRequestHandler.getHoursToAdd( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
-        console.log( "ADD TEST", dateObject );
         dateObject.hours = hoursToAdd;
-        console.log( "ADD TEST", dateObject );
-        console.log( "ADD TEST", hoursToAdd );
         timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
         selectedDatesNew.push( dateObject );
         if( method == 'mark' ) {
