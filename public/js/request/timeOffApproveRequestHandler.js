@@ -127,8 +127,6 @@ var timeOffApproveRequestHandler = new function ()
                     data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
 
         }
-
-        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
     }
 
     /**
@@ -147,19 +145,15 @@ var timeOffApproveRequestHandler = new function ()
      * @returns {undefined}
      */
     this.payrollActionDenyRequest = function( data, selectedButton ) {
-        // sawik TODO: Implement this feature.
-        // 07-15-16 Tell them this is not yet implemented.
-      alert( "Sorry, Charlie. This feature is not yet implemented." );
         if ($.trim($("#payrollComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#payrollComment").removeClass("borderColorRed");
+            timeOffApproveRequestHandler.roundTripAPICall(
+                data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
         }
-        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
-//        timeOffApproveRequestHandler.roundTripAPICall(
-//            data, apiSubmitPayrollDeniedUrl, redirectManagerApprovedCompleteUrl, "Unable to Deny Request." );
     }
 
     /**
