@@ -127,8 +127,6 @@ var timeOffApproveRequestHandler = new function ()
                     data, apiSubmitManagerDeniedUrl, redirectManagerDeniedCompleteUrl, "Unable to Deny Request." );
 
         }
-
-        timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
     }
 
     /**
