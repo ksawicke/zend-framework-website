@@ -646,12 +646,14 @@ var timeOffCreateRequestHandler = new function() {
         timeOffCreateRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
         timeOffCreateRequestHandler.printEmployeePTORemaining();
         timeOffCreateRequestHandler.printEmployeePTOPending();
+        timeOffCreateRequestHandler.warnExceededPTORemaining();
         
         /** Float **/
         timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
         timeOffCreateRequestHandler.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
         timeOffCreateRequestHandler.printEmployeeFloatRemaining();
         timeOffCreateRequestHandler.printEmployeeFloatPending();
+        timeOffCreateRequestHandler.warnExceededFloatRemaining();
         
         /** Sick **/
         timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
@@ -902,15 +904,9 @@ var timeOffCreateRequestHandler = new function() {
     this.setEmployeeApprovedNoPayPending = function(approvedNoPayPending) {
         employeeApprovedNoPayPending = parseFloat(approvedNoPayPending).toFixed(2);
     }
-
-    /**
-     * Prints the Remaining PTO time for selected employee.
-     */
-    this.printEmployeePTORemaining = function() {
-    	$("#employeePTORemainingHours").html(
-    			parseFloat( employeePTORemaining ).toFixed(2) + " hours");
-        
-        if (employeePTORemaining <= 0) {
+    
+    this.warnExceededPTORemaining = function() {
+    	if (employeePTORemaining <= 0) {
             $('div.buttonDisappearPTO button').addClass('categoryTimeExceeded');
             $('div.buttonDisappearPTO .categoryButtonRemainingLabel').addClass('red');
             $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').addClass('red');
@@ -919,6 +915,25 @@ var timeOffCreateRequestHandler = new function() {
             $('div.buttonDisappearPTO .categoryButtonRemainingLabel').removeClass('red');
             $('div.buttonDisappearPTO .categoryButtonNumberRemainingHours').removeClass('red');
         }
+    }
+    
+    this.warnExceededFloatRemaining = function() {
+    	if (employeeFloatRemaining <= 0) {
+            $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').addClass('red');
+        } else {
+            $('div.buttonDisappearFloat button').removeClass('categoryTimeExceeded');
+            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').removeClass('red');
+            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
+        }
+    }
+
+    /**
+     * Prints the Remaining PTO time for selected employee.
+     */
+    this.printEmployeePTORemaining = function() {
+    	$("#employeePTORemainingHours").html( employeePTORemaining + " hours");
     }
 
     /**
@@ -933,16 +948,6 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.printEmployeeFloatRemaining = function() {
         $("#employeeFloatRemainingHours").html( parseFloat(employeeFloatRemaining).toFixed(2) + " hours" );
-        
-        if (employeeFloatRemaining <= 0) {
-            $('div.buttonDisappearFloat button').addClass('categoryTimeExceeded');
-            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').addClass('red');
-            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').addClass('red');
-        } else {
-            $('div.buttonDisappearFloat button').removeClass('categoryTimeExceeded');
-            $('div.buttonDisappearFloat .categoryButtonRemainingLabel').removeClass('red');
-            $('div.buttonDisappearFloat .categoryButtonNumberRemainingHours').removeClass('red');
-        }
     }
 
     /**
