@@ -208,15 +208,19 @@ var timeOffCreateRequestHandler = new function() {
     	console.log( "run checkAndSetFormWarnings()" );
     	console.log( requestForEmployeeObject.SALARY_TYPE );
     	console.log( hoursWarningBlock );
-		if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===false ) {
+		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===true ) {
 			$( "#warnBereavementHoursPerRequest" ).show();
+			console.log( "Show bereavement warning" );
 		} else {
 			$( "#warnBereavementHoursPerRequest" ).hide();
+			console.log( "Hide bereavement warning" );
 		}
 		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
 			$( hoursWarningBlock ).show();
+			console.log( "Show hours warning block" );
 		} else {
 			$( hoursWarningBlock ).hide();
+			console.log( "Hide hours warning block" );
 		}
     }
     
@@ -231,7 +235,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
+            if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===true &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
                 requestReason = $("#requestReason").val();
                 timeOffCreateRequestHandler.handlePleaseWaitStatus( $(this) );
@@ -255,7 +259,7 @@ var timeOffCreateRequestHandler = new function() {
         selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
     
-    this.verifyBereavementHoursPerRequest = function() {
+    this.verifyBereavementRequestLimitReached = function() {
         var validates = false;
         var bereavementTotalForRequest = 0;
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
@@ -264,8 +268,15 @@ var timeOffCreateRequestHandler = new function() {
             }
         });
         
-        if( bereavementTotalForRequest <= 24 ) {
+        console.log( "bereavementTotalForRequest", bereavementTotalForRequest );
+        
+        if( bereavementTotalForRequest >= 24 ) {
             validates = true;
+            if( bereavementTotalForRequest > 24 ) {
+            	$('.submitTimeOffRequest').addClass('disabled');
+            } else {
+            	$('.submitTimeOffRequest').removeClass('disabled');
+            }
         }
         
         return validates;
@@ -293,6 +304,12 @@ var timeOffCreateRequestHandler = new function() {
             	validates = ( hoursOff >= 8 && hoursOff <= 12 ? true : false );
             }
         });
+        
+        if( validates==false ) {
+        	$('.submitTimeOffRequest').addClass('disabled');
+        } else {
+        	$('.submitTimeOffRequest').removeClass('disabled');
+        }
                 
         return validates;
     }
@@ -308,6 +325,7 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesNew[key].hours = value;
             selectedDatesNew[key].fieldDirty = true;
             $("#formDirty").val('true');
+            timeOffCreateRequestHandler.checkAndSetFormWarnings();
         });
     }
 
