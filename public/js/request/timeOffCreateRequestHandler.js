@@ -158,7 +158,7 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is closed
                  */
             });
-            
+            //
             timeOffCreateRequestHandler.handleCalendarNavigation();
             timeOffCreateRequestHandler.handleToggleLegend();
             timeOffCreateRequestHandler.handleClickCategory();
