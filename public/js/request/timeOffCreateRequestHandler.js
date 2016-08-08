@@ -230,7 +230,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===true &&
+            if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===false &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
                 requestReason = $("#requestReason").val();
                 timeOffCreateRequestHandler.handlePleaseWaitStatus( $(this) );
