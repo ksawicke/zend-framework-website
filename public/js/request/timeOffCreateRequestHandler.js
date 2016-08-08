@@ -205,22 +205,17 @@ var timeOffCreateRequestHandler = new function() {
     	var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE=='S' ?
                 '#warnSalaryTakingRequiredHoursPerDay' :
                 '#warnHourlyTakingRequiredHoursPerDay' );
-    	console.log( "run checkAndSetFormWarnings()" );
-    	console.log( requestForEmployeeObject.SALARY_TYPE );
-    	console.log( hoursWarningBlock );
-		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===true ) {
+
+		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
 			$( "#warnBereavementHoursPerRequest" ).show();
-			console.log( "Show bereavement warning" );
 		} else {
 			$( "#warnBereavementHoursPerRequest" ).hide();
 			console.log( "Hide bereavement warning" );
 		}
-		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
+		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
 			$( hoursWarningBlock ).show();
-			console.log( "Show hours warning block" );
 		} else {
 			$( hoursWarningBlock ).hide();
-			console.log( "Hide hours warning block" );
 		}
     }
     
@@ -259,20 +254,24 @@ var timeOffCreateRequestHandler = new function() {
         selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
     
-    this.verifyBereavementRequestLimitReached = function() {
-        var validates = false;
-        var bereavementTotalForRequest = 0;
+    this.getBereavementHoursRequested = function() {
+    	var bereavementTotalForRequest = 0;
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
             if( selectedDateNewObject.category=="timeOffBereavement" ) {
                 bereavementTotalForRequest += +selectedDateNewObject.hours;
             }
         });
-        
-        console.log( "bereavementTotalForRequest", bereavementTotalForRequest );
+        return bereavementTotalForRequest;
+    }
+    
+    this.verifyBereavementRequestLimitReached = function() {
+        var validates = false;
+        bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
         
         if( bereavementTotalForRequest >= 24 ) {
             validates = true;
-            if( bereavementTotalForRequest > 24 ) {
+            if( bereavementTotalForRequest > 24 ||
+                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
             	$('.submitTimeOffRequest').addClass('disabled');
             } else {
             	$('.submitTimeOffRequest').removeClass('disabled');
@@ -289,6 +288,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifySalaryTakingRequiredHoursPerDay = function() {
         var validates = true;
+        bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
         selectedDatesNewHoursByDate = [];
         
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
@@ -305,7 +305,7 @@ var timeOffCreateRequestHandler = new function() {
             }
         });
         
-        if( validates==false ) {
+        if( validates==false || bereavementTotalForRequest > 24 ) {
         	$('.submitTimeOffRequest').addClass('disabled');
         } else {
         	$('.submitTimeOffRequest').removeClass('disabled');
