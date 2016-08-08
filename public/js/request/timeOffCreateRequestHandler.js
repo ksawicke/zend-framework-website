@@ -164,9 +164,9 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.handleClickCategory();
             timeOffCreateRequestHandler.handleClickCalendarDate();
             timeOffCreateRequestHandler.handleRemoveDateFromRequest();
-//            timeOffCreateRequestHandler.handleChangeHoursForDateManually();
+            timeOffCreateRequestHandler.handleChangeHoursForDateManually();
             timeOffCreateRequestHandler.verifyNewRequest();
-//            timeOffCreateRequestHandler.handleSplitDate();
+            timeOffCreateRequestHandler.handleNewRequestFormIsUpdated();
             timeOffCreateRequestHandler.handleChangeRequestForEmployee();
             timeOffCreateRequestHandler.handleDirectReportToggle();
         });
@@ -200,22 +200,37 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.splitDateRequested($(this));
         });
     }
+    
+    this.checkAndSetFormWarnings = function() {
+    	var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE=='S' ?
+                '#warnSalaryTakingRequiredHoursPerDay' :
+                '#warnHourlyTakingRequiredHoursPerDay' );
+    	console.log( "run checkAndSetFormWarnings()" );
+    	console.log( requestForEmployeeObject.SALARY_TYPE );
+    	console.log( hoursWarningBlock );
+		if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===false ) {
+			$( "#warnBereavementHoursPerRequest" ).show();
+		} else {
+			$( "#warnBereavementHoursPerRequest" ).hide();
+		}
+		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
+			$( hoursWarningBlock ).show();
+		} else {
+			$( hoursWarningBlock ).hide();
+		}
+    }
+    
+    this.handleNewRequestFormIsUpdated = function() {
+    	$('#newTimeOffRequestForm').on('change', function() {
+    		timeOffCreateRequestHandler.checkAndSetFormWarnings();
+    	});
+    }
 
     /**
      * Submit time off request
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE==='S' ?
-                                      '#warnSalaryTakingRequiredHoursPerDay' :
-                                      '#warnHourlyTakingRequiredHoursPerDay' );
-            if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===false ) {
-                $( "#warnBereavementHoursPerRequest" ).show();
-            }                  
-            if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
-                $( hoursWarningBlock ).show();
-            }
-            
             if( timeOffCreateRequestHandler.verifyBereavementHoursPerRequest()===true &&
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
                 requestReason = $("#requestReason").val();
@@ -244,7 +259,7 @@ var timeOffCreateRequestHandler = new function() {
         var validates = false;
         var bereavementTotalForRequest = 0;
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-            if( selectedDateNewObject.category==="timeOffBereavement" ) {
+            if( selectedDateNewObject.category=="timeOffBereavement" ) {
                 bereavementTotalForRequest += +selectedDateNewObject.hours;
             }
         });
@@ -273,15 +288,9 @@ var timeOffCreateRequestHandler = new function() {
             }
         });
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-            if( requestForEmployeeObject.SALARY_TYPE=='S' &&
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] < 8 ) {
-                validates = false;
-            }
-            if( requestForEmployeeObject.SALARY_TYPE=='H' &&
-                ( selectedDatesNewHoursByDate[selectedDateNewObject.date] > 12 ||
-                  selectedDatesNewHoursByDate[selectedDateNewObject.date] < 0 )
-              ) {
-                validates = false;
+        	var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
+            if( requestForEmployeeObject.SALARY_TYPE=='S' && validates ) {
+            	validates = ( hoursOff >= 8 && hoursOff <= 12 ? true : false );
             }
         });
                 
@@ -315,6 +324,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
+            timeOffCreateRequestHandler.checkAndSetFormWarnings();
         });
     }
     
@@ -388,6 +398,7 @@ var timeOffCreateRequestHandler = new function() {
             }
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
+            timeOffCreateRequestHandler.checkAndSetFormWarnings();
         });
     }
     
@@ -824,7 +835,7 @@ var timeOffCreateRequestHandler = new function() {
      * Prints the Remaining PTO time for selected employee.
      */
     this.setEmployeePTORemaining = function(ptoRemaining) {
-        employeePTORemaining = parseFloat(ptoRemaining).toFixed(2);
+    	employeePTORemaining = parseFloat(ptoRemaining).toFixed(2);
     }
 
     /**
@@ -933,14 +944,14 @@ var timeOffCreateRequestHandler = new function() {
      * Prints the Remaining PTO time for selected employee.
      */
     this.printEmployeePTORemaining = function() {
-    	$("#employeePTORemainingHours").html( employeePTORemaining + " hours");
+    	$("#employeePTORemainingHours").html( parseFloat(employeePTORemaining).toFixed(2) + " hours");
     }
 
     /**
      * Prints the Pending PTO time for selected employee.
      */
     this.printEmployeePTOPending = function() {
-        $("#employeePTOPendingHours").html( employeePTOPending + " hours");
+        $("#employeePTOPendingHours").html( parseFloat(employeePTOPending).toFixed(2) + " hours");
     }
 
     /**
@@ -1505,6 +1516,7 @@ var timeOffCreateRequestHandler = new function() {
         }
 
         timeOffCreateRequestHandler.printEmployeePTORemaining();
+        timeOffCreateRequestHandler.checkIfRequestFormShouldBeDisabled();
     }
     
     this.disableHoursInputField = function( category ) {
@@ -1513,9 +1525,15 @@ var timeOffCreateRequestHandler = new function() {
         }
         return category==="timeOffFloat" ? ' disabled="disabled"' : '';
     }
+    
+    this.checkIfRequestFormShouldBeDisabled = function() {
+    	var wow = timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay();
+//    	console.log( wow )
+    }
 
     /**
      * Sorts dates in the selected array.
+     * Uses bubble sort algorithm.
      */
     this.sortDatesSelected = function() {
         selectedDatesNew.sort(function(a, b) {
@@ -1523,7 +1541,6 @@ var timeOffCreateRequestHandler = new function() {
             var dateB = new Date(b.date).getTime();
             return dateA > dateB ? 1 : - 1;
         });
-//        console.log(selectedDatesNew);
     }
 
     this.selectResult = function(item) {
