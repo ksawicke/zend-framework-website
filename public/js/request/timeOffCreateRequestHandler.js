@@ -353,7 +353,7 @@ var timeOffCreateRequestHandler = new function() {
     
     this.verifyExceededSickHours = function() {
     	var validates = false;
-    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
+//    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
     	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
     		validates = true;
     	}
