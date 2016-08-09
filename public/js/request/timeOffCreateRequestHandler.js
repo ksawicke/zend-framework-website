@@ -222,6 +222,8 @@ var timeOffCreateRequestHandler = new function() {
 //		}
     }
     
+    
+    
     this.handleNewRequestFormIsUpdated = function() {
     	$('#newTimeOffRequestForm').on('change', function() {
     		timeOffCreateRequestHandler.checkAndSetFormWarnings();
@@ -321,9 +323,30 @@ var timeOffCreateRequestHandler = new function() {
     	var validates = false;
     	timeOffCreateRequestHandler.updateTotalsPerCategory();
     	
+    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
+    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
+    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
+    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
+    	
+    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
+    		$('#warnExceededGrandfatheredHours').show();
+    	} else {
+    		$('#warnExceededGrandfatheredHours').hide();
+    	}
+    	
+    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+    		$('#warnExceededSickHours').show();
+    	} else {
+    		$('#warnExceededSickHours').hide();
+    	}
+    	
+    	// warnExceededGrandfatheredHours
+    	// warnExceededSickHours
+    	
     	if( totalPTORequested > requestForEmployeeObject.PTO_REMAINING ||
     		totalFloatRequested	> requestForEmployeeObject.FLOAT_REMAINING ||
-    		totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+    		totalSickRequested > requestForEmployeeObject.SICK_REMAINING ||
+    		totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
     		validates = true;
     	}
 
@@ -1488,6 +1511,15 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.updateTotalsPerCategory = function() {
+    	totalPTORequested = 0;
+    	totalFloatRequested = 0;
+    	totalSickRequested = 0;
+    	totalUnexcusedAbsenceRequested = 0;
+    	totalBereavementRequested = 0;
+    	totalCivicDutyRequested = 0;
+    	totalGrandfatheredRequested = 0;
+    	totalApprovedNoPayRequested = 0;
+    	console.log( selectedDatesNew );
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
         	switch (selectedDatesNew[selectedIndex].category) {
 	            case 'timeOffPTO':
@@ -1509,10 +1541,10 @@ var timeOffCreateRequestHandler = new function() {
 	                totalCivicDutyRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
 	                break;
 	            case 'timeOffGrandfathered':
-	                    totalGrandfatheredRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalGrandfatheredRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
 	                break;
 	            case 'timeOffApprovedNoPay':
-	                    totalApprovedNoPayRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalApprovedNoPayRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
 	                break;
 	        }
         }
