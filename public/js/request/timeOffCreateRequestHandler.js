@@ -413,6 +413,16 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesNew[key].hours = value;
             selectedDatesNew[key].fieldDirty = true;
             $("#formDirty").val('true');
+            // Recalculate totals
+             timeOffCreateRequestHandler.updateTotalsPerCategory();
+//            totalPTORequested = 0;
+//        	totalFloatRequested = 0;
+//        	totalSickRequested = 0;
+//        	totalUnexcusedAbsenceRequested = 0;
+//        	totalBereavementRequested = 0;
+//        	totalCivicDutyRequested = 0;
+//        	totalGrandfatheredRequested = 0;
+//        	totalApprovedNoPayRequested = 0;
             timeOffCreateRequestHandler.checkAndSetFormWarnings();
         });
     }
@@ -748,51 +758,57 @@ var timeOffCreateRequestHandler = new function() {
         $("#employeeScheduleBy").val( requestForEmployeeNumber );
     }
 
+//    var data = {};
+//    data.GF_REMAINING
+    
+    this.updateButtonsWithEmployeeRemainingTime = function(data) {
+    	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+    	timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
+    	
+    	timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
+    	timeOffCreateRequestHandler.printEmployeePTORemaining();
+    	timeOffCreateRequestHandler.warnExceededPTORemaining();
+    	
+    	timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
+        timeOffCreateRequestHandler.printEmployeeFloatRemaining();
+        timeOffCreateRequestHandler.warnExceededFloatRemaining();
+        
+        timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
+        timeOffCreateRequestHandler.printEmployeeSickRemaining();
+    }
+    
+    this.updateButtonsWithEmployeePendingTime = function(data) {
+    	timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(data.GF_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
+        
+        timeOffCreateRequestHandler.setEmployeePTOPending(data.PTO_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeePTOPending();
+        
+        timeOffCreateRequestHandler.setEmployeeFloatPending(data.FLOAT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeFloatPending();
+        
+        timeOffCreateRequestHandler.setEmployeeSickPending(data.SICK_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeSickPending();
+        
+        timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(data.UNEXCUSED_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
+        
+        timeOffCreateRequestHandler.setEmployeeBereavementPending(data.BEREAVEMENT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeBereavementPending();
+        
+        timeOffCreateRequestHandler.setEmployeeCivicDutyPending(data.CIVIC_DUTY_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
+        
+        timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(data.UNPAID_PENDING_TOTAL);
+        timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
+    }
+    
     /**
      * Update buttons with employee hours.
      */
-    this.updateButtonsWithEmployeeHours = function(employeeData) {
-    	/** Grandfathered **/
-    	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
-        timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(employeeData.GF_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
-        timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
-        
-        /** PTO **/
-        timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
-        timeOffCreateRequestHandler.setEmployeePTOPending(employeeData.PTO_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeePTORemaining();
-        timeOffCreateRequestHandler.printEmployeePTOPending();
-        timeOffCreateRequestHandler.warnExceededPTORemaining();
-        
-        /** Float **/
-        timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
-        timeOffCreateRequestHandler.setEmployeeFloatPending(employeeData.FLOAT_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeFloatRemaining();
-        timeOffCreateRequestHandler.printEmployeeFloatPending();
-        timeOffCreateRequestHandler.warnExceededFloatRemaining();
-        
-        /** Sick **/
-        timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
-        timeOffCreateRequestHandler.setEmployeeSickPending(employeeData.SICK_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeSickRemaining();
-        timeOffCreateRequestHandler.printEmployeeSickPending();
-        
-        /** Unexcused Absence **/
-        timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(employeeData.UNEXCUSED_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
-        
-        /** Bereavement **/
-        timeOffCreateRequestHandler.setEmployeeBereavementPending(employeeData.BEREAVEMENT_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeBereavementPending();
-        
-        /** Civic Duty **/
-        timeOffCreateRequestHandler.setEmployeeCivicDutyPending(employeeData.CIVIC_DUTY_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
-        
-        /** Approved No Pay **/
-        timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(employeeData.UNPAID_PENDING_TOTAL);
-        timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
+    this.updateButtonsWithEmployeeHours = function(data) {
+    	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
+    	timeOffCreateRequestHandler.updateButtonsWithEmployeePendingTime( data );
     }
 
     /**
