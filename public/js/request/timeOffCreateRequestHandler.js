@@ -206,17 +206,20 @@ var timeOffCreateRequestHandler = new function() {
                 '#warnSalaryTakingRequiredHoursPerDay' :
                 '#warnHourlyTakingRequiredHoursPerDay' );
 
-		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
-			$( "#warnBereavementHoursPerRequest" ).show();
-		} else {
-			$( "#warnBereavementHoursPerRequest" ).hide();
-			console.log( "Hide bereavement warning" );
-		}
-		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
-			$( hoursWarningBlock ).show();
-		} else {
-			$( hoursWarningBlock ).hide();
-		}
+    	console.log( "Bereavement limit reached? " + timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
+    	console.log( "Salary taking required hours per day? " + timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
+    	console.log( "Exceeded hours for PTO, Float, or Sick? " + timeOffCreateRequestHandler.verifyExceededHours() );
+    	
+//		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+//			$( "#warnBereavementHoursPerRequest" ).show();
+//		} else {
+//			$( "#warnBereavementHoursPerRequest" ).hide();
+//		}
+//		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+//			$( hoursWarningBlock ).show();
+//		} else {
+//			$( hoursWarningBlock ).hide();
+//		}
     }
     
     this.handleNewRequestFormIsUpdated = function() {
@@ -312,6 +315,19 @@ var timeOffCreateRequestHandler = new function() {
         }
                 
         return validates;
+    }
+    
+    this.verifyExceededHours = function() {
+    	var validates = false;
+    	timeOffCreateRequestHandler.updateTotalsPerCategory();
+    	
+    	if( totalPTORequested > requestForEmployeeObject.PTO_REMAINING ||
+    		totalFloatRequested	> requestForEmployeeObject.FLOAT_REMAINING ||
+    		totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+    		validates = true;
+    	}
+
+    	return validates;
     }
 
     /**
@@ -1471,6 +1487,37 @@ var timeOffCreateRequestHandler = new function() {
             '</tr>';
     }
 
+    this.updateTotalsPerCategory = function() {
+        for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
+        	switch (selectedDatesNew[selectedIndex].category) {
+	            case 'timeOffPTO':
+	                totalPTORequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffFloat':
+	                totalFloatRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffSick':
+	                totalSickRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffUnexcusedAbsence':
+	                totalUnexcusedAbsenceRequested += parseInt( selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffBereavement':
+	                totalBereavementRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffCivicDuty':
+	                totalCivicDutyRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffGrandfathered':
+	                    totalGrandfatheredRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	            case 'timeOffApprovedNoPay':
+	                    totalApprovedNoPayRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                break;
+	        }
+        }
+    }
+    
     /**
      * Draws form fields we can submit for the user.
      */
