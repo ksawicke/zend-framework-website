@@ -209,17 +209,33 @@ var timeOffCreateRequestHandler = new function() {
     	console.log( "Bereavement limit reached? " + timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
     	console.log( "Salary taking required hours per day? " + timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
     	console.log( "Exceeded hours for PTO, Float, or Sick? " + timeOffCreateRequestHandler.verifyExceededHours() );
+    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
+    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
+    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
+    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
     	
-//		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
-//			$( "#warnBereavementHoursPerRequest" ).show();
-//		} else {
-//			$( "#warnBereavementHoursPerRequest" ).hide();
-//		}
-//		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
-//			$( hoursWarningBlock ).show();
-//		} else {
-//			$( hoursWarningBlock ).hide();
-//		}
+    	if( timeOffCreateRequestHandler.verifyExceededGrandfatheredHours() ) {
+    		$('#warnExceededGrandfatheredHours').show();
+    	} else {
+    		$('#warnExceededGrandfatheredHours').hide();
+    	}
+    	
+    	if( timeOffCreateRequestHandler.verifyExceededSickHours() ) {
+    		$('#warnExceededSickHours').show();
+    	} else {
+    		$('#warnExceededSickHours').hide();
+    	}
+    	
+		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+			$( "#warnBereavementHoursPerRequest" ).show();
+		} else {
+			$( "#warnBereavementHoursPerRequest" ).hide();
+		}
+		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+			$( hoursWarningBlock ).show();
+		} else {
+			$( hoursWarningBlock ).hide();
+		}
     }
     
     
@@ -319,34 +335,67 @@ var timeOffCreateRequestHandler = new function() {
         return validates;
     }
     
+    this.verifyExceededPTOHours = function() {
+    	var validates = false;
+    	if( totalPTORequested > requestForEmployeeObject.PTO_REMAINING ) {
+    		validates = true;
+    	}
+    	return validates;
+    }
+    
+    this.verifyExceededFloatHours = function() {
+    	var validates = false;
+    	if( totalFloatRequested > requestForEmployeeObject.FLOAT_REMAINING ) {
+    		validates = true;
+    	}
+    	return validates;
+    }
+    
+    this.verifyExceededSickHours = function() {
+    	var validates = false;
+    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
+    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+    		validates = true;
+    	}
+    	return validates;
+    }
+    
+    this.verifyExceededGrandfatheredHours = function() {
+    	var validates = false;
+    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
+    		validates = true;
+    	}
+    	return validates;
+    }
+    
     this.verifyExceededHours = function() {
     	var validates = false;
     	timeOffCreateRequestHandler.updateTotalsPerCategory();
     	
-    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
-    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
-    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
-    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
+//    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
+//    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
+//    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
+//    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
     	
-    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
-    		$('#warnExceededGrandfatheredHours').show();
-    	} else {
-    		$('#warnExceededGrandfatheredHours').hide();
-    	}
-    	
-    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
-    		$('#warnExceededSickHours').show();
-    	} else {
-    		$('#warnExceededSickHours').hide();
-    	}
+//    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
+//    		$('#warnExceededGrandfatheredHours').show();
+//    	} else {
+//    		$('#warnExceededGrandfatheredHours').hide();
+//    	}
+//    	
+//    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+//    		$('#warnExceededSickHours').show();
+//    	} else {
+//    		$('#warnExceededSickHours').hide();
+//    	}
     	
     	// warnExceededGrandfatheredHours
     	// warnExceededSickHours
     	
-    	if( totalPTORequested > requestForEmployeeObject.PTO_REMAINING ||
-    		totalFloatRequested	> requestForEmployeeObject.FLOAT_REMAINING ||
-    		totalSickRequested > requestForEmployeeObject.SICK_REMAINING ||
-    		totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
+    	if( timeOffCreateRequestHandler.verifyExceededPTOHours() ||
+    		timeOffCreateRequestHandler.verifyExceededFloatHours() ||
+    		timeOffCreateRequestHandler.verifyExceededSickHours() ||
+    		timeOffCreateRequestHandler.verifyExceededGrandfatheredHours() ) {
     		validates = true;
     	}
 
