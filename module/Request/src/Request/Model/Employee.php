@@ -333,9 +333,7 @@ class Employee extends BaseDB {
      * @return boolean   "Y" or "N"
      */
     public function isPayrollAssistant( $employeeNumber = null ) {
-        /**
-         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
-         */
+
         $employeeNumber = str_pad(trim($employeeNumber), 9, ' ', STR_PAD_LEFT);
 
         $sql = new Sql($this->adapter);
