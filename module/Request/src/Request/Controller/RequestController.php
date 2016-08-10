@@ -24,17 +24,17 @@ class RequestController extends AbstractActionController
     protected $employeeNumber;
 
     protected $managerEmployeeNumber;
-    
+
     public $invalidRequestDates = [
         'before' => '',
         'after' => '',
         'individual' => []
     ];
-    
+
     public $managerViewName = [
         'pending-manager-approval' => 'Pending Manager Approval'
     ];
-    
+
     public $payrollViewName = [
         'update-checks' => 'Update Checks',
         'pending-payroll-approval' => 'Pending Payroll Approval',
@@ -44,7 +44,7 @@ class RequestController extends AbstractActionController
         'by-status' => 'By Status',
         'manager-action' => 'Manager Action Needed'
     ];
-    
+
     protected static $typesToCodes = [
         'timeOffPTO' => 'P',
         'timeOffFloat' => 'K',
@@ -55,7 +55,7 @@ class RequestController extends AbstractActionController
         'timeOffGrandfathered' => 'R',
         'timeOffApprovedNoPay' => 'A'
     ];
-    
+
     protected static $categoryToClass = [
         'PTO' => 'timeOffPTO',
         'Float' => 'timeOffFloat',
@@ -66,7 +66,7 @@ class RequestController extends AbstractActionController
         'Grandfathered' => 'timeOffGrandfathered',
         'ApprovedNoPay' => 'timeOffApprovedNoPay'
     ];
-    
+
     protected static $codesToKronos = [
         'P' => 'PTO',
         'R' => 'GFVAC',
@@ -75,65 +75,65 @@ class RequestController extends AbstractActionController
         'S' => 'SK',
         'V' => 'VA'
     ];
-    
+
     public function __construct() // RequestServiceInterface $requestService, FormInterface $requestForm
     {
         $this->employeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'];
         $this->managerEmployeeNumber = $_SESSION['Timeoff_'.ENVIRONMENT]['MANAGER_EMPLOYEE_NUMBER'];
-        
+
         // Disable dates starting with the following date.
         $this->invalidRequestDates['before'] = $this->getEarliestRequestDate();
-        
+
         // Disable dates starting with the following date.
         $this->invalidRequestDates['after'] = date("m/d/Y", strtotime("+1 year", strtotime(date("m/d/Y"))));
-        
+
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = $this->getCompanyHolidays();
-        
+
 //        echo '<pre>';
 //        print_r( $this->invalidRequestDates );
 //        echo '</pre>';
 //        exit();
     }
-    
+
     /**
      * Gets a list of company holidays.
-     * 
+     *
      * @return date
      */
     public function getCompanyHolidays()
     {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $companyHolidays = $TimeOffRequestSettings->getCompanyHolidays();
-        
+
         return $companyHolidays;
     }
-    
+
     /**
      * Allow Payroll to put in a request up to 6 months ago from today's date.
      * All other roles can go back 1 month.
-     * 
+     *
      * @return date
      */
     public function getEarliestRequestDate()
     {
         $Employee = new \Request\Model\Employee();
         $isPayroll = $Employee->isPayroll( $this->employeeNumber );
-        
+
         return ( $isPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
                                               : date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y")))) );
-        
+
     }
-    
+
     /**
      * Allows an employee to edit their profile.
-     * 
+     *
      * @return ViewModel
      */
     public function editEmployeeProfileAction()
     {
         $Employee = new \Request\Model\Employee();
-        
+
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'employeeNumber' => $this->employeeNumber,
@@ -145,16 +145,16 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
-    
+
     /**
      * Allows an employee to edit their profile.
-     * 
+     *
      * @return ViewModel
      */
     public function managePayrollAssistantsAction()
     {
         $Employee = new \Request\Model\Employee();
-        
+
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN'),
@@ -165,11 +165,11 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
-    
+
     public function manageCompanyHolidaysAction()
     {
         $Employee = new \Request\Model\Employee();
-        
+
         return new ViewModel([
             'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
@@ -179,11 +179,11 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
-    
+
     public function manageEmailOverridesAction()
     {
         $Employee = new \Request\Model\Employee();
-        
+
         return new ViewModel([
             'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL'),
             'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
@@ -198,13 +198,13 @@ class RequestController extends AbstractActionController
      * Allows an employee to submit a new time off request for themselves.
      * In addition, a manager may submit time off requests for their direct reports,
      * and Payroll may submit time off requests for anyone.
-     * 
+     *
      * @return ViewModel
      */
     public function createAction()
     {
         $Employee = new \Request\Model\Employee();
-        
+
         return new ViewModel([
             'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
             'isManager' => \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER'),
@@ -216,10 +216,10 @@ class RequestController extends AbstractActionController
                                ]
         ]);
     }
-    
+
     /**
      * Return a session message that the request was approved successfully.
-     * 
+     *
      * @return string
      */
     public function approvedRequestAction()
@@ -231,10 +231,10 @@ class RequestController extends AbstractActionController
             'manager-view' => 'pending-manager-approval'
         ));
     }
-    
+
     /**
      * Return a session message that the request was denied successfully.
-     * 
+     *
      * @return string
      */
     public function deniedRequestAction()
@@ -246,10 +246,10 @@ class RequestController extends AbstractActionController
             'manager-view' => 'pending-manager-approval'
         ));
     }
-    
+
     /**
      * Return a session message that the request was submitted successfully.
-     * 
+     *
      * @return string
      */
     public function submittedForApprovalAction()
@@ -260,7 +260,7 @@ class RequestController extends AbstractActionController
 
     /**
      * Allow managers to view timeoff requests in status Pending Manager Approval.
-     * 
+     *
      * @return ViewModel
      */
     public function viewManagerQueueAction()
@@ -275,7 +275,7 @@ class RequestController extends AbstractActionController
         }
 
         $this->layout()->setVariable( 'managerView', $managerView );
-        
+
         $view = new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
             'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
@@ -287,10 +287,10 @@ class RequestController extends AbstractActionController
         $view->setTemplate( 'request/manager-queues/manager-queue.phtml' );
         return $view;
     }
-    
+
     /**
      * Allow payroll to view requests in the Pending Checks status.
-     * 
+     *
      * @return ViewModel
      */
     public function viewPayrollQueueAction()
@@ -298,13 +298,14 @@ class RequestController extends AbstractActionController
         $payrollView = $this->params()->fromRoute('payroll-view');
         $Employee = new \Request\Model\Employee();
         $isPayroll = $Employee->isPayroll( $this->employeeNumber );
-        if($isPayroll!=="Y") {
+        $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
+        if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
 
         $this->layout()->setVariable( 'payrollView', $payrollView );
-        
+
         $view = new ViewModel([
             'isPayroll' => $isPayroll,
             'payrollView' => $payrollView,
@@ -315,7 +316,7 @@ class RequestController extends AbstractActionController
         $view->setTemplate( 'request/payroll-queues/payroll-queue.phtml' );
         return $view;
     }
-    
+
     public function viewMyRequestsAction()
     {
         $startDate = date("Y") . "-" . date("m") . "-01";
@@ -330,7 +331,7 @@ class RequestController extends AbstractActionController
         $Employee = new \Request\Model\Employee();
         $employeeData = $Employee->findEmployeeTimeOffData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
-        
+
 //        var_dump($this->layout()->employeeData);
         return new ViewModel([
             'employeeData' => $employeeData,
@@ -338,17 +339,17 @@ class RequestController extends AbstractActionController
             'flashMessages' => $this->getFlashMessages()
         ]);
     }
-    
+
     public function viewMyTeamCalendarAction()
     {
 //         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, '2016-01-01', '2016-01-31');
-         
+
         return new ViewModel(array(
 //             'calendarData' => $calendarData,
 //             'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
         ));
     }
-    
+
     public function reviewRequestAction()
     {
         $requestId = $this->params()->fromRoute('request_id');
@@ -356,7 +357,7 @@ class RequestController extends AbstractActionController
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
-        
+
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,
@@ -365,15 +366,15 @@ class RequestController extends AbstractActionController
             'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] )
         ] );
     }
-    
+
     protected function setEmployeeNumber($employeeNumber)
     {
         $this->employeeNumber = $employeeNumber;
     }
-    
+
     /**
      * Returns any set flash messages
-     * 
+     *
      * @return array
      */
     private function getFlashMessages()
@@ -384,7 +385,7 @@ class RequestController extends AbstractActionController
                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                ];
     }
-    
+
     public function downloadReportManagerActionNeededAction()
     {
         $PayrollQueues = new \Request\Model\PayrollQueues();
@@ -392,14 +393,14 @@ class RequestController extends AbstractActionController
         $this->outputReportManagerActionNeeded( $queueData );
         exit;
     }
-    
+
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
     {
         /** Include PHPExcel */
-        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';        
+        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
         require_once( $path );
         $objPHPExcel = new \PHPExcel();
-        
+
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
         $worksheet = $objPHPExcel->getActiveSheet();
@@ -422,11 +423,11 @@ class RequestController extends AbstractActionController
         $worksheet->getColumnDimension('D')->setWidth(16.00);
         $worksheet->getColumnDimension('E')->setWidth(16.00);
         $worksheet->getColumnDimension('F')->setWidth(16.00);
-        
+
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
-            
+
             $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT']);
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
             $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
@@ -436,12 +437,12 @@ class RequestController extends AbstractActionController
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
             $worksheet->setCellValue('F'.($key+2), $minDateRequested);
         }
-        
+
         // Redirect output to a client's web browser (Excel2007)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="ManagerActionNeeded_' . date('Ymd-his') . '.xlsx"');
         header('Cache-Control: max-age=0');
-        
+
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
     }
