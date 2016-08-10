@@ -206,24 +206,19 @@ var timeOffCreateRequestHandler = new function() {
                 '#warnSalaryTakingRequiredHoursPerDay' :
                 '#warnHourlyTakingRequiredHoursPerDay' );
 
-    	console.log( "Bereavement limit reached? " + timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
-    	console.log( "Salary taking required hours per day? " + timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
-    	console.log( "Exceeded hours for PTO, Float, or Sick? " + timeOffCreateRequestHandler.verifyExceededHours() );
-    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
-    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
-    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
-    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
+    	timeOffCreateRequestHandler.updateHours();
+    	exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
     	
-    	if( timeOffCreateRequestHandler.verifyExceededGrandfatheredHours() ) {
-    		$('#warnExceededGrandfatheredHours').show();
+    	if( exceededHours.Grandfathered ) {
+    		$("#warnExceededGrandfatheredHours").show();
     	} else {
-    		$('#warnExceededGrandfatheredHours').hide();
+    		$("#warnExceededGrandfatheredHours").hide();
     	}
     	
-    	if( timeOffCreateRequestHandler.verifyExceededSickHours() ) {
-    		$('#warnExceededSickHours').show();
+    	if( exceededHours.Sick ) {
+    		$("#warnExceededSickHours").show();
     	} else {
-    		$('#warnExceededSickHours').hide();
+    		$("#warnExceededSickHours").hide();
     	}
     	
 		if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
@@ -236,6 +231,12 @@ var timeOffCreateRequestHandler = new function() {
 		} else {
 			$( hoursWarningBlock ).hide();
 		}
+		
+//		if( validates==false || bereavementTotalForRequest > 24 ) {
+//        	$('.submitTimeOffRequest').addClass('disabled');
+//        } else {
+//        	$('.submitTimeOffRequest').removeClass('disabled');
+//        }
     }
     
     
@@ -303,14 +304,12 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     /**
-     * Verify that no single day has less than 8 hours requested if the employee is Salary
-     * 
-     * @returns {Boolean|_L5.verifySalaryTakingRequiredHoursPerDay.validates}
+     * Verify that no single day has less than 8 hours requested if the employee is Salary.
+     * Also verify that the hours requested match the employee's schedule.
      */
     this.verifySalaryTakingRequiredHoursPerDay = function() {
-        var validates = true;
-        bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
-        selectedDatesNewHoursByDate = [];
+        var validates = true,
+            selectedDatesNewHoursByDate = [];
         
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
             if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
@@ -325,81 +324,78 @@ var timeOffCreateRequestHandler = new function() {
             	validates = ( hoursOff >= 8 && hoursOff <= 12 ? true : false );
             }
         });
-        
-        if( validates==false || bereavementTotalForRequest > 24 ) {
-        	$('.submitTimeOffRequest').addClass('disabled');
-        } else {
-        	$('.submitTimeOffRequest').removeClass('disabled');
-        }
                 
         return validates;
     }
     
+    /**
+     * Verifies if user exceeded PTO time.
+     */
     this.verifyExceededPTOHours = function() {
     	var validates = false;
-    	if( totalPTORequested > requestForEmployeeObject.PTO_REMAINING ) {
+    	if( parseFloat(totalPTORequested).toFixed(2) > parseFloat(requestForEmployeeObject.PTO_REMAINING).toFixed(2) ) {
     		validates = true;
     	}
     	return validates;
     }
     
+    /**
+     * Verifies if user exceeded Float time.
+     */
     this.verifyExceededFloatHours = function() {
     	var validates = false;
-    	if( totalFloatRequested > requestForEmployeeObject.FLOAT_REMAINING ) {
+    	if( parseFloat(totalFloatRequested).toFixed(2) > parseFloat(requestForEmployeeObject.FLOAT_REMAINING).toFixed(2) ) {
     		validates = true;
     	}
     	return validates;
     }
     
+    /**
+     * Verifies if user exceeded Sick time.
+     */
     this.verifyExceededSickHours = function() {
     	var validates = false;
-//    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
-    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
+    	if( parseFloat(totalSickRequested).toFixed(2) > parseFloat(requestForEmployeeObject.SICK_REMAINING).toFixed(2) ) {
     		validates = true;
     	}
     	return validates;
     }
     
+    /**
+     * Verifies if user exceeded Grandfathered time.
+     */
     this.verifyExceededGrandfatheredHours = function() {
     	var validates = false;
-    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
+    	if( parseFloat(totalGrandfatheredRequested).toFixed(2) > parseFloat(requestForEmployeeObject.GF_REMAINING).toFixed(2) ) {
     		validates = true;
     	}
     	return validates;
     }
     
-    this.verifyExceededHours = function() {
+    /**
+     * Updates the hour totals for request.
+     */
+    this.updateHours = function() {
     	var validates = false;
     	timeOffCreateRequestHandler.updateTotalsPerCategory();
-    	
-//    	console.log( "PTO Requested: " + totalPTORequested + " || Remaining: " + requestForEmployeeObject.PTO_REMAINING );
-//    	console.log( "Float Requested: " + totalFloatRequested + " || Remaining: " + requestForEmployeeObject.FLOAT_REMAINING );
-//    	console.log( "Sick Requested: " + totalSickRequested + " || Remaining: " + requestForEmployeeObject.SICK_REMAINING );
-//    	console.log( "GF Requested: " + totalGrandfatheredRequested + " || Remaining: " + requestForEmployeeObject.GF_REMAINING );
-    	
-//    	if( totalGrandfatheredRequested > requestForEmployeeObject.GF_REMAINING ) {
-//    		$('#warnExceededGrandfatheredHours').show();
-//    	} else {
-//    		$('#warnExceededGrandfatheredHours').hide();
-//    	}
-//    	
-//    	if( totalSickRequested > requestForEmployeeObject.SICK_REMAINING ) {
-//    		$('#warnExceededSickHours').show();
-//    	} else {
-//    		$('#warnExceededSickHours').hide();
-//    	}
-    	
-    	// warnExceededGrandfatheredHours
-    	// warnExceededSickHours
-    	
-    	if( timeOffCreateRequestHandler.verifyExceededPTOHours() ||
-    		timeOffCreateRequestHandler.verifyExceededFloatHours() ||
-    		timeOffCreateRequestHandler.verifyExceededSickHours() ||
-    		timeOffCreateRequestHandler.verifyExceededGrandfatheredHours() ) {
-    		validates = true;
-    	}
+    	var data = { GF_REMAINING: parseFloat(requestForEmployeeObject.GF_REMAINING - totalGrandfatheredRequested).toFixed(2),
+    				 PTO_REMAINING: parseFloat(requestForEmployeeObject.PTO_REMAINING - totalPTORequested).toFixed(2),
+    				 FLOAT_REMAINING: parseFloat(requestForEmployeeObject.FLOAT_REMAINING - totalFloatRequested).toFixed(2),
+    			     SICK_REMAINING: parseFloat(requestForEmployeeObject.SICK_REMAINING - totalSickRequested).toFixed(2) };
+    	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
+    }
+    
+    /**
+     * Verifies if user exceeds hours in 4 categories for request.
+     */
+    this.verifyExceededHours = function() {
+    	var validates = false;
+    	validatesPTO = timeOffCreateRequestHandler.verifyExceededPTOHours();
+    	validatesFloat = timeOffCreateRequestHandler.verifyExceededFloatHours();
+    	validatesSick = timeOffCreateRequestHandler.verifyExceededSickHours();
+    	validatesGrandfathered = timeOffCreateRequestHandler.verifyExceededGrandfatheredHours();
 
-    	return validates;
+    	return { PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
     }
 
     /**
@@ -414,7 +410,7 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesNew[key].fieldDirty = true;
             $("#formDirty").val('true');
             // Recalculate totals
-             timeOffCreateRequestHandler.updateTotalsPerCategory();
+            timeOffCreateRequestHandler.updateTotalsPerCategory(); // taco
 //            totalPTORequested = 0;
 //        	totalFloatRequested = 0;
 //        	totalSickRequested = 0;
@@ -761,52 +757,52 @@ var timeOffCreateRequestHandler = new function() {
 //    var data = {};
 //    data.GF_REMAINING
     
-    this.updateButtonsWithEmployeeRemainingTime = function(data) {
-    	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining(employeeData.GF_REMAINING);
+    this.updateButtonsWithEmployeeRemainingTime = function( data ) {
+    	timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining( data.GF_REMAINING );
     	timeOffCreateRequestHandler.printEmployeeGrandfatheredRemaining();
     	
-    	timeOffCreateRequestHandler.setEmployeePTORemaining(employeeData.PTO_REMAINING);
+    	timeOffCreateRequestHandler.setEmployeePTORemaining( data.PTO_REMAINING );
     	timeOffCreateRequestHandler.printEmployeePTORemaining();
     	timeOffCreateRequestHandler.warnExceededPTORemaining();
     	
-    	timeOffCreateRequestHandler.setEmployeeFloatRemaining(employeeData.FLOAT_REMAINING);
+    	timeOffCreateRequestHandler.setEmployeeFloatRemaining( data.FLOAT_REMAINING );
         timeOffCreateRequestHandler.printEmployeeFloatRemaining();
         timeOffCreateRequestHandler.warnExceededFloatRemaining();
         
-        timeOffCreateRequestHandler.setEmployeeSickRemaining(employeeData.SICK_REMAINING);
+        timeOffCreateRequestHandler.setEmployeeSickRemaining( data.SICK_REMAINING );
         timeOffCreateRequestHandler.printEmployeeSickRemaining();
     }
     
-    this.updateButtonsWithEmployeePendingTime = function(data) {
-    	timeOffCreateRequestHandler.setEmployeeGrandfatheredPending(data.GF_PENDING_TOTAL);
+    this.updateButtonsWithEmployeePendingTime = function( data ) {
+    	timeOffCreateRequestHandler.setEmployeeGrandfatheredPending( data.GF_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeGrandfatheredPending();
         
-        timeOffCreateRequestHandler.setEmployeePTOPending(data.PTO_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeePTOPending( data.PTO_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeePTOPending();
         
-        timeOffCreateRequestHandler.setEmployeeFloatPending(data.FLOAT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeFloatPending( data.FLOAT_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeFloatPending();
         
-        timeOffCreateRequestHandler.setEmployeeSickPending(data.SICK_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeSickPending( data.SICK_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeSickPending();
         
-        timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending(data.UNEXCUSED_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeUnexcusedAbsencePending( data.UNEXCUSED_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeUnexcusedAbsencePending();
         
-        timeOffCreateRequestHandler.setEmployeeBereavementPending(data.BEREAVEMENT_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeBereavementPending( data.BEREAVEMENT_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeBereavementPending();
         
-        timeOffCreateRequestHandler.setEmployeeCivicDutyPending(data.CIVIC_DUTY_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeCivicDutyPending( data.CIVIC_DUTY_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeCivicDutyPending();
         
-        timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending(data.UNPAID_PENDING_TOTAL);
+        timeOffCreateRequestHandler.setEmployeeApprovedNoPayPending( data.UNPAID_PENDING_TOTAL );
         timeOffCreateRequestHandler.printEmployeeApprovedNoPayPending();
     }
     
     /**
      * Update buttons with employee hours.
      */
-    this.updateButtonsWithEmployeeHours = function(data) {
+    this.updateButtonsWithEmployeeHours = function( data ) {
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     	timeOffCreateRequestHandler.updateButtonsWithEmployeePendingTime( data );
     }
@@ -1584,35 +1580,43 @@ var timeOffCreateRequestHandler = new function() {
     	totalCivicDutyRequested = 0;
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
-    	console.log( selectedDatesNew );
+    	
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
         	switch (selectedDatesNew[selectedIndex].category) {
 	            case 'timeOffPTO':
-	                totalPTORequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalPTORequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffFloat':
-	                totalFloatRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalFloatRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffSick':
-	                totalSickRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
-	                break;
+	            	totalSickRequested += +selectedDatesNew[selectedIndex].hours;
+	            	break;
 	            case 'timeOffUnexcusedAbsence':
-	                totalUnexcusedAbsenceRequested += parseInt( selectedDatesNew[selectedIndex].hours, 10);
+	                totalUnexcusedAbsenceRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffBereavement':
-	                totalBereavementRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalBereavementRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffCivicDuty':
-	                totalCivicDutyRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalCivicDutyRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffGrandfathered':
-	                totalGrandfatheredRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalGrandfatheredRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	            case 'timeOffApprovedNoPay':
-	                totalApprovedNoPayRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+	                totalApprovedNoPayRequested += +selectedDatesNew[selectedIndex].hours;
 	                break;
 	        }
         }
+        totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
+        totalFloatRequested = parseFloat(totalFloatRequested).toFixed(2);
+        totalSickRequested = parseFloat(totalSickRequested).toFixed(2);
+        totalUnexcusedAbsenceRequested = parseFloat(totalUnexcusedAbsenceRequested).toFixed(2);
+        totalBereavementRequested = parseFloat(totalBereavementRequested).toFixed(2);
+        totalCivicDutyRequested = parseFloat(totalCivicDutyRequested).toFixed(2);
+        totalGrandfatheredRequested = parseFloat(totalGrandfatheredRequested).toFixed(2);
+        totalApprovedNoPayRequested = parseFloat(totalApprovedNoPayRequested).toFixed(2);
     }
     
     /**
