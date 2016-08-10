@@ -286,13 +286,28 @@ class TimeOffRequests extends BaseDB {
     }
 
     /**
-     * Marks a Request Entry as Deleted.
+     * Marks a Request Entry as Deleted using the passed in requestId.
      *
      * @param type $entryId
      */
     public function markRequestEntryAsDeleted( $entryId = null )
     {
         $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE ENTRY_ID = '" . $entryId . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( \Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+
+    /**
+     * Marks Request Entries as Deleted using the passed in requestId.
+     *
+     * @param type $requestId
+     */
+    public function markRequestEntryAsDeletedByRequest( $requestId = null )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE REQUEST_ID = '" . $requestId . "'";
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch( \Exception $e ) {

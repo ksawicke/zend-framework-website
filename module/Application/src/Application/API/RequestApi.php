@@ -1011,8 +1011,8 @@ class RequestApi extends ApiController {
             $post->request_id,
             $post->review_request_reason );
 
-        /* mark entried as deleted */
-        $TimeOffRequests->markRequestEntryAsDeleted($post->request_id);
+        /* mark entries as deleted */
+        $TimeOffRequests->markRequestEntryAsDeletedByRequest($post->request_id);
 
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([
@@ -1140,8 +1140,8 @@ class RequestApi extends ApiController {
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Status changed to Denied' );
 
-            /* mark entried as deleted */
-            $TimeOffRequests->markRequestEntryAsDeleted($post->request_id);
+            /* mark entries as deleted */
+            $TimeOffRequests->markRequestEntryAsDeletedByRequest($post->request_id);
 
             $result = new JsonModel([
                 'success' => true,
