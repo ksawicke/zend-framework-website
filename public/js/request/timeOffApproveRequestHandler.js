@@ -119,6 +119,7 @@ var timeOffApproveRequestHandler = new function ()
         if ($.trim($("#managerComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#managerComment").addClass("borderColorRed");
+            /* enable DENY button */
             timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
@@ -149,6 +150,7 @@ var timeOffApproveRequestHandler = new function ()
         if ($.trim($("#payrollComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
+            /* enable DENY button */
             timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
