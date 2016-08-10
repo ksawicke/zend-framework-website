@@ -10,6 +10,7 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
 
 /**
  * All Database functions for employees
@@ -332,9 +333,33 @@ class Employee extends BaseDB {
      * @return boolean   "Y" or "N"
      */
     public function isPayrollAssistant( $employeeNumber = null ) {
-        /**
-         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
-         */
+
+        $employeeNumber = str_pad(trim($employeeNumber), 9, ' ', STR_PAD_LEFT);
+
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUESTS_PAYROLL_ASSISTANTS');
+
+        $select->columns(array('RCOUNT' => new \Zend\Db\Sql\Expression('COUNT(*)')));
+
+        $select->where(array('STATUS = ?' => '1', 'EMPLOYEE_NUMBER = ?' => $employeeNumber));
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            $record = $resultSet->toArray();
+            $rowCount = $record[0]['RCOUNT'];
+            $returnValue = ($rowCount == 0) ? 'N' : 'Y';
+
+            return $returnValue;
+        }
+
         return "N";
     }
 
