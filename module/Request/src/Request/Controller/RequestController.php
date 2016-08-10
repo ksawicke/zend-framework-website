@@ -296,9 +296,11 @@ class RequestController extends AbstractActionController
     public function viewPayrollQueueAction()
     {
         $payrollView = $this->params()->fromRoute('payroll-view');
+
         $Employee = new \Request\Model\Employee();
         $isPayroll = $Employee->isPayroll( $this->employeeNumber );
         $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
+
         if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
