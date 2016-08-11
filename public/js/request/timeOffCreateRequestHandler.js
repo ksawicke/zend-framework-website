@@ -433,7 +433,14 @@ var timeOffCreateRequestHandler = new function() {
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 isSelected = timeOffCreateRequestHandler.isSelected( $(this) );
             timeOffCreateRequestHandler.deleteRequestedDateByIndex( deleteKey, category );
-            timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+            // If you remove time from a split day, handle as follows:
+            //   1. If on the Create New Request screen, adjust the remaining time
+            //   2. If in review (Pending Manger Approval or Pending Payroll Approval),
+            //      leave the remaining time alone for that day.
+            console.log( "isHandledFromReviewRequestScreen", timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() );
+            if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+            	timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+            }
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
             timeOffCreateRequestHandler.checkAndSetFormWarnings();
@@ -1401,47 +1408,60 @@ var timeOffCreateRequestHandler = new function() {
     	
     	if( firstObject.category=="timeOffGrandfathered" && parseFloat(employeeGrandfatheredRemaining).toFixed(2) <= 4 ) {
     		hoursFirst = parseFloat(employeeGrandfatheredRemaining).toFixed(2);
+    		console.log( "aa" );
     	}
     	if( secondObject.category=="timeOffGrandfathered" && parseFloat(employeeGrandfatheredRemaining).toFixed(2) <= 4 ) {
     		hoursSecond = parseFloat(employeeGrandfatheredRemaining).toFixed(2);
+    		console.log( "bb" );
     	}
     	if( firstObject.category=="timeOffSick" && parseFloat(employeeSickRemaining).toFixed(2) <= 4 ) {
     		hoursFirst = parseFloat(employeeSickRemaining).toFixed(2);
+    		console.log( "cc" );
     	}
     	if( secondObject.category=="timeOffSick" && parseFloat(employeeSickRemaining).toFixed(2) <= 4 ) {
     		hoursSecond = parseFloat(employeeSickRemaining).toFixed(2);
+    		console.log( "dd" );
     	}
-    	
-    	console.log( "hoursFirst", hoursFirst );
-    	console.log( "hoursSecond", hoursSecond );
-    	
     	if( firstObject.category=="timeOffFloat" ) {
         	hoursFirst = 8;
-//        	hoursSecond = ( hoursSecond==0 ? scheduleThisDay - hoursFirst : hoursSecond );
+        	console.log( "ee" );
         } else if( secondObject.category=="timeOffFloat" ) {
         	hoursSecond = 8;
-//        	hoursFirst = ( hoursFirst==0 ? scheduleThisDay - hoursSecond : hoursFirst );
+        	console.log( "ff" );
         }
-//        else {
-//        	hoursFirst = ( hoursFirst==0 ? scheduleThisDay / 2 : hoursFirst );
-//        	hoursSecond = ( hoursSecond==0 ? scheduleThisDay / 2 : hoursSecond );
-//        }
-    	
+    	if( (firstObject.category=="timeOffFloat" && +hoursFirst == scheduleThisDay) || 
+    		(secondObject.category=="timeOffFloat" && +hoursSecond == scheduleThisDay) ) {
+    		return splitHours = {
+    		   first: { hours: 0, locked: 0 },
+    	       second: { hours: 0, locked: 0 },
+    	       scheduleThisDay: +scheduleThisDay,
+    	       totalHoursOff: 0
+    	    };
+    	}
     	if( hoursFirst==0 && firstObject.hours > 0 ) {
     		hoursFirst = +firstObject.hours;
+    		console.log( "gg" );
     	}
     	if( hoursSecond==0 && secondObject.hours > 0 ) {
     		hoursSecond = +secondObject.hours;
+    		console.log( "hh" );
     	}
-    	
     	if( +hoursFirst + +hoursSecond > +scheduleThisDay ) {
-    		console.log( "ADJUST SOMETHING!!!" );
     		hoursFirst = ( +hoursFirst == +scheduleThisDay ) ? +scheduleThisDay - +hoursSecond : +hoursFirst;
     		hoursSecond = ( +hoursSecond == +scheduleThisDay ) ? +scheduleThisDay - +hoursFirst : +hoursSecond;
+    		console.log( "ii" );
+//    		hoursFirst = ( +hoursFirst == +scheduleThisDay ) ? +scheduleThisDay - +hoursSecond : +hoursFirst;
+//    		hoursSecond = ( +hoursSecond == +scheduleThisDay ) ? +scheduleThisDay - +hoursFirst : +hoursSecond;
     	}
-    	
-    	console.log( "hoursFirst", hoursFirst );
-    	console.log( "hoursSecond", hoursSecond );
+    	console.log( hoursFirst );
+    	console.log( hoursSecond );
+    	// Now if one of the hours is still 0, let's take the other value, chop in half,
+    	// and set each to that amount!
+    	if( +hoursFirst==0 || +hoursSecond==0 ) {
+    		hoursFirst = scheduleThisDay / 2;
+        	hoursSecond = scheduleThisDay / 2;
+        	console.log( "jj" );
+    	}
     	
     	return splitHours = {
     		first: { hours: +hoursFirst, locked: 0 },
@@ -1462,30 +1482,23 @@ var timeOffCreateRequestHandler = new function() {
         var dateObject = isSelected.dateObject;
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
-        
-        var splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject, scheduleThisDay );
-        totalHoursForThisSplit = splitHours.first.hours + splitHours.second.hours;
-        console.log( "BEFORE SPLIT CHECK" );
-        console.log( selectedDatesNew[foundIndex] );
-        console.log( dateObject );
-        console.log( scheduleThisDay );
-        console.log( "splitHours", splitHours );
-//        if( splitHours.first.hours<=0 || splitHours.second.hours<=0 || totalHoursForThisSplit < scheduleThisDay ) {
-//        	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
-//        	return;
-//        } else {
-//        	// Add back the time first for the category we're going to end up splitting.
-//            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
-//            
-//            // Subtract the split times
-//            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first.hours );
-//            timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second.hours );
-//            
-//	        selectedDatesNew[foundIndex].hours = splitHours.first.hours;
-//	        dateObject.hours = splitHours.second.hours;
-//	        selectedDatesNew.push( dateObject );
-//	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
-//        }
+        splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject, scheduleThisDay );
+        if( splitHours.first.hours<=0 || splitHours.second.hours<=0 || splitHours.totalHoursOff < scheduleThisDay ) {
+        	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+        	return;
+        } else {
+        	// Add back the time first for the category we're going to end up splitting.
+            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
+            
+            // Subtract the split times
+            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first.hours );
+            timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second.hours );
+            
+	        selectedDatesNew[foundIndex].hours = splitHours.first.hours;
+	        dateObject.hours = splitHours.second.hours;
+	        selectedDatesNew.push( dateObject );
+	        timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
+        }
     }
     
     this.getHoursToAdd = function( dateObject ) {
