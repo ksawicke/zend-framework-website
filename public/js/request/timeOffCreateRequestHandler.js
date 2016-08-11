@@ -1398,12 +1398,6 @@ var timeOffCreateRequestHandler = new function() {
     	    hoursSecond = 0;
     	firstObject.hours = +firstObject.hours;
     	secondObject.hours = +secondObject.hours;
-//    	employeeGrandfatheredRemaining = 3.40;
-//    	employeeSickRemaining = 2.66;
-//    	console.log( "firstObject", firstObject );
-//    	console.log( "secondObject", secondObject );
-//    	console.log( "employeeGrandfatheredRemaining", employeeGrandfatheredRemaining );
-//    	console.log( "employeeSickRemaining", employeeSickRemaining );
     	
     	if( firstObject.category=="timeOffGrandfathered" && parseFloat(employeeGrandfatheredRemaining).toFixed(2) <= 4 ) {
     		hoursFirst = parseFloat(employeeGrandfatheredRemaining).toFixed(2);
@@ -1423,24 +1417,37 @@ var timeOffCreateRequestHandler = new function() {
     	
     	if( firstObject.category=="timeOffFloat" ) {
         	hoursFirst = 8;
-        	hoursSecond = ( hoursSecond==0 ? scheduleThisDay - hoursFirst : hoursSecond );
+//        	hoursSecond = ( hoursSecond==0 ? scheduleThisDay - hoursFirst : hoursSecond );
         } else if( secondObject.category=="timeOffFloat" ) {
         	hoursSecond = 8;
-        	hoursFirst = ( hoursFirst==0 ? scheduleThisDay - hoursSecond : hoursFirst );
+//        	hoursFirst = ( hoursFirst==0 ? scheduleThisDay - hoursSecond : hoursFirst );
         }
 //        else {
 //        	hoursFirst = ( hoursFirst==0 ? scheduleThisDay / 2 : hoursFirst );
 //        	hoursSecond = ( hoursSecond==0 ? scheduleThisDay / 2 : hoursSecond );
 //        }
     	
-    	// 
+    	if( hoursFirst==0 && firstObject.hours > 0 ) {
+    		hoursFirst = +firstObject.hours;
+    	}
+    	if( hoursSecond==0 && secondObject.hours > 0 ) {
+    		hoursSecond = +secondObject.hours;
+    	}
+    	
+    	if( +hoursFirst + +hoursSecond > +scheduleThisDay ) {
+    		console.log( "ADJUST SOMETHING!!!" );
+    		hoursFirst = ( +hoursFirst == +scheduleThisDay ) ? +scheduleThisDay - +hoursSecond : +hoursFirst;
+    		hoursSecond = ( +hoursSecond == +scheduleThisDay ) ? +scheduleThisDay - +hoursFirst : +hoursSecond;
+    	}
     	
     	console.log( "hoursFirst", hoursFirst );
     	console.log( "hoursSecond", hoursSecond );
     	
     	return splitHours = {
-    		first: { hours: hoursFirst, locked: 0 },
-    		second: { hours: hoursSecond, locked: 0 }
+    		first: { hours: +hoursFirst, locked: 0 },
+    		second: { hours: +hoursSecond, locked: 0 },
+    		scheduleThisDay: +scheduleThisDay,
+    		totalHoursOff: +hoursFirst + +hoursSecond
     	};
     }
     
