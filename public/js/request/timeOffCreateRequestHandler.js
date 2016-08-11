@@ -1400,6 +1400,9 @@ var timeOffCreateRequestHandler = new function() {
         return ( counter===1 ? found : null );
     }
     
+    /**
+     * Returns an object showing the split hours for the requested date/category combos.
+     */
     this.getSplitHours = function( firstObject, secondObject, scheduleThisDay ) {
     	var hoursFirst = 0,
     	    hoursSecond = 0;
