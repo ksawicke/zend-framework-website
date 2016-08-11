@@ -228,8 +228,10 @@ var timeOffCreateRequestHandler = new function() {
 		}
 		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
 			$( hoursWarningBlock ).show();
+			console.log( "hours warning block - show!" );
 		} else {
 			$( hoursWarningBlock ).hide();
+			console.log( "hours warning block - hide!" );
 		}
 		
 //		if( validates==false || bereavementTotalForRequest > 24 ) {
@@ -290,10 +292,10 @@ var timeOffCreateRequestHandler = new function() {
         var validates = false;
         bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
         
-        if( bereavementTotalForRequest >= 24 ) {
+        if( +bereavementTotalForRequest >= 24 ) {
             validates = true;
-            if( bereavementTotalForRequest > 24 ||
-                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===false ) {
+            if( +bereavementTotalForRequest > 24 ||
+                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
             	$('.submitTimeOffRequest').addClass('disabled');
             } else {
             	$('.submitTimeOffRequest').removeClass('disabled');
@@ -321,7 +323,15 @@ var timeOffCreateRequestHandler = new function() {
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
             if( requestForEmployeeObject.SALARY_TYPE=='S' && validates ) {
-            	validates = ( hoursOff >= 8 && hoursOff <= 12 ? true : false );
+            	// requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow]
+            	// scheduleToday = +requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
+            	thisDate = selectedDateNewObject.date;
+            	dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
+            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
+//            	console.log( thisDate );
+//            	console.log( dow );
+//            	console.log( scheduleToday );
+            	validates = ( +hoursOff >= 8 && +hoursOff <= 12 && +hoursOff==scheduleToday ? true : false );
             }
         });
                 
@@ -333,7 +343,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededPTOHours = function() {
     	var validates = false;
-    	if( parseFloat(totalPTORequested).toFixed(2) > parseFloat(requestForEmployeeObject.PTO_REMAINING).toFixed(2) ) {
+    	if( +totalPTORequested > +requestForEmployeeObject.PTO_REMAINING ) {
     		validates = true;
     	}
     	return validates;
@@ -344,7 +354,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededFloatHours = function() {
     	var validates = false;
-    	if( parseFloat(totalFloatRequested).toFixed(2) > parseFloat(requestForEmployeeObject.FLOAT_REMAINING).toFixed(2) ) {
+    	if( +totalFloatRequested > +requestForEmployeeObject.FLOAT_REMAINING ) {
     		validates = true;
     	}
     	return validates;
@@ -355,7 +365,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededSickHours = function() {
     	var validates = false;
-    	if( parseFloat(totalSickRequested).toFixed(2) > parseFloat(requestForEmployeeObject.SICK_REMAINING).toFixed(2) ) {
+    	if( +totalSickRequested > +requestForEmployeeObject.SICK_REMAINING ) {
     		validates = true;
     	}
     	return validates;
@@ -366,7 +376,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededGrandfatheredHours = function() {
     	var validates = false;
-    	if( parseFloat(totalGrandfatheredRequested).toFixed(2) > parseFloat(requestForEmployeeObject.GF_REMAINING).toFixed(2) ) {
+    	if( +totalGrandfatheredRequested > +requestForEmployeeObject.GF_REMAINING ) {
     		validates = true;
     	}
     	return validates;
@@ -378,10 +388,10 @@ var timeOffCreateRequestHandler = new function() {
     this.updateHours = function() {
     	var validates = false;
     	timeOffCreateRequestHandler.updateTotalsPerCategory();
-    	var data = { GF_REMAINING: parseFloat(requestForEmployeeObject.GF_REMAINING - totalGrandfatheredRequested).toFixed(2),
-    				 PTO_REMAINING: parseFloat(requestForEmployeeObject.PTO_REMAINING - totalPTORequested).toFixed(2),
-    				 FLOAT_REMAINING: parseFloat(requestForEmployeeObject.FLOAT_REMAINING - totalFloatRequested).toFixed(2),
-    			     SICK_REMAINING: parseFloat(requestForEmployeeObject.SICK_REMAINING - totalSickRequested).toFixed(2) };
+    	var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING - +totalGrandfatheredRequested,
+    				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING - +totalPTORequested,
+    				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
+    			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
     
@@ -394,8 +404,10 @@ var timeOffCreateRequestHandler = new function() {
     	validatesFloat = timeOffCreateRequestHandler.verifyExceededFloatHours();
     	validatesSick = timeOffCreateRequestHandler.verifyExceededSickHours();
     	validatesGrandfathered = timeOffCreateRequestHandler.verifyExceededGrandfatheredHours();
-
-    	return { PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
+    	validatesObject = { PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
+    	console.log( "check validatesObject" );
+    	console.log( validatesObject );
+    	return validatesObject;
     }
 
     /**
@@ -410,7 +422,7 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesNew[key].fieldDirty = true;
             $("#formDirty").val('true');
             // Recalculate totals
-            timeOffCreateRequestHandler.updateTotalsPerCategory(); // taco
+            timeOffCreateRequestHandler.updateTotalsPerCategory();
 //            totalPTORequested = 0;
 //        	totalFloatRequested = 0;
 //        	totalSickRequested = 0;
