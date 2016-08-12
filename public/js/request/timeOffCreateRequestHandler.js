@@ -234,11 +234,22 @@ var timeOffCreateRequestHandler = new function() {
 			console.log( "hours warning block - hide!" );
 		}
 		
-//		if( validates==false || bereavementTotalForRequest > 24 ) {
-//        	$('.submitTimeOffRequest').addClass('disabled');
-//        } else {
-//        	$('.submitTimeOffRequest').removeClass('disabled');
-//        }
+		console.log( "===============" );
+		console.log( "CHECKS TO SEE IF SUBMIT BUTTON NEEDS DISABLE" );
+		console.log( "exceededHours", exceededHours );
+		console.log( "bereavement request limit reached", timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
+		console.log( "verify salary taking required hours per day", timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
+		console.log( "===============" );
+		
+		// if exceededHours.validates || bereavementTotalForRequest > 24 ||
+		//    timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()
+		
+		if( exceededHours.validates || bereavementTotalForRequest > 24 ||
+		    timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+        	$('.submitTimeOffRequest').addClass('disabled');
+        } else {
+        	$('.submitTimeOffRequest').removeClass('disabled');
+        }
     }
     
     
@@ -399,14 +410,12 @@ var timeOffCreateRequestHandler = new function() {
      * Verifies if user exceeds hours in 4 categories for request.
      */
     this.verifyExceededHours = function() {
-    	var validates = false;
     	validatesPTO = timeOffCreateRequestHandler.verifyExceededPTOHours();
     	validatesFloat = timeOffCreateRequestHandler.verifyExceededFloatHours();
     	validatesSick = timeOffCreateRequestHandler.verifyExceededSickHours();
     	validatesGrandfathered = timeOffCreateRequestHandler.verifyExceededGrandfatheredHours();
-    	validatesObject = { PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
-    	console.log( "check validatesObject" );
-    	console.log( validatesObject );
+    	validates = ( (validatesPTO || validatesFloat || validatesSick || validatesGrandfathered) ? true : false );
+    	validatesObject = { validates: validates, PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
     	return validatesObject;
     }
 
