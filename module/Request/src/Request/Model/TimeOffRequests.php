@@ -526,7 +526,7 @@ class TimeOffRequests extends BaseDB {
                              'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
                            ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
-                ->where( [ ' entry.REQUEST_ID' => $requestId ] )
+                ->where( [ ' entry.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => '0' ] )
                 ->order( ['entry.REQUEST_DATE ASC' ] );
 
         try {
@@ -577,7 +577,7 @@ class TimeOffRequests extends BaseDB {
     public function countTimeoffRequested( $requestId = null )
     {
         $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS
-        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId;
+        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId . " AND IS_DELETED = '0'";
 
         $timeOffData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 

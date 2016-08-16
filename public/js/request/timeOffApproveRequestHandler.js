@@ -29,6 +29,9 @@ var timeOffApproveRequestHandler = new function ()
         $('body').on('click', '.apiRequest', function () {
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
+            $.each(selectedDatesNew, function(index, blah) {
+            	selectedDatesNew[index].dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
+            });
             var data = {
                 request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
                 review_request_reason: $("#reviewRequestReason").val(),

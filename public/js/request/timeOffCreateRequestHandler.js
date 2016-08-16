@@ -403,6 +403,8 @@ var timeOffCreateRequestHandler = new function() {
     				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING - +totalPTORequested,
     				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
     			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
+    	console.log( "updateHours" );
+    	console.log( data );
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
     
@@ -496,6 +498,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
+        	console.log( "YA YA YA" );
             var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
@@ -523,12 +526,17 @@ var timeOffCreateRequestHandler = new function() {
                 timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
             } else {
                 if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory ) {
-                    timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
+                    console.log( "NEW" );
+                	timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
                 } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
-                    timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                    timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
-                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+                    console.log( "CHEW" );
+                	timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+                	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                		timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+                	}
+                	timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 } else {
+                	console.log( "BREW" );
                     timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                     timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
                 }
@@ -1181,8 +1189,8 @@ var timeOffCreateRequestHandler = new function() {
                 break;
                 
             case 'timeOffPTO':
-                employeePTORemaining -= hours;
-                timeOffCreateRequestHandler.printEmployeePTORemaining();
+            	employeePTORemaining -= hours;
+            	timeOffCreateRequestHandler.printEmployeePTORemaining();
                 break;
                 
             case 'timeOffFloat':
@@ -1546,16 +1554,31 @@ var timeOffCreateRequestHandler = new function() {
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         dateObject.hours = parseFloat(hoursToAdd).toFixed(2);
         timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
-        selectedDatesNew.push( dateObject );
-        if( method == 'mark' ) {
+//        selectedDatesNew.push( dateObject );
+        
+        isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+        console.log( 'isHandledFromReviewRequestScreen', isHandledFromReviewRequestScreen );
+        console.log( 'method', method );
+        if( isHandledFromReviewRequestScreen ) {
+        	console.log( "YA YO YEE" );
+        	console.log( selectedDatesNew[index] );
             if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
-                selectedDatesNew[index].isDeleted = false;
+                console.log( "AAA" );
+            	selectedDatesNew[index].isDeleted = false;
                 selectedDatesNew[index].fieldDirty = false;
-            } else {
+            } else if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===false ) {
+            	console.log( "BBB" );
+            	selectedDatesNew[index].isDeleted = true;
                 selectedDatesNew[index].fieldDirty = true;
-                selectedDatesNew[index].isAdded = true;
-                $('#formDirty').val('true');
+            } else {
+            	console.log( "CCC" );
+            	dateObject.fieldDirty = true;
+        		dateObject.isAdded = true;
+        		selectedDatesNew.push( dateObject );
             }
+        } else {
+        	console.log( "DDD" );
+        	selectedDatesNew.push( dateObject );
         }
     }
     
@@ -1567,24 +1590,32 @@ var timeOffCreateRequestHandler = new function() {
      * @returns {undefined}
      */
     this.removeRequestedDate = function( method, isSelected ) {
-        var index = isSelected.deleteIndex;
-        timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, Number( selectedDatesNew[index].hours ) );
+    	var index = isSelected.deleteIndex;
+    	selectedDatesNew[index].hours = +selectedDatesNew[index].hours;
+    	console.log( "REMOVE REQUESTED DATE" );
+    	console.log( isSelected );
+        timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
         switch( method ) {
             case 'do':
+            	console.log( "RACK" );
                 selectedDatesNew.splice(index, 1);
                 break;
                 
             case 'mark':
+            	console.log( "ROCK" );
                 if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
-                    delete selectedDatesNew[index].fieldDirty;
+                    console.log( "RICK" );
+                	delete selectedDatesNew[index].fieldDirty;
                     delete selectedDatesNew[index].isDeleted;
                 } else {
+                	console.log( "ROOK" );
                     selectedDatesNew[index].fieldDirty = true;
                     selectedDatesNew[index].isDeleted = true;
                 }
                 $('#formDirty').val('true');
                 break;
         }
+        console.log( selectedDatesNew );
     }
     
     this.getHoursRequestedHeader = function() {
@@ -1633,10 +1664,15 @@ var timeOffCreateRequestHandler = new function() {
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
     	
+    	console.log( "VERIFY..." );
+    	console.log( selectedDatesNew );
+    	
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
+        	var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
+                    true : false );
         	switch (selectedDatesNew[selectedIndex].category) {
 	            case 'timeOffPTO':
-	                totalPTORequested += +selectedDatesNew[selectedIndex].hours;
+	                totalPTORequested += ( isDeleted===false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffFloat':
 	                totalFloatRequested += +selectedDatesNew[selectedIndex].hours;
@@ -1662,6 +1698,7 @@ var timeOffCreateRequestHandler = new function() {
 	        }
         }
         totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
+        console.log( "totalPTORequested", totalPTORequested );
         totalFloatRequested = parseFloat(totalFloatRequested).toFixed(2);
         totalSickRequested = parseFloat(totalSickRequested).toFixed(2);
         totalUnexcusedAbsenceRequested = parseFloat(totalUnexcusedAbsenceRequested).toFixed(2);
@@ -2150,7 +2187,19 @@ var timeOffCreateRequestHandler = new function() {
         console.log( "CHECKING...", selectedDatesNew[deleteIndex] );
     	timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
         timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[deleteIndex].date, selectedDatesNew[deleteIndex].category );
-        selectedDatesNew.splice(deleteIndex, 1);
+        if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+        	selectedDatesNew.splice(deleteIndex, 1); // taco
+        } else {
+        	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==true && 
+        		selectedDatesNew[key].hasOwnProperty('isDeleted') && selectedDatesNew[key].isDeleted===true ) {
+	        	selectedDatesNew[deleteIndex].fieldDirty = true;
+	            selectedDatesNew[deleteIndex].isDeleted = false;
+	            $('#formDirty').val('true');
+        	} else {
+	        	selectedDatesNew[deleteIndex].fieldDirty = true;
+	            selectedDatesNew[deleteIndex].isDeleted = true;
+        	}
+        }
         timeOffCreateRequestHandler.drawHoursRequested();
 //        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
     }

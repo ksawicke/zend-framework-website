@@ -753,6 +753,10 @@ class RequestApi extends ApiController {
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
+        echo '<pre>';
+        var_dump( $post->selectedDatesNew );
+        echo '</pre>';
+        die();
         if( isset($post->formDirty) && $post->formDirty=="true" ) {
             $updatesMadeToForm = true;
             $TimeOffRequests = new TimeOffRequests();
