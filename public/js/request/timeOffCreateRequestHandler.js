@@ -403,7 +403,9 @@ var timeOffCreateRequestHandler = new function() {
     				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING - +totalPTORequested,
     				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
     			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
-    	console.log( "updateHours" );
+    	console.log( "requestForEmployeeObject" );
+    	console.log( requestForEmployeeObject );
+    	console.log( "data" );
     	console.log( data );
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
@@ -1664,41 +1666,53 @@ var timeOffCreateRequestHandler = new function() {
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
     	
+    	totalPTODeleted = 0;
+    	totalFloatDeleted = 0;
+    	totalSickDeleted = 0;
+    	totalUnexcusedAbsenceDeleted = 0;
+    	totalBereavementDeleted = 0;
+    	totalCivicDutyDeleted = 0;
+    	totalGrandfatheredDeleted = 0;
+    	totalApprovedNoPayDeleted = 0;
+    	
     	console.log( "VERIFY..." );
     	console.log( selectedDatesNew );
     	
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
         	var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                     true : false );
+        	console.log( isDeleted );
         	switch (selectedDatesNew[selectedIndex].category) {
 	            case 'timeOffPTO':
-	                totalPTORequested += ( isDeleted===false ? +selectedDatesNew[selectedIndex].hours : 0 );
-	                break;
+	            	totalPTORequested += +selectedDatesNew[selectedIndex].hours;
+	            	totalPTODeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	            	break;
 	            case 'timeOffFloat':
-	                totalFloatRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalFloatRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffSick':
-	            	totalSickRequested += +selectedDatesNew[selectedIndex].hours;
+	            	totalSickRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	            	break;
 	            case 'timeOffUnexcusedAbsence':
-	                totalUnexcusedAbsenceRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalUnexcusedAbsenceRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffBereavement':
-	                totalBereavementRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalBereavementRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffCivicDuty':
-	                totalCivicDutyRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalCivicDutyRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffGrandfathered':
-	                totalGrandfatheredRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalGrandfatheredRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffApprovedNoPay':
-	                totalApprovedNoPayRequested += +selectedDatesNew[selectedIndex].hours;
+	                totalApprovedNoPayRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	        }
         }
         totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
         console.log( "totalPTORequested", totalPTORequested );
+        console.log( "totalPTODeleted", totalPTODeleted );
         totalFloatRequested = parseFloat(totalFloatRequested).toFixed(2);
         totalSickRequested = parseFloat(totalSickRequested).toFixed(2);
         totalUnexcusedAbsenceRequested = parseFloat(totalUnexcusedAbsenceRequested).toFixed(2);
@@ -1728,10 +1742,13 @@ var timeOffCreateRequestHandler = new function() {
             var hideMe = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                            ' style="display:none;"' : '' );
             datesSelectedDetailsHtml += timeOffCreateRequestHandler.getHoursRequestedRow( dow, hideMe, selectedIndex );
-
+            var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
+                    true : false );
+            
             switch (selectedDatesNew[selectedIndex].category) {
                 case 'timeOffPTO':
-                    totalPTORequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
+//                	totalPTORequested += ( isDeleted===false ? +selectedDatesNew[selectedIndex].hours : 0 );
+//                	console.log( isDeleted + " :::::: " );
                     break;
                 case 'timeOffFloat':
                     totalFloatRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
