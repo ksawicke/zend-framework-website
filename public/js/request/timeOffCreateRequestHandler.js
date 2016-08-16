@@ -399,14 +399,25 @@ var timeOffCreateRequestHandler = new function() {
     this.updateHours = function() {
     	var validates = false;
     	timeOffCreateRequestHandler.updateTotalsPerCategory();
-    	var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING - +totalGrandfatheredRequested,
-    				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING - +totalPTORequested,
-    				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
-    			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
+    	var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+    	if( isHandledFromReviewRequestScreen===false ) {
+	    	var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING - +totalGrandfatheredRequested,
+	    				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING - +totalPTORequested,
+	    				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
+	    			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
+    	} else {
+    		var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING + +totalGrandfatheredDeleted,
+		   				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING + +totalPTODeleted,
+		   				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING + +totalFloatDeleted,
+		   			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING + +totalSickDeleted };
+    	}
     	console.log( "requestForEmployeeObject" );
     	console.log( requestForEmployeeObject );
     	console.log( "data" );
     	console.log( data );
+    	console.log( "+requestForEmployeeObject.PTO_REMAINING", +requestForEmployeeObject.PTO_REMAINING );
+    	console.log( "+totalPTORequested", +totalPTORequested );
+    	console.log( "+totalPTODeleted", +totalPTODeleted );
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
     
@@ -1689,30 +1700,37 @@ var timeOffCreateRequestHandler = new function() {
 	            	break;
 	            case 'timeOffFloat':
 	                totalFloatRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalFloatDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffSick':
 	            	totalSickRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	            	totalSickDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	            	break;
 	            case 'timeOffUnexcusedAbsence':
 	                totalUnexcusedAbsenceRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalUnexcusedAbsenceDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffBereavement':
 	                totalBereavementRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalBereavementDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffCivicDuty':
 	                totalCivicDutyRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalCivicDutyDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffGrandfathered':
 	                totalGrandfatheredRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalGrandfatheredDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffApprovedNoPay':
 	                totalApprovedNoPayRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalApprovedNoPayDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	        }
         }
-        totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
         console.log( "totalPTORequested", totalPTORequested );
         console.log( "totalPTODeleted", totalPTODeleted );
+        totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
         totalFloatRequested = parseFloat(totalFloatRequested).toFixed(2);
         totalSickRequested = parseFloat(totalSickRequested).toFixed(2);
         totalUnexcusedAbsenceRequested = parseFloat(totalUnexcusedAbsenceRequested).toFixed(2);
