@@ -406,10 +406,10 @@ var timeOffCreateRequestHandler = new function() {
 	    				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING - +totalFloatRequested,
 	    			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING - +totalSickRequested };
     	} else {
-    		var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING + +totalGrandfatheredDeleted,
-		   				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING + +totalPTODeleted,
-		   				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING + +totalFloatDeleted,
-		   			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING + +totalSickDeleted };
+    		var data = { GF_REMAINING: +requestForEmployeeObject.GF_REMAINING + +totalGrandfatheredDeleted - +totalGrandfatheredAdded,
+		   				 PTO_REMAINING: +requestForEmployeeObject.PTO_REMAINING + +totalPTODeleted - +totalPTOAdded,
+		   				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING + +totalFloatDeleted - +totalFloatAdded,
+		   			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING + +totalSickDeleted - +totalSickAdded };
     	}
 //    	console.log( "requestForEmployeeObject" );
 //    	console.log( requestForEmployeeObject );
@@ -1568,7 +1568,7 @@ var timeOffCreateRequestHandler = new function() {
             hoursToAdd = timeOffCreateRequestHandler.getHoursToAdd( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         dateObject.hours = parseFloat(hoursToAdd).toFixed(2);
-        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
+//        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
 //        selectedDatesNew.push( dateObject );
         
         isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
@@ -1576,24 +1576,29 @@ var timeOffCreateRequestHandler = new function() {
         console.log( 'method', method );
         if( isHandledFromReviewRequestScreen ) {
         	console.log( "YA YO YEE" );
+        	console.log( isSelected );
         	console.log( selectedDatesNew[index] );
-            if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
+            if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===true ) {
                 console.log( "AAA" );
-            	selectedDatesNew[index].isDeleted = false;
+            	selectedDatesNew[index].isAdded = false;
                 selectedDatesNew[index].fieldDirty = false;
-            } else if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===false ) {
+                timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
+            } else if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===false ) {
             	console.log( "BBB" );
-            	selectedDatesNew[index].isDeleted = true;
+            	selectedDatesNew[index].isAdded = true;
                 selectedDatesNew[index].fieldDirty = true;
+                timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
             } else {
             	console.log( "CCC" );
             	dateObject.fieldDirty = true;
         		dateObject.isAdded = true;
         		selectedDatesNew.push( dateObject );
+        		timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
             }
         } else {
         	console.log( "DDD" );
         	selectedDatesNew.push( dateObject );
+        	timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
         }
     }
     
@@ -1690,6 +1695,15 @@ var timeOffCreateRequestHandler = new function() {
     	totalGrandfatheredRequested = 0;
     	totalApprovedNoPayRequested = 0;
     	
+    	totalPTOAdded = 0;
+    	totalFloatAdded = 0;
+    	totalSickAdded = 0;
+    	totalUnexcusedAbsenceAdded = 0;
+    	totalBereavementAdded = 0;
+    	totalCivicDutyAdded = 0;
+    	totalGrandfatheredAdded = 0;
+    	totalApprovedNoPayAdded = 0;
+    	
     	totalPTODeleted = 0;
     	totalFloatDeleted = 0;
     	totalSickDeleted = 0;
@@ -1705,39 +1719,49 @@ var timeOffCreateRequestHandler = new function() {
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
         	var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                     true : false );
-        	console.log( isDeleted );
+        	var isAdded = ( selectedDatesNew[selectedIndex].hasOwnProperty('isAdded') && selectedDatesNew[selectedIndex].isAdded===true ?
+                    true : false );
+
         	switch (selectedDatesNew[selectedIndex].category) {
 	            case 'timeOffPTO':
 	            	totalPTORequested += +selectedDatesNew[selectedIndex].hours;
 	            	totalPTODeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	            	totalPTOAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	            	break;
 	            case 'timeOffFloat':
 	                totalFloatRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalFloatDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalFloatAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffSick':
 	            	totalSickRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	            	totalSickDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	            	totalSickAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	            	break;
 	            case 'timeOffUnexcusedAbsence':
 	                totalUnexcusedAbsenceRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalUnexcusedAbsenceDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalUnexcusedAbsenceAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffBereavement':
 	                totalBereavementRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalBereavementDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalBereavementAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffCivicDuty':
 	                totalCivicDutyRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalCivicDutyDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalCivicDutyAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffGrandfathered':
 	                totalGrandfatheredRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalGrandfatheredDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalGrandfatheredAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	            case 'timeOffApprovedNoPay':
 	                totalApprovedNoPayRequested += ( isDeleted==false ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                totalApprovedNoPayDeleted += ( isDeleted ? +selectedDatesNew[selectedIndex].hours : 0 );
+	                totalApprovedNoPayAdded += ( isAdded ? +selectedDatesNew[selectedIndex].hours : 0 );
 	                break;
 	        }
         }
