@@ -411,13 +411,13 @@ var timeOffCreateRequestHandler = new function() {
 		   				 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING + +totalFloatDeleted,
 		   			     SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING + +totalSickDeleted };
     	}
-    	console.log( "requestForEmployeeObject" );
-    	console.log( requestForEmployeeObject );
-    	console.log( "data" );
-    	console.log( data );
-    	console.log( "+requestForEmployeeObject.PTO_REMAINING", +requestForEmployeeObject.PTO_REMAINING );
-    	console.log( "+totalPTORequested", +totalPTORequested );
-    	console.log( "+totalPTODeleted", +totalPTODeleted );
+//    	console.log( "requestForEmployeeObject" );
+//    	console.log( requestForEmployeeObject );
+//    	console.log( "data" );
+//    	console.log( data );
+//    	console.log( "+requestForEmployeeObject.PTO_REMAINING", +requestForEmployeeObject.PTO_REMAINING );
+//    	console.log( "+totalPTORequested", +totalPTORequested );
+//    	console.log( "+totalPTODeleted", +totalPTODeleted );
     	timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
     
@@ -480,6 +480,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
             timeOffCreateRequestHandler.checkAndSetFormWarnings();
+            timeOffCreateRequestHandler.highlightDates();
         });
     }
     
@@ -560,6 +561,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
             timeOffCreateRequestHandler.checkAndSetFormWarnings();
+            timeOffCreateRequestHandler.highlightDates();
         });
     }
     
@@ -1322,7 +1324,7 @@ var timeOffCreateRequestHandler = new function() {
             for (var i = 0; i < selectedDatesNew.length; i++) {
                 var isDeleted = (selectedDatesNew[i].hasOwnProperty('isDeleted') && selectedDatesNew[i].isDeleted===true);
                 var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
-                console.log( "isBeingReviewed", isBeingReviewed );
+//                console.log( "isBeingReviewed", isBeingReviewed );
                 console.log( "@@@ > " + selectedDatesNew[i].date );
                 console.log( "@@@ > " + $(this).attr("data-date") );
                 console.log( "@@@ > " + isDeleted );
@@ -1616,13 +1618,20 @@ var timeOffCreateRequestHandler = new function() {
                 
             case 'mark':
             	console.log( "ROCK" );
-                if( selectedDatesNew[index].hasOwnProperty('isDeleted') && selectedDatesNew[index].isDeleted===true ) {
-                    console.log( "RICK" );
-                	delete selectedDatesNew[index].fieldDirty;
-                    delete selectedDatesNew[index].isDeleted;
+            	console.log( selectedDatesNew[index] );
+                if( selectedDatesNew[index].hasOwnProperty('isDeleted') ) {
+                    if( selectedDatesNew[index].isDeleted===true ) {
+//	                	delete selectedDatesNew[index].fieldDirty;
+//	                    delete selectedDatesNew[index].isDeleted;
+                    	selectedDatesNew[index].isDeleted = false;
+                    	console.log( "RARE" );
+                    } else {
+	                	console.log( "ROOK" );
+	                    selectedDatesNew[index].fieldDirty = true;
+	                    selectedDatesNew[index].isDeleted = true;
+                    }
                 } else {
-                	console.log( "ROOK" );
-                    selectedDatesNew[index].fieldDirty = true;
+                	selectedDatesNew[index].fieldDirty = true;
                     selectedDatesNew[index].isDeleted = true;
                 }
                 $('#formDirty').val('true');
@@ -1646,25 +1655,29 @@ var timeOffCreateRequestHandler = new function() {
                 '<tbody>';
     }
     
-    this.getHoursRequestedRow = function( dow, hideMe, selectedIndex ) {    	
-        return '<tr' + hideMe + '>' +
-            '<td>' + dow + '</td>' +
-            '<td>' + selectedDatesNew[selectedIndex].date + '</td>' +
-            '<td><input class="selectedDateHours" value="' +
-            parseFloat( selectedDatesNew[selectedIndex].hours ).toFixed(2) +
-            '" data-key="' + selectedIndex + '" ' +
-            timeOffCreateRequestHandler.disableHoursInputField( selectedDatesNew[selectedIndex].category ) + '></td>' +
-            '<td>' +
-            '<span class="badge ' + selectedDatesNew[selectedIndex].category + '">' +
-            timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[selectedIndex].category) +
-            '</span>' +
-            '</td>' +
-            '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
-            'data-date="' + selectedDatesNew[selectedIndex].date + '" ' +
-            'data-category="' + selectedDatesNew[selectedIndex].category + '" ' +
-            'data-selecteddatesnew-key="' + selectedIndex + '" ' +
-            'title="Remove date from request">' + '</span></td>' +
-            '</tr>';
+    this.getHoursRequestedRow = function( dow, hideMe, selectedIndex, isDeleted ) {
+    	if( typeof isDeleted==="boolean" && isDeleted===true ) {
+    		return '';
+    	} else {
+    		return '<tr' + hideMe + '>' +
+	            '<td>' + dow + '</td>' +
+	            '<td>' + selectedDatesNew[selectedIndex].date + '</td>' +
+	            '<td><input class="selectedDateHours" value="' +
+	            parseFloat( selectedDatesNew[selectedIndex].hours ).toFixed(2) +
+	            '" data-key="' + selectedIndex + '" ' +
+	            timeOffCreateRequestHandler.disableHoursInputField( selectedDatesNew[selectedIndex].category ) + '></td>' +
+	            '<td>' +
+	            '<span class="badge ' + selectedDatesNew[selectedIndex].category + '">' +
+	            timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[selectedIndex].category) +
+	            '</span>' +
+	            '</td>' +
+	            '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
+	            'data-date="' + selectedDatesNew[selectedIndex].date + '" ' +
+	            'data-category="' + selectedDatesNew[selectedIndex].category + '" ' +
+	            'data-selecteddatesnew-key="' + selectedIndex + '" ' +
+	            'title="Remove date from request">' + '</span></td>' +
+	            '</tr>';
+    	}
     }
 
     this.updateTotalsPerCategory = function() {
@@ -1759,9 +1772,10 @@ var timeOffCreateRequestHandler = new function() {
             var dow = moment(selectedDatesNew[selectedIndex].date, "MM/DD/YYYY").format("ddd").toUpperCase();
             var hideMe = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                            ' style="display:none;"' : '' );
-            datesSelectedDetailsHtml += timeOffCreateRequestHandler.getHoursRequestedRow( dow, hideMe, selectedIndex );
             var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                     true : false );
+            datesSelectedDetailsHtml += timeOffCreateRequestHandler.getHoursRequestedRow( dow, hideMe, selectedIndex, isDeleted );
+            
             
             switch (selectedDatesNew[selectedIndex].category) {
                 case 'timeOffPTO':
@@ -2219,21 +2233,23 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} object
      * @returns {undefined} */
     this.deleteRequestedDateByIndex = function( deleteIndex ) {
-        console.log( "CHECKING...", selectedDatesNew[deleteIndex] );
+//        console.log( "CHECKING...", selectedDatesNew[deleteIndex] );
     	timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
         timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[deleteIndex].date, selectedDatesNew[deleteIndex].category );
-        if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+//        console.log( "QQQQQ", timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() );
+        if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===false ) {
         	selectedDatesNew.splice(deleteIndex, 1); // taco
-        } else {
-        	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==true && 
-        		selectedDatesNew[key].hasOwnProperty('isDeleted') && selectedDatesNew[key].isDeleted===true ) {
-	        	selectedDatesNew[deleteIndex].fieldDirty = true;
+        } else if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===true ) {
+       		if( selectedDatesNew[deleteIndex].hasOwnProperty('isDeleted') &&
+       			selectedDatesNew[deleteIndex].isDeleted===true ) {
+//       			alert( "Q" );
+	        	selectedDatesNew[deleteIndex].fieldDirty = false;
 	            selectedDatesNew[deleteIndex].isDeleted = false;
-	            $('#formDirty').val('true');
-        	} else {
+            } else {
+//            	alert( "P" );
 	        	selectedDatesNew[deleteIndex].fieldDirty = true;
-	            selectedDatesNew[deleteIndex].isDeleted = true;
-        	}
+		        selectedDatesNew[deleteIndex].isDeleted = true;
+	        }
         }
         timeOffCreateRequestHandler.drawHoursRequested();
 //        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
