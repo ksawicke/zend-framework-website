@@ -584,13 +584,21 @@ class TimeOffRequests extends BaseDB {
         return $timeOffData['TOTAL_REQUESTED_HOURS'];
     }
 
+    /**
+     * Find information related to a request needed for sending the calendar invite.
+     * Note: TIMEOFF_REQUEST_ENTRIES.IS_DELETED must equal 0. This way we won't
+     * send invites showing any entries that were removed by a Manager or Payroll.
+     * 
+     * @param unknown $requestId
+     * @return unknown[]|unknown[][][]
+     */
     public function findRequestCalendarInviteData( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( ['entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
                 ->columns( $this->timeOffRequestEntryColumns )
                 ->join( ['request' => 'TIMEOFF_REQUESTS' ], 'request.REQUEST_ID = entry.REQUEST_ID', [ ] )
                 ->join( ['code' => 'TIMEOFF_REQUEST_CODES' ], 'entry.REQUEST_CODE = code.REQUEST_CODE', ['DESCRIPTION' => 'DESCRIPTION' ] )
-                ->where( ['request.REQUEST_ID' => $requestId ] )
+                ->where( ['request.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => '0' ] )
                 ->order( ['entry.REQUEST_DATE ASC' ] );
         $result = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
 

@@ -378,6 +378,8 @@ class Employee extends BaseDB {
 
     /**
      * Returns the requested hours per category for a request.
+     * Note: Make sure that TIMEOFF_REQUEST_ENTRIES.IS_DELETED = 0.
+     * This way we won't be including entries that a Manager or Payroll deleted from the request.
      *
      * @param type $requestId
      * @return array
@@ -387,29 +389,34 @@ class Employee extends BaseDB {
             request.REQUEST_ID AS ID,
             request.EMPLOYEE_NUMBER,
             request.REQUEST_REASON AS REASON,
-            (
-                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-
+            ( SELECT SUM(requested_hours) FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0'
             ) AS TOTAL,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'P'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'P'
             ) AS PTO,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'K'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'K'
             ) AS FLOAT,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'S'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'S'
             ) AS SICK,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'R'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND 
+              entry.request_code = 'R'
             ) AS GRANDFATHERED,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'J'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'J'
             ) AS CIVIC_DUTY
             FROM TIMEOFF_REQUESTS request
             WHERE request.REQUEST_ID = '" . $requestId . "'";

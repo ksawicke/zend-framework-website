@@ -805,21 +805,6 @@ class RequestApi extends ApiController {
             }
         }
         
-//         die( $updatesMadeToForm . "...." );
-        
-//         echo '<pre>POST';
-//         var_dump( $post );
-//         echo '</pre>';
-        
-//         echo '<pre>requestedDatesOld';
-//         var_dump( $requestedDatesOld );
-//         echo '</pre>';
-        
-//         echo "Updates made to form? ";
-//         echo ( $updatesMadeToForm===true ? "YES" : "NO" );
-        
-//         die();
-        
         if( $updatesMadeToForm ) {
             $TimeOffRequests = new TimeOffRequests();
             foreach( $post->selectedDatesNew as $ctr => $entry ) {

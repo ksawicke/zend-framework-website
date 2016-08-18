@@ -3,6 +3,7 @@
 namespace Request\Helper;
 
 use \Request\Model\Employee;
+use \Request\Model\TimeOffRequests;
 
 class ValidationHelper {
     
@@ -17,23 +18,38 @@ class ValidationHelper {
     public function isPayrollReviewRequired( $requestId = null, $employeeNumber = null )
     {
         $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
         
-        $requestData = $Employee->checkHoursRequestedPerCategory( $requestId );
+        $hoursRequestedData = $Employee->checkHoursRequestedPerCategory( $requestId );
         $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
+        $request = $TimeOffRequests->findRequest( $requestId );
         
-        if($requestData['PTO'] > $employeeData['PTO_REMAINING']) {
+//         echo '<pre>';
+//         var_dump( $hoursRequestedData );
+//         var_dump( $employeeData );
+//         var_dump( $request );
+//         echo '</pre>';
+        
+//         echo '<br /><br />';
+        
+//         echo $request['EMPLOYEE_DATA']->PTO_REMAINING;
+        
+//         die( '..stopping..' );
+        
+        // 8/18/16 changed from $employeeData['PTO_REMAINING']
+        if( $hoursRequestedData['PTO'] > $request['EMPLOYEE_DATA']->PTO_REMAINING ) {
             return true;
         }
-        if($requestData['FLOAT'] > $employeeData['FLOAT_REMAINING']) {
+        if( $hoursRequestedData['FLOAT'] > $request['EMPLOYEE_DATA']->FLOAT_REMAINING ) {
             return true;
         }
-        if($requestData['SICK'] > $employeeData['SICK_REMAINING']) {
+        if( $hoursRequestedData['SICK'] > $request['EMPLOYEE_DATA']->SICK_REMAINING ) {
             return true;
         }
-        if($requestData['GRANDFATHERED'] > $employeeData['GF_REMAINING']) {
+        if( $hoursRequestedData['GRANDFATHERED'] > $request['EMPLOYEE_DATA']->GF_REMAINING ) {
             return true;
         }
-        if($requestData['CIVIC_DUTY'] > 0) {
+        if( $hoursRequestedData['CIVIC_DUTY'] > 24 ) {
             return true;
         }
         
