@@ -47,6 +47,17 @@ class RequestApi extends ApiController {
         'timeOffGrandfathered' => 'R',
         'timeOffApprovedNoPay' => 'A'
     ];
+    
+    protected static $codesToTypes = [
+        'P' => 'timeOffPTO',
+        'K' => 'timeOffFloat',
+        'S' => 'timeOffSick',
+        'X' => 'timeOffUnexcusedAbsence',
+        'B' => 'timeOffBereavement',
+        'J' => 'timeOffCivicDuty',
+        'R' => 'timeOffGrandfathered',
+        'A' => 'timeOffApprovedNoPay'
+    ];
 
     /**
      * Array of email addresses to send all emails when running on SWIFT.
@@ -715,8 +726,10 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsUpdated( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 !array_key_exists( 'isDeleted', $entry ) ) ? true : false );
+        return ( ( $this->requestEntryIsDeleted( $entry ) ||  $this->requestEntryIsAdded( $entry ) ||
+                   $this->requestEntryIsEdited( $entry )
+                 ) ? true : false
+               );
     }
 
     /**
@@ -727,8 +740,10 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsDeleted( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 array_key_exists( 'isDeleted', $entry ) ) ? true : false );
+        return ( ( array_key_exists( 'entryId', $entry ) &&
+                   array_key_exists( 'isDeleted', $entry ) &&
+                   $entry['isDeleted']=="true"
+                 ) ? true : false );
     }
 
     /**
@@ -739,8 +754,39 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsAdded( $entry )
     {
-        return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
-                 array_key_exists( 'isAdded', $entry ) && $entry['isAdded']=="true" ) ? true : false );
+        return ( ( !array_key_exists( 'entryId', $entry ) &&
+                   array_key_exists( 'isAdded', $entry ) &&
+                   $entry['isAdded']=="true"
+                 ) ? true : false );
+    }
+    
+    /**
+     * Returns boolean if request entry was marked to be deleted.
+     *
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsEdited( $entry )
+    {
+        $isEdited = false;
+        if( array_key_exists("entryId", $entry) ) {
+            $entryId = (int) $entry["entryId"];
+            $RequestEntry = new RequestEntry();
+            $originalEntryIdData = $RequestEntry->getRequestEntry( $entryId );
+            
+//             var_dump( $originalEntryIdData );
+//             var_dump( $entry );
+//             die();
+            
+            if( $isEdited===false &&
+                ( $entry['category']!=self::$codesToTypes[$originalEntryIdData->REQUEST_CODE] ||
+                  $entry['hours']!=$originalEntryIdData->REQUESTED_HOURS
+                ) ) {
+                $isEdited = true;
+            }
+        }
+        
+        return $isEdited;
     }
 
     /**
@@ -753,15 +799,31 @@ class RequestApi extends ApiController {
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
-        echo '<pre>';
-        var_dump( $post->selectedDatesNew );
-        echo '</pre>';
-        die();
-        if( isset($post->formDirty) && $post->formDirty=="true" ) {
-            $updatesMadeToForm = true;
+        foreach( $post->selectedDatesNew as $ctr => $entry ) {
+            if( $updatesMadeToForm===false && $this->requestEntryIsUpdated( $entry ) ) {
+                $updatesMadeToForm = true;
+            }
+        }
+        
+//         die( $updatesMadeToForm . "...." );
+        
+//         echo '<pre>POST';
+//         var_dump( $post );
+//         echo '</pre>';
+        
+//         echo '<pre>requestedDatesOld';
+//         var_dump( $requestedDatesOld );
+//         echo '</pre>';
+        
+//         echo "Updates made to form? ";
+//         echo ( $updatesMadeToForm===true ? "YES" : "NO" );
+        
+//         die();
+        
+        if( $updatesMadeToForm ) {
             $TimeOffRequests = new TimeOffRequests();
             foreach( $post->selectedDatesNew as $ctr => $entry ) {
-                if( $this->requestEntryIsUpdated( $entry ) ) {
+                if( $this->requestEntryIsEdited( $entry ) ) {
                     $data = [ 'ENTRY_ID' => $entry['entryId'],
                               'REQUEST_ID' => $post->request_id,
                               'REQUEST_DATE' => $entry['date'],

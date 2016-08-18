@@ -30,7 +30,9 @@ var timeOffApproveRequestHandler = new function ()
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             $.each(selectedDatesNew, function(index, blah) {
-            	selectedDatesNew[index].dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
+            	selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
+            	console.log( "COMPARE:" );
+            	console.log( selectedDatesNew );
             });
             var data = {
                 request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
