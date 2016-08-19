@@ -202,10 +202,6 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     this.checkAndSetFormWarnings = function() {
-    	var hoursWarningBlock = ( requestForEmployeeObject.SALARY_TYPE=='S' ?
-                '#warnSalaryTakingRequiredHoursPerDay' :
-                '#warnHourlyTakingRequiredHoursPerDay' );
-
     	timeOffCreateRequestHandler.updateHours();
     	exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
     	
@@ -226,20 +222,32 @@ var timeOffCreateRequestHandler = new function() {
 		} else {
 			$( "#warnBereavementHoursPerRequest" ).hide();
 		}
-		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
-			$( hoursWarningBlock ).show();
+		
+		if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+			$( '#warnSalaryTakingRequiredHoursPerDay' ).show();
 		} else {
-			$( hoursWarningBlock ).hide();
+			$( '#warnSalaryTakingRequiredHoursPerDay' ).hide();
 		}
 		
-//		console.log( "===============" );
-//		console.log( "CHECKS TO SEE IF SUBMIT BUTTON NEEDS DISABLE" );
-//		console.log( "exceededHours", exceededHours );
-//		console.log( "bereavement request limit reached", timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
-//		console.log( "verify salary taking required hours per day", timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
-//		console.log( "===============" );
+		if( requestForEmployeeObject.SALARY_TYPE=='H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay()==false ) {
+			$( '#warnHourlyTakingRequiredHoursPerDay' ).show();
+		} else {
+			$( '#warnHourlyTakingRequiredHoursPerDay' ).hide();
+		}
 		
-		if( exceededHours.validates || bereavementTotalForRequest > 24 ||
+		if( exceededHours.PTO ) {
+			$('#warnPTO').show();
+		} else {
+			$('#warnPTO').hide();
+		}
+		
+		if( exceededHours.Float ) {
+			$('#warnFloat').show();
+		} else {
+			$('#warnFloat').hide();
+		}
+		
+		if( exceededHours.Grandfathered || exceededHours.Sick || bereavementTotalForRequest > 24 ||
 		    timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
         	$('.submitTimeOffRequest').addClass('disabled');
         } else {
@@ -312,8 +320,31 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     /**
-     * Verify that no single day has less than 8 hours requested if the employee is Salary.
-     * Also verify that the hours requested match the employee's schedule.
+     * Verify that no single day has more than 12 hours requested if the employee is Hourly.
+     */
+    this.verifyHourlyTakingRequiredHoursPerDay = function() {
+    	var validates = true,
+	        selectedDatesNewHoursByDate = [];
+	    
+	    $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+	        if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
+	            selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
+	        } else {
+	            selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
+	        }
+	    });
+	    $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+	    	var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
+	        if( requestForEmployeeObject.SALARY_TYPE=='H' && validates ) {
+	        	validates = ( +hoursOff <= 12 ? true : false );
+	        }
+	    });
+	            
+	    return validates;
+    }
+    
+    /**
+     * Verify that no single day has less than 8 hours or more than 12 requested if the employee is Salary.
      */
     this.verifySalaryTakingRequiredHoursPerDay = function() {
         var validates = true,
@@ -329,17 +360,7 @@ var timeOffCreateRequestHandler = new function() {
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
             if( requestForEmployeeObject.SALARY_TYPE=='S' && validates ) {
-//            	thisDate = selectedDateNewObject.date;
-//            	dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
-//            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
             	validates = ( +hoursOff >= 8 && +hoursOff <= 12 ? true : false );
-            	
-            	/// DISABLED....This would verify the hours off matched their schedule as well.
-//            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
-//            	validates = ( +hoursOff >= 8 && +hoursOff <= 12 && +hoursOff==scheduleToday ? true : false );
-            }
-            if( requestForEmployeeObject.SALARY_TYPE=='H' && validates ) {
-            	validates = ( +hoursOff <= 12 ? true : false );
             }
         });
                 
