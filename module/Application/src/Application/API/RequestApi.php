@@ -892,7 +892,7 @@ class RequestApi extends ApiController {
         $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
-        if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld ) {
+        if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld === true ) {
             $payrollReviewRequiredReason = '';
             if( $isPayrollReviewRequired ) {
                 $payrollReviewRequiredReason = 'Payroll review required because of insufficient hours in one or more categories, and/or Civic Duty requested.';
@@ -912,7 +912,7 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
 
-            /** Log request as having insufficient hours **/
+            /** Log request with payroll review required reason **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -1005,25 +1005,6 @@ class RequestApi extends ApiController {
             }
         }
     }
-
-    /**
-     * Sends Outlook calendar invitations for an approved request.
-     *
-     * @param type $post
-     * @return type
-     */
-//    public function sendCalendarInvitationsForRequest( $post )
-//    {
-//        $OutlookHelper = new OutlookHelper();
-//        $RequestEntry = new RequestEntry();
-//        $TimeOffRequests = new TimeOffRequests();
-//        $Employee = new Employee();
-//        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
-//        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-//        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-//
-//        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
-//    }
 
     /**
      * Handles the manager denied process.
