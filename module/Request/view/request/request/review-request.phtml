@@ -1,4 +1,39 @@
-<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4><br />
+<?php 
+$viewQueueLink = '';
+switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
+    case "Pending Manager Approval":
+        $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
+        break;
+    case "Completed PAFs":
+        $viewQueueLink = '/request/view-payroll-queue/completed-pafs';
+        break;
+    case "Denied":
+        $viewQueueLink = '/request/view-payroll-queue/denied';
+        break;
+    case "Pending AS400 Upload":
+        $viewQueueLink = '/request/view-payroll-queue/pending-as400-upload';
+        break;
+    case "Pending Payroll Approval":
+        $viewQueueLink = '/request/view-payroll-queue/pending-payroll-approval';
+        break;
+    case "Update Checks":
+        $viewQueueLink = '/request/view-payroll-queue/update-checks';
+        break;
+}
+?>
+
+<div class="row gutter-10">
+    <div class="col-md-6 col-lg-6">
+    	<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
+    </div>
+    <div class="col-md-6 col-lg-6 text-right">
+    	<a href="<?php echo $this->basePath() . $viewQueueLink; ?>">
+    		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+    	</a>
+    </div>
+</div>
+
+<br />
 
 <div class="row">
     <div class="col-lg-12 col-md-12">
