@@ -228,21 +228,16 @@ var timeOffCreateRequestHandler = new function() {
 		}
 		if( timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
 			$( hoursWarningBlock ).show();
-			console.log( "hours warning block - show!" );
 		} else {
 			$( hoursWarningBlock ).hide();
-			console.log( "hours warning block - hide!" );
 		}
 		
-		console.log( "===============" );
-		console.log( "CHECKS TO SEE IF SUBMIT BUTTON NEEDS DISABLE" );
-		console.log( "exceededHours", exceededHours );
-		console.log( "bereavement request limit reached", timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
-		console.log( "verify salary taking required hours per day", timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
-		console.log( "===============" );
-		
-		// if exceededHours.validates || bereavementTotalForRequest > 24 ||
-		//    timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()
+//		console.log( "===============" );
+//		console.log( "CHECKS TO SEE IF SUBMIT BUTTON NEEDS DISABLE" );
+//		console.log( "exceededHours", exceededHours );
+//		console.log( "bereavement request limit reached", timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() );
+//		console.log( "verify salary taking required hours per day", timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() );
+//		console.log( "===============" );
 		
 		if( exceededHours.validates || bereavementTotalForRequest > 24 ||
 		    timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
@@ -334,15 +329,17 @@ var timeOffCreateRequestHandler = new function() {
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
             if( requestForEmployeeObject.SALARY_TYPE=='S' && validates ) {
-            	// requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow]
-            	// scheduleToday = +requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
-            	thisDate = selectedDateNewObject.date;
-            	dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
-            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
-//            	console.log( thisDate );
-//            	console.log( dow );
-//            	console.log( scheduleToday );
-            	validates = ( +hoursOff >= 8 && +hoursOff <= 12 && +hoursOff==scheduleToday ? true : false );
+//            	thisDate = selectedDateNewObject.date;
+//            	dow = moment(thisDate, "MM/DD/YYYY").format("ddd").toUpperCase();
+//            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
+            	validates = ( +hoursOff >= 8 && +hoursOff <= 12 ? true : false );
+            	
+            	/// DISABLED....This would verify the hours off matched their schedule as well.
+//            	scheduleToday = +requestForEmployeeObject["SCHEDULE_" + dow];
+//            	validates = ( +hoursOff >= 8 && +hoursOff <= 12 && +hoursOff==scheduleToday ? true : false );
+            }
+            if( requestForEmployeeObject.SALARY_TYPE=='H' && validates ) {
+            	validates = ( +hoursOff <= 12 ? true : false );
             }
         });
                 
