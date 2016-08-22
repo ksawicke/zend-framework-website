@@ -158,8 +158,11 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is closed
                  */
             });
-            //
-//            timeOffCreateRequestHandler.handleCalendarNavigation(); // 08/22/2016 Commented out to fix on review request screen. Please test on new request screen as well.
+
+            isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+            if( isHandledFromReviewRequestScreen===false ) {
+            	timeOffCreateRequestHandler.handleCalendarNavigation();
+            }
             timeOffCreateRequestHandler.handleToggleLegend();
             timeOffCreateRequestHandler.handleClickCategory();
             timeOffCreateRequestHandler.handleClickCalendarDate();
@@ -975,6 +978,26 @@ var timeOffCreateRequestHandler = new function() {
         });
     };
     
+    this.unhighlightDeletedDates = function(startMonth, startYear, calendarData) {
+    	$.each(calendarData.highlightDates, function(index, highlightedDate) {
+    		if( highlightedDate.IS_ON_CURRENT_CALENDAR==1 ) {
+    			unhighlightDate = highlightedDate.REQUEST_DATE;
+    			$.each(selectedDatesNew, function(i, selectedDate) {
+    				if( selectedDate.date===unhighlightDate && selectedDate.hasOwnProperty('isDeleted') && selectedDate.isDeleted===true ) {
+    					$('*[data-date="' + unhighlightDate + '"').removeClass("timeOffPTOSelected")
+						  .removeClass("timeOffFloatSelected")
+						  .removeClass("timeOffSickSelected")
+						  .removeClass("timeOffGrandfatheredSelected")
+						  .removeClass("timeOffPUnexcusedAbsenceSelected")
+						  .removeClass("timeOffBereavementSelected")
+						  .removeClass("timeOffCivicDutySelected")
+						  .removeClass("timeOffApprovedNoPaySelected");
+    				}
+    			});
+    		}
+    	});
+    }
+    
     /**
      * Handles loading calendars after initial load
      */
@@ -996,6 +1019,7 @@ var timeOffCreateRequestHandler = new function() {
             requestForEmployeeObject = json.employeeData;
             if( calendarsToLoad==1 ) {
                 timeOffCreateRequestHandler.drawOneCalendar(json.calendarData);
+                timeOffCreateRequestHandler.unhighlightDeletedDates(startMonth, startYear, json.calendarData);
             }
             if( calendarsToLoad==3 ) {
                 timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
@@ -1705,7 +1729,15 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     this.getHoursRequestedRow = function( dow, hideMe, selectedIndex, isDeleted ) {
-    	if( typeof isDeleted==="boolean" && isDeleted===true ) {
+    	console.log( "_______" );
+    	console.log( dow );
+    	console.log( hideMe );
+    	console.log( selectedIndex );
+    	console.log( typeof isDeleted );
+    	console.log( isDeleted );
+    	console.log( selectedDatesNew[selectedIndex] )
+    	console.log( "_______" );
+    	if( typeof isDeleted=="boolean" && isDeleted===true || selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ) {
     		return '';
     	} else {
     		return '<tr' + hideMe + '>' +
@@ -1875,7 +1907,7 @@ var timeOffCreateRequestHandler = new function() {
             }
         }
 
-//        console.log( "selectedDatesNew", selectedDatesNew );
+        console.log( "selectedDatesNew", selectedDatesNew );
 
         $("#datesSelectedDetails").html(datesSelectedDetailsHtml);
         if (selectedDatesNew.length === 0) {
