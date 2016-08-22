@@ -493,7 +493,7 @@ class RequestApi extends ApiController {
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
 
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
-                'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
+                'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor heirarchy of ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
 
             return $return;
@@ -799,6 +799,10 @@ class RequestApi extends ApiController {
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
+        if( property_exists( $post, "selectedDatesNew" )===false ) {
+            return $updatesMadeToForm;
+        }
+        
         foreach( $post->selectedDatesNew as $ctr => $entry ) {
             if( $updatesMadeToForm===false && $this->requestEntryIsUpdated( $entry ) ) {
                 $updatesMadeToForm = true;
@@ -930,11 +934,15 @@ class RequestApi extends ApiController {
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
 
             /** Log supervisor approval with comment **/
+            $supervisorApprovalComment = 'Approved by ' . UserSession::getFullUserInfo() .
+                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' );
+            if( property_exists( $post, "review_request_reason" ) ) { // In case this is an auto-approval
+                $supervisorApprovalComment = $post->review_request_reason;
+            }
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Approved by ' . UserSession::getFullUserInfo() .
-                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' ) );
+                $supervisorApprovalComment );
 
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -1034,8 +1042,8 @@ class RequestApi extends ApiController {
             $post->request_id,
             UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
             'Time off request denied by ' . UserSession::getFullUserInfo() .
-            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
-            ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' )));
+            ' for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] .
+            ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ));
 
         /** Change status to Denied */
         $requestReturnData = $TimeOffRequests->submitApprovalResponse(
