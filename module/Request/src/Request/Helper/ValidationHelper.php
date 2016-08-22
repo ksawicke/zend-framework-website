@@ -3,12 +3,13 @@
 namespace Request\Helper;
 
 use \Request\Model\Employee;
+use \Request\Model\TimeOffRequests;
 
 class ValidationHelper {
     
     /**
      * Checks if a request exceeds employee's remaining PTO, Float, Sick, or Grandfathered time.
-     * Also check if a request contains Civic Duty.
+     * Also check if a request contains more than 24 hours of Civic Duty.
      * 
      * @param integer $requestId
      * @param integer $employeeNumber
@@ -17,27 +18,19 @@ class ValidationHelper {
     public function isPayrollReviewRequired( $requestId = null, $employeeNumber = null )
     {
         $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
         
-        $requestData = $Employee->checkHoursRequestedPerCategory( $requestId );
+        $hoursRequestedData = $Employee->checkHoursRequestedPerCategory( $requestId );
         $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
-        
-        if($requestData['PTO'] > $employeeData['PTO_REMAINING']) {
-            return true;
-        }
-        if($requestData['FLOAT'] > $employeeData['FLOAT_REMAINING']) {
-            return true;
-        }
-        if($requestData['SICK'] > $employeeData['SICK_REMAINING']) {
-            return true;
-        }
-        if($requestData['GRANDFATHERED'] > $employeeData['GF_REMAINING']) {
-            return true;
-        }
-        if($requestData['CIVIC_DUTY'] > 0) {
-            return true;
-        }
-        
-        return false;
+        $request = $TimeOffRequests->findRequest( $requestId );
+
+        return ( ( $hoursRequestedData['PTO'] > $request['EMPLOYEE_DATA']->PTO_REMAINING ||
+                   $hoursRequestedData['FLOAT'] > $request['EMPLOYEE_DATA']->FLOAT_REMAINING ||
+                   $hoursRequestedData['SICK'] > $request['EMPLOYEE_DATA']->SICK_REMAINING ||
+                   $hoursRequestedData['GRANDFATHERED'] > $request['EMPLOYEE_DATA']->GF_REMAINING ||
+                   $hoursRequestedData['CIVIC_DUTY'] > 0
+                 ) ? true : false
+               );
     }
     
 }

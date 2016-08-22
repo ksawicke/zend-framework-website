@@ -37,7 +37,8 @@ Begin
 	     JOIN TIMEOFF_REQUESTS R ON E.REQUEST_ID = R.REQUEST_ID
 	     WHERE R.EMPLOYEE_NUMBER = refactor_employee_id(in_employee_number) AND
 	     E.REQUEST_CODE = in_category AND
-	     R.REQUEST_STATUS = 'P'
+	     R.REQUEST_STATUS = 'P' AND
+	     E.IS_DELETED = '0'
         )
 
     select a.UNAPPROVED

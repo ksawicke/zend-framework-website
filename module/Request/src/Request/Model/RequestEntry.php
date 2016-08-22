@@ -29,6 +29,19 @@ class RequestEntry extends BaseDB {
         parent::__construct();
     }
     
+    public function getRequestEntry( $entryId )
+    {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
+            ->columns(['ENTRY_ID' => 'ENTRY_ID', 'REQUEST_ID' => 'REQUEST_ID',
+                       'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_DATE' => 'REQUEST_DATE',
+                       'REQUEST_CODE' => 'REQUEST_CODE' ])
+            ->where(['entry.ENTRY_ID' => $entryId]);
+        $requestEntry = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
+        
+        return $requestEntry;
+    }
+    
     public function getRequestObject( $requestId )
     {
         $request = [ 'id' => $requestId, 'reason' => '', 'for' => [], 'dates' => [] ];
