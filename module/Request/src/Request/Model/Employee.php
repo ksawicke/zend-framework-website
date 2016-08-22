@@ -823,13 +823,18 @@ class Employee extends BaseDB {
         $endDate = $endDate->format( "Y-m-d" );
         $andRequestId = ( !is_null( $requestId ) ? " AND request.REQUEST_ID = " . $requestId : "" );
 
-        $rawSql = "select entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
+        $rawSql = "select entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS,
+            CASE WHEN entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' THEN
+                1
+            ELSE
+                0
+            END AS IS_ON_CURRENT_CALENDAR
             FROM TIMEOFF_REQUEST_ENTRIES entry
             INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
             WHERE
               trim(request.EMPLOYEE_NUMBER)='" . $employeeNumber . "' AND
-              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND IS_DELETED = 0 " . $andRequestId . "
+              IS_DELETED = 0 " . $andRequestId . "
             ORDER BY REQUEST_DATE ASC";
 
         $statement = $this->adapter->query( $rawSql );

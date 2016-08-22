@@ -159,7 +159,7 @@ var timeOffCreateRequestHandler = new function() {
                  */
             });
             //
-            timeOffCreateRequestHandler.handleCalendarNavigation();
+//            timeOffCreateRequestHandler.handleCalendarNavigation(); // 08/22/2016 Commented out to fix on review request screen. Please test on new request screen as well.
             timeOffCreateRequestHandler.handleToggleLegend();
             timeOffCreateRequestHandler.handleClickCategory();
             timeOffCreateRequestHandler.handleClickCalendarDate();
@@ -2135,29 +2135,6 @@ var timeOffCreateRequestHandler = new function() {
                 }
             }
         });
-    }
-
-    this.allowSplitDate = function(selectedDate) {
-        var allowSplitDate = false;
-        items = [];
-        $.each(selectedDatesNew, function(index, object) {
-            if (object.date === selectedDate.obj.date) {
-                object.index = index;
-                items.push(object);
-            }
-        });
-        if ((items.length === 1 && selectedTimeOffCategory === "timeOffFloat")
-            || (items.length === 0) || (items.length > 1)) {
-            allowSplitDate = false;
-        }
-        if (items.length === 1 && selectedTimeOffCategory != "timeOffFloat") {
-            allowSplitDate = true;
-        }
-
-        return {
-            allowSplitDate : allowSplitDate,
-            items : items
-        };
     }
 
     /**
