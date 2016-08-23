@@ -320,15 +320,7 @@ class RequestController extends AbstractActionController
     }
 
     public function viewMyRequestsAction()
-    {
-        $isManager = \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER');
-        $isSupervisor = \Login\Helper\UserSession::getUserSessionVariable('IS_SUPERVISOR');
-        $countStaleManagerRequests = \Login\Helper\UserSession::getUserSessionVariable('COUNT_STALE_MANAGER_REQUESTS');
-        
-        if( $isManager=="Y" && $countStaleManagerRequests > 0 ) {
-            $this->flashMessenger()->addErrorMessage('You have at least 1 request that is 3 or more days old. Please go to the Pending Manager Approval queue to find it.');
-        }
-        
+    {        
         $startDate = date("Y") . "-" . date("m") . "-01";
         $endDate = date("Y-m-t", strtotime($startDate));
         $employeeNumber = trim($this->employeeNumber);
@@ -342,7 +334,6 @@ class RequestController extends AbstractActionController
         $employeeData = $Employee->findEmployeeTimeOffData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
 
-//        var_dump($this->layout()->employeeData);
         return new ViewModel([
             'employeeData' => $employeeData,
             'requestData' => $requestData,

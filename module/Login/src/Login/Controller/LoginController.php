@@ -57,10 +57,6 @@ class LoginController extends AbstractActionController
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL_ASSISTANT', $isPayrollAssistant);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PROXY', $isProxy);
                 
-                $PayrollQueues = new \Request\Model\PayrollQueues();
-                $countManagerActionQueueItems = $PayrollQueues->countManagerActionQueueItems( null, false, [ 'MANAGER_EMPLOYEE_NUMBER' => $employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
-                \Login\Helper\UserSession::setUserSessionVariable('COUNT_STALE_MANAGER_REQUESTS', $countManagerActionQueueItems);
-                
                 return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
             } else {
                 $this->flashMessenger()->addMessage('Login incorrect. Try again.');
