@@ -461,6 +461,7 @@ return [
             'Application\API\CalendarApi' => API\CalendarApi::class,
             'Application\API\RequestApi' => API\RequestApi::class,
             'Application\API\ProxyApi' => API\ProxyApi::class,
+            'Application\API\PayrollAdminApi' => API\PayrollAdminApi::class,
             'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
         ]
     ],
