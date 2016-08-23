@@ -244,6 +244,62 @@ return [
             ],
             
             /**
+             * Payroll Admins
+             */
+            
+            'loadPayrollAdmins' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admins/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'loadPayrollAdmin'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'deletePayrollAdmin' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin/delete',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'deletePayrollAdmin'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'togglePayrollAdmin' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin/toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'togglePayrollAdmin'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollAdminRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'submitPayrollAdminRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            /**
              * Change Employee Schedule
              */
             

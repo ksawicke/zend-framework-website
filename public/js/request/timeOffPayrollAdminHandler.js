@@ -2,14 +2,14 @@
  * Javascript timeOffProxyHandler 'class'
  *
  */
-var timeOffPayrollAssistantHandler = new function ()
+var timeOffPayrollAdminHandler = new function ()
 {
-    var timeOffPayrollAssistantSearchUrl = phpVars.basePath + '/api/search/payroll-assistants',
-        timeOffGetPayrollAssistantsUrl = phpVars.basePath + '/api/payroll-assistants/get',
-        timeOffAddPayrollAssistantUrl = phpVars.basePath + '/api/payroll-assistant',
-        timeOffRemovePayrollAssistantUrl = phpVars.basePath + '/api/payroll-assistant/delete',
-        timeOffTogglePayrollAssistantUrl = phpVars.basePath + '/api/payroll-assistant/toggle',
-        selectedPayrollAssistantEmployeeNumber = null;
+    var timeOffPayrollAdminSearchUrl = phpVars.basePath + '/api/search/payroll-admins',
+        timeOffGetPayrollAdminsUrl = phpVars.basePath + '/api/payroll-admins/get',
+        timeOffAddPayrollAdminUrl = phpVars.basePath + '/api/payroll-admin',
+        timeOffRemovePayrollAdminUrl = phpVars.basePath + '/api/payroll-admin/delete',
+        timeOffTogglePayrollAdminUrl = phpVars.basePath + '/api/payroll-admin/toggle',
+        selectedPayrollAdminEmployeeNumber = null;
 
     /**
      * What to run on initialize of this class.
@@ -28,7 +28,7 @@ var timeOffPayrollAssistantHandler = new function ()
             $requestForEventSelect.on("select2:select", function(e) {
 //                timeOffCreateRequestHandler.resetCategorySelection();
                 var selectedEmployee = e.params.data;
-                selectedPayrollAssistantEmployeeNumber = selectedEmployee.id;
+                selectedPayrollAdminEmployeeNumber = selectedEmployee.id;
                 
 //                requestForEmployeeName = selectedEmployee.text;
 //                timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
@@ -70,7 +70,7 @@ var timeOffPayrollAssistantHandler = new function ()
             
             $requestForEventSelect.select2({
                 ajax : {
-                    url : timeOffPayrollAssistantSearchUrl,
+                    url : timeOffPayrollAdminSearchUrl,
                     method : 'post',
                     dataType : 'json',
                     delay : 250,
@@ -96,12 +96,12 @@ var timeOffPayrollAssistantHandler = new function ()
                 minimumInputLength : 2,
             });
             
-            $(document).on('click', '.submitAddPayrollAssistantRequest', function() {
-                console.log( "selectedPayrollAssistantEmployeeNumber", selectedPayrollAssistantEmployeeNumber );
-                if( timeOffCommon.empty(selectedPayrollAssistantEmployeeNumber)===false ) {
-                    timeOffPayrollAssistantHandler.handleAddPayrollAssistant();
+            $(document).on('click', '.submitAddPayrollAdminRequest', function() {
+                console.log( "selectedPayrollAdminEmployeeNumber", selectedPayrollAdminEmployeeNumber );
+                if( timeOffCommon.empty(selectedPayrollAdminEmployeeNumber)===false ) {
+                    timeOffPayrollAdminHandler.handleAddPayrollAdmin();
                 } else {
-                    $("#dialogSelectAPayrollAssistant").dialog({
+                    $("#dialogSelectAPayrollAdmin").dialog({
                         modal : true,
                         closeOnEscape: false,
                         buttons : {
@@ -113,75 +113,75 @@ var timeOffPayrollAssistantHandler = new function ()
                 }
             });
             
-            $(document).on('click', '.remove-payroll-assistant', function() {
-                timeOffPayrollAssistantHandler.handleRemovePayrollAssistant( $(this).data('payroll-assistant-employee-number') );
+            $(document).on('click', '.remove-payroll-admin', function() {
+                timeOffPayrollAdminHandler.handleRemovePayrollAdmin( $(this).data('payroll-admin-employee-number') );
             });
             
-            $(document).on('click', '.clearPayrollAssistantRequest', function() {
+            $(document).on('click', '.clearPayrollAdminRequest', function() {
                 $("#requestFor").select2("val", "");
             });
             
             $(document).on('click', '.cmn-toggle', function() {
-                timeOffPayrollAssistantHandler.handleTogglePayrollAssistant( $(this).data('payroll-assistant-employee-number'), $(this).data('status') );
+                timeOffPayrollAdminHandler.handleTogglePayrollAdmin( $(this).data('payroll-admin-employee-number'), $(this).data('status') );
             });
             
-            timeOffPayrollAssistantHandler.getPayrollAssistants( phpVars.employee_number );
+            timeOffPayrollAdminHandler.getPayrollAdmins( phpVars.employee_number );
         });
     }
     
-    this.handleAddPayrollAssistant = function() {
+    this.handleAddPayrollAdmin = function() {
         $.ajax({
-            url : timeOffAddPayrollAssistantUrl,
+            url : timeOffAddPayrollAdminUrl,
             type : 'POST',
             data : {
                 CREATED_BY : phpVars.employee_number,
-                EMPLOYEE_NUMBER : selectedPayrollAssistantEmployeeNumber
+                EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber
             },
             dataType : 'json'
         }).success(function(json) {
             if (json.success == true) {
-                timeOffPayrollAssistantHandler.reloadPayrollAssistants();
+                timeOffPayrollAdminHandler.reloadPayrollAdmins();
             } else {
                 alert(json.message);
             }
             return;
         }).error(function() {
-            console.log('There was an error submitting request to add a Payroll Assistant.');
+            console.log('There was an error submitting request to add a Payroll Admin.');
             return;
         });
     }
     
-    this.handleRemovePayrollAssistant = function( selectedPayrollAssistantEmployeeNumber ) {
+    this.handleRemovePayrollAdmin = function( selectedPayrollAdminEmployeeNumber ) {
         $.ajax({
-            url : timeOffRemovePayrollAssistantUrl,
+            url : timeOffRemovePayrollAdminUrl,
             type : 'POST',
             data : {
                 EMPLOYEE_NUMBER : phpVars.employee_number,
-                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAssistantEmployeeNumber
+                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber
             },
             dataType : 'json'
         }).success(function(json) {
-            timeOffPayrollAssistantHandler.reloadPayrollAssistants();
+            timeOffPayrollAdminHandler.reloadPayrollAdmins();
             return;
         }).error(function() {
-            console.log('There was an error submitting request to add a payroll assistant.');
+            console.log('There was an error submitting request to add a payroll admin.');
             return;
         });
     }
     
-    this.handleTogglePayrollAssistant = function( selectedPayrollAssistantEmployeeNumber, status ) {
+    this.handleTogglePayrollAdmin = function( selectedPayrollAdminEmployeeNumber, status ) {
         $.ajax({
-            url : timeOffTogglePayrollAssistantUrl,
+            url : timeOffTogglePayrollAdminUrl,
             type : 'POST',
             data : {
-                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAssistantEmployeeNumber,
+                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber,
                 STATUS : ( status=='1' ? '0' : '1' )
             },
             dataType : 'json'
         }).success(function(json) {
             return;
         }).error(function() {
-            console.log('There was an error submitting request to toggle a payroll assistant.');
+            console.log('There was an error submitting request to toggle a payroll admin.');
             return;
         });
     }
@@ -192,8 +192,8 @@ var timeOffPayrollAssistantHandler = new function ()
      * @param {type} employeeNumber
      * @returns {undefined}
      */
-    this.getPayrollAssistants = function( employeeNumber ) {
-        $('#payrollassistant-list').DataTable({
+    this.getPayrollAdmins = function( employeeNumber ) {
+        $('#payrolladmin-list').DataTable({
             dom: 'ltirp',
             searching: false,
             processing: true,
@@ -212,7 +212,7 @@ var timeOffPayrollAssistantHandler = new function ()
 //                }
 //            ],
             ajax: {
-                url: timeOffGetPayrollAssistantsUrl,
+                url: timeOffGetPayrollAdminsUrl,
                 data: function (d) {
                     return $.extend({}, d, {
                         "employeeNumber": employeeNumber
@@ -229,17 +229,17 @@ var timeOffPayrollAssistantHandler = new function ()
     /**
      * Reload datatable for proxies
      */
-    this.reloadPayrollAssistants = function() {
-        $("#payrollassistant-list").DataTable().ajax.reload( function() {} );
+    this.reloadPayrollAdmins = function() {
+        $("#payrolladmin-list").DataTable().ajax.reload( function() {} );
         $("#requestFor").select2("val", "");
     }
     
     this.resetErrors = function() {
-        $("#warnNoPayrollAssistantsSelected").hide();
-        $("#warnErrorLoadingPayrollAssistants").hide();
+        $("#warnNoPayrollAdminsSelected").hide();
+        $("#warnErrorLoadingPayrollAdmins").hide();
     }
     
 }
 
 // Initialize the class
-timeOffPayrollAssistantHandler.initialize();
+timeOffPayrollAdminHandler.initialize();
