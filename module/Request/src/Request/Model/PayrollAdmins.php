@@ -85,7 +85,7 @@ class PayrollAdmins extends BaseDB {
      * @throws \Exception
      */
     public function addPayrollAdmin( $post ) {
-        $payrollAdmin = new Insert( 'timeoff_requests_payroll_assistants' );
+        $payrollAdmin = new Insert( 'timeoff_requests_payroll_admins' );
         $payrollAdmin->values( [
             'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->EMPLOYEE_NUMBER ),
             'CREATED_BY' => \Request\Helper\Format::rightPadEmployeeNumber( $post->CREATED_BY )

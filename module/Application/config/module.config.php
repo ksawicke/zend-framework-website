@@ -253,7 +253,7 @@ return [
                     'route' => '/api/payroll-admins/get',
                     'defaults' => [
                         'controller' => 'Application\API\PayrollAdminApi',
-                        'action' => 'loadPayrollAdmin'
+                        'action' => 'loadPayrollAdmins'
                     ]
                 ],
                 'may_terminate' => 1,

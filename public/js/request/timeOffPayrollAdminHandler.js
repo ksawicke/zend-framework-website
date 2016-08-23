@@ -157,14 +157,14 @@ var timeOffPayrollAdminHandler = new function ()
             type : 'POST',
             data : {
                 EMPLOYEE_NUMBER : phpVars.employee_number,
-                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber
+                PAYROLLADMIN_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber
             },
             dataType : 'json'
         }).success(function(json) {
             timeOffPayrollAdminHandler.reloadPayrollAdmins();
             return;
         }).error(function() {
-            console.log('There was an error submitting request to add a payroll admin.');
+            console.log('There was an error submitting request to remove a Payroll Admin.');
             return;
         });
     }
@@ -174,14 +174,14 @@ var timeOffPayrollAdminHandler = new function ()
             url : timeOffTogglePayrollAdminUrl,
             type : 'POST',
             data : {
-                PAYROLLASSISTANT_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber,
+                PAYROLLADMIN_EMPLOYEE_NUMBER : selectedPayrollAdminEmployeeNumber,
                 STATUS : ( status=='1' ? '0' : '1' )
             },
             dataType : 'json'
         }).success(function(json) {
             return;
         }).error(function() {
-            console.log('There was an error submitting request to toggle a payroll admin.');
+            console.log('There was an error submitting request to toggle a Payroll Admin.');
             return;
         });
     }
