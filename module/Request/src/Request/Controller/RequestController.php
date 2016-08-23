@@ -147,7 +147,7 @@ class RequestController extends AbstractActionController
     }
 
     /**
-     * Allows an employee to edit their profile.
+     * Allows Payroll Admins to manage Payroll Assistants.
      *
      * @return ViewModel
      */
@@ -163,6 +163,26 @@ class RequestController extends AbstractActionController
                                 'error' => $this->flashMessenger()->getCurrentErrorMessages(),
                                 'info' => $this->flashMessenger()->getCurrentInfoMessages()
                                ]
+        ]);
+    }
+    
+    /**
+     * Allows Payroll Admins to manage other Payroll Admins.
+     *
+     * @return ViewModel
+     */
+    public function managePayrollAdminsAction()
+    {
+        $Employee = new \Request\Model\Employee();
+    
+        return new ViewModel([
+            'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+            ]
         ]);
     }
 
