@@ -849,7 +849,13 @@ div.form-group > div {
 div.alert.alert-warning {
     border: 1px solid #ffcc33;
     background-color: #ffe699;
-    font-color: #b88a00;
+    color: #b88a00;
+}
+
+div.alert.alert-error {
+    border: 1px solid #ebccd1;
+    background-color: #f2dede;
+    color: #a94442;
 }
 
 span.badge {

@@ -686,10 +686,8 @@ class PayrollQueues extends BaseDB {
     {
         $singleManager = "";
         $warnType = "";
-        if( $isFiltered ) {
-            if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
-                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
-            }
+        if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
+            $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'];
         }
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {

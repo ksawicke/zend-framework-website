@@ -320,7 +320,7 @@ class RequestController extends AbstractActionController
     }
 
     public function viewMyRequestsAction()
-    {
+    {        
         $startDate = date("Y") . "-" . date("m") . "-01";
         $endDate = date("Y-m-t", strtotime($startDate));
         $employeeNumber = trim($this->employeeNumber);
@@ -334,7 +334,6 @@ class RequestController extends AbstractActionController
         $employeeData = $Employee->findEmployeeTimeOffData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
 
-//        var_dump($this->layout()->employeeData);
         return new ViewModel([
             'employeeData' => $employeeData,
             'requestData' => $requestData,
