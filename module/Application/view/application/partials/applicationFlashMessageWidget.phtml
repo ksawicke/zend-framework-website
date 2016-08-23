@@ -3,11 +3,12 @@
                  * First output manager warning of stale, unapproved requests.
                  * We don't want them to close this message or have it auto close.
                  **/
-                if( $this->isManager && $this->countStaleManagerRequests > 0 ) {
+                if( ( $this->isManager || $this->isSupervisor ) && $this->countStaleManagerRequests > 0 ) {
                     ?>
                     <div id="applicationStaleManagerRequestsFlashMessage" class="alert alert-danger" role="alert">
-                        <i class="fa fa-exclamation-circle"></i> <strong>You have at least 1 request that is 3 or more days old. Please go to the <a href="#">Pending Manager Approval</a> queue to find it.
-                        </strong>
+                        <i class="fa fa-exclamation-circle"></i> <strong>You have at least 1 request that is 3 or more days old.</strong><br />
+                        Please go to the <a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/pending-manager-approval">Pending Manager Approval</a> queue, then
+                        Approve or Deny all requests where the First Day Requested is highlighted in red.
                     </div>
                     <?php
                 }

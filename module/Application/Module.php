@@ -11,15 +11,12 @@
 namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\Mvc\MvcEvent;
 
-class Module implements AutoloaderProviderInterface, ConfigProviderInterface {
+class Module {
 
     public function onBootstrap( MvcEvent $e ) {
         $eventManager = $e->getApplication()->getEventManager();
-        $eventManager->attach( 'dispatch', [ $this, 'loadTimeOffRequestsConfiguration' ] );
         
         /** Set up a listener for every route event so when routing occurs, this method is run - checkUserAuthenticated.
          *  -100 = priority queue. This means run at a very low priority. **/
@@ -40,41 +37,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface {
                 ),
             ),
         );
-    }
-    
-    /**
-     * Sets variables to be used in the application template.
-     * Example, setting $controller->layout()->MY_VARIABLE_NAME here will allow you to do something like
-     * echo $this->MY_VARIABLE_NAME .... in a view or partial.
-     * 
-     * @param MvcEvent $e
-     */
-    public function loadTimeOffRequestsConfiguration( MvcEvent $e ) {
-        $controller = $e->getTarget();        
-        $controller->layout()->welcomeMessage = '';
-        $controller->layout()->employeeNumber = '';
-        $controller->layout()->isLoggedIn = 'N';
-        $controller->layout()->isManager = 'N';
-        $controller->layout()->isSupervisor = 'N';
-        $controller->layout()->isPayrollAdmin = 'N';
-        $controller->layout()->isPayrollAssistant = 'N';
-        $controller->layout()->countStaleManagerRequests = 0;
-        
-        if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
-            $controller->layout()->welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' . $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'];
-            $controller->layout()->employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
-            $controller->layout()->isLoggedIn = 'Y';
-            $controller->layout()->isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
-            $controller->layout()->isSupervisor = \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' );
-            $controller->layout()->isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
-            $controller->layout()->isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
-            $PayrollQueues = new \Request\Model\PayrollQueues();
-            /** Check the count here. If the manager approves the "stale" requests, the error message will
-             *  no longer appear for them.
-             */
-            $controller->layout()->countStaleManagerRequests = $PayrollQueues->countManagerActionQueueItems( null, false,
-                [ 'MANAGER_EMPLOYEE_NUMBER' => $controller->layout()->employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
-        }
     }
     
     /**

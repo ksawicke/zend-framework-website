@@ -1,3 +1,31 @@
+<?php 
+
+$this->welcomeMessage = '';
+$this->employeeNumber = '';
+$this->isLoggedIn = 'N';
+$this->isManager = 'N';
+$this->isSupervisor = 'N';
+$this->isPayrollAdmin = 'N';
+$this->isPayrollAssistant = 'N';
+$this->countStaleManagerRequests = 0;
+
+if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
+    $this->welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' . $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'];
+    $this->employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
+    $this->isLoggedIn = 'Y';
+    $this->isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
+    $this->isSupervisor = \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' );
+    $this->isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
+    $this->isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
+    $PayrollQueues = new \Request\Model\PayrollQueues();
+    /** Check the count here. If the manager/supervisor approves the "stale" requests, the error message will
+     *  no longer appear for them.
+     */
+    $this->countStaleManagerRequests = $PayrollQueues->countManagerActionQueueItems( null, false,
+        [ 'MANAGER_EMPLOYEE_NUMBER' => $this->employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -35,7 +63,7 @@
             $this->headScript()
                     ->prependFile( $this->basePath( 'templates/swiftit/js/jquery/1.11.2/jquery.min.js' ) );
 
-            $phpVars = [ 'employee_number' => $employeeNumber,
+            $phpVars = [ 'employee_number' => $this->employeeNumber,
                          'basePath' => ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ?
                                          'http://swift:10080' . $this->basepath() :
                                          'http://aswift:10080' . $this->basepath() ),
