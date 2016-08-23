@@ -40,7 +40,6 @@ class LoginController extends AbstractActionController
             $loginForm->setData($data);
             
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
-            
             if(count($result)==1) {
                 $session = \Login\Helper\UserSession::createUserSession($result[0]);
                 
@@ -57,6 +56,10 @@ class LoginController extends AbstractActionController
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL_ADMIN', $isPayrollAdmin);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PAYROLL_ASSISTANT', $isPayrollAssistant);
                 \Login\Helper\UserSession::setUserSessionVariable('IS_PROXY', $isProxy);
+                
+                $PayrollQueues = new \Request\Model\PayrollQueues();
+                $countManagerActionQueueItems = $PayrollQueues->countManagerActionQueueItems( null, false, [ 'MANAGER_EMPLOYEE_NUMBER' => $employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+                \Login\Helper\UserSession::setUserSessionVariable('COUNT_STALE_MANAGER_REQUESTS', $countManagerActionQueueItems);
                 
                 return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
             } else {
