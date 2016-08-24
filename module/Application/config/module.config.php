@@ -244,6 +244,62 @@ return [
             ],
             
             /**
+             * Payroll Admins
+             */
+            
+            'loadPayrollAdmins' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admins/get',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'loadPayrollAdmins'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'deletePayrollAdmin' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin/delete',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'deletePayrollAdmin'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'togglePayrollAdmin' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin/toggle',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'togglePayrollAdmin'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            'submitPayrollAdminRequest' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/payroll-admin',
+                    'defaults' => [
+                        'controller' => 'Application\API\PayrollAdminApi',
+                        'action' => 'submitPayrollAdminRequest'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            /**
              * Change Employee Schedule
              */
             
@@ -405,6 +461,7 @@ return [
             'Application\API\CalendarApi' => API\CalendarApi::class,
             'Application\API\RequestApi' => API\RequestApi::class,
             'Application\API\ProxyApi' => API\ProxyApi::class,
+            'Application\API\PayrollAdminApi' => API\PayrollAdminApi::class,
             'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
         ]
     ],
