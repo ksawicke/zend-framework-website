@@ -70,6 +70,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     margin-bottom: 20px;
 }
 
+.navbar-brand {
+	padding: 15px 0px 15px 15px;
+}
+
 .swift-header-item {
     float: left;
     margin-right: 15px;
@@ -88,20 +92,36 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     margin-top: 0px;
 }
 
+table.siteLogoHeaderTable th, table.siteLogoHeaderTable td {
+	border: 0px;	
+}
+table.siteLogoHeaderTable td {
+	margin: 0px;
+}
+
 .swift-header-item-sm {
     float: left;
     margin-right: 5px;
 }
 
-.swift-site-name, .swift-site-name-sm {
+.swift-site-name, .swift-site-name-sm, .swift-site-name-md, .swift-site-name-lg,
+.swift-welcome-message-lg, .swift-welcome-message-md {
     color: #00467E;
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(85, 85, 85, 0.3);
 }
 
-.swift-site-name {
+.swift-site-name-lg {
     margin-top: 15px;
     font-size: 140%;
+}
+.swift-site-name-md {
+    margin-top: 15px;
+    font-size: 120%;
+}
+.swift-site-name-sm {
+    margin-top: 15px;
+    font-size: 105%;
 }
 
 .swift-site-name-sm {
@@ -109,14 +129,23 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-size: 110%;
 }
 
+.swift-welcome-message-lg {
+	font-size:120%;
+	margin-left:15px;
+}
+.swift-welcome-message-md {
+	font-size:100%;
+	margin-left:10px;
+}
+
 .swiftlogo-lg {
-    margin-top:-9px;
+    margin-top:-18px;
+}
+.swiftlogo-md {
+    margin-top:-14px;
 }
 .swiftlogo-sm {
-    margin-top:7px;
-}
-.swiftlogo-sm {
-    margin-top:7px;
+    margin-top:-8px;
 }
 
 .row-even {

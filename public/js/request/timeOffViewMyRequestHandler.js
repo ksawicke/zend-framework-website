@@ -107,11 +107,6 @@ var timeOffViewRequestHandler = new function ()
                     });
 
             timeOffViewRequestHandler.handleCalendarNavigation();
-            
-            $(document).on('click', '.toggleLegend', function() {
-                timeOffViewRequestHandler.toggleLegend();
-                console.log("TOGGLE");
-            });
 
             /**
              * Handle clicking category
@@ -1406,10 +1401,6 @@ var timeOffViewRequestHandler = new function ()
         timeOffViewRequestHandler.addTime(newOne.category, Number(newOne.hours));
 
         calendarDateObject.addClass(newOne.category + "Selected");
-    }
-    
-    this.toggleLegend = function() {
-        $("#calendarLegend").toggle();
     }
 };
 
