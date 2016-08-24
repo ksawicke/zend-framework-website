@@ -17,6 +17,7 @@ var timeOffCommon = new function ()
         $(document).ready(function () {
             timeOffCommon.fadeOutFlashMessage();
             timeOffCommon.autoOpenDropdownOnHover();
+            timeOffCommon.handleToggleLegend();
             
             $( "#dialogEditEmployeeSchedule" ).on( "dialogopen", function( event, ui ) {
                 $('#employeeScheduleForm').parsley().validate();
@@ -220,6 +221,23 @@ var timeOffCommon = new function ()
           }
         }
         return count == 0;
+    }
+    
+    /**
+     * Toggle the category color legend
+     */
+    this.handleToggleLegend = function() {
+        $(document).on('click', '.toggleLegend', function() {
+            timeOffCommon.toggleLegend();
+        });
+    }
+    
+    /**
+     * Toggle the calendar legend showing the wonderful color system for categories. 
+     *
+     * @returns {undefined}     */
+    this.toggleLegend = function() {
+        $("#calendarLegend").toggle();
     }
 }
 

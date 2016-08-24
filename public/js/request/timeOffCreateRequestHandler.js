@@ -163,7 +163,6 @@ var timeOffCreateRequestHandler = new function() {
             if( isHandledFromReviewRequestScreen===false ) {
             	timeOffCreateRequestHandler.handleCalendarNavigation();
             }
-            timeOffCreateRequestHandler.handleToggleLegend();
             timeOffCreateRequestHandler.handleClickCategory();
             timeOffCreateRequestHandler.handleClickCalendarDate();
             timeOffCreateRequestHandler.handleRemoveDateFromRequest();
@@ -605,15 +604,6 @@ var timeOffCreateRequestHandler = new function() {
     this.handleClickCategory = function() {
         $(".selectTimeOffCategory").click(function() {
             timeOffCreateRequestHandler.selectCategory($(this));
-        });
-    }
-
-    /**
-     * Toggle the category color legend
-     */
-    this.handleToggleLegend = function() {
-        $(document).on('click', '.toggleLegend', function() {
-            timeOffCreateRequestHandler.toggleLegend();
         });
     }
 
@@ -2331,14 +2321,6 @@ var timeOffCreateRequestHandler = new function() {
         }
         timeOffCreateRequestHandler.drawHoursRequested();
 //        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
-    }
-
-    /**
-     * Toggle the calendar legend showing the wonderful color system for categories. 
-     *
-     * @returns {undefined}     */
-    this.toggleLegend = function() {
-        $("#calendarLegend").toggle();
     }
 };
 //Initialize the class

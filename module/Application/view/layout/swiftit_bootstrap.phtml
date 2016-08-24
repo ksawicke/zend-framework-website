@@ -10,7 +10,7 @@ $this->isPayrollAssistant = 'N';
 $this->countStaleManagerRequests = 0;
 
 if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
-    $this->welcomeMessage = '&nbsp;&nbsp;&nbsp;<span style="font-weight:normal;font-size:75%">Welcome, ' . $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'];
+    $this->welcomeMessage = '<span style="font-weight:normal;font-size:75%">Welcome, ' . $_SESSION['Timeoff_' . ENVIRONMENT]['COMMON_NAME'] . ' ' . $_SESSION['Timeoff_' . ENVIRONMENT]['LAST_NAME'] . '</span>';
     $this->employeeNumber = \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' );
     $this->isLoggedIn = 'Y';
     $this->isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
@@ -110,38 +110,55 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         <span class="icon-bar"></span>
                     </button>
                     
+                    <?php /**
+                           * For a responsive layout, we're using three different sized logos. This way we can adjust depending on what device
+                           * the user is using, and what screen resolution browser is set at. Have to accomodate users who put multiple windows
+                           * on their desktop mainly.
+                           **/                    
+                    ?>
+                    
                     <?php /****** FOR LARGER SIZE SCREENS ******/ ?>
                     <div class="visible-lg">
-                        <div class="swift-header-item">
-                            <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_65h.png' ); ?>" class="swiftlogo-lg"></a>
-                        </div>
-                        <div class="swift-header-item swift-site-name">
-                            Time Off Requests
-                            <?php echo $this->welcomeMessage; ?>
-                        </div>
+                    	<table class="siteLogoHeaderTable">
+                    		<tr>
+                    			<td>
+                    				<a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/view-my-requests"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_55h.png' ); ?>" class="swiftlogo-lg"></a>
+                    			</td>
+                    			<td>
+                    				<span class="swift-site-name-lg">Time Off Requests</span><span class="swift-welcome-message-lg"><?php echo $this->welcomeMessage; ?></span>
+                    			</td>
+                    		</tr>
+                    	</table>
                     </div>
                     <?php /****** /FOR LARGER SIZE SCREENS ******/ ?>
                     
                     <?php /****** FOR MEDIUM SIZE SCREENS ******/ ?>
                     <div class="visible-md">
-                        <div class="swift-header-item">
-                            <a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/create"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_50h.png' ); ?>" class="swiftlogo-md"></a>
-                        </div>
-                        <div class="swift-header-item swift-site-name">
-                            Time Off Requests
-                            <?php echo $this->welcomeMessage; ?>
-                        </div>
+                        <table class="siteLogoHeaderTable">
+                    		<tr>
+                    			<td>
+                    				<a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/view-my-requests"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_45h.png' ); ?>" class="swiftlogo-md"></a>
+                    			</td>
+                    			<td>
+                    				<span class="swift-site-name-md">Time Off Requests</span><span class="swift-welcome-message-md"><?php echo $this->welcomeMessage; ?></span>
+                    			</td>
+                    		</tr>
+                    	</table>
                     </div>
                     <?php /****** /FOR MEDIUM SIZE SCREENS ******/ ?>
                     
                     <?php /****** FOR SMALLER SIZE SCREENS ******/ ?>
                     <div class="visible-xs visible-sm">
-                        <div class="swift-header-item-sm">
-                            <a class="navbar-brand-sm" href="<?php echo $this->basePath( '/request/create' ); ?>"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_35h.png' ); ?>" class="swiftlogo-sm"></a>
-                        </div>
-                        <div class="swift-header-item swift-site-name-sm">
-                            Time Off Requests
-                        </div>
+                        <table class="siteLogoHeaderTable">
+                    		<tr>
+                    			<td>
+                    				<a class="navbar-brand" href="<?php echo $this->basepath(); ?>/request/view-my-requests"><img src="<?php echo $this->basePath( 'templates/swiftit/img/swift_bolt_35h.png' ); ?>" class="swiftlogo-sm"></a>
+                    			</td>
+                    			<td>
+                    				<span class="swift-site-name-sm">Time Off Requests</span>
+                    			</td>
+                    		</tr>
+                    	</table>
                     </div>
                     <?php /****** /FOR SMALLER SIZE SCREENS ******/ ?>
                 </div>
