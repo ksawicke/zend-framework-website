@@ -53,6 +53,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .copyright {
     color: #fff;
+	padding-bottom:25px;
 }
 
 .form-control {
@@ -108,12 +109,14 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-size: 110%;
 }
 
-.swiftlogo {
+.swiftlogo-lg {
     margin-top:-9px;
-    width:87%;
 }
 .swiftlogo-sm {
-    height:50%;
+    margin-top:7px;
+}
+.swiftlogo-sm {
+    margin-top:7px;
 }
 
 .row-even {
