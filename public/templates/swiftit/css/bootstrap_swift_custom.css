@@ -1412,3 +1412,91 @@ div.buttons {
 .breakLongWordDiv {
     word-wrap: break-word;
 }
+
+/**
+ * Mobile first media queries
+ **/
+/* Custom, iPhone and Retina */
+@media only screen and (max-width: 479px) {
+	div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
+	    margin-top:-18px;
+		background-color: #fff;
+	}
+	.navbar-nav>li>.dropdown-menu {
+	    background-color: rgba(22,19,12,0.8);
+	    padding:0px;
+	    margin:0px;
+	}
+	#navbar > ul > li.dropdown.open > ul > li {
+	    padding:0px;
+	    margin:0px;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown.open > ul > li a {
+	    color: rgba(22,19,12,0.8);
+	    padding:15px 15px 15px 15px;
+	    margin:0px;
+	    font-weight:normal;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown > ul > li a {
+	    color: rgba(22,19,12,0.8);
+	    padding:15px 15px 15px 15px;
+	    margin:0px;
+	    font-weight:normal;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown.open > ul > li:hover a {
+	    background-color:rgba(22,19,12,0.8);
+	    color: yellow;
+	}
+}
+/* Extra Small Devices, Phones */
+@media only screen and (min-width: 480px) {
+div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
+	    margin-top:-18px;
+		background-color: #fff;
+	}
+	.navbar-nav>li>.dropdown-menu {
+	    background-color: rgba(22,19,12,0.8);
+	    padding:0px;
+	    margin:0px;
+	}
+	#navbar > ul > li.dropdown.open > ul > li {
+	    padding:0px;
+	    margin:0px;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown.open > ul > li a {
+	    color: rgba(22,19,12,0.8);
+	    padding:15px 15px 15px 15px;
+	    margin:0px;
+	    font-weight:normal;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown > ul > li a {
+	    color: rgba(22,19,12,0.8);
+	    padding:15px 15px 15px 15px;
+	    margin:0px;
+	    font-weight:normal;
+	    background-color:#fff;
+	}
+	#navbar > ul > li.dropdown.open > ul > li:hover a {
+	    background-color:rgba(22,19,12,0.8);
+	    color: yellow;
+	}
+}
+/* Small Devices, Tablets */
+@media only screen and (min-width: 768px) {
+	div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
+	    background-color: #fff;
+	}
+}
+/* Medium Devices, Desktops */
+@media only screen and (min-width: 992px) {
+	
+}
+/* Large Devices, Wide Screens */
+@media only screen and (min-width: 1200px) {
+	
+}
