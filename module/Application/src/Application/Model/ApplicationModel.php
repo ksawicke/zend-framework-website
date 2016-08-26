@@ -2,18 +2,18 @@
 
 namespace Application\Model;
 
-use Zend\Db\ResultSet\HydratingResultSet;
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\ResultSet\ResultSet;
+// use Zend\Db\ResultSet\HydratingResultSet;
+// use Zend\Db\Sql\Delete;
+// use Zend\Db\Sql\Insert;
+// use Zend\Db\Sql\Sql;
+// use Zend\Db\Sql\Update;
+// use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
-use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
+// use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 use Zend\Stdlib\Hydrator\ClassMethods;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\FactoryInterface;
+// use Zend\ServiceManager\ServiceLocatorAwareInterface;
+// use Zend\ServiceManager\ServiceLocatorInterface;
+// use Zend\ServiceManager\FactoryInterface;
 
 // http://stackoverflow.com/questions/12770966/service-locator-in-zend-framework-2
 // http://cmyker.blogspot.com/2012/11/zend-framework-2-model-database-adapter.html

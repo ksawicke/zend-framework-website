@@ -23,12 +23,12 @@ use Request\Model\BaseDB;
  * @author sawik
  */
 class RequestEntry extends BaseDB {
-    
+
     public function __construct()
     {
         parent::__construct();
     }
-    
+
     public function getRequestEntry( $entryId )
     {
         $sql = new Sql( $this->adapter );
@@ -38,14 +38,14 @@ class RequestEntry extends BaseDB {
                        'REQUEST_CODE' => 'REQUEST_CODE' ])
             ->where(['entry.ENTRY_ID' => $entryId]);
         $requestEntry = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
-        
+
         return $requestEntry;
     }
-    
+
     public function getRequestObject( $requestId )
     {
         $request = [ 'id' => $requestId, 'reason' => '', 'for' => [], 'dates' => [] ];
-        
+
         $sql = new Sql( $this->adapter );
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
                 ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_CODE' => 'REQUEST_CODE' ])
@@ -54,20 +54,20 @@ class RequestEntry extends BaseDB {
                 ->where(['request.REQUEST_ID' => $requestId])
                 ->order(['entry.REQUEST_DATE ASC']);
         $requestEntries = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
-        
+
         foreach( $requestEntries as $ctr => $entry ) {
             $request['dates'][] = [ 'hours' => $entry['REQUESTED_HOURS'], 'type' => $entry['REQUEST_CODE'], 'date' => $entry['REQUEST_DATE'] ];
         }
-        
+
         $request['reason'] = trim( $requestEntries[0]['REQUEST_REASON'] );
         $request['for']['employee_number'] = trim( $requestEntries[0]['EMPLOYEE_NUMBER'] );
-        
-        $request = $this->sortRequestDates( $request );        
+
+        $request = $this->sortRequestDates( $request );
         $requestObject = $this->buildDateMatrix( $request );
-        
+
         return $requestObject;
     }
-    
+
 //    private function parseRequestBlocks( $request )
 //    {
 //        $requestBlocks = [];
@@ -75,25 +75,25 @@ class RequestEntry extends BaseDB {
 //        $requestSpan = 0;
 //        $recordCounter = 0;
 //        $key = 0;
-//        
+//
 //        $startDate = $request['dates'][0]['date'];
-//        
+//
 //        $startDateObject = new \DateTime( $startDate );
 //        $endDate = $startDateObject->add(new \DateInterval('P13D'));
 //        $endDate = $endDate->format( "Y-m-d" );
-//        
+//
 //        echo "<pre>";
 //        print_r( $request );
 //        echo "</pre>";
 ////        exit();
-////        
+////
 //        for( $i = 1; $i = 14; $i++ ) {
 //            if( $i === 0 ) {
 //                $requestBlocks[ $recordCounter ][ $key ] = $request['dates'][ $count - 1 ];
 //            }
 //        }
 ////        exit();
-//        
+//
 //        for( $count = 1; $count <= $numDaysRequested; $count++ ) {
 //            $requestBlocks[ $recordCounter ][ $key ] = $request['dates'][ $count - 1 ];
 //
@@ -112,7 +112,7 @@ class RequestEntry extends BaseDB {
 //                    }
 //            }
 //        }
-//        
+//
 //        echo "<pre>";
 //        print_r( $requestBlocks );
 //        echo "</pre>";
@@ -120,14 +120,16 @@ class RequestEntry extends BaseDB {
 //
 //        return $requestBlocks;
 //    }
-    
+
     public function buildDateMatrix( $request ) {
+
+        //$endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
         $endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
         $startDate = $request['dates'][0]['date'];
         $startDateObject = new \DateTime( $startDate );
         $endDate = $request['dates'][$endCounter]['date'];
         $endDateObject = new \DateTime( $endDate );
-        
+
         /**
          * instantiate DateInterval object
          */
@@ -136,19 +138,19 @@ class RequestEntry extends BaseDB {
         /**
          * instantiate DatePeriod object
          */
-        $period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
-        
+        //$period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
+        $period = new \DatePeriod( $startDateObject, $interval, $endDateObject->modify('+1 day') );
+
         $data = [];
-        
 //        echo '<pre>PERIOD';
 //        print_r( $period );
 //        echo '</pre>';
 //        exit();
-        
+
         foreach( $period as $chunk ) {
             // Check if any have hours, if so:
             $hoursTotal = 0;
-            
+
             $childData = $this->buildChildDateMatrix( $request, $chunk );
             foreach( $childData as $cdKey => $cdValues ) {
                 $hoursTotal += $cdValues['hours'];
@@ -157,12 +159,12 @@ class RequestEntry extends BaseDB {
                 $data[] = $childData;
             }
         }
-        
+
         $request['dates'] = $data;
-        
+
         return $request;
     }
-    
+
     /**
      * Build guest count array matrix based on hotel data
      *
@@ -176,7 +178,7 @@ class RequestEntry extends BaseDB {
         $startDateObject = $chunk;
         $endDateObject = clone $startDateObject;
         $endDateObject->add(new \DateInterval('P14D'));
-        
+
         /**
          * pre define empty array
          */
@@ -200,12 +202,12 @@ class RequestEntry extends BaseDB {
              * instantiate two DateTime objects from hoteldata
              */
             $offDate = new \DateTime( date('Y-m-d', strtotime( $requestData['date'] ) ));
-            
+
             /**
              * initialize array key
              */
             $dayOfPeriod = 0;
-            
+
             /**
              * loop thru date period
              */
@@ -238,7 +240,7 @@ class RequestEntry extends BaseDB {
          */
         return $dataMatrix;
     }
-    
+
     private function sortRequestDates( $request )
     {
         usort($request['dates'], [__CLASS__, 'sortRequestDatesAscending']);
@@ -258,5 +260,5 @@ class RequestEntry extends BaseDB {
         $t2 = strtotime($b['date']);
         return $t1 - $t2;
     }
-    
+
 }

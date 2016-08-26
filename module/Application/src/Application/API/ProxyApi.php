@@ -19,25 +19,25 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\EmployeeProxies;
-use \Login\Helper\UserSession;
-use \Application\Factory\EmailFactory;
+// use \Login\Helper\UserSession;
+// use \Application\Factory\EmailFactory;
 
 /**
  * Handles API requests for the Time Off application.
- * 
+ *
  * @author sawik
  *
  */
 class ProxyApi extends ApiController {
-    
+
     public function loadProxiesAction()
     {
         return new JsonModel( $this->getProxyDatatable( $_POST ) );
     }
-    
+
     /**
      * Get data for the Proxy datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -60,7 +60,7 @@ class ProxyApi extends ApiController {
         foreach ( $proxyData as $ctr => $request ) {
             $viewLinkUrl = "#";
             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'STATUS' => '<div class="switch">' .
@@ -95,7 +95,7 @@ class ProxyApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Submits new proxy request for an employee.
      */
@@ -103,7 +103,7 @@ class ProxyApi extends ApiController {
     {
         $post = $this->getRequest()->getPost();
         $EmployeeProxies = new EmployeeProxies();
-        
+
         try {
             $EmployeeProxies->addProxy( $post );
             /**
@@ -114,7 +114,7 @@ class ProxyApi extends ApiController {
                 'success' => true,
                 'employeeNumber' => $post->EMPLOYEE_NUMBER
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -125,25 +125,25 @@ class ProxyApi extends ApiController {
             ]);
         }
     }
-    
+
     /**
      * Deletes a proxy for an employee.
-     * 
+     *
      * @return JsonModel
      */
     public function deleteProxyAction()
     {
         $post = $this->getRequest()->getPost();
         $EmployeeProxies = new EmployeeProxies();
-        
+
         try {
             $EmployeeProxies->deleteProxy( $post );
-        
+
             /**
              * 204: No Content success code, for DELETE request.
              */
             $this->getResponse()->setStatusCode( 204 );
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -154,20 +154,20 @@ class ProxyApi extends ApiController {
             ]);
         }
     }
-    
+
     /**
      * Toggles a proxy status from active to non-active and vice versa for an employee.
-     * 
+     *
      * @return JsonModel
      */
     public function toggleProxyAction()
     {
         $post = $this->getRequest()->getPost();
         $EmployeeProxies = new EmployeeProxies();
-        
+
         try {
             $EmployeeProxies->toggleProxy( $post );
-        
+
             /**
              * 200: Success.
              */
@@ -176,7 +176,7 @@ class ProxyApi extends ApiController {
                 'success' => true,
                 'employeeNumber' => $post->EMPLOYEE_NUMBER
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -187,5 +187,5 @@ class ProxyApi extends ApiController {
             ]);
         }
     }
-    
+
 }

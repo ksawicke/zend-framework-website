@@ -12,8 +12,8 @@ use Zend\Mime\Part;
 use Zend\Mime\Mime;
 use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
-use Zend\View\Renderer\PhpRenderer;
-use Zend\View\Resolver\TemplateMapResolver;
+// use Zend\View\Renderer\PhpRenderer;
+// use Zend\View\Resolver\TemplateMapResolver;
 use Application\Factory\Logger;
 
 /**
@@ -24,17 +24,17 @@ use Application\Factory\Logger;
 class EmailFactory {
 
     public $applicationFromEmail;
-    
+
     public $applicationFromName;
-    
+
     public $applicationReplyToEmail;
-    
+
     public $applicationEmailTemplate;
-    
+
     public $mailName;
-    
+
     public $mailHost;
-    
+
     public $mailPort;
 
     function __construct( $emailSubject = null, $emailBody = null, $toEmail = null, $ccEmail = null, $bccEmail = null ) {
@@ -67,12 +67,12 @@ class EmailFactory {
             "host" => $this->mailHost,
             "port" => $this->mailPort
         ) );
-        
+
         $text = new Part( $this->appendBodyToApplicationEmailTemplate() );
         $text->type = Mime::TYPE_HTML;
         $mailBodyParts = new MimeMessage();
         $mailBodyParts->addPart( $text );
-        
+
         try {
             $mail = new Message();
             $mail->setBody( $mailBodyParts );
@@ -85,7 +85,7 @@ class EmailFactory {
             //            $mail->addBcc( $bcc );
             //        }
             $mail->setSubject( $this->emailSubject );
-            
+
             $transport = new SmtpTransport();
             $transport->setOptions( $options );
             $transport->send( $mail );
@@ -94,10 +94,10 @@ class EmailFactory {
             $logger = new Logger();
             $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $ex->getLine() . '] ' . $ex->getMessage() );
         }
-        
+
         return false;
     }
-    
+
     /**
      * Uses the template for the site when sending an email.
      */
