@@ -12,7 +12,7 @@ namespace Application;
 return [
     'router' => [
         'routes' => [
-            
+
             'loadCalendar' => [
                 'type' => 'segment',
                 'options' => [
@@ -25,7 +25,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitTimeoffRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -38,7 +38,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'getEmployeeProfile' => [
                 'type' => 'segment',
                 'options' => [
@@ -51,7 +51,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'getEmailOverrideSettings' => [
                 'type' => 'segment',
                 'options' => [
@@ -64,7 +64,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-                        
+
             'editEmailOverrideSettings' => [
                 'type' => 'segment',
                 'options' => [
@@ -77,7 +77,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'toggleCalendarInvite' => [
                 'type' => 'segment',
                 'options' => [
@@ -90,7 +90,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'getCompanyHolidays' => [
                 'type' => 'segment',
                 'options' => [
@@ -103,7 +103,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'addCompanyHoliday' => [
                 'type' => 'segment',
                 'options' => [
@@ -116,7 +116,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'deleteCompanyHoliday' => [
                 'type' => 'segment',
                 'options' => [
@@ -129,12 +129,12 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             /**
              * Handle Proxies - people authorized to submit
              * on behalf of someone else.
              */
-            
+
             'loadProxies' => [
                 'type' => 'segment',
                 'options' => [
@@ -147,7 +147,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'deleteProxy' => [
                 'type' => 'segment',
                 'options' => [
@@ -160,7 +160,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'toggleProxy' => [
             'type' => 'segment',
                 'options' => [
@@ -173,7 +173,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitProxyRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -186,11 +186,11 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             /**
              * Payroll Assistants
              */
-            
+
             'loadPayrollAssistants' => [
                 'type' => 'segment',
                 'options' => [
@@ -203,7 +203,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'deletePayrollAssistant' => [
                 'type' => 'segment',
                 'options' => [
@@ -216,7 +216,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'togglePayrollAssistant' => [
             'type' => 'segment',
                 'options' => [
@@ -229,7 +229,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollAssistantRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -242,11 +242,11 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             /**
              * Payroll Admins
              */
-            
+
             'loadPayrollAdmins' => [
                 'type' => 'segment',
                 'options' => [
@@ -259,7 +259,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'deletePayrollAdmin' => [
                 'type' => 'segment',
                 'options' => [
@@ -272,7 +272,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'togglePayrollAdmin' => [
                 'type' => 'segment',
                 'options' => [
@@ -285,7 +285,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollAdminRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -298,11 +298,11 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             /**
              * Change Employee Schedule
              */
-            
+
             'submitEmployeeScheduleRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -315,7 +315,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitManagerApproved' => [
                 'type' => 'segment',
                 'options' => [
@@ -328,7 +328,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitManagerDenied' => [
                 'type' => 'segment',
                 'options' => [
@@ -341,7 +341,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollApproved' => [
                 'type' => 'segment',
                 'options' => [
@@ -354,7 +354,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'approveUpdateChecksRequest' => [
                 'type' => 'segment',
                 'options' => [
@@ -367,7 +367,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollDenied' => [
                 'type' => 'segment',
                 'options' => [
@@ -380,7 +380,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollUpload' => [
                 'type' => 'segment',
                 'options' => [
@@ -393,7 +393,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submitPayrollUpdateChecks' => [
                 'type' => 'segment',
                 'options' => [
@@ -406,7 +406,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'getSearchResults' => [
                 'type' => 'segment',
                 'options' => [
@@ -419,7 +419,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'getManagerQueue' => [
                 'type' => 'segment',
                 'options' => [
@@ -430,7 +430,7 @@ return [
                     ],
                 ],
             ],
-            
+
             'getManagerActionEmailData' => [
                 'type' => 'segment',
                 'options' => [
@@ -441,7 +441,7 @@ return [
                     ],
                 ],
             ],
-            
+
             'getPayrollQueue' => [
                 'type' => 'segment',
                 'options' => [
@@ -452,6 +452,18 @@ return [
                     ],
                 ],
             ],
+
+            'sendThreeDayReminderEmailToSupervisor' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/api/scheduler/send_three_day_reminder_email_to_supervisor',
+                    'defaults' => array(
+                        'controller' => 'API\Scheduler\Controller',
+                        'action'     => 'sendThreeDayReminderEmailToSupervisor',
+                    ),
+                ),
+            ),
+
         ],
     ],
     'controllers' => [
@@ -463,7 +475,10 @@ return [
             'Application\API\ProxyApi' => API\ProxyApi::class,
             'Application\API\PayrollAdminApi' => API\PayrollAdminApi::class,
             'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
-        ]
+        ],
+        'factories' => array(
+            'API\Scheduler\Controller' => API\Scheduler\SchedulerFactory::class
+        )
     ],
     'service_manager' => [
         'abstract_factories' => [

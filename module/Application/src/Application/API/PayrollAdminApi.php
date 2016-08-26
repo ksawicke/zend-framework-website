@@ -19,25 +19,25 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\PayrollAdmins;
-use \Login\Helper\UserSession;
-use \Application\Factory\EmailFactory;
+// use \Login\Helper\UserSession;
+// use \Application\Factory\EmailFactory;
 
 /**
  * Handles Payroll Admin API requests for the Time Off application.
- * 
+ *
  * @author sawik
  *
  */
 class PayrollAdminApi extends ApiController {
-    
+
     public function loadPayrollAdminsAction()
     {
         return new JsonModel( $this->getPayrollAdminDatatable( $_POST ) );
     }
-    
+
     /**
      * Get data for the PayrollAdmin datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -57,16 +57,16 @@ class PayrollAdminApi extends ApiController {
         $PayrollAdmins = new PayrollAdmins();
         $payrollAdminData = $PayrollAdmins->getPayrollAdmins( $data );
         $data = [];
-        
+
 //        echo '<pre>';
 //        var_dump( $payrollAdminData );
 //        echo '</pre>';
 //        exit();
-        
+
         foreach ( $payrollAdminData as $ctr => $request ) {
             $viewLinkUrl = "#";
             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'STATUS' => '<div class="switch">' .
@@ -101,7 +101,7 @@ class PayrollAdminApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Submits new Payroll Admin request for an employee.
      */
@@ -109,7 +109,7 @@ class PayrollAdminApi extends ApiController {
     {
         $post = $this->getRequest()->getPost();
         $PayrollAdmins = new PayrollAdmins();
-        
+
         try {
             $PayrollAdmins->addPayrollAdmin( $post );
             /**
@@ -120,7 +120,7 @@ class PayrollAdminApi extends ApiController {
                 'success' => true,
                 'employeeNumber' => $post->EMPLOYEE_NUMBER
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
             /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -131,25 +131,25 @@ class PayrollAdminApi extends ApiController {
             ]);
         }
     }
-    
+
     /**
      * Deletes a proxy for an employee.
-     * 
+     *
      * @return JsonModel
      */
     public function deletePayrollAdminAction()
     {
         $post = $this->getRequest()->getPost();
         $PayrollAdmins = new PayrollAdmins();
-        
+
         try {
             $PayrollAdmins->deletePayrollAdmin( $post );
-        
+
             /**
              * 204: No Content success code, for DELETE request.
              */
             $this->getResponse()->setStatusCode( 204 );
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -160,20 +160,20 @@ class PayrollAdminApi extends ApiController {
             ]);
         }
     }
-    
+
     /**
      * Toggles a Payroll Admin status from active to non-active and vice versa for an employee.
-     * 
+     *
      * @return JsonModel
      */
     public function togglePayrollAdminAction()
     {
         $post = $this->getRequest()->getPost();
         $PayrollAdmins = new PayrollAdmins();
-        
+
         try {
             $PayrollAdmins->togglePayrollAdmin( $post );
-        
+
             /**
              * 200: Success.
              */
@@ -182,7 +182,7 @@ class PayrollAdminApi extends ApiController {
                 'success' => true,
                 'employeeNumber' => $post->PAYROLLASSISTANT_EMPLOYEE_NUMBER
             ]);
-        } catch ( Exception $ex ) {
+        } catch ( \Exception $ex ) {
              /**
              * 500: An error has occurred so the request couldn't be completed.
              */
@@ -193,5 +193,5 @@ class PayrollAdminApi extends ApiController {
             ]);
         }
     }
-    
+
 }

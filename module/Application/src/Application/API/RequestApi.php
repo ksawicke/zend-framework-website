@@ -47,7 +47,7 @@ class RequestApi extends ApiController {
         'timeOffGrandfathered' => 'R',
         'timeOffApprovedNoPay' => 'A'
     ];
-    
+
     protected static $codesToTypes = [
         'P' => 'timeOffPTO',
         'K' => 'timeOffFloat',
@@ -759,7 +759,7 @@ class RequestApi extends ApiController {
                    $entry['isAdded']=="true"
                  ) ? true : false );
     }
-    
+
     /**
      * Returns boolean if request entry was marked to be deleted.
      *
@@ -773,11 +773,11 @@ class RequestApi extends ApiController {
             $entryId = (int) $entry["entryId"];
             $RequestEntry = new RequestEntry();
             $originalEntryIdData = $RequestEntry->getRequestEntry( $entryId );
-            
+
 //             var_dump( $originalEntryIdData );
 //             var_dump( $entry );
 //             die();
-            
+
             if( $isEdited===false &&
                 ( $entry['category']!=self::$codesToTypes[$originalEntryIdData->REQUEST_CODE] ||
                   $entry['hours']!=$originalEntryIdData->REQUESTED_HOURS
@@ -785,7 +785,7 @@ class RequestApi extends ApiController {
                 $isEdited = true;
             }
         }
-        
+
         return $isEdited;
     }
 
@@ -802,13 +802,13 @@ class RequestApi extends ApiController {
         if( property_exists( $post, "selectedDatesNew" )===false ) {
             return $updatesMadeToForm;
         }
-        
+
         foreach( $post->selectedDatesNew as $ctr => $entry ) {
             if( $updatesMadeToForm===false && $this->requestEntryIsUpdated( $entry ) ) {
                 $updatesMadeToForm = true;
             }
         }
-        
+
         if( $updatesMadeToForm ) {
             $TimeOffRequests = new TimeOffRequests();
             foreach( $post->selectedDatesNew as $ctr => $entry ) {
@@ -929,7 +929,6 @@ class RequestApi extends ApiController {
                 $post->review_request_reason );
         } else {
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
-
             $RequestEntry = new RequestEntry();
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
 
