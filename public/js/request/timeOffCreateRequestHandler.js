@@ -510,19 +510,22 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.confirmIfUserWantsToRequestOffCompanyHoliday = function() {
-        $("#dialogConfirmSelectHoliday").dialog({
+        var def = $.Deferred();
+    	$("#dialogConfirmSelectHoliday").dialog({
             modal : true,
             closeOnEscape: false,
             buttons : {
                 Yes : function() {
                     $(this).dialog("close");
-                    timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeOffCategory, selectedCalendarDateObject );
+                    def.resolve();
                 },
                 No : function() {
                     $(this).dialog("close");
+                    def.reject();
                 }
             }
         });
+    	return def.promise();
     }
     
     /**
@@ -532,8 +535,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
-        	console.log( "YA YA YA" );
-            var selectedCalendarDateObject = $(this),
+        	var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
@@ -556,32 +558,45 @@ var timeOffCreateRequestHandler = new function() {
             if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining <= 0 ) {
             	return;
             }
+            var takeHoliday = false;
             if( isCompanyHoliday ) {
-                timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
+            	timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().done(function() {
+            		// Clicked OK...proceed
+            		console.log( "TAKE THE HOLIDAY" );
+            		takeHoliday = true;
+            	}).fail(function() {
+            		// Clicked NO
+            		console.log( "NO HOLIDAY FOR YOU" );
+            		return;
+            	});
+            }
+            console.log( ".." );
+            return;
+            if( isCompanyHoliday && takeHoliday==true ) {
+            	console.log( "OK REALLY TAKE HOLIDAY" );
+            }
+
+        	if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
+        		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
+        	) {
+        		timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+        	} else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
+        		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
+        		timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
+            } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+            	timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+            	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+            		timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+            	}
+            	timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
             } else {
-            	if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-            		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
-            	) {
-            		// blah
-            		console.log( "ADD" );
-            		timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
-                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-            	} else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-            		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
-                    console.log( "SPLIT" );
-            		timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
-                } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
-                    console.log( "CHEW" );
-                	timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
-                		timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
-                	}
-                	timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-                } else {
-                	console.log( "BREW" );
-                    timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
-                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-                }
+            	console.log( "FROG" );
+            	console.log( isCompanyHoliday );
+            	console.log( takeHoliday );
+            	console.log( "NO" );
+                timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
             }
             timeOffCreateRequestHandler.sortDatesSelected();
             timeOffCreateRequestHandler.drawHoursRequested();
