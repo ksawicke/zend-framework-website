@@ -207,13 +207,16 @@ var timeOffCreateRequestHandler = new function() {
     	timeOffCreateRequestHandler.updateHours();
     	exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
     	
-    	if( exceededHours.Grandfathered ) {
+    	//+totalPTORequested > 0
+    	console.log( "BURP", exceededHours );
+    	
+    	if( exceededHours.Grandfathered && +totalGrandfatheredRequested > 0 ) {
     		$("#warnExceededGrandfatheredHours").show();
     	} else {
     		$("#warnExceededGrandfatheredHours").hide();
     	}
     	
-    	if( exceededHours.Sick ) {
+    	if( exceededHours.Sick && +totalSickRequested > 0 ) {
     		$("#warnExceededSickHours").show();
     	} else {
     		$("#warnExceededSickHours").hide();
@@ -237,13 +240,13 @@ var timeOffCreateRequestHandler = new function() {
 			$( '#warnHourlyTakingRequiredHoursPerDay' ).hide();
 		}
 		
-		if( exceededHours.PTO ) {
+		if( exceededHours.PTO && +totalPTORequested > 0 ) {
 			$('#warnPTO').show();
 		} else {
 			$('#warnPTO').hide();
 		}
 		
-		if( exceededHours.Float ) {
+		if( exceededHours.Float && +totalFloatRequested > 0 ) {
 			$('#warnFloat').show();
 		} else {
 			$('#warnFloat').hide();
