@@ -510,19 +510,22 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.confirmIfUserWantsToRequestOffCompanyHoliday = function() {
-        $("#dialogConfirmSelectHoliday").dialog({
+        var defer = $.Deferred();
+    	$("#dialogConfirmSelectHoliday").dialog({
             modal : true,
             closeOnEscape: false,
             buttons : {
                 Yes : function() {
+                	defer.resolve("true");
                     $(this).dialog("close");
-                    timeOffCreateRequestHandler.markDayAsRequestedOff( selectedTimeOffCategory, selectedCalendarDateObject );
                 },
                 No : function() {
-                    $(this).dialog("close");
+                    defer.resolve("false");
+                	$(this).dialog("close");
                 }
             }
         });
+    	return defer.promise();
     }
     
     /**
@@ -532,8 +535,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
-        	console.log( "YA YA YA" );
-            var selectedCalendarDateObject = $(this),
+        	var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
@@ -557,36 +559,47 @@ var timeOffCreateRequestHandler = new function() {
             	return;
             }
             if( isCompanyHoliday ) {
-                timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday();
+	            var takeHoliday = false;
+	            timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().then(function( answer ) {
+	            	var takeHoliday = answer.toString() == "true" ? true : false;
+	            	if( takeHoliday ) {
+	            		//TRUE
+	            		timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+	                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+	                    timeOffCreateRequestHandler.sortDatesSelected();
+	                    timeOffCreateRequestHandler.drawHoursRequested();
+	                    timeOffCreateRequestHandler.checkAndSetFormWarnings();
+	                    timeOffCreateRequestHandler.highlightDates();
+	                    return;
+	            	} else {
+	            		// FALSE
+	            		return;
+	            	}
+	            });
             } else {
-            	if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-            		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
-            	) {
-            		// blah
-            		console.log( "ADD" );
-            		timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
-                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-            	} else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-            		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
-                    console.log( "SPLIT" );
-            		timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
-                } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
-                    console.log( "CHEW" );
-                	timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
-                		timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
-                	}
-                	timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-                } else {
-                	console.log( "BREW" );
-                    timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
-                    timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-                }
+	        	if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
+	        		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
+	        	) {
+	        		timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+	                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+	        	} else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
+	        		selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
+	        		timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
+	            } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+	            	timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+	            	if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+	            		timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+	            	}
+	            	timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+	            } else {
+	            	timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+	                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+	            }
+	            timeOffCreateRequestHandler.sortDatesSelected();
+	            timeOffCreateRequestHandler.drawHoursRequested();
+	            timeOffCreateRequestHandler.checkAndSetFormWarnings();
+	            timeOffCreateRequestHandler.highlightDates();
             }
-            timeOffCreateRequestHandler.sortDatesSelected();
-            timeOffCreateRequestHandler.drawHoursRequested();
-            timeOffCreateRequestHandler.checkAndSetFormWarnings();
-            timeOffCreateRequestHandler.highlightDates();
         });
     }
     
