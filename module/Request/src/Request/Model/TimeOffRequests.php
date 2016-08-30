@@ -10,6 +10,9 @@ use Zend\Db\Sql\Update;
 // use Zend\Db\Adapter\Driver\ResultInterface;
 // use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
+use Zend\Db\Adapter\Driver\ResultInterface;
+use Zend\Db\ResultSet\ResultSet;
 
 /**
  * Common Request arrays
@@ -588,7 +591,7 @@ class TimeOffRequests extends BaseDB {
      * Find information related to a request needed for sending the calendar invite.
      * Note: TIMEOFF_REQUEST_ENTRIES.IS_DELETED must equal 0. This way we won't
      * send invites showing any entries that were removed by a Manager or Payroll.
-     * 
+     *
      * @param unknown $requestId
      * @return unknown[]|unknown[][][]
      */
@@ -652,4 +655,31 @@ class TimeOffRequests extends BaseDB {
         return ( array_key_exists( $shortname, $this->requestStatuses ) ? $this->requestStatuses[$shortname] : null );
     }
 
+    public function getRequestsOverThreeDaysUnapproved()
+    {
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUESTS');
+
+        $where = new Where();
+
+        $where->equalTo('REQUEST_STATUS', 'P')
+              ->and->literal("date(CREATE_TIMESTAMP) < current_date-3 days");
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray();
+        }
+
+        return [];
+    }
 }
