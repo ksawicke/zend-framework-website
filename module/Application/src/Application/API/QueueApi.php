@@ -526,7 +526,7 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'] ),
+                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 3 days' ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
         }
