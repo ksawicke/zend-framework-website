@@ -1,28 +1,22 @@
-/**
- * Author:  sawik
- * Created: Mar 28, 2016
- */
-cl: call sawik/ll;
-cl: CHGCURLIB CURLIB(SAWIK) ;
-
-create table TIMEOFF_REQUEST_LOG for system name TOREQLOG (
-	REQUEST_LOG_ID for column REQLOGID decimal(13, 0) generated always as identity (
-		start with 1 increment by 1
-		minvalue 1 no maxvalue
-		no cycle no order
-		cache 20
-	),
-	REQUEST_ID			for column REQUESTID		decimal(13,0) null default,
-	EMPLOYEE_NUMBER			for column EMPNUM	 	varchar(9) not null default,
-	COMMENT				for column COMMENT 		varchar(500) not null default,
-	CREATE_USER			for column CRTEMPID 		varchar(9) not null default,
-	CREATE_TIMESTAMP		for column CRTTS		timestamp not null default,
-	UPDATE_TIMESTAMP		for column UPDTS		timestamp not null 
-                                                            generated always for each row on update as row change timestamp
-)
-rcdfmt TOREQLOG;
-cl: crtjrnrcv TIMEOFFRCV;;
-cl: crtjrn JRN(SAWIK/TIMEOFFJRN) JRNRCV(SAWIK/TIMEOFFRCV);;
-cl: STRJRNPF FILE(TOREQLOG) JRN(TIMEOFFJRN) IMAGES(*BOTH);;
-cl: grtobjaut obj(TOREQLOG) objtype(*file) refobj(hrdbfa/prpms) refobjtype(*file);;      
-cl: chgobjown obj(TOREQLOG) objtype(*file) newown(s2kobjownr);;  
+--  Generate SQL 
+--  Version:                   	V7R1M0 100423 
+--  Generated on:              	08/31/16 14:18:57 
+--  Relational Database:       	SWIFTDB 
+--  Standards Option:          	DB2 for i 
+CREATE TABLE SAWIK2/TIMEOFF_REQUEST_LOG FOR SYSTEM NAME TOREQLOG ( 
+	REQUEST_ID FOR COLUMN REQUESTID  DECIMAL(13, 0) DEFAULT NULL , 
+	EMPLOYEE_NUMBER FOR COLUMN EMPNUM     VARCHAR(9) CCSID 37 DEFAULT NULL , 
+	"COMMENT" VARCHAR(625) CCSID 37 DEFAULT NULL , 
+	CREATE_TIMESTAMP FOR COLUMN CRTTS      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , 
+	COMMENT_TYPE FOR COLUMN COMMENTTYP CHAR(1) CCSID 37 NOT NULL DEFAULT 'S' )   
+	  
+	RCDFMT TOREQLOG   ; 
+  
+LABEL ON COLUMN SAWIK2/TIMEOFF_REQUEST_LOG 
+( COMMENT_TYPE TEXT IS 'Comment type: S=System, P=Payroll; Default=S' ) ; 
+  
+GRANT ALTER , DELETE , INDEX , INSERT , REFERENCES , SELECT , UPDATE   
+ON SAWIK2/TIMEOFF_REQUEST_LOG TO QPGMR WITH GRANT OPTION ; 
+  
+GRANT ALTER , DELETE , INDEX , INSERT , REFERENCES , SELECT , UPDATE   
+ON SAWIK2/TIMEOFF_REQUEST_LOG TO SAWIK WITH GRANT OPTION ;
