@@ -1,369 +1,263 @@
-/**
- * Gets full set of time off and employee data based on employee ID.
- *
- * Author:  sawik
- * Created: Mar 28, 2016
- */
-create or replace function
-    timeoff_get_employee_data
-    (
-        in_employer_number	   varchar(3),
-	in_employee_number	   varchar(9),
-	in_include_unapproved	   varchar(1)
-    )
-    returns table
-    (
-	employer_number		   char(3),
-	employee_number		   char(9),
-	employee_name              char(75),
-        employee_common_name       char(75),
-        employee_last_name         char(75),
-	employee_description	   char(100),
-	employee_description_alt   char(100),
-        email_address		   char(75),
-	level_1			   char(5),
-	level_2			   char(5),
-	level_3			   char(5),
-	level_4			   char(5),
-	position_code		   char(6),
-	position_title		   char(30),
-	employee_hire_date	   char(10),
-	salary_type		   char(1),
+BEGIN
 
-	manager_employee_number    char(9),
-        manager_name               char(75),
-        manager_common_name	   char(75),
-        manager_last_name          char(75),
-	manager_description	   char(100),
-	manager_description_alt	   char(100),
-	manager_email_address      char(75),
-        manager_position_code      char(6),
-	manager_position_title     char(30),
+RETURN
 
-	pto_earned		   decimal(9,2),
-	pto_taken		   decimal(9,2),
-	pto_unapproved		   decimal(9,2),
-	pto_pending      	   decimal(9,2),
-	pto_pending_tmp      	   decimal(9,2),
-	pto_pending_total	   decimal(9,2),
-	pto_remaining		   decimal(9,2),
+WITH
 
-	float_earned		   decimal(9,2),
-	float_taken		   decimal(9,2),
-	float_unapproved	   decimal(9,2),
-	float_pending      	   decimal(9,2),
-	float_pending_tmp      	   decimal(9,2),
-	float_pending_total	   decimal(9,2),
-	float_remaining		   decimal(9,2),
+A ( EMPLOYER_NUMBER , EMPLOYEE_NUMBER , EMPLOYEE_NAME , EMPLOYEE_COMMON_NAME , EMPLOYEE_LAST_NAME ,
+	EMPLOYEE_EMAIL_ADDRESS ,
+LEVEL_1 , LEVEL_2 , LEVEL_3 , LEVEL_4 , POSITION_CODE , POSITION_TITLE ,
+EMPLOYEE_HIRE_DATE , SALARY_TYPE ,
 
-	sick_earned		   decimal(9,2),
-	sick_taken		   decimal(9,2),
-	sick_unapproved		   decimal(9,2),
-	sick_pending      	   decimal(9,2),
-	sick_pending_tmp      	   decimal(9,2),
-	sick_pending_total	   decimal(9,2),
-	sick_remaining		   decimal(9,2),
+	MANAGER_EMPLOYEE_NUMBER , MANAGER_NAME , MANAGER_COMMON_NAME , MANAGER_LAST_NAME ,
+MANAGER_EMAIL_ADDRESS ,
+MANAGER_POSITION_CODE , MANAGER_POSITION_TITLE ,
 
-	gf_earned		   decimal(9,2),
-	gf_taken		   decimal(9,2),
-	gf_unapproved		   decimal(9,2),
-	gf_pending      	   decimal(9,2),
-	gf_pending_tmp      	   decimal(9,2),
-	gf_pending_total	   decimal(9,2),
-	gf_remaining		   decimal(9,2),
+	PTO_EARNED , PTO_TAKEN , PTO_UNAPPROVED , PTO_PENDING , PTO_PENDING_TMP ,
+FLOAT_EARNED , FLOAT_TAKEN , FLOAT_UNAPPROVED , FLOAT_PENDING , FLOAT_PENDING_TMP ,
+SICK_EARNED , SICK_TAKEN , SICK_UNAPPROVED , SICK_PENDING , SICK_PENDING_TMP ,
+GF_EARNED , GF_TAKEN , GF_UNAPPROVED , GF_PENDING , GF_PENDING_TMP ,
 
-	unexcused_unapproved	   decimal(9,2),
-	unexcused_pending      	   decimal(9,2),
-	unexcused_pending_tmp      decimal(9,2),
-	unexcused_pending_total	   decimal(9,2),
+	UNEXCUSED_UNAPPROVED , UNEXCUSED_PENDING , UNEXCUSED_PENDING_TMP ,
+BEREAVEMENT_UNAPPROVED , BEREAVEMENT_PENDING , BEREAVEMENT_PENDING_TMP ,
+	CIVIC_DUTY_UNAPPROVED , CIVIC_DUTY_PENDING , CIVIC_DUTY_PENDING_TMP ,
+	UNPAID_UNAPPROVED , UNPAID_PENDING , UNPAID_PENDING_TMP
+)
+AS (
+SELECT EMPLOYEE . PRER , REFACTOR_EMPLOYEE_ID ( EMPLOYEE . PREN ) , EMPLOYEE . PRCKNM , EMPLOYEE . PRCOMN , EMPLOYEE . PRLNM ,
+	EMPLOYEE . PREML1 ,
+EMPLOYEE . PRL01 , EMPLOYEE . PRL02 , EMPLOYEE . PRL03 , EMPLOYEE . PRL04 , EMPLOYEE . PRPOS , EMPLOYEE . PRTITL ,
+	EMPLOYEE . PRDOHE , EMPLOYEE . PRPAY ,
 
-	bereavement_unapproved	   decimal(9,2),
-	bereavement_pending        decimal(9,2),
-	bereavement_pending_tmp    decimal(9,2),
-	bereavement_pending_total  decimal(9,2),
+	-- GET MANAGER DATA
+	REFACTOR_EMPLOYEE_ID ( MANAGER_ADDONS . PREN ) , MANAGER_ADDONS . PRCKNM , MANAGER_ADDONS . PRCOMN , MANAGER_ADDONS . PRLNM ,
+	MANAGER_ADDONS . PREML1 ,
+MANAGER_ADDONS . PRPOS , MANAGER_ADDONS . PRTITL ,
+	
+	-- GET ALL PTO DATA
+	EMPLOYEE . PRVAC , EMPLOYEE . PRVAT ,
+	( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'P' ) ) AS DATA ) ,
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'P' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'P' ) ) AS DATA )
+	END ,
 
-	civic_duty_unapproved	   decimal(9,2),
-	civic_duty_pending         decimal(9,2),
-	civic_duty_pending_tmp     decimal(9,2),
-	civic_duty_pending_total   decimal(9,2),
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'P' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'P' ) ) AS DATA )
+	END ,
 
-	unpaid_unapproved	   decimal(9,2),
-	unpaid_pending      	   decimal(9,2),
-	unpaid_pending_tmp         decimal(9,2),
-	unpaid_pending_total	   decimal(9,2)
-    )
-    language sql
-    specific togtempd --timeoff_get_employee_data
-    no external action
-    not deterministic
-    modifies sql data
-    allow parallel
-    cardinality 1
-    concurrent access resolution use currently committed
-    set option
-        commit=*NONE,
-        output=*PRINT
+	-- GET ALL FLOAT DATA
+	EMPLOYEE . PRSHA , EMPLOYEE . PRSHT ,
+	( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'K' ) ) AS DATA ) ,
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'K' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'K' ) ) AS DATA )
+	END ,
 
-Begin
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'K' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'K' ) ) AS DATA )
+	END ,
 
-    return
+	-- GET ALL SICK DATA
+	EMPLOYEE . PRSDA , EMPLOYEE . PRSDT ,
+	( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'S' ) ) AS DATA ) ,
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'S' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'S' ) ) AS DATA )
+	END ,
 
-    with
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'S' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'S' ) ) AS DATA )
+	END ,
 
-        a (EMPLOYER_NUMBER, EMPLOYEE_NUMBER, EMPLOYEE_NAME, EMPLOYEE_COMMON_NAME, EMPLOYEE_LAST_NAME,
-	   EMPLOYEE_EMAIL_ADDRESS, 
-           LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, POSITION_CODE, POSITION_TITLE,
-           EMPLOYEE_HIRE_DATE, SALARY_TYPE,
+	-- GET ALL GF DATA
+	EMPLOYEE . PRAC5E , EMPLOYEE . PRAC5T ,
+	( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'R' ) ) AS DATA ) ,
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'R' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'R' ) ) AS DATA )
+	END ,
 
-	   MANAGER_EMPLOYEE_NUMBER, MANAGER_NAME, MANAGER_COMMON_NAME, MANAGER_LAST_NAME,
-           MANAGER_EMAIL_ADDRESS,  
-           MANAGER_POSITION_CODE, MANAGER_POSITION_TITLE,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'R' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'R' ) ) AS DATA )
+	END ,
 
-	   PTO_EARNED, PTO_TAKEN, PTO_UNAPPROVED, PTO_PENDING, PTO_PENDING_TMP,
-           FLOAT_EARNED, FLOAT_TAKEN, FLOAT_UNAPPROVED, FLOAT_PENDING, FLOAT_PENDING_TMP,
-           SICK_EARNED, SICK_TAKEN, SICK_UNAPPROVED, SICK_PENDING, SICK_PENDING_TMP,
-           GF_EARNED, GF_TAKEN, GF_UNAPPROVED, GF_PENDING, GF_PENDING_TMP,
+	-- GET ALL UNEXCUSED DATA
+	( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'X' ) ) AS DATA ) ,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'X' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'X' ) ) AS DATA )
+	END ,
 
-	   UNEXCUSED_UNAPPROVED, UNEXCUSED_PENDING, UNEXCUSED_PENDING_TMP,
-           BEREAVEMENT_UNAPPROVED, BEREAVEMENT_PENDING, BEREAVEMENT_PENDING_TMP,
-	   CIVIC_DUTY_UNAPPROVED, CIVIC_DUTY_PENDING, CIVIC_DUTY_PENDING_TMP,
-	   UNPAID_UNAPPROVED, UNPAID_PENDING, UNPAID_PENDING_TMP
-        )
-        as (
-             SELECT employee.PRER, refactor_employee_id(employee.PREN), employee.PRCKNM, employee.PRCOMN, employee.PRLNM,
-	     employee.PREML1,
-             employee.PRL01, employee.PRL02, employee.PRL03, employee.PRL04, employee.PRPOS, employee.PRTITL,
-	     employee.PRDOHE, employee.PRPAY,
-
-	     -- GET MANAGER DATA
-	     refactor_employee_id(manager_addons.PREN), manager_addons.PRCKNM, manager_addons.PRCOMN, manager_addons.PRLNM,
-	     manager_addons.PREML1,
-             manager_addons.PRPOS, manager_addons.PRTITL,
-	     
-	     -- GET ALL PTO DATA
-	     employee.PRVAC, employee.PRVAT,
-	     (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'P')) as data),
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'P')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'P')) as data)
-	     END,
-
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'P')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'P')) as data)
-	     END,
-
-	     -- GET ALL FLOAT DATA
-	     employee.PRSHA, employee.PRSHT,
-	     (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'K')) as data),
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'K')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'K')) as data)
-	     END,
-
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'K')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'K')) as data)
-	     END,
-
-	     -- GET ALL SICK DATA
-	     employee.PRSDA, employee.PRSDT,
-	     (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'S')) as data),
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'S')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'S')) as data)
-	     END,
-
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'S')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'S')) as data)
-	     END,
-
-	     -- GET ALL GF DATA
-	     employee.PRAC5E, employee.PRAC5T,
-	     (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'R')) as data),
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'R')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'R')) as data)
-	     END,
-
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'R')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'R')) as data)
-	     END,
-
-	     -- GET ALL UNEXCUSED DATA
-	     (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'X')) as data),
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'X')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'X')) as data)
-	     END,
-
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'X')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'X')) as data)
-	     END,
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'X' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'X' ) ) AS DATA )
+	END ,
 
 
-             -- GET ALL BEREAVEMENT DATA
-             (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'B')) as data),
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'B')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'B')) as data)
-	     END,
+-- GET ALL BEREAVEMENT DATA
+( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'B' ) ) AS DATA ) ,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'B' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'B' ) ) AS DATA )
+	END ,
 
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'B')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'B')) as data)
-	     END,
-
-
-             -- GET ALL CIVIC DUTY DATA
-             (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'J')) as data),
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'J')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'J')) as data)
-	     END,
-
-	     CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'J')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'J')) as data)
-	     END,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'B' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'B' ) ) AS DATA )
+	END ,
 
 
-	     -- GET ALL UNPAID TIME
-             (select * from table(timeoff_get_unapproved_hours(in_employee_number, 'A')) as data),
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING FROM table(timeoff_get_salary_pending(in_employer_number, in_employee_number, 'A')) as data)
-	     ELSE
-                 (select PENDING FROM table(timeoff_get_hourly_pending(in_employer_number, in_employee_number, 'A')) as data)
-	     END,
+-- GET ALL CIVIC DUTY DATA
+( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'J' ) ) AS DATA ) ,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'J' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'J' ) ) AS DATA )
+	END ,
 
-             CASE WHEN employee.PRPAY = 'S' THEN
-                 (select PENDING_TMP FROM table(timeoff_get_salary_pending_tmp(in_employer_number, in_employee_number, 'A')) as data)
-	     ELSE
-                 (select PENDING_TMP FROM table(timeoff_get_hourly_pending_tmp(in_employer_number, in_employee_number, 'A')) as data)
-	     END
+	CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'J' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'J' ) ) AS DATA )
+	END ,
 
-             FROM PRPMS employee
-	     LEFT JOIN PRPSP manager ON employee.PREN = manager.SPEN
-             LEFT JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
 
-             WHERE employee.PREN = refactor_employee_id(in_employee_number) and
-	     employee.PRER = in_employer_number
-        )
+	-- GET ALL UNPAID TIME
+( SELECT * FROM TABLE ( TIMEOFF_GET_UNAPPROVED_HOURS ( IN_EMPLOYEE_NUMBER , 'A' ) ) AS DATA ) ,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_SALARY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'A' ) ) AS DATA )
+	ELSE
+( SELECT PENDING FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'A' ) ) AS DATA )
+	END ,
 
-    select a.EMPLOYER_NUMBER, a.EMPLOYEE_NUMBER, a.EMPLOYEE_NAME, a.EMPLOYEE_COMMON_NAME, a.EMPLOYEE_LAST_NAME,
-    TRIM(a.EMPLOYEE_LAST_NAME) CONCAT ', ' CONCAT TRIM(a.EMPLOYEE_COMMON_NAME) CONCAT ' (' CONCAT TRIM(a.EMPLOYEE_NUMBER) CONCAT ')',
-    TRIM(a.EMPLOYEE_COMMON_NAME) CONCAT ' ' CONCAT TRIM(a.EMPLOYEE_LAST_NAME) CONCAT ' (' CONCAT TRIM(a.EMPLOYEE_NUMBER) CONCAT ')',
-    TRIM(a.EMPLOYEE_EMAIL_ADDRESS),
-    a.LEVEL_1, a.LEVEL_2, a.LEVEL_3, a.LEVEL_4, a.POSITION_CODE, TRIM(a.POSITION_TITLE),
-    a.EMPLOYEE_HIRE_DATE, a.SALARY_TYPE,
+CASE WHEN EMPLOYEE . PRPAY = 'S' THEN
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_SALARY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'A' ) ) AS DATA )
+	ELSE
+( SELECT PENDING_TMP FROM TABLE ( TIMEOFF_GET_HOURLY_PENDING_TMP ( IN_EMPLOYER_NUMBER , IN_EMPLOYEE_NUMBER , 'A' ) ) AS DATA )
+	END
 
-    a.MANAGER_EMPLOYEE_NUMBER, a.MANAGER_NAME, a.MANAGER_COMMON_NAME, a.MANAGER_LAST_NAME,
-    TRIM(a.MANAGER_LAST_NAME) CONCAT ', ' CONCAT TRIM(a.MANAGER_COMMON_NAME) CONCAT ' (' CONCAT TRIM(a.MANAGER_EMPLOYEE_NUMBER) CONCAT ')',
-    TRIM(a.MANAGER_COMMON_NAME) CONCAT ' ' CONCAT TRIM(a.MANAGER_LAST_NAME) CONCAT ' (' CONCAT TRIM(a.MANAGER_EMPLOYEE_NUMBER) CONCAT ')',
-    TRIM(a.MANAGER_EMAIL_ADDRESS),
-    a.MANAGER_POSITION_CODE, a.MANAGER_POSITION_TITLE,
+FROM PRPMS EMPLOYEE
+	LEFT JOIN PRPSP MANAGER ON EMPLOYEE . PREN = MANAGER . SPEN
+LEFT JOIN PRPMS MANAGER_ADDONS ON MANAGER_ADDONS . PREN = MANAGER . SPSPEN
 
-    -- PTO VALUES
-    a.PTO_EARNED, a.PTO_TAKEN, a.PTO_UNAPPROVED, a.PTO_PENDING, a.PTO_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.PTO_UNAPPROVED + a.PTO_PENDING + a.PTO_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.PTO_PENDING + a.PTO_PENDING_TMP), 0 )
-    END,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.PTO_EARNED - a.PTO_TAKEN - a.PTO_UNAPPROVED - a.PTO_PENDING - a.PTO_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.PTO_EARNED - a.PTO_TAKEN - a.PTO_PENDING - a.PTO_PENDING_TMP), 0 )
-    END,
-    
-    -- FLOAT VALUES
-    a.FLOAT_EARNED, a.FLOAT_TAKEN, a.FLOAT_UNAPPROVED, a.FLOAT_PENDING, a.FLOAT_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.FLOAT_UNAPPROVED + a.FLOAT_PENDING + a.FLOAT_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.FLOAT_PENDING + a.FLOAT_PENDING_TMP), 0 )
-    END,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.FLOAT_EARNED - a.FLOAT_TAKEN - a.FLOAT_UNAPPROVED - a.FLOAT_PENDING - a.FLOAT_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.FLOAT_EARNED - a.FLOAT_TAKEN - a.FLOAT_PENDING - a.FLOAT_PENDING_TMP), 0 )
-    END,
-    
-    -- SICK VALUES
-    a.SICK_EARNED, a.SICK_TAKEN, a.SICK_UNAPPROVED, a.SICK_PENDING, a.SICK_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.SICK_UNAPPROVED + a.SICK_PENDING + a.SICK_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.SICK_PENDING + a.SICK_PENDING_TMP), 0 )
-    END,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.SICK_EARNED - a.SICK_TAKEN - a.SICK_UNAPPROVED - a.SICK_PENDING - a.SICK_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.SICK_EARNED - a.SICK_TAKEN - a.SICK_PENDING - a.SICK_PENDING_TMP), 0 )
-    END,
-    
-    -- GF VALUES
-    a.GF_EARNED, a.GF_TAKEN, a.GF_UNAPPROVED, a.GF_PENDING, a.GF_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.GF_UNAPPROVED + a.GF_PENDING + a.GF_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.GF_PENDING + a.GF_PENDING_TMP), 0 )
-    END,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.GF_EARNED - a.GF_TAKEN - a.GF_UNAPPROVED - a.GF_PENDING - a.GF_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.GF_EARNED - a.GF_TAKEN - a.GF_PENDING - a.GF_PENDING_TMP), 0 )
-    END,
+WHERE EMPLOYEE . PREN = REFACTOR_EMPLOYEE_ID ( IN_EMPLOYEE_NUMBER ) AND
+	EMPLOYEE . PRER = IN_EMPLOYER_NUMBER
+)
 
-    -- UNEXCUSED VALUES
-    a.UNEXCUSED_UNAPPROVED, a.UNEXCUSED_PENDING, a.UNEXCUSED_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.UNEXCUSED_UNAPPROVED + a.UNEXCUSED_PENDING + a.UNEXCUSED_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.UNEXCUSED_PENDING + a.UNEXCUSED_PENDING_TMP), 0 )
-    END,
+SELECT A . EMPLOYER_NUMBER , A . EMPLOYEE_NUMBER , A . EMPLOYEE_NAME , A . EMPLOYEE_COMMON_NAME , A . EMPLOYEE_LAST_NAME ,
+TRIM ( A . EMPLOYEE_LAST_NAME ) CONCAT ', ' CONCAT TRIM ( A . EMPLOYEE_COMMON_NAME ) CONCAT ' (' CONCAT TRIM ( A . EMPLOYEE_NUMBER ) CONCAT ')' ,
+TRIM ( A . EMPLOYEE_COMMON_NAME ) CONCAT ' ' CONCAT TRIM ( A . EMPLOYEE_LAST_NAME ) CONCAT ' (' CONCAT TRIM ( A . EMPLOYEE_NUMBER ) CONCAT ')' ,
+TRIM ( A . EMPLOYEE_EMAIL_ADDRESS ) ,
+A . LEVEL_1 , A . LEVEL_2 , A . LEVEL_3 , A . LEVEL_4 , A . POSITION_CODE , TRIM ( A . POSITION_TITLE ) ,
+A . EMPLOYEE_HIRE_DATE , A . SALARY_TYPE ,
 
-    -- BEREAVEMENT VALUES
-    a.BEREAVEMENT_UNAPPROVED, a.BEREAVEMENT_PENDING, a.BEREAVEMENT_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.BEREAVEMENT_UNAPPROVED + a.BEREAVEMENT_PENDING + a.BEREAVEMENT_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.BEREAVEMENT_PENDING + a.BEREAVEMENT_PENDING_TMP), 0 )
-    END,
+A . MANAGER_EMPLOYEE_NUMBER , A . MANAGER_NAME , A . MANAGER_COMMON_NAME , A . MANAGER_LAST_NAME ,
+TRIM ( A . MANAGER_LAST_NAME ) CONCAT ', ' CONCAT TRIM ( A . MANAGER_COMMON_NAME ) CONCAT ' (' CONCAT TRIM ( A . MANAGER_EMPLOYEE_NUMBER ) CONCAT ')' ,
+TRIM ( A . MANAGER_COMMON_NAME ) CONCAT ' ' CONCAT TRIM ( A . MANAGER_LAST_NAME ) CONCAT ' (' CONCAT TRIM ( A . MANAGER_EMPLOYEE_NUMBER ) CONCAT ')' ,
+TRIM ( A . MANAGER_EMAIL_ADDRESS ) ,
+A . MANAGER_POSITION_CODE , A . MANAGER_POSITION_TITLE ,
 
-    -- CIVIC DUTY VALUES
-    a.CIVIC_DUTY_UNAPPROVED, a.CIVIC_DUTY_PENDING, a.CIVIC_DUTY_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.CIVIC_DUTY_UNAPPROVED + a.CIVIC_DUTY_PENDING + a.CIVIC_DUTY_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.CIVIC_DUTY_PENDING + a.CIVIC_DUTY_PENDING_TMP), 0 )
-    END,
+-- PTO VALUES
+A . PTO_EARNED , A . PTO_TAKEN , A . PTO_UNAPPROVED , A . PTO_PENDING , A . PTO_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . PTO_UNAPPROVED + A . PTO_PENDING + A . PTO_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . PTO_PENDING + A . PTO_PENDING_TMP ) , 0 )
+END ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . PTO_EARNED - A . PTO_TAKEN - A . PTO_UNAPPROVED - A . PTO_PENDING - A . PTO_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . PTO_EARNED - A . PTO_TAKEN - A . PTO_PENDING - A . PTO_PENDING_TMP ) , 0 )
+END ,
 
-    -- UNPAID VALUES
-    a.UNPAID_UNAPPROVED, a.UNPAID_PENDING, a.UNPAID_PENDING_TMP,
-    CASE in_include_unapproved
-        WHEN 'Y'
-        THEN COALESCE( (a.UNPAID_UNAPPROVED + a.UNPAID_PENDING + a.UNPAID_PENDING_TMP), 0 )
-        ELSE COALESCE( (a.UNPAID_PENDING + a.UNPAID_PENDING_TMP), 0 )
-    END
+-- FLOAT VALUES
+A . FLOAT_EARNED , A . FLOAT_TAKEN , A . FLOAT_UNAPPROVED , A . FLOAT_PENDING , A . FLOAT_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . FLOAT_UNAPPROVED + A . FLOAT_PENDING + A . FLOAT_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . FLOAT_PENDING + A . FLOAT_PENDING_TMP ) , 0 )
+END ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . FLOAT_EARNED - A . FLOAT_TAKEN - A . FLOAT_UNAPPROVED - A . FLOAT_PENDING - A . FLOAT_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . FLOAT_EARNED - A . FLOAT_TAKEN - A . FLOAT_PENDING - A . FLOAT_PENDING_TMP ) , 0 )
+END ,
 
-    FROM a;
+-- SICK VALUES
+A . SICK_EARNED , A . SICK_TAKEN , A . SICK_UNAPPROVED , A . SICK_PENDING , A . SICK_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . SICK_UNAPPROVED + A . SICK_PENDING + A . SICK_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . SICK_PENDING + A . SICK_PENDING_TMP ) , 0 )
+END ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . SICK_EARNED - A . SICK_TAKEN - A . SICK_UNAPPROVED - A . SICK_PENDING - A . SICK_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . SICK_EARNED - A . SICK_TAKEN - A . SICK_PENDING - A . SICK_PENDING_TMP ) , 0 )
+END ,
 
-End;;
+-- GF VALUES
+A . GF_EARNED , A . GF_TAKEN , A . GF_UNAPPROVED , A . GF_PENDING , A . GF_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . GF_UNAPPROVED + A . GF_PENDING + A . GF_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . GF_PENDING + A . GF_PENDING_TMP ) , 0 )
+END ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . GF_EARNED - A . GF_TAKEN - A . GF_UNAPPROVED - A . GF_PENDING - A . GF_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . GF_EARNED - A . GF_TAKEN - A . GF_PENDING - A . GF_PENDING_TMP ) , 0 )
+END ,
+
+-- UNEXCUSED VALUES
+A . UNEXCUSED_UNAPPROVED , A . UNEXCUSED_PENDING , A . UNEXCUSED_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . UNEXCUSED_UNAPPROVED + A . UNEXCUSED_PENDING + A . UNEXCUSED_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . UNEXCUSED_PENDING + A . UNEXCUSED_PENDING_TMP ) , 0 )
+END ,
+
+-- BEREAVEMENT VALUES
+A . BEREAVEMENT_UNAPPROVED , A . BEREAVEMENT_PENDING , A . BEREAVEMENT_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . BEREAVEMENT_UNAPPROVED + A . BEREAVEMENT_PENDING + A . BEREAVEMENT_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . BEREAVEMENT_PENDING + A . BEREAVEMENT_PENDING_TMP ) , 0 )
+END ,
+
+-- CIVIC DUTY VALUES
+A . CIVIC_DUTY_UNAPPROVED , A . CIVIC_DUTY_PENDING , A . CIVIC_DUTY_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . CIVIC_DUTY_UNAPPROVED + A . CIVIC_DUTY_PENDING + A . CIVIC_DUTY_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . CIVIC_DUTY_PENDING + A . CIVIC_DUTY_PENDING_TMP ) , 0 )
+END ,
+
+-- UNPAID VALUES
+A . UNPAID_UNAPPROVED , A . UNPAID_PENDING , A . UNPAID_PENDING_TMP ,
+CASE IN_INCLUDE_UNAPPROVED
+WHEN 'Y'
+THEN COALESCE ( ( A . UNPAID_UNAPPROVED + A . UNPAID_PENDING + A . UNPAID_PENDING_TMP ) , 0 )
+ELSE COALESCE ( ( A . UNPAID_PENDING + A . UNPAID_PENDING_TMP ) , 0 )
+END
+
+FROM A ;;
+
+END ;;
