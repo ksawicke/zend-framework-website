@@ -2,7 +2,6 @@
 namespace Request\Service;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Request\Model\TimeOffRequests;
 use Request\Model\TimeOffEmailReminder;
 
@@ -11,18 +10,34 @@ class TimeOffEmailReminderService extends AbstractActionController
 
     protected $serviceLocator;
 
+    protected $timeOffRequests;
+
+    protected $timeOffEmailReminder;
+
+    protected $emailService;
+
     protected $emailReminderListl;
+
+    /**
+     *
+     * @param TimeOffRequests $timeOffRequests
+     * @param TimeOffEmailReminder $timeOffEmailReminder
+     * @param EmailService $emailService
+     */
+    public function __construct(TimeOffRequests $timeOffRequests, TimeOffEmailReminder $timeOffEmailReminder, EmailService $emailService)
+    {
+        $this->timeOffRequests = $timeOffRequests;
+        $this->timeOffEmailReminder = $timeOffEmailReminder;
+        $this->emailService = $emailService;
+    }
 
     public function sendThreeDayReminderEmailToSupervisor()
     {
-        $timeOffRequests = new TimeOffRequests();
-        $timeOffEmailReminder = $this->serviceLocator->get('TimeOffEmailReminder');
+        $timeOffRequestsResult = $this->timeOffRequests->getRequestsOverThreeDaysUnapproved();
 
-        $timeOffRequestsResult = $timeOffRequests->getRequestsOverThreeDaysUnapproved();
+        $insertResult = $this->timeOffEmailReminder->insertReminderRecords($timeOffRequestsResult);
 
-        $insertResult = $timeOffEmailReminder->insertReminderRecords($timeOffRequestsResult);
-
-        $timeOffEmailReminderResult = $timeOffEmailReminder->getAllUnsendRecordData();
+        $timeOffEmailReminderResult = $this->timeOffEmailReminder->getAllUnsendRecordData();
 
         $this->prepareEmailArray($timeOffEmailReminderResult);
 
@@ -46,9 +61,10 @@ echo "<pre>";
 
     }
 
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    protected function getEmailBodyTemplate()
     {
-        $this->serviceLocator = $serviceLocator;
+        //
     }
+
 }
 
