@@ -107,11 +107,6 @@ var timeOffViewRequestHandler = new function ()
                     });
 
             timeOffViewRequestHandler.handleCalendarNavigation();
-            
-            $(document).on('click', '.toggleLegend', function() {
-                timeOffViewRequestHandler.toggleLegend();
-                console.log("TOGGLE");
-            });
 
             /**
              * Handle clicking category
@@ -399,14 +394,16 @@ var timeOffViewRequestHandler = new function ()
             }
 
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
+            requestForEmployeeObject = json.employeeData;
             if( calendarsToLoad===1 ) {
                 timeOffViewRequestHandler.drawOneCalendar(json.calendarData);
             }
             if( calendarsToLoad===3 ) {
                 timeOffViewRequestHandler.drawThreeCalendars(json.calendarData);
             }
+            timeOffCreateRequestHandler.updateButtonsWithEmployeeHours(json.employeeData);
             timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
-            timeOffViewRequestHandler.setHours( json.employeeData );
+//            timeOffViewRequestHandler.setHours( json.employeeData );
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
             }
@@ -414,7 +411,7 @@ var timeOffViewRequestHandler = new function ()
             requestForEmployeeNumber = $.trim(json.employeeData.EMPLOYEE_NUMBER);
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
-
+            timeOffCreateRequestHandler.postLoadCalendarButtonAdjust( requestForEmployeeObject );
             return;
         })
         .error(function () {
@@ -1404,10 +1401,6 @@ var timeOffViewRequestHandler = new function ()
         timeOffViewRequestHandler.addTime(newOne.category, Number(newOne.hours));
 
         calendarDateObject.addClass(newOne.category + "Selected");
-    }
-    
-    this.toggleLegend = function() {
-        $("#calendarLegend").toggle();
     }
 };
 

@@ -29,6 +29,11 @@ var timeOffApproveRequestHandler = new function ()
         $('body').on('click', '.apiRequest', function () {
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
+            $.each(selectedDatesNew, function(index, blah) {
+            	selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
+            	console.log( "COMPARE:" );
+            	console.log( selectedDatesNew );
+            });
             var data = {
                 request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
                 review_request_reason: $("#reviewRequestReason").val(),
@@ -119,6 +124,8 @@ var timeOffApproveRequestHandler = new function ()
         if ($.trim($("#managerComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#managerComment").addClass("borderColorRed");
+            /* enable DENY button */
+            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#managerComment").removeClass("borderColorRed");
@@ -148,6 +155,8 @@ var timeOffApproveRequestHandler = new function ()
         if ($.trim($("#payrollComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
+            /* enable DENY button */
+            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#payrollComment").removeClass("borderColorRed");

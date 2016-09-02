@@ -167,6 +167,26 @@ class RequestController extends AbstractActionController
         ]);
     }
 
+    /**
+     * Allows Payroll Admins to manage other Payroll Admins.
+     *
+     * @return ViewModel
+     */
+    public function managePayrollAdminsAction()
+    {
+        $Employee = new \Request\Model\Employee();
+
+        return new ViewModel([
+            'employeeData' => $Employee->findEmployeeTimeOffData($this->employeeNumber, "Y"),
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
+
     public function manageCompanyHolidaysAction()
     {
         $Employee = new \Request\Model\Employee();
@@ -299,7 +319,9 @@ class RequestController extends AbstractActionController
         $payrollView = $this->params()->fromRoute('payroll-view');
         $Employee = new \Request\Model\Employee();
         $isPayroll = $Employee->isPayroll( $this->employeeNumber );
-        if($isPayroll!=="Y") {
+        $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
+
+        if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }

@@ -19,20 +19,20 @@ use Request\Model\BaseDB;
  * @author sawik
  */
 class Papaatmp extends BaseDB {
-    
+
     public $collection;
     public $table;
-    
+
     public function __construct()
     {
         parent::__construct();
         $this->collection = [];
         $this->table = "PAPAATMP";
     }
-    
+
     /**
      * Prepare the data to write records to HPAPAATMP/PAPAATMP.
-     * 
+     *
      * @param array $employeeData
      * @param array $dateRequestBlocks
      */
@@ -44,15 +44,15 @@ class Papaatmp extends BaseDB {
         $dateRequestBlocks['for']['level3'] = $employeeData['LEVEL_3'];
         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
-        
-        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {            
+
+        foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
             $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection, $request_id );
         }
     }
-    
+
     /**
      * Build the HPAPAATMP/PAPAATMP object.
-     * 
+     *
      * @param type $employeeData
      * @param type $reason
      * @param type $dateCollection
@@ -60,29 +60,29 @@ class Papaatmp extends BaseDB {
     public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [], $request_id = null )
     {
         $this->table = ( ( $employeeData['salary_type']==="H" ? "HPAPAATMP" : "PAPAATMP" ) );
-        
+
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "WeekEndingData" ], [ $dateCollection ] );
-                
+
         for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
             $date = new \DateTime( $dateCollection[$i-1]['date'] );
             $weekdayAbbr = strtoupper( $date->format( "D" ) );
             $dateFormat = $date->format( "mdY" );
             call_user_func_array(
                 [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
-                [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ] 
+                [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ]
             );
         }
-        
+
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "Reason" ], [ $reason ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "RequestId" ], [ $request_id ] );
-        
+
         $this->insertPapaatmpRecord();
     }
-    
+
     /**
      * Write the HPAPAATMP/PAPAATMP object to the appropriate table.
-     * 
+     *
      * @throws \Exception
      */
     protected function insertPapaatmpRecord()
@@ -93,18 +93,18 @@ class Papaatmp extends BaseDB {
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Append employee data to the PAPAA object.
-     * 
+     *
      * @param type $employeeData
      */
     public function EmployeeData( $employeeData = [] )
-    {        
+    {
         $this->collection['AAER'] = $employeeData['employer_number'];
         $this->collection['AACLK#'] = \Request\Helper\Format::rightPadEmployeeNumber( $employeeData['employee_number'] );
         $this->collection['AALVL1'] = $employeeData['level1'];
@@ -112,34 +112,34 @@ class Papaatmp extends BaseDB {
         $this->collection['AALVL3'] = $employeeData['level3'];
         $this->collection['AALVL4'] = $employeeData['level4'];
     }
-    
+
     /**
      * Append week ending data to the PAPAA object.
-     * 
+     *
      * @param type $dateCollection
      */
     public function WeekEndingData( $dateCollection = [] )
     {
         $Date = new \Request\Helper\Date();
-        
+
         $lastDate = $dateCollection[ count( $dateCollection ) - 1 ]['date'];
         $dateEnding  = new \DateTime( $lastDate );
         $weekEndingHY = $Date->convertToHYD( $lastDate );
-        
+
         $this->collection['AAWEND'] = $dateEnding->format( "mdY" );
         $this->collection['AAWEYR'] = $dateEnding->format( "Y" );
         $this->collection['AAWEMO'] =  $dateEnding->format( "m" );
         $this->collection['AAWEDA'] = $dateEnding->format( "d" );
         $this->collection['AAWENDH'] = $weekEndingHY;
     }
-    
+
     /**
      * Append Day 1 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -152,14 +152,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR1B'] = $numHoursSplitB;
         $this->collection['AAWK1RC1B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 2 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -172,14 +172,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR2B'] = $numHoursSplitB;
         $this->collection['AAWK1RC2B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 3 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -192,14 +192,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR3B'] = $numHoursSplitB;
         $this->collection['AAWK1RC3B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 4 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -212,14 +212,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR4B'] = $numHoursSplitB;
         $this->collection['AAWK1RC4B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 5 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -232,14 +232,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR5B'] = $numHoursSplitB;
         $this->collection['AAWK1RC5B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 6 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -252,14 +252,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR6B'] = $numHoursSplitB;
         $this->collection['AAWK1RC6B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 7 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -272,14 +272,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK1HR7B'] = $numHoursSplitB;
         $this->collection['AAWK1RC7B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 8 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -292,14 +292,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR1B'] = $numHoursSplitB;
         $this->collection['AAWK2RC1B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 9 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -312,14 +312,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR2B'] = $numHoursSplitB;
         $this->collection['AAWK2RC2B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 10 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -332,14 +332,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR3B'] = $numHoursSplitB;
         $this->collection['AAWK2RC3B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 11 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -352,14 +352,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR4B'] = $numHoursSplitB;
         $this->collection['AAWK2RC4B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 12 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -372,14 +372,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR5B'] = $numHoursSplitB;
         $this->collection['AAWK2RC5B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 13 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -392,14 +392,14 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR6B'] = $numHoursSplitB;
         $this->collection['AAWK2RC6B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Day 14 to the PAPAA object.
-     * 
+     *
      * @param string $weekdayAbbr       Abbreviation of day of week (three characters)
      * @param string $dateFormat        Date formated as YYYY-MM-DD
      * @param decimal $numHoursSplitA   Hours requested with 2 decimals
-     * @param string $typeSplitA        Abbreviation of request type (one character) 
+     * @param string $typeSplitA        Abbreviation of request type (one character)
      * @param type $numHoursSplitB      Hours requested with 2 decimals
      * @param type $typeSplitB          Abbreviation of request type (one character)
      */
@@ -412,25 +412,25 @@ class Papaatmp extends BaseDB {
         $this->collection['AAWK2HR7B'] = $numHoursSplitB;
         $this->collection['AAWK2RC7B'] = $typeSplitB;
     }
-    
+
     /**
      * Append Reason to the pappa object.
-     * 
+     *
      * @param string $reason
      */
     public function Reason( $reason )
     {
         $this->collection['AACOMM'] = $reason;
     }
-    
+
     /**
      * Append Request ID to the pappa object.
-     * 
+     *
      * @param string $reason
      */
     public function RequestId( $request_id )
     {
         $this->collection['TIMEOFF_REQUEST_ID'] = $request_id;
     }
-    
+
 }

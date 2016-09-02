@@ -286,13 +286,28 @@ class TimeOffRequests extends BaseDB {
     }
 
     /**
-     * Marks a Request Entry as Deleted.
+     * Marks a Request Entry as Deleted using the passed in requestId.
      *
      * @param type $entryId
      */
     public function markRequestEntryAsDeleted( $entryId = null )
     {
         $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE ENTRY_ID = '" . $entryId . "'";
+        try {
+            $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
+        } catch( \Exception $e ) {
+            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+        }
+    }
+
+    /**
+     * Marks Request Entries as Deleted using the passed in requestId.
+     *
+     * @param type $requestId
+     */
+    public function markRequestEntryAsDeletedByRequest( $requestId = null )
+    {
+        $rawSql = "UPDATE timeoff_request_entries SET IS_DELETED = '1' WHERE REQUEST_ID = '" . $requestId . "'";
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch( \Exception $e ) {
@@ -511,7 +526,7 @@ class TimeOffRequests extends BaseDB {
                              'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_CODE' => 'REQUEST_CODE'
                            ] )
                 ->join( [ 'code' => 'TIMEOFF_REQUEST_CODES' ], 'code.REQUEST_CODE = entry.REQUEST_CODE', [ 'DESCRIPTION' => 'DESCRIPTION' ] )
-                ->where( [ ' entry.REQUEST_ID' => $requestId ] )
+                ->where( [ ' entry.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => '0' ] )
                 ->order( ['entry.REQUEST_DATE ASC' ] );
 
         try {
@@ -562,20 +577,28 @@ class TimeOffRequests extends BaseDB {
     public function countTimeoffRequested( $requestId = null )
     {
         $rawSql = "SELECT SUM(REQUESTED_HOURS) AS TOTAL_REQUESTED_HOURS
-        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId;
+        FROM TIMEOFF_REQUEST_ENTRIES entry WHERE entry.REQUEST_ID = " . $requestId . " AND IS_DELETED = '0'";
 
         $timeOffData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return $timeOffData['TOTAL_REQUESTED_HOURS'];
     }
 
+    /**
+     * Find information related to a request needed for sending the calendar invite.
+     * Note: TIMEOFF_REQUEST_ENTRIES.IS_DELETED must equal 0. This way we won't
+     * send invites showing any entries that were removed by a Manager or Payroll.
+     * 
+     * @param unknown $requestId
+     * @return unknown[]|unknown[][][]
+     */
     public function findRequestCalendarInviteData( $requestId = null ) {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( ['entry' => 'TIMEOFF_REQUEST_ENTRIES' ] )
                 ->columns( $this->timeOffRequestEntryColumns )
                 ->join( ['request' => 'TIMEOFF_REQUESTS' ], 'request.REQUEST_ID = entry.REQUEST_ID', [ ] )
                 ->join( ['code' => 'TIMEOFF_REQUEST_CODES' ], 'entry.REQUEST_CODE = code.REQUEST_CODE', ['DESCRIPTION' => 'DESCRIPTION' ] )
-                ->where( ['request.REQUEST_ID' => $requestId ] )
+                ->where( ['request.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => '0' ] )
                 ->order( ['entry.REQUEST_DATE ASC' ] );
         $result = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
 

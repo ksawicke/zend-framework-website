@@ -161,23 +161,49 @@ class LoginMapper implements LoginMapperInterface
     public function isPayrollAdmin( $employeeNumber = null ) {
         /**
          * 05/06/16 sawik Change to:
-         * If Level 2 = FIN (from file PPRMS, field PRL02) and
+         *    If Level 2 = FIN (from file PPRMS, field PRL02) and
          *    Level 3 starts with PY (from file PRPMS, field PRL02) and
          *    Training group = MGR2 (from file PRPMS, field PRTGRP)
+         * 08/23/16 sawik Add:
+         *    If in new table TIMEOFF_PAYROLL
          */
-        $rawSql = "SELECT
-                   (CASE WHEN (
-                      PRL02 = 'FIN' AND
-                      SUBSTRING(PRL03,0,3) = 'PY' AND
-                      PRTGRP = 'MGR2' AND
-                      PRTEDH = 0
-                   ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
-                   FROM PRPMS
-                   WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
-
-        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSql );
+        $rawSqlPRPMS = "SELECT (CASE WHEN (
+                           PRL02 = 'FIN' AND
+                           SUBSTRING(PRL03,0,3) = 'PY' AND
+                           PRTGRP = 'MGR2' AND
+                           PRTEDH = 0
+                        ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
+                       FROM PRPMS
+                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+        $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlPRPMS );
         
-        return $data[0]->IS_PAYROLL_ADMIN;
+        /**
+         * 2nd check to see if they are added in the db
+         */
+        $rawSqlTimeOffAdded = "SELECT COUNT(*) AS PAYROLL_ADMIN_ADDED_COUNT
+                          FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
+                          WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 1";
+        $dataTimeOffAdded = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlTimeOffAdded );
+        
+        $rawSqlTimeOffDisabled = "SELECT COUNT(*) AS PAYROLL_ADMIN_DISABLED_COUNT
+                          FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
+                          WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 0";
+        $dataTimeOffDisabled = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlTimeOffDisabled );
+        
+        $validation = [ 'IS_PAYROLL_ADMIN' => $dataPRPMS[0]->IS_PAYROLL_ADMIN,
+                        'PAYROLL_ADMIN_ADDED_COUNT' => $dataTimeOffAdded[0]->PAYROLL_ADMIN_ADDED_COUNT,
+                        'PAYROLL_ADMIN_DISABLED_COUNT' => $dataTimeOffDisabled[0]->PAYROLL_ADMIN_DISABLED_COUNT ];
+        
+        $isPayrollAdmin = "N";
+        if( ( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ||
+            ( $validation['IS_PAYROLL_ADMIN']=="N" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==1 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ) {
+            $isPayrollAdmin = "Y";        
+        }
+        if( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==1 ) {
+            $isPayrollAdmin = "N";
+        }
+
+        return $isPayrollAdmin;
     }
     
     /**

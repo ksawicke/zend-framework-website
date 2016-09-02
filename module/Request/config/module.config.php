@@ -32,18 +32,18 @@ $config = [
 //                'child_routes' => []
 //            ],
 //
-            'testPapaa' => [
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => [
-                    'route' => '/request/testpapaa',
-                    'defaults' => [
-                        'controller' => 'RequestController',
-                        'action' => 'testPapaa'
-                    ]
-                ],
-                'may_terminate' => 1,
-                'child_routes' => []
-            ],
+//             'testPapaa' => [
+//                 'type' => 'Zend\Mvc\Router\Http\Literal',
+//                 'options' => [
+//                     'route' => '/request/testpapaa',
+//                     'defaults' => [
+//                         'controller' => 'RequestController',
+//                         'action' => 'testPapaa'
+//                     ]
+//                 ],
+//                 'may_terminate' => 1,
+//                 'child_routes' => []
+//             ],
 
             'approvedRequest' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
@@ -88,6 +88,18 @@ $config = [
                     'defaults' => [
                         'controller' => 'RequestController',
                         'action' => 'managePayrollAssistants'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            'managePayrollAdmins' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/manage-payroll-admins',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'managePayrollAdmins'
                     ]
                 ],
                 'may_terminate' => 1,

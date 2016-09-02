@@ -1,4 +1,46 @@
-<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4><br />
+<style media="screen" type="text/css">
+.row {
+  margin-top: 0px;
+  margin-bottom: 15px
+}
+</style>
+
+<?php 
+$viewQueueLink = '';
+switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
+    case "Pending Manager Approval":
+        $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
+        break;
+    case "Completed PAFs":
+        $viewQueueLink = '/request/view-payroll-queue/completed-pafs';
+        break;
+    case "Denied":
+        $viewQueueLink = '/request/view-payroll-queue/denied';
+        break;
+    case "Pending AS400 Upload":
+        $viewQueueLink = '/request/view-payroll-queue/pending-as400-upload';
+        break;
+    case "Pending Payroll Approval":
+        $viewQueueLink = '/request/view-payroll-queue/pending-payroll-approval';
+        break;
+    case "Update Checks":
+        $viewQueueLink = '/request/view-payroll-queue/update-checks';
+        break;
+}
+?>
+
+<div class="row gutter-10">
+    <div class="col-md-6 col-lg-6">
+    	<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
+    </div>
+    <div class="col-md-6 col-lg-6 text-right">
+    	<a href="<?php echo $this->basePath() . $viewQueueLink; ?>">
+    		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+    	</a>
+    </div>
+</div>
+
+<br />
 
 <div class="row">
     <div class="col-lg-12 col-md-12">
@@ -12,44 +54,41 @@
             <div class="panel-body">
 
                 <div class="row">
-                    <div class="col-lg-2 col-md-2">
-
-                    </div>
-                    <div class="col-lg-8 col-md-8">
+                    <div class="col-lg-12 col-md-12">
 
                         <?php /*** BEGIN REQUEST FOR ***/ ?>
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Name</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT; ?>&nbsp;-&nbsp;<?php echo $timeoffRequestData['POSITION_TITLE']; ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Email Address</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo strtolower( $timeoffRequestData['EMPLOYEE_DATA']->EMAIL_ADDRESS ); ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Supervisor</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_DESCRIPTION_ALT; ?>&nbsp;-&nbsp;<?php echo $timeoffRequestData['EMPLOYEE_DATA']->MANAGER_POSITION_TITLE; ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Schedule</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <table class="employeeSchedule">
                                     <thead>
                                         <tr>
@@ -78,17 +117,14 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Hire Date</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo $timeoffRequestData['EMPLOYEE_HIRE_DATE']; ?>
                             </div>
                         </div>
                         <?php /*** END REQUEST FOR ***/ ?>
-
-                    </div>
-                    <div class="col-lg-2 col-md-2">
 
                     </div>
                 </div>
@@ -111,26 +147,23 @@
             <div class="panel-body">
 
                 <div class="row">
-                    <div class="col-lg-2 col-md-2">
-
-                    </div>
-                    <div class="col-lg-8 col-md-8">
+                    <div class="col-lg-12 col-md-12">
 
                         <?php /*** BEGIN REQUESTED BY ***/ ?>
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Name</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo $timeoffRequestData['CREATOR_FIRST_NAME']; ?>&nbsp;<?php echo $timeoffRequestData['CREATOR_LAST_NAME']; ?>&nbsp;(<?php echo $timeoffRequestData['CREATE_USER']; ?>)&nbsp;-&nbsp;<?php echo $timeoffRequestData['CREATOR_POSITION_TITLE']; ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Email Address</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo strtolower( $timeoffRequestData['CREATOR_EMAIL_ADDRESS'] ); ?>
                             </div>
                         </div>
@@ -156,58 +189,66 @@
             <div class="panel-body">
 
                 <div class="row">
-                    <div class="col-lg-2 col-md-2">
-
-                    </div>
-                    <div class="col-lg-8 col-md-8">
+                    <div class="col-lg-12 col-md-12">
 
                         <?php /*** BEGIN REQUEST DETAIL ***/ ?>
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Status</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <?php echo $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']; ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Total Hours Requested</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
-                                <?php echo $totalHoursRequested . ' hr' . ( ( $totalHoursRequested > 1 ) ? 's' : '' ); ?>
+                            <div class="col-lg-10 col-md-10">
+                                <?php echo ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Denied" ?
+                                             $totalHoursRequested . ' hr' . ( ( $totalHoursRequested > 1 ) ? 's' : '' ) :
+                                             'n/a' ); ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Reason</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9 breakLongWordDiv">
+                            <div class="col-lg-10 col-md-10 breakLongWordDiv">
                                 <?php echo $timeoffRequestData['REQUEST_REASON']; ?>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Time Off Requested</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
-                                <?php echo $this->partial( 'request/partials/categoryButtonsWidget.phtml' ); ?>
-
-                                <?php echo $this->partial( 'request/partials/oneCalendarWidget.phtml' ); ?>
-
-                                <?php echo $this->partial( 'request/partials/managerEditRequestFormWidget.phtml' ); ?>
+                            <div class="col-lg-10 col-md-10">
+                            	<?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Denied" ) {
+                            	          echo $this->partial( 'request/partials/categoryButtonsWidget.phtml' );
+										  echo $this->partial( 'request/partials/oneCalendarWidget.phtml' );
+										  echo $this->partial( 'request/partials/managerEditRequestFormWidget.phtml', [ 'isBeingReviewed' => 'Y' ] );
+                            	      } else {
+                            	          ?>
+                            	          
+                            	          <div id="deniedRequestFlashMessage" class="alert alert-info" role="alert">
+                                               <i class="fa fa-info"></i> <strong>Denied requests can no longer be edited.</strong>
+                                          </div>
+                            	          
+                            	          <?php
+                            	      }
+							    ?>
                             </div>
                         </div>
 
                         <?php /*****************************/ ?>
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Time Off Hours</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
 
                                 <table class="employeeSchedule">
                                     <thead>
@@ -242,10 +283,10 @@
                         <?php /*****************************/ ?>
 
                         <div class="row">
-                            <div class="col-lg-3 col-md-3 text-right">
+                            <div class="col-lg-2 col-md-2 text-right">
                                 <strong>History</strong>
                             </div>
-                            <div class="col-lg-9 col-md-9">
+                            <div class="col-lg-10 col-md-10">
                                 <table class="employeeSchedule">
                                     <?php /*** <thead>
                                         <tr>
@@ -272,14 +313,14 @@
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
                         <div class="form-group">
-                            <label for="inputPassword3" class="col-lg-3 col-md-3 text-right">Approval Actions</label>
-                            <div class="ccol-lg-9 col-md-9">
-                                <?php if( $isPayrollReviewRequired && $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Payroll Approval" ) { ?>
+                            <label for="inputPassword3" class="col-lg-2 col-md-2 text-right">Approval Actions</label>
+                            <div class="ccol-lg-10 col-md-10">
+                                <?php /**if( $isPayrollReviewRequired && $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Pending Payroll Approval" ) { ?>
                                 <div class="alert alert-danger" role="alert">
                                     <i class="fa fa-exclamation-circle"></i> <strong>Payroll Approval Required</strong><br /><br />
                                     This request exceeded the employee's remaining time in certain category/ies and requires Payroll Approval.
                                 </div>
-                                <?php } ?>
+                                <?php }**/ ?>
 
                                 <?php
 //                                $buttonDisabled = "";
@@ -293,10 +334,12 @@
                                     </div>
                                 </div>
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
+                                
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="managerComment" name="managerComment"></textarea>
+                                        <br />
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="managerActionDenyRequest">Deny</button>
                                     <?php } ?>
@@ -304,6 +347,7 @@
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
+                                        <br />
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionApproveRequest">Approve</button>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionDenyRequest">Deny</button>
                                         <?php /**<button type="button" class="btn btn-form-primary apiRequest" data-apiaction="payrollActionUpload">Upload</button>**/ ?>
@@ -341,9 +385,3 @@ $phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE
              'request_id' => $timeoffRequestData['REQUEST_ID']
             ];
 $this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
-?>
-
-<pre>
-<?php //var_dump( $loggedInEmployeeNumber ); ?>
-<?php //var_dump( $timeoffRequestData ); ?>
-</pre>

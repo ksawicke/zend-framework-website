@@ -84,7 +84,7 @@ class ManagerQueues extends BaseDB {
                 request.REQUEST_REASON AS REQUEST_REASON,
                 status.DESCRIPTION AS REQUEST_STATUS_DESCRIPTION,
                 (
-                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
+                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id AND IS_DELETED = '0'
                 ) AS REQUESTED_HOURS,
                 (
                     SELECT MIN(REQUEST_DATE) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id

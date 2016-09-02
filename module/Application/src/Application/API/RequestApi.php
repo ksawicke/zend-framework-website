@@ -48,6 +48,17 @@ class RequestApi extends ApiController {
         'timeOffApprovedNoPay' => 'A'
     ];
 
+    protected static $codesToTypes = [
+        'P' => 'timeOffPTO',
+        'K' => 'timeOffFloat',
+        'S' => 'timeOffSick',
+        'X' => 'timeOffUnexcusedAbsence',
+        'B' => 'timeOffBereavement',
+        'J' => 'timeOffCivicDuty',
+        'R' => 'timeOffGrandfathered',
+        'A' => 'timeOffApprovedNoPay'
+    ];
+
     /**
      * Array of email addresses to send all emails when running on SWIFT.
      *
@@ -482,7 +493,7 @@ class RequestApi extends ApiController {
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
 
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
-                'review_request_reason' => 'System auto-approved request because requester is in manager heirarchy of ' .
+                'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor heirarchy of ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
 
             return $return;
@@ -715,8 +726,10 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsUpdated( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 !array_key_exists( 'isDeleted', $entry ) ) ? true : false );
+        return ( ( $this->requestEntryIsDeleted( $entry ) ||  $this->requestEntryIsAdded( $entry ) ||
+                   $this->requestEntryIsEdited( $entry )
+                 ) ? true : false
+               );
     }
 
     /**
@@ -727,8 +740,10 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsDeleted( $entry )
     {
-        return ( ( array_key_exists( 'entryId', $entry ) && $entry['fieldDirty']=="true" &&
-                 array_key_exists( 'isDeleted', $entry ) ) ? true : false );
+        return ( ( array_key_exists( 'entryId', $entry ) &&
+                   array_key_exists( 'isDeleted', $entry ) &&
+                   $entry['isDeleted']=="true"
+                 ) ? true : false );
     }
 
     /**
@@ -739,8 +754,39 @@ class RequestApi extends ApiController {
      */
     private function requestEntryIsAdded( $entry )
     {
-        return ( ( !array_key_exists( 'entryId', $entry ) && !array_key_exists( 'requestId', $entry ) &&
-                 array_key_exists( 'isAdded', $entry ) && $entry['isAdded']=="true" ) ? true : false );
+        return ( ( !array_key_exists( 'entryId', $entry ) &&
+                   array_key_exists( 'isAdded', $entry ) &&
+                   $entry['isAdded']=="true"
+                 ) ? true : false );
+    }
+
+    /**
+     * Returns boolean if request entry was marked to be deleted.
+     *
+     * @param type $request
+     * @return type
+     */
+    private function requestEntryIsEdited( $entry )
+    {
+        $isEdited = false;
+        if( array_key_exists("entryId", $entry) ) {
+            $entryId = (int) $entry["entryId"];
+            $RequestEntry = new RequestEntry();
+            $originalEntryIdData = $RequestEntry->getRequestEntry( $entryId );
+
+//             var_dump( $originalEntryIdData );
+//             var_dump( $entry );
+//             die();
+
+            if( $isEdited===false &&
+                ( $entry['category']!=self::$codesToTypes[$originalEntryIdData->REQUEST_CODE] ||
+                  $entry['hours']!=$originalEntryIdData->REQUESTED_HOURS
+                ) ) {
+                $isEdited = true;
+            }
+        }
+
+        return $isEdited;
     }
 
     /**
@@ -753,11 +799,20 @@ class RequestApi extends ApiController {
     public function checkForUpdatesMadeToForm( $post, $requestedDatesOld )
     {
         $updatesMadeToForm = false;
-        if( isset($post->formDirty) && $post->formDirty=="true" ) {
-            $updatesMadeToForm = true;
+        if( property_exists( $post, "selectedDatesNew" )===false ) {
+            return $updatesMadeToForm;
+        }
+
+        foreach( $post->selectedDatesNew as $ctr => $entry ) {
+            if( $updatesMadeToForm===false && $this->requestEntryIsUpdated( $entry ) ) {
+                $updatesMadeToForm = true;
+            }
+        }
+
+        if( $updatesMadeToForm ) {
             $TimeOffRequests = new TimeOffRequests();
             foreach( $post->selectedDatesNew as $ctr => $entry ) {
-                if( $this->requestEntryIsUpdated( $entry ) ) {
+                if( $this->requestEntryIsEdited( $entry ) ) {
                     $data = [ 'ENTRY_ID' => $entry['entryId'],
                               'REQUEST_ID' => $post->request_id,
                               'REQUEST_DATE' => $entry['date'],
@@ -841,7 +896,7 @@ class RequestApi extends ApiController {
         $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
-        if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld ) {
+        if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld === true ) {
             $payrollReviewRequiredReason = '';
             if( $isPayrollReviewRequired ) {
                 $payrollReviewRequiredReason = 'Payroll review required because of insufficient hours in one or more categories, and/or Civic Duty requested.';
@@ -861,7 +916,7 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
 
-            /** Log request as having insufficient hours **/
+            /** Log request with payroll review required reason **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -874,16 +929,19 @@ class RequestApi extends ApiController {
                 $post->review_request_reason );
         } else {
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
-
             $RequestEntry = new RequestEntry();
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
 
             /** Log supervisor approval with comment **/
+            $supervisorApprovalComment = 'Approved by ' . UserSession::getFullUserInfo() .
+                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' );
+            if( property_exists( $post, "review_request_reason" ) ) { // In case this is an auto-approval
+                $supervisorApprovalComment = $post->review_request_reason;
+            }
             $TimeOffRequestLog->logEntry(
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Approved by ' . UserSession::getFullUserInfo() .
-                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' ) );
+                $supervisorApprovalComment );
 
             /** Change status to Approved */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -956,25 +1014,6 @@ class RequestApi extends ApiController {
     }
 
     /**
-     * Sends Outlook calendar invitations for an approved request.
-     *
-     * @param type $post
-     * @return type
-     */
-//    public function sendCalendarInvitationsForRequest( $post )
-//    {
-//        $OutlookHelper = new OutlookHelper();
-//        $RequestEntry = new RequestEntry();
-//        $TimeOffRequests = new TimeOffRequests();
-//        $Employee = new Employee();
-//        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
-//        $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-//        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-//
-//        return $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData );
-//    }
-
-    /**
      * Handles the manager denied process.
      *
      * @return JsonModel
@@ -1002,14 +1041,17 @@ class RequestApi extends ApiController {
             $post->request_id,
             UserSession::getUserSessionVariable('EMPLOYEE_NUMBER'),
             'Time off request denied by ' . UserSession::getFullUserInfo() .
-            ' for ' . trim(ucwords(strtolower($employeeData['EMPLOYEE_NAME'])) . ' (' . $employeeData['EMPLOYEE_NUMBER'] . ')' .
-            ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' )));
+            ' for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] .
+            ( !empty( $post->review_request_reason ) ? ' with the comment: ' . $post->review_request_reason : '' ));
 
         /** Change status to Denied */
         $requestReturnData = $TimeOffRequests->submitApprovalResponse(
             $TimeOffRequests->getRequestStatusCode( 'denied' ),
             $post->request_id,
             $post->review_request_reason );
+
+        /* mark entries as deleted */
+        $TimeOffRequests->markRequestEntryAsDeletedByRequest($post->request_id);
 
         if($requestReturnData['request_id']!=null) {
             $result = new JsonModel([
@@ -1136,6 +1178,9 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Status changed to Denied' );
+
+            /* mark entries as deleted */
+            $TimeOffRequests->markRequestEntryAsDeletedByRequest($post->request_id);
 
             $result = new JsonModel([
                 'success' => true,

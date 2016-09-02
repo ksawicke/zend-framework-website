@@ -10,6 +10,7 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
 
 /**
  * All Database functions for employees
@@ -90,16 +91,16 @@ class Employee extends BaseDB {
         ];
         $this->excludeLevel2 = ['DRV' ];
     }
-    
+
     /**
      * Returns the count of items in Pending Manager Approval. May be filtered based on a search.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
     public function countManagerQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
@@ -115,28 +116,28 @@ class Employee extends BaseDB {
             ) as data
         ) hierarchy
             ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'P'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $employeeData['RCOUNT'];
     }
-    
+
     /**
      * Returns the employee numbers that the passed in employee number can submit time off on their behalf.
-     * 
+     *
      * @param type $employeeNumber
      * @return type
      */
@@ -146,7 +147,7 @@ class Employee extends BaseDB {
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
             WHERE
                TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;
-        
+
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
@@ -157,13 +158,13 @@ class Employee extends BaseDB {
         } else {
             $proxyData = [ ];
         }
-        
+
         return $proxyData;
     }
 
     /**
      * Get data for Datatables for the Pending Manager Approval queue.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return array
      */
@@ -191,7 +192,7 @@ class Employee extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
@@ -221,29 +222,29 @@ class Employee extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
     }
-    
+
     /**
      * Gets the start date for a request so we can determine which calendar
      * to use first for a request.
-     * 
+     *
      * @param integer $requestId
      * @return array
      */
@@ -254,15 +255,15 @@ class Employee extends BaseDB {
                         MONTH(MIN(REQUEST_DATE)) AS START_MONTH,
                         YEAR(MIN(REQUEST_DATE)) AS START_YEAR
                    FROM timeoff_request_entries entry WHERE entry.request_id = " . $requestId;
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
     }
-    
+
     /**
      * Returns whether employee is a Manager or not.
-     * 
+     *
      * @param type $employeeNumber  Integer, up to 9 places. Does not need to be justified.
      * @return boolean  "Y" or "N"
      */
@@ -272,10 +273,10 @@ class Employee extends BaseDB {
 
         return $isManagerData->IS_MANAGER;
     }
-    
+
     /**
      * Returns whether employee is a Supervisor or not.
-     * 
+     *
      * @param type $employeeNumber  Integer, up to 9 places. Does not need to be justified.
      * @return type boolean  "Y" or "N"
      */
@@ -285,62 +286,118 @@ class Employee extends BaseDB {
 
         return $isSupervisorData->IS_SUPERVISOR;
     }
-    
+
     /**
      * Returns whether employee is Payroll Admin OR Assistant.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
     public function isPayroll( $employeeNumber = null ) {
-        return ( ( $this->isPayrollAdmin( $employeeNumber ) === "Y" ) ||
-                 ( $this->isPayrollAssistant( $employeeNumber) === "Y" ) ? "Y" : "N" );
+        return ( ( $this->isPayrollAdmin( $employeeNumber ) == "Y" ) ||
+                 ( $this->isPayrollAssistant( $employeeNumber) == "Y" ) ? "Y" : "N" );
     }
 
     /**
      * Returns whether employee is Payroll or not.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
     public function isPayrollAdmin( $employeeNumber = null ) {
         /**
          * 05/06/16 sawik Change to:
-         * If Level 2 = FIN (from file PPRMS, field PRL02) and
+         *    If Level 2 = FIN (from file PPRMS, field PRL02) and
          *    Level 3 starts with PY (from file PRPMS, field PRL02) and
          *    Training group = MGR2 (from file PRPMS, field PRTGRP)
+         * 08/23/16 sawik Add:
+         *    If in new table TIMEOFF_PAYROLL
          */
-        $rawSql = "SELECT
-                   (CASE WHEN (
-                      PRL02 = 'FIN' AND
-                      SUBSTRING(PRL03,0,3) = 'PY' AND
-                      PRTGRP = 'MGR2' AND
-                      PRTEDH = 0
-                   ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
-                   FROM PRPMS
-                   WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
-//die($rawSql);
-        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+        $rawSqlPRPMS = "SELECT (CASE WHEN (
+                           PRL02 = 'FIN' AND
+                           SUBSTRING(PRL03,0,3) = 'PY' AND
+                           PRTGRP = 'MGR2' AND
+                           PRTEDH = 0
+                        ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
+                       FROM PRPMS
+                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+        $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlPRPMS );
         
-        return $data[0]->IS_PAYROLL_ADMIN;
+        /**
+         * 2nd check to see if they are added in the db
+         */
+        $rawSqlTimeOffAdded = "SELECT COUNT(*) AS PAYROLL_ADMIN_ADDED_COUNT
+                          FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
+                          WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 1";
+        $dataTimeOffAdded = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlTimeOffAdded );
+        
+        $rawSqlTimeOffDisabled = "SELECT COUNT(*) AS PAYROLL_ADMIN_DISABLED_COUNT
+                          FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
+                          WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 0";
+        $dataTimeOffDisabled = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlTimeOffDisabled );
+        
+        $validation = [ 'IS_PAYROLL_ADMIN' => $dataPRPMS[0]->IS_PAYROLL_ADMIN,
+                        'PAYROLL_ADMIN_ADDED_COUNT' => $dataTimeOffAdded[0]->PAYROLL_ADMIN_ADDED_COUNT,
+                        'PAYROLL_ADMIN_DISABLED_COUNT' => $dataTimeOffDisabled[0]->PAYROLL_ADMIN_DISABLED_COUNT ];
+        
+//         echo '<pre>';
+//         var_dump( $validation );
+//         die();
+        
+        $isPayrollAdmin = "N";
+        if( ( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ||
+            ( $validation['IS_PAYROLL_ADMIN']=="N" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==1 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ) {
+            $isPayrollAdmin = "Y";        
+        }
+        if( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==1 ) {
+            $isPayrollAdmin = "N";
+        }
+        
+//         die( "IS PAYROLL ADMIN: " . $isPayrollAdmin );
+
+        return $isPayrollAdmin;
     }
-    
+
     /**
      * Returns whether employee is Payroll or not.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
     public function isPayrollAssistant( $employeeNumber = null ) {
-        /**
-         * 05/06/16 sawik TODO: Add query on new table to see if they were added as a Payroll Assistant
-         */
+
+        $employeeNumber = str_pad(trim($employeeNumber), 9, ' ', STR_PAD_LEFT);
+
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUESTS_PAYROLL_ASSISTANTS');
+
+        $select->columns(array('RCOUNT' => new \Zend\Db\Sql\Expression('COUNT(*)')));
+
+        $select->where(array('STATUS = ?' => '1', 'EMPLOYEE_NUMBER = ?' => $employeeNumber));
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            $record = $resultSet->toArray();
+            $rowCount = $record[0]['RCOUNT'];
+            $returnValue = ($rowCount == 0) ? 'N' : 'Y';
+
+            return $returnValue;
+        }
+
         return "N";
     }
 
     /**
      * Adds a where clause to exclude employees in Level 2.
-     * 
+     *
      * @return string
      */
     public function getExcludedLevel2() {
@@ -353,7 +410,9 @@ class Employee extends BaseDB {
 
     /**
      * Returns the requested hours per category for a request.
-     * 
+     * Note: Make sure that TIMEOFF_REQUEST_ENTRIES.IS_DELETED = 0.
+     * This way we won't be including entries that a Manager or Payroll deleted from the request.
+     *
      * @param type $requestId
      * @return array
      */
@@ -362,29 +421,34 @@ class Employee extends BaseDB {
             request.REQUEST_ID AS ID,
             request.EMPLOYEE_NUMBER,
             request.REQUEST_REASON AS REASON,
-            (
-                    SELECT SUM(requested_hours) FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-
+            ( SELECT SUM(requested_hours) FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0'
             ) AS TOTAL,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'P'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'P'
             ) AS PTO,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'K'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'K'
             ) AS FLOAT,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'S'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'S'
             ) AS SICK,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'R'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND 
+              entry.request_code = 'R'
             ) AS GRANDFATHERED,
-            (
-                    SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry WHERE entry.request_id = request.request_id
-                    AND entry.request_code = 'J'
+            ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
+              WHERE entry.request_id = request.request_id AND
+              entry.is_deleted = '0' AND
+              entry.request_code = 'J'
             ) AS CIVIC_DUTY
             FROM TIMEOFF_REQUESTS request
             WHERE request.REQUEST_ID = '" . $requestId . "'";
@@ -396,7 +460,7 @@ class Employee extends BaseDB {
 
     /**
      * Returns the Time Off and Employee Schedule for an employee.
-     * 
+     *
      * @param integer $employeeNumber
      * @param string $includeUnapprovedRequests Default "Y" returns pending manager approval time as well.
      * @param string $includeOnlyFields Default "*" returns all fields from the function timeoff_get_employee_data.
@@ -411,7 +475,7 @@ class Employee extends BaseDB {
 
 //        var_dump( $rawSql );
 //        die();
-        
+
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
@@ -422,21 +486,21 @@ class Employee extends BaseDB {
         } else {
             $this->employeeData = [ ];
         }
-        
+
 //        \Request\Helper\Format::setFieldsAsFloat( [
 //            'SCHEDULE_MON', 'SCHEDULE_TUE', 'SCHEDULE_WED', 'SCHEDULE_THU', 'SCHEDULE_FRI',
 //            'SCHEDULE_SAT', 'SCHEDULE_SUN'
 //        ] );
         $this->employeeData = \Request\Helper\Format::trimData( $this->employeeData );
 //        $this->employeeData['SCHEDULE_MON'] = (float) $this->employeeData['SCHEDULE_MON'];
-        
-        
+
+
 //        exit();
-        
+
 
         return $this->employeeData;
     }
-    
+
     public function findProxyEmployees( $managerEmployeeNumber = null, $search = null ) {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
@@ -473,10 +537,10 @@ class Employee extends BaseDB {
 
         return $employeeData;
     }
-    
+
     /**
      * Returns the Payroll Employee Search
-     * 
+     *
      * @param type $where
      * @return type
      */
@@ -505,10 +569,10 @@ class Employee extends BaseDB {
                 " . $where . "
                 ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
     }
-    
+
     /**
      * Returns the Proxy Employee Search
-     * 
+     *
      * @param type $where
      * @return type
      */
@@ -520,7 +584,7 @@ class Employee extends BaseDB {
         $proxyForPartial = implode(",", $proxyFor);
 
         $where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
-        
+
         $rawSql = "SELECT
             CASE
                 when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
@@ -547,10 +611,10 @@ class Employee extends BaseDB {
              ON manager_addons.PREN = manager.SPSPEN
         " . $where . "
         ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
-        
+
         return $rawSql;
     }
-    
+
     public function getManagerEmployeeSearchStatement( $where = null, $managerEmployeeNumber = null, $directReportFilter = null )
     {
         return "SELECT
@@ -588,14 +652,14 @@ class Employee extends BaseDB {
 
     /**
      * Find manager's employees
-     * 
+     *
      * @param integer $managerEmployeeNumber
      * @param string $search
      * @param string $directReportFilter
      * @return \Zend\Db\ResultSet\ResultSet[]
      */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
-            $isProxy = null, $proxyFor = [] ) {        
+            $isProxy = null, $proxyFor = [] ) {
         $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
         $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
         $where = "WHERE (
@@ -606,7 +670,7 @@ class Employee extends BaseDB {
               trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
             )
         )";
-        
+
         if ( $isPayrollAdmin === "Y" ||
              $isPayrollAssistant === "Y" ) {
              $rawSql = $this->getPayrollEmployeeSearchStatement( $where );
@@ -615,7 +679,7 @@ class Employee extends BaseDB {
                 case 'P':
                     $rawSql = $this->getProxyEmployeeSearchStatement( $where, $proxyFor );
                     break;
-                
+
                 case 'B':
                 case 'D':
                 case 'I':
@@ -628,10 +692,10 @@ class Employee extends BaseDB {
 
         return $employeeData;
     }
-    
+
     /**
      * Ensures the employee has a schedule saved.
-     * 
+     *
      * @param type $employeeNumber
      */
     public function ensureEmployeeScheduleIsDefined( $employeeNumber = null ) {
@@ -639,27 +703,27 @@ class Employee extends BaseDB {
             $this->makeDefaultEmployeeSchedule( $employeeNumber );
         }
     }
-    
+
     public function isRequestToBeAutoApproved( $forEmployee = null, $byEmployee = null ) {
         $byEmployeeInChain = false;
-        $rawSql = "select mh.* from table (care_get_entire_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
+        $rawSql = "select mh.* from table (care_get_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
         $employeeManagerData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
-        
+
         foreach( $employeeManagerData as $ctr => $managerData ) {
             if( $managerData['MANAGER_EMPLOYEE_ID'] == $byEmployee ) {
                 $byEmployeeInChain = true;
                 break;
             }
         }
-        
+
         return $byEmployeeInChain;
-        
+
         // select mh.* from table (care_get_entire_manager_hierarchy_for_employee(in_employer_id,in_employee_id)) mh
     }
 
     /**
      * Returns schedule for an employee.
-     * 
+     *
      * @param type $employeeNumber
      * @return type
      */
@@ -677,13 +741,13 @@ class Employee extends BaseDB {
                 ->where( ['schedule.EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPad( $employeeNumber ) ] );
 
         $scheduleData = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
-        
+
         return $scheduleData;
     }
 
     /**
      * Establishes a default Employee Schedule for a given employee.
-     * 
+     *
      * @param type $employeeNumber
      * @return boolean
      * @throws \Exception
@@ -782,7 +846,7 @@ class Employee extends BaseDB {
 
     /**
      * Find time off calendar data by Employee Number lookup.
-     * 
+     *
      */
     public function findTimeOffCalendarByEmployeeNumber( $employeeNumber = null, $startDate = null, $endDate = null, $requestId = null ) {
         $startDate = new \Datetime( $startDate );
@@ -790,16 +854,21 @@ class Employee extends BaseDB {
         $endDate = new \Datetime( $endDate );
         $endDate = $endDate->format( "Y-m-d" );
         $andRequestId = ( !is_null( $requestId ) ? " AND request.REQUEST_ID = " . $requestId : "" );
-        
-        $rawSql = "select entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS
+
+        $rawSql = "select entry.ENTRY_ID, entry.REQUEST_DATE, entry.REQUESTED_HOURS, requestcode.CALENDAR_DAY_CLASS, request.REQUEST_STATUS,
+            CASE WHEN entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' THEN
+                1
+            ELSE
+                0
+            END AS IS_ON_CURRENT_CALENDAR
             FROM TIMEOFF_REQUEST_ENTRIES entry
             INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
             INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
             WHERE
-              trim(request.EMPLOYEE_NUMBER)='" . $employeeNumber . "' AND 
-              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND IS_DELETED = 0 " . $andRequestId . "
+              trim(request.EMPLOYEE_NUMBER)='" . $employeeNumber . "' AND
+              IS_DELETED = 0 " . $andRequestId . "
             ORDER BY REQUEST_DATE ASC";
-                
+
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
@@ -889,7 +958,7 @@ class Employee extends BaseDB {
      */
     /**
      * Do a subquery
-     * 
+     *
      * /**
      * instantiate new SQL adapter
      */

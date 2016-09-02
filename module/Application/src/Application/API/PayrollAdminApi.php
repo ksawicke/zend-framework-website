@@ -1,15 +1,15 @@
 <?php
 
 /**
- * ProxyApi.php
+ * PayrollAdminApi.php
  *
- * Proxy API
+ * PayrollAdmin API
  *
- * API Handler for proxy submissions and actions
+ * API Handler for Payroll Admin and actions
  *
  * PHP version 5
  *
- * @package    Application\API\ProxyApi
+ * @package    Application\API\PayrollAdminApi
  * @author     Kevin Sawicke <kevin_sawicke@swifttrans.com>
  * @copyright  2016 Swift Transportation
  * @version    GIT: $Id$ In development
@@ -18,30 +18,30 @@
 namespace Application\API;
 
 use Zend\View\Model\JsonModel;
-use \Request\Model\EmployeeProxies;
+use \Request\Model\PayrollAdmins;
 // use \Login\Helper\UserSession;
 // use \Application\Factory\EmailFactory;
 
 /**
- * Handles API requests for the Time Off application.
+ * Handles Payroll Admin API requests for the Time Off application.
  *
  * @author sawik
  *
  */
-class ProxyApi extends ApiController {
+class PayrollAdminApi extends ApiController {
 
-    public function loadProxiesAction()
+    public function loadPayrollAdminsAction()
     {
-        return new JsonModel( $this->getProxyDatatable( $_POST ) );
+        return new JsonModel( $this->getPayrollAdminDatatable( $_POST ) );
     }
 
     /**
-     * Get data for the Proxy datatable.
+     * Get data for the PayrollAdmin datatable.
      *
      * @param array $data
      * @return array
      */
-    public function getProxyDatatable( $data )
+    public function getPayrollAdminDatatable( $data )
     {
         /**
          * return empty result if not called by Datatable
@@ -54,29 +54,35 @@ class ProxyApi extends ApiController {
          * increase draw counter for adatatable
          */
         $draw = $data['draw'] ++;
-        $EmployeeProxies = new EmployeeProxies();
-        $proxyData = $EmployeeProxies->getProxies( $data );
+        $PayrollAdmins = new PayrollAdmins();
+        $payrollAdminData = $PayrollAdmins->getPayrollAdmins( $data );
         $data = [];
-        foreach ( $proxyData as $ctr => $request ) {
+
+//        echo '<pre>';
+//        var_dump( $payrollAdminData );
+//        echo '</pre>';
+//        exit();
+
+        foreach ( $payrollAdminData as $ctr => $request ) {
             $viewLinkUrl = "#";
             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
 
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'STATUS' => '<div class="switch">' .
-                            '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat proxy-toggle" type="checkbox"' . $checked .
-                            ' data-proxy-employee-number="' . $request['PROXY_EMPLOYEE_NUMBER'] . '"' .
+                            '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"' . $checked .
+                            ' data-payroll-admin-employee-number="' . $request['EMPLOYEE_NUMBER'] . '"' .
                             ' data-status="' . $request['STATUS'] . '">' .
                             '<label for="cmn-toggle-' . $ctr . '"></label>' .
                             '</div>',
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '">' .
-                             '<button type="button" class="btn btn-form-primary btn-xs remove-proxy" data-proxy-employee-number="' .
-                             $request['PROXY_EMPLOYEE_NUMBER'] . '">Remove</button></a>'
+                             '<button type="button" class="btn btn-form-primary btn-xs remove-payroll-admin" data-payroll-admin-employee-number="' .
+                             $request['EMPLOYEE_NUMBER'] . '">Remove</button></a>'
             ];
         }
 
-        $recordsTotal = $EmployeeProxies->countProxyItems( $_POST, false );
-        $recordsFiltered = $EmployeeProxies->countProxyItems( $_POST, true );
+        $recordsTotal = $PayrollAdmins->countPayrollAdminItems( $_POST, false );
+        $recordsFiltered = $PayrollAdmins->countPayrollAdminItems( $_POST, true );
 
         /**
          * prepare return result
@@ -97,15 +103,15 @@ class ProxyApi extends ApiController {
     }
 
     /**
-     * Submits new proxy request for an employee.
+     * Submits new Payroll Admin request for an employee.
      */
-    public function submitProxyRequestAction()
+    public function submitPayrollAdminRequestAction()
     {
         $post = $this->getRequest()->getPost();
-        $EmployeeProxies = new EmployeeProxies();
+        $PayrollAdmins = new PayrollAdmins();
 
         try {
-            $EmployeeProxies->addProxy( $post );
+            $PayrollAdmins->addPayrollAdmin( $post );
             /**
              * 201: Created success code, for POST request.
              */
@@ -121,7 +127,7 @@ class ProxyApi extends ApiController {
             $this->getResponse()->setStatusCode( 500 );
             return new JsonModel([
                 'success' => false,
-                'message' => 'There was an error adding a proxy for this employee number. Please try again.'
+                'message' => 'There was an error adding a Payroll Admin for this employee number. Please try again.'
             ]);
         }
     }
@@ -131,13 +137,13 @@ class ProxyApi extends ApiController {
      *
      * @return JsonModel
      */
-    public function deleteProxyAction()
+    public function deletePayrollAdminAction()
     {
         $post = $this->getRequest()->getPost();
-        $EmployeeProxies = new EmployeeProxies();
+        $PayrollAdmins = new PayrollAdmins();
 
         try {
-            $EmployeeProxies->deleteProxy( $post );
+            $PayrollAdmins->deletePayrollAdmin( $post );
 
             /**
              * 204: No Content success code, for DELETE request.
@@ -150,23 +156,23 @@ class ProxyApi extends ApiController {
             $this->getResponse()->setStatusCode( 500 );
             return new JsonModel([
                 'success' => false,
-                'message' => 'There was an error deleting a proxy for this employee number. Please try again.'
+                'message' => 'There was an error deleting a Payroll Admin for this employee number. Please try again.'
             ]);
         }
     }
 
     /**
-     * Toggles a proxy status from active to non-active and vice versa for an employee.
+     * Toggles a Payroll Admin status from active to non-active and vice versa for an employee.
      *
      * @return JsonModel
      */
-    public function toggleProxyAction()
+    public function togglePayrollAdminAction()
     {
         $post = $this->getRequest()->getPost();
-        $EmployeeProxies = new EmployeeProxies();
+        $PayrollAdmins = new PayrollAdmins();
 
         try {
-            $EmployeeProxies->toggleProxy( $post );
+            $PayrollAdmins->togglePayrollAdmin( $post );
 
             /**
              * 200: Success.
@@ -174,7 +180,7 @@ class ProxyApi extends ApiController {
             $this->getResponse()->setStatusCode( 200 );
             return new JsonModel([
                 'success' => true,
-                'employeeNumber' => $post->EMPLOYEE_NUMBER
+                'employeeNumber' => $post->PAYROLLASSISTANT_EMPLOYEE_NUMBER
             ]);
         } catch ( \Exception $ex ) {
              /**
@@ -183,7 +189,7 @@ class ProxyApi extends ApiController {
             $this->getResponse()->setStatusCode( 500 );
             return new JsonModel([
                 'success' => false,
-                'message' => 'There was an error deleting a proxy for this employee number. Please try again.'
+                'message' => 'There was an error deleting a Payroll Admin for this employee number. Please try again.'
             ]);
         }
     }
