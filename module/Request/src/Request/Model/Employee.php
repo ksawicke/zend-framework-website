@@ -768,7 +768,7 @@ class Employee extends BaseDB {
         $stmt = $sql->prepareStatementForSqlObject( $action );
         try {
             $result = $stmt->execute();
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
 
@@ -909,8 +909,8 @@ class Employee extends BaseDB {
 
         try {
             $statement = $sql->prepareStatementForSqlObject( $select );
-        } catch ( Exception $e ) {
-            var_dump( $e );
+        } catch ( \Exception $e ) {
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $result = $statement->execute();

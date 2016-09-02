@@ -208,7 +208,7 @@ class TimeOffRequests extends BaseDB {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $companyHolidays = json_decode( $request->SYSTEM_VALUE );
         } catch ( \Exception $e ) {
-            var_dump( $e );
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         return $companyHolidays;
@@ -480,7 +480,7 @@ class TimeOffRequests extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
         } catch ( \Exception $e ) {
-            var_dump( $e );
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
@@ -532,7 +532,7 @@ class TimeOffRequests extends BaseDB {
         try {
             $entries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
         } catch ( \Exception $e ) {
-            var_dump( $e );
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         return $entries;

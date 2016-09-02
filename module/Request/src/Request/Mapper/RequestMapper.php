@@ -895,7 +895,7 @@ class RequestMapper implements RequestMapperInterface {
         $stmt = $sql->prepareStatementForSqlObject($action);
         try {
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Can't execute statement: " . $e->getMessage());
         }
         
@@ -1108,7 +1108,7 @@ class RequestMapper implements RequestMapperInterface {
         $stmt = $sql->prepareStatementForSqlObject($action);
         try {
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Can't execute statement: " . $e->getMessage());
         }
 
@@ -1127,7 +1127,7 @@ class RequestMapper implements RequestMapperInterface {
             $stmt = $sql->prepareStatementForSqlObject($action);
             try {
                 $result = $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new \Exception("Can't execute statement: " . $e->getMessage());
             }
         }
@@ -1195,7 +1195,7 @@ class RequestMapper implements RequestMapperInterface {
         $stmt = $sql->prepareStatementForSqlObject($logEntry);
         try {
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Can't execute statement: " . $e->getMessage());
         }
     }
