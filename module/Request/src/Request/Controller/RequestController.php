@@ -14,7 +14,12 @@ use \Login\Helper\UserSession;
 
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
-use Request\Helper\PHPExcel\PHPExcel;
+use PHPExcel;
+use PHPExcel_Style_NumberFormat;
+use PHPExcel_IOFactory;
+// use Request\Helper\PHPExcel\PHPExcel;
+// use PHPExcel_Style_NumberFormat;
+// use PHPExcel_IOFactory;
 
 class RequestController extends AbstractActionController
 {
@@ -433,9 +438,9 @@ class RequestController extends AbstractActionController
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
     {
         /** Include PHPExcel */
-//         $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-//         require_once( $path );
-        $objPHPExcel = new PHPExcel();
+        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
+        require_once( $path );
+        $objPHPExcel = new \PHPExcel();
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -485,7 +490,12 @@ class RequestController extends AbstractActionController
 
     private function outputUpdatesCheckQueue( $spreadsheetRows = [] )
     {
+        /** Include PHPExcel */
+//         $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
+//         require_once( $path );
+
         $objPHPExcel = new PHPExcel();
+        var_dump($spreadsheetRows); die();
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -519,7 +529,7 @@ class RequestController extends AbstractActionController
             $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
             $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
-                \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
+                PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['LAST_PAYROLL_COMMENT']);
             $worksheet->setCellValue('F'.($key+2), $minDateRequested);
         }
@@ -529,7 +539,7 @@ class RequestController extends AbstractActionController
         header('Content-Disposition: attachment;filename="UpdatesCheckQueue_' . date('Ymd-his') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
     }
 
