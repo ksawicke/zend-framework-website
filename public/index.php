@@ -15,7 +15,7 @@ define('CURRENT_PATH', $currentPath);
 
 if( trim($currentSystem) == 'swift' || trim($currentSystem) == 'swift.swift.com' ) {
     switch ($currentPath) {
-        case '/www/zendsvr6/htdocs/sawik/timeoff/uat':
+        case '/www/zendsvr6/htdocs/timeoff':
             define('ENVIRONMENT', 'testing');
             break;
         

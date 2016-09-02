@@ -19,8 +19,8 @@ class TimeOffRequestSettings extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $emailOverrideList = json_decode( $request->SYSTEM_VALUE );            
-        } catch ( Exception $e ) {
-            var_dump( $e );
+        } catch ( \Exception $e ) {
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
         
         return $emailOverrideList;
@@ -41,8 +41,8 @@ class TimeOffRequestSettings extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $emailOverrideList = json_decode( $request->SYSTEM_VALUE );            
-        } catch ( Exception $e ) {
-            var_dump( $e );
+        } catch ( \Exception $e ) {
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
         
         return $emailOverrideList;
@@ -111,8 +111,8 @@ class TimeOffRequestSettings extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $companyHolidays = $this->sortArrayOfDates( json_decode( $request->SYSTEM_VALUE ) );
-        } catch ( Exception $e ) {
-            var_dump( $e );
+        } catch ( \Exception $e ) {
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
         
         return $companyHolidays;
