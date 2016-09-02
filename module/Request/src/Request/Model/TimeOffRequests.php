@@ -13,6 +13,7 @@ use Request\Model\BaseDB;
 use Zend\Db\Sql\Where;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\Sql\Expression;
 
 /**
  * Common Request arrays
@@ -659,6 +660,11 @@ class TimeOffRequests extends BaseDB {
     {
         $sql = new Sql($this->adapter);
 
+        $emailReminderCountSelect = $sql->select()
+                                        ->from(['EMAIL' => 'TIMEOFF_REQUEST_EMAIL_REMINDER'])
+                                        ->columns(array('RCOUNT' => new Expression('COUNT(*)')))
+                                        ->where("EMAIL.REQUEST_ID = TIMEOFF_REQUESTS.REQUEST_ID AND (EMAIL_SEND = 'N' OR (EMAIL_SEND = 'Y' AND date(EMAIL_SEND_ON) <> current_date))");
+
         $select = $sql->select();
 
         $select->from('TIMEOFF_REQUESTS');
@@ -666,7 +672,8 @@ class TimeOffRequests extends BaseDB {
         $where = new Where();
 
         $where->equalTo('REQUEST_STATUS', 'P')
-              ->and->literal("date(CREATE_TIMESTAMP) < current_date-3 days");
+              ->and->literal("date(CREATE_TIMESTAMP) < current_date-3 days")
+              ->and->literal("(" . $emailReminderCountSelect->getSqlString($this->adapter->platform) . ") = 0" );
 
         $select->where($where);
 

@@ -249,6 +249,10 @@ $config = [
         ]
     ],
     'view_manager' => [
+//         'email_reminder_template'       => 'email/reminder',
+//         'template_map' => [
+//             'email/reminder'             => __DIR__ . '/../view/email/TimeOffEmailReminder.phtml',
+//         ],
         'template_path_stack' => [
             __DIR__ . '/../view'
         ]

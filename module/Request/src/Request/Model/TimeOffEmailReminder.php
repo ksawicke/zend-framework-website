@@ -29,6 +29,7 @@ class TimeOffEmailReminder extends BaseDB
         $select->from('TIMEOFF_REQUEST_EMAIL_REMINDER');
         $select->columns(
             [
+                'IDENTITY_ID',
                 'EMAIL_SEND',
                 'REQUEST_ID',
                 'EMPLOYEE_NAME' => new Expression("GET_EMPLOYEE_COMMON_NAME('002', REFACTOR_EMPLOYEE_ID(EMPLOYEE_NUMBER))"),
@@ -113,7 +114,8 @@ class TimeOffEmailReminder extends BaseDB
         $sql = new Sql($this->adapter);
 
         $merge = "merge into TIMEOFF_REQUEST_EMAIL_REMINDER using (values(" . $reminderRecord['REQUEST_ID'] .")) " .
-                  "insrow(request_id) on TIMEOFF_REQUEST_EMAIL_REMINDER.REQUEST_ID = insrow.REQUEST_ID AND TIMEOFF_REQUEST_EMAIL_REMINDER.EMAIL_SEND = 'N' " .
+                  "insrow(request_id) on TIMEOFF_REQUEST_EMAIL_REMINDER.REQUEST_ID = insrow.REQUEST_ID AND (TIMEOFF_REQUEST_EMAIL_REMINDER.EMAIL_SEND = 'N' " .
+                  " OR (TIMEOFF_REQUEST_EMAIL_REMINDER.EMAIL_SEND = 'Y' AND date(TIMEOFF_REQUEST_EMAIL_REMINDER.EMAIL_SEND_ON) <= current_date)) " .
                   "when not matched then insert(request_id) values(insrow.request_id)";
 
         $statement = $this->adapter->getDriver()->createStatement($merge);

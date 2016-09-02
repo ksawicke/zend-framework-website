@@ -322,7 +322,7 @@ class Employee extends BaseDB {
                        FROM PRPMS
                        WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
         $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlPRPMS );
-        
+
         /**
          * 2nd check to see if they are added in the db
          */
@@ -330,29 +330,29 @@ class Employee extends BaseDB {
                           FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
                           WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 1";
         $dataTimeOffAdded = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlTimeOffAdded );
-        
+
         $rawSqlTimeOffDisabled = "SELECT COUNT(*) AS PAYROLL_ADMIN_DISABLED_COUNT
                           FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
                           WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 0";
         $dataTimeOffDisabled = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlTimeOffDisabled );
-        
+
         $validation = [ 'IS_PAYROLL_ADMIN' => $dataPRPMS[0]->IS_PAYROLL_ADMIN,
                         'PAYROLL_ADMIN_ADDED_COUNT' => $dataTimeOffAdded[0]->PAYROLL_ADMIN_ADDED_COUNT,
                         'PAYROLL_ADMIN_DISABLED_COUNT' => $dataTimeOffDisabled[0]->PAYROLL_ADMIN_DISABLED_COUNT ];
-        
+
 //         echo '<pre>';
 //         var_dump( $validation );
 //         die();
-        
+
         $isPayrollAdmin = "N";
         if( ( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ||
             ( $validation['IS_PAYROLL_ADMIN']=="N" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==1 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ) {
-            $isPayrollAdmin = "Y";        
+            $isPayrollAdmin = "Y";
         }
         if( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==1 ) {
             $isPayrollAdmin = "N";
         }
-        
+
 //         die( "IS PAYROLL ADMIN: " . $isPayrollAdmin );
 
         return $isPayrollAdmin;
@@ -442,7 +442,7 @@ class Employee extends BaseDB {
             ) AS SICK,
             ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
               WHERE entry.request_id = request.request_id AND
-              entry.is_deleted = '0' AND 
+              entry.is_deleted = '0' AND
               entry.request_code = 'R'
             ) AS GRANDFATHERED,
             ( SELECT CASE WHEN SUM(requested_hours) > 0 THEN SUM(requested_hours) ELSE 0 END FROM timeoff_request_entries entry
@@ -937,6 +937,38 @@ class Employee extends BaseDB {
         } );
 
         return $object;
+    }
+
+    public function getEmployeeEmailAddress( $employeeId = null, $employerId = '002')
+    {
+        $employeeId = str_pad(trim($employeeId), 9, ' ', STR_PAD_LEFT);
+
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('PRPMS');
+
+        $select->columns(['PREML1']);
+
+        $where = new Where();
+
+        $where->equalTo('PRER', $employerId)
+              ->and->equalTo('PREN', $employeeId);
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['PREML1'];
+        }
+
+        return null;
     }
 
     /**

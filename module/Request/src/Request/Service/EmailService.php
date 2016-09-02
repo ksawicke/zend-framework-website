@@ -90,7 +90,6 @@ class EmailService extends AbstractActionController
 
     private function checkEmailOverride()
     {
-//         $timeOffRequestSettings = new TimeOffRequestSettings();
         $emailOverrideList = $this->timeOffRequestSettings->getEmailOverrideList();
         $this->overrideEmails = $this->timeOffRequestSettings->getOverrideEmailsSetting();
         $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ?
