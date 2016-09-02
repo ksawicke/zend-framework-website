@@ -427,9 +427,9 @@ class RequestController extends AbstractActionController
     {
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
-        echo "<pre>";
+//         echo "<pre>";
         $queueData = $PayrollQueues->getUpdateChecksQueue();
-        var_dump($queueData);
+//         var_dump($queueData);
         $this->outputUpdatesCheckQueue( $queueData );
 
         exit;
@@ -495,7 +495,7 @@ class RequestController extends AbstractActionController
 //         require_once( $path );
 
         $objPHPExcel = new PHPExcel();
-        var_dump($spreadsheetRows); die();
+//         var_dump($spreadsheetRows); die();
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
