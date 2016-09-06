@@ -290,6 +290,60 @@ class RequestApi extends ApiController {
 
         return $result;
     }
+    
+    /**
+     * Handle an API request to allow Payroll to edit a request in Completed PAFs queue.
+     *
+     * @return JsonModel
+     */
+    public function submitPayrollModifyCompletedPAFsAction() {
+        $posted = true;
+        if( empty( $data ) ) {
+            $post = $this->getRequest()->getPost();
+        } else {
+            $posted = false;
+            $post = (object) $data;
+        }
+
+        $Employee = new Employee();
+        $TimeOffRequests = new TimeOffRequests();
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $validationHelper = new ValidationHelper();
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
+
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+
+        if( $updatesToFormMade ) {
+            $TimeOffRequestLog->logEntry(
+                $post->request_id,
+                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+                'Request modified by ' . UserSession::getFullUserInfo() );
+        }
+        
+        /** Log Payroll approval with comment **/
+        $TimeOffRequestLog->logEntry(
+            $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll modified by ' . UserSession::getFullUserInfo() .
+            ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+            ( (!empty( $post->payroll_comment )) ? ' with the comment: ' . $post->payroll_comment : '' ) );
+
+        if ( $post->request_id != null ) {
+            $result = new JsonModel( [
+                'success' => true,
+                'request_id' => $post->request_id,
+                'posted' => $posted
+            ] );
+        } else {
+            $result = new JsonModel( [
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.',
+                'posted' => $posted
+            ] );
+        }
+
+        return $result;
+    }
 
     /**
      * Toggles option to receive calendar invites.
