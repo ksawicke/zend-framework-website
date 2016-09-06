@@ -22,7 +22,11 @@ class Module
 
     public function __construct()
     {
-        $fullPath = $_SERVER['DOCUMENT_URI'];
+        $fullPath = getcwd();
+
+        if (isset($_SERVER['DOCUMENT_URI'])) {
+            $fullPath = $_SERVER['DOCUMENT_URI'];
+        }
         $fullPath = substr( $fullPath, 0, -10 );
         $this->loggedInTrueRedirectToUrl = $fullPath . '/request/view-my-requests';
         $this->loggedInFalseRedirectToUrl = $fullPath . '/login/index';
@@ -79,7 +83,9 @@ class Module
                 $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl ) );
                 $response->setStatusCode( 302 );
             }
-            $response->sendHeaders();
+            if (isset($_SERVER['DOCUMENT_URI'])) {
+                $response->sendHeaders();
+            }
         }
     }
 
