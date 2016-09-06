@@ -406,6 +406,20 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            
+            // payroll-modify-completed
+            'submitPayrollModifyCompletedPAFs' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-modify-completed',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollModifyCompletedPAFs'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
 
             'getSearchResults' => [
                 'type' => 'segment',

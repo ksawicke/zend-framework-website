@@ -10,9 +10,11 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollDeniedUrl = phpVars.basePath + '/api/request/payroll-denied',
         apiSubmitPayrollUploadUrl = phpVars.basePath + '/api/request/payroll-upload',
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
+        apiSubmitPayrollSaveChangesToCompletedRequestUrl = phpVars.basePath + '/api/request/payroll-modify-completed',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
         redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
         redirectUpdateChecksQueue = phpVars.basePath + '/request/view-payroll-queue/update-checks',
+        redirectCompletedPAFsQueue = phpVars.basePath + '/request/view-payroll-queue/completed-pafs',
         timeOffApproveRequestInUpdateChecksQueue = phpVars.basePath + '/api/request/approve-update-checks-request',
         doRealDelete = false;
 
@@ -78,6 +80,10 @@ var timeOffApproveRequestHandler = new function ()
                 case 'payrollActionCompleteRequest':
                     timeOffApproveRequestHandler.payrollActionCompleteRequest( data );
                     break;
+                    
+                case 'payrollActionSaveChangesToCompletedRequest':
+                	timeOffApproveRequestHandler.payrollActionSaveChangesToCompletedRequest( data, $(this) );
+                	break;
             }
         });
     }
@@ -97,12 +103,12 @@ var timeOffApproveRequestHandler = new function ()
         selectedButton.prepend( '<i class="glyphicon glyphicon-refresh gly-spin"></i>&nbsp;&nbsp;' );
     }
 
-    this.stopPleaseWaitStatus = function( selectedButton ) {
+    this.stopPleaseWaitStatus = function( selectedButton, buttonText ) {
         $( '.btn' ).removeClass( 'disabled' ); // Disable all buttons from being selected first.
         selectedButton.blur(); // Click out of button.
 
         // Remove spinning icon
-        selectedButton.html('Deny');
+        selectedButton.html( buttonText );
     }
 
     /**
@@ -125,7 +131,7 @@ var timeOffApproveRequestHandler = new function ()
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#managerComment").addClass("borderColorRed");
             /* enable DENY button */
-            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
+            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Deny' );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#managerComment").removeClass("borderColorRed");
@@ -156,7 +162,7 @@ var timeOffApproveRequestHandler = new function ()
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
             /* enable DENY button */
-            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton );
+            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Deny' );
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#payrollComment").removeClass("borderColorRed");
@@ -209,6 +215,26 @@ var timeOffApproveRequestHandler = new function ()
     this.payrollActionCompleteRequest = function( data ) {
         timeOffApproveRequestHandler.roundTripAPICall(
             data, timeOffApproveRequestInUpdateChecksQueue, redirectUpdateChecksQueue, "Unable to mark as Completed PAF." );
+    }
+    
+    this.payrollActionSaveChangesToCompletedRequest = function( data, selectedButton ) {
+    	if ($.trim($("#payrollComment").val()) == '') {
+            $("#noCommentEnteredWarning").removeClass("hidden");
+            $("#payrollComment").addClass("borderColorRed");
+            /* enable DENY button */
+            timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Save' );
+        } else {
+            $("#noCommentEnteredWarning").addClass("hidden");
+            $("#payrollComment").removeClass("borderColorRed");
+            
+            timeOffApproveRequestHandler.roundTripAPICall(
+                    data, apiSubmitPayrollSaveChangesToCompletedRequestUrl, redirectCompletedPAFsQueue, "Unable to update this Completed PAF." );
+            
+//            alert( "This feature is currently being developed." );
+//        	setTimeout(function() {
+//        		timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Save' );
+//        	}, 1000);
+        }
     }
 };
 
