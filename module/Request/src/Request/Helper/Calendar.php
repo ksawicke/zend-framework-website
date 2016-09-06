@@ -458,7 +458,7 @@ class Calendar
                     $requestClass = $calendarClassesByDate[$thisDayYmd];
                 }
                 if( in_array( $thisDay, self::$invalidRequestDates['individual'] ) ) {
-                    $requestClass = "calendar-day-holiday";
+                    $requestClass .= " calendar-day-holiday";
                 }
                 $beginDayCell = str_replace("&requestTypeClass&", $requestClass, self::$beginDayCell);
                 $calendarTemp .= str_replace("&date&", str_pad($month, 2, "0", STR_PAD_LEFT) . "/" .

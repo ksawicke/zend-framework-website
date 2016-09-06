@@ -5,9 +5,15 @@ namespace Request;
 $config = [
     'service_manager' => [
         'factories' => [
+            'TimeOffEmailReminderService' => Factory\TimeOffEmailReminderServiceFactory::class,
+            'EmailService' => Factory\EmailServiceFactory::class,
 //            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
 //            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
-        ]
+        ],
+        'invokables' => [
+//             'EmailService' => Factory\EmailServiceFactory::class,
+            'TimeOffEmailReminder' => Model\TimeOffEmailReminder::class,
+        ],
     ],
     'controllers' => [
 //        'factories' => [
@@ -652,4 +658,4 @@ return $config;
                 )
 
         )
- */
+*/

@@ -437,7 +437,7 @@ class PapaaHelper {
                 $currentDay++;
             }
         }
-        var_dump($dataMatrix);
+        //var_dump($dataMatrix);
 
         return $dataMatrix;
     }
