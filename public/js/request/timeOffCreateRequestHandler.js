@@ -241,15 +241,15 @@ var timeOffCreateRequestHandler = new function() {
 		}
 		
 		if( exceededHours.PTO && +totalPTORequested > 0 ) {
-			$('#warnPTO').show();
+			$('#warnExceededPTOHours').show();
 		} else {
-			$('#warnPTO').hide();
+			$('#warnExceededPTOHours').hide();
 		}
 		
 		if( exceededHours.Float && +totalFloatRequested > 0 ) {
-			$('#warnFloat').show();
+			$('#warnExceededFloatHours').show();
 		} else {
-			$('#warnFloat').hide();
+			$('#warnExceededFloatHours').hide();
 		}
 		
 		if( exceededHours.Grandfathered || exceededHours.Sick || bereavementTotalForRequest > 24 ||
