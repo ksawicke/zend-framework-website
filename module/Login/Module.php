@@ -71,7 +71,7 @@ class Module
         $whiteList = [ 'Login\Controller\Login-index',
                        'Login\Controller\Login-logout',
                         'API\Scheduler\Controller-sendThreeDayReminderEmailToSupervisor',
-                        'API\Scheduler\Controller-setRequestsToCompleted'
+                        'API\CLI\Controller-setRequestsToCompleted'
         ];
         if( $session->offsetExists ( 'EMPLOYEE_NUMBER' ) ) {
             if ( in_array( $requestedResource, $whiteList ) ) {

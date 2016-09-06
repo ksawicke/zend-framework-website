@@ -305,7 +305,6 @@ class RequestEntry extends BaseDB {
         if (count($selectedRecords) == 0) {
             return;
         }
-
         /* define the update */
         $update = $sql->update();
 
