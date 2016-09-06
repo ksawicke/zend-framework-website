@@ -13,7 +13,7 @@ class ResultSetOutput
         try {
             $statement = $sql->prepareStatementForSqlObject($select);
         } catch(\Exception $e) {
-            var_dump($e);
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 //         echo $select->getSqlString();exit();
 //         var_dump($stmt);exit();
@@ -30,7 +30,7 @@ class ResultSetOutput
         try {
             $statement = $sql->prepareStatementForSqlObject($select);
         } catch(\Exception $e) {
-            var_dump($e);
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $result = $statement->execute();
@@ -55,7 +55,7 @@ class ResultSetOutput
             $resultSet = new ResultSet;
             $resultSet->initialize( $result );
         } catch( \Exception $ex ) {
-            var_dump( $ex );
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $array = [];
@@ -71,7 +71,7 @@ class ResultSetOutput
         try {
             $statement = $dbAdapter->createStatement($rawSql);
         } catch(\Exception $e) {
-            var_dump($e);
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $result = $statement->execute();
@@ -87,7 +87,7 @@ class ResultSetOutput
         try {
             $statement = $dbAdapter->createStatement($rawSql);
         } catch(\Exception $e) {
-            var_dump($e);
+            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
         $result = $statement->execute();

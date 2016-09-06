@@ -2,10 +2,8 @@
 
 namespace Request\Model;
 
-use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
@@ -768,7 +766,7 @@ class Employee extends BaseDB {
         $stmt = $sql->prepareStatementForSqlObject( $action );
         try {
             $result = $stmt->execute();
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
 
@@ -909,7 +907,7 @@ class Employee extends BaseDB {
 
         try {
             $statement = $sql->prepareStatementForSqlObject( $select );
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             var_dump( $e );
         }
 
