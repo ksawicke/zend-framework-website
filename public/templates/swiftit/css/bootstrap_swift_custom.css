@@ -1399,6 +1399,10 @@ div.buttons {
     border-color: red;
 }
 
+.hrefDisabled {
+    color: gray;
+}
+
 .columnWidth115 {
     width: 115px;
     max-width: 115px;

@@ -13,28 +13,28 @@ namespace Login;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
-use Zend\Authentication\Adapter\DbTable as DbAuthAdapter;
-use Zend\Authentication\AuthenticationService;
-use Zend\Authentication\Validator\Authentication as AuthenticationValidator;
-use Login\Model\LoginModel;
 
 class Module
 {
-    
+
     public $loggedInTrueRedirectToUrl;
     public $loggedInFalseRedirectToUrl;
-    
+
     public function __construct()
     {
-        $fullPath = $_SERVER['DOCUMENT_URI'];
-        $fullPath = substr( $fullPath, 0, -10 ); 
+        $fullPath = getcwd();
+
+        if (isset($_SERVER['DOCUMENT_URI'])) {
+            $fullPath = $_SERVER['DOCUMENT_URI'];
+        }
+        $fullPath = substr( $fullPath, 0, -10 );
         $this->loggedInTrueRedirectToUrl = $fullPath . '/request/view-my-requests';
         $this->loggedInFalseRedirectToUrl = $fullPath . '/login/index';
     }
-    
+
     /**
-     * 
-     * 
+     *
+     *
      * @param MvcEvent $e
      */
     public function onBootstrap(MvcEvent $e)
@@ -55,7 +55,7 @@ class Module
 
     /**
      * Do something before any controller action is taken.
-     * 
+     *
      * @param MvcEvent $event
      */
     public function beforeDispatch( MvcEvent $event )
@@ -66,12 +66,12 @@ class Module
         $action = $event->getRouteMatch ()->getParam ( 'action' );
         $requestedResource = $controller . "-" . $action;
         $session = new Container('Timeoff_'.ENVIRONMENT);
-                
+
         /* Pages that are excluded from requiring authentication */
         $whiteList = [ 'Login\Controller\Login-index',
-                       'Login\Controller\Login-logout'
+                       'Login\Controller\Login-logout',
+                        'API\Scheduler\Controller-sendThreeDayReminderEmailToSupervisor'
                      ];
-
         if( $session->offsetExists ( 'EMPLOYEE_NUMBER' ) ) {
             if ( in_array( $requestedResource, $whiteList ) ) {
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInTrueRedirectToUrl ) );
@@ -83,13 +83,15 @@ class Module
                 $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl ) );
                 $response->setStatusCode( 302 );
             }
-            $response->sendHeaders();
+            if (isset($_SERVER['DOCUMENT_URI'])) {
+                $response->sendHeaders();
+            }
         }
     }
 
     /**
      * Do something after any controller action is taken.
-     * 
+     *
      * @param MvcEvent $event
      */
     public function afterDispatch( MvcEvent $event ){
@@ -103,7 +105,7 @@ class Module
 
     /**
      * Gets the Autoloader Configuration from Zend Framework.
-     * 
+     *
      * @return type
      */
     public function getAutoloaderConfig()
@@ -113,7 +115,7 @@ class Module
 
     /**
      * Gets the Service Configuration from Zend Framework.
-     * 
+     *
      * @return array
      */
     public function getServiceConfig()
