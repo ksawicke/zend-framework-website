@@ -21,7 +21,7 @@ class RequestService implements RequestServiceInterface
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      * @see \Request\Service\RequestServiceInterface::findTimeOffRequestsByEmployeeAndStatus()
      */
@@ -29,7 +29,7 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffRequestsByEmployeeAndStatus($employeeNumber, $status);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -37,7 +37,7 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffBalancesByEmployee($employeeNumber);
     }
-    
+
     public function findTimeOffEmployeeData($employeeNumber, $includeHourTotals)
     {
         return $this->requestMapper->findTimeOffEmployeeData($employeeNumber, $includeHourTotals);
@@ -47,12 +47,12 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffApprovedRequestsByEmployee($employeeNumber, $returnType);
     }
-    
+
     public function findRequestCalendarInviteData($requestId)
     {
         return $this->requestMapper->findRequestCalendarInviteData($requestId);
     }
-    
+
     public function findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId)
     {
         return $this->requestMapper->findTimeOffPendingRequestsByEmployee($employeeNumber, $returnType, $requestId);
@@ -62,59 +62,60 @@ class RequestService implements RequestServiceInterface
     {
         return $this->requestMapper->findTimeOffBalancesByManager($managerEmployeeNumber);
     }
-    
+
     public function findEmployeeSchedule($employeeNumber)
     {
         return $this->requestMapper->findEmployeeSchedule($employeeNumber);
     }
-    
+
     public function makeDefaultEmployeeSchedule($employeeNumber)
     {
         return $this->requestMapper->makeDefaultEmployeeSchedule($employeeNumber);
     }
-    
+
     public function findManagerEmployees($managerEmployeeNumber, $search, $directReportFilter)
     {
         return $this->requestMapper->findManagerEmployees($managerEmployeeNumber, $search, $directReportFilter);
     }
-    
+
     public function findQueuesByManager($managerEmployeeNumber)
     {
         return $this->requestMapper->findQueuesByManager($managerEmployeeNumber);
     }
-    
+
     public function findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate)
     {
         return $this->requestMapper->findTimeOffCalendarByManager($managerEmployeeNumber, $startDate, $endDate);
     }
-    
+
     public function isManager($employeeNumber)
     {
         return $this->requestMapper->isManager($employeeNumber);
     }
-    
+
     public function isPayroll($employeeNumber)
     {
         return $this->requestMapper->isPayroll($employeeNumber);
     }
-    
+
     public function submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber)
     {
         return $this->requestMapper->submitRequestForApproval($employeeNumber, $requestData, $requestReason, $requesterEmployeeNumber);
     }
-    
+
     public function submitApprovalResponse($action, $requestId, $reviewRequestReason)
     {
         return $this->requestMapper->submitApprovalResponse($action, $requestId, $reviewRequestReason);
     }
-    
+
     public function checkHoursRequestedPerCategory($requestId)
     {
         return $this->requestMapper->checkHoursRequestedPerCategory($requestId);
     }
-    
+
     public function logEntry($requestId, $employeeNumber, $comment)
     {
         return $this->requestMapper->logEntry($requestId, $employeeNumber, $comment);
     }
+
 }

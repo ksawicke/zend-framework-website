@@ -465,6 +465,18 @@ return [
                 ),
             ),
 
+            'setPendingTransactionsToCompleted' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/api/scheduler/set_pending_transaction_to_completed',
+//                     'route'    => 'send_three_day_reminder_email_to_supervisor',
+                    'defaults' => array(
+                        'controller' => 'API\Scheduler\Controller',
+                        'action'     => 'setRequestsToCompleted',
+                    ),
+                ),
+            ),
+
         ],
     ],
     'controllers' => [

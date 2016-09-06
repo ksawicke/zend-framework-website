@@ -7,6 +7,10 @@ use Zend\View\Model\JsonModel;
 // use Zend\Console\Request as ConsoleRequest;
 use Request\Service\TimeOffEmailReminderService;
 use Application\API\ApiController;
+use Request\Factory\RequestServiceFactory;
+use Request\Factory\RequestMapperFactory;
+use Request\Mapper\RequestMapper;
+use Request\Model\RequestEntry;
 
 class Scheduler extends ApiController //AbstractActionController
 {
@@ -26,6 +30,14 @@ class Scheduler extends ApiController //AbstractActionController
 
         return new JsonModel($timeOffEmailReminderServiceResult);
 //         return "Done!";
+    }
+
+    public function setRequestsToCompletedAction()
+    {
+        $requestService = new RequestEntry();
+        $requestService->setRequestsToCompleted();
+
+        return new JsonModel(['ok']);
     }
 
     public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
