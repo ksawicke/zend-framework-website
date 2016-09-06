@@ -107,6 +107,16 @@ var timeOffPayrollQueueHandler = new function ()
             initComplete: function () {
                 var table = $('#payroll-queue-update-checks').DataTable();
 
+                var rowCount = table.rows().data();
+
+                if (rowCount.length == 0) {
+                    $("#updateChecksAnchor").removeAttr('href');
+                    $("#updateChecksAnchor").addClass('hrefDisabled');
+                } else {
+                    $("#updateChecksAnchor").attr('href', phpVars.basePath + '/request/download-update-checks');
+                    $("#updateChecksAnchor").removeClass('hrefDisabled');
+                }
+
                 table.columns().every( function () {
                     var column = this;
                     var idx = this.index();

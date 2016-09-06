@@ -5,9 +5,7 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Expression;
-use function Zend\View\Renderer\basePath;
 
 class TimeOffEmailReminder extends BaseDB
 {

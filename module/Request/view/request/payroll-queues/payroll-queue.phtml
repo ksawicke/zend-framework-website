@@ -52,9 +52,13 @@ var reloadByStatusDT = function() {
     </thead>
 </table>
 
-<?php if( $this->payrollView === 'manager-action' ) { ?>
+<?php if( $this->payrollView === 'manager-action') { ?>
     <br />
     <a href="<?php echo $this->basePath(); ?>/request/download-report-manager-action-needed"><img src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">&nbsp;&nbsp;Download Report in Excel</a>
+<?php } ?>
+<?php if( $this->payrollView === 'update-checks') { ?>
+    <br />
+    <a href="<?php echo $this->basePath(); ?>/request/download-update-checks" id="updateChecksAnchor"><img src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">&nbsp;&nbsp;Download Report in Excel</a>
 <?php } ?>
 
 <?php } else { ?>

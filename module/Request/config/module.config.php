@@ -7,7 +7,7 @@ $config = [
         'factories' => [
             'TimeOffEmailReminderService' => Factory\TimeOffEmailReminderServiceFactory::class,
             'EmailService' => Factory\EmailServiceFactory::class,
-            //            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
+//            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
 //            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
         ],
         'invokables' => [
@@ -244,15 +244,24 @@ $config = [
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
-            ]
+            ],
+
+            'downloadUpdateChecks' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/download-update-checks',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'downloadUpdateChecks'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
 
         ]
     ],
     'view_manager' => [
-//         'email_reminder_template'       => 'email/reminder',
-//         'template_map' => [
-//             'email/reminder'             => __DIR__ . '/../view/email/TimeOffEmailReminder.phtml',
-//         ],
         'template_path_stack' => [
             __DIR__ . '/../view'
         ]
@@ -649,4 +658,4 @@ return $config;
                 )
 
         )
- */
+*/

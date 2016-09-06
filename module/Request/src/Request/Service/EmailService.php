@@ -2,7 +2,6 @@
 namespace Request\Service;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Request\Model\TimeOffRequestSettings;
 use Zend\Mail\Message;
 use Zend\Mime\Message as MimeMessage;
