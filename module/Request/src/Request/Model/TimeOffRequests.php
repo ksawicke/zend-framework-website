@@ -10,6 +10,10 @@ use Zend\Db\Sql\Update;
 // use Zend\Db\Adapter\Driver\ResultInterface;
 // use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
+use Zend\Db\Adapter\Driver\ResultInterface;
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\Sql\Expression;
 
 /**
  * Common Request arrays
@@ -208,7 +212,7 @@ class TimeOffRequests extends BaseDB {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $companyHolidays = json_decode( $request->SYSTEM_VALUE );
         } catch ( \Exception $e ) {
-            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
+            var_dump( $e );
         }
 
         return $companyHolidays;
@@ -480,7 +484,7 @@ class TimeOffRequests extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
         } catch ( \Exception $e ) {
-            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
+            var_dump( $e );
         }
 
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
@@ -532,7 +536,7 @@ class TimeOffRequests extends BaseDB {
         try {
             $entries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
         } catch ( \Exception $e ) {
-            throw new \Exception( "The following error has occurred: " . $e->getMessage() );
+            var_dump( $e );
         }
 
         return $entries;
@@ -588,7 +592,7 @@ class TimeOffRequests extends BaseDB {
      * Find information related to a request needed for sending the calendar invite.
      * Note: TIMEOFF_REQUEST_ENTRIES.IS_DELETED must equal 0. This way we won't
      * send invites showing any entries that were removed by a Manager or Payroll.
-     * 
+     *
      * @param unknown $requestId
      * @return unknown[]|unknown[][][]
      */
@@ -652,4 +656,37 @@ class TimeOffRequests extends BaseDB {
         return ( array_key_exists( $shortname, $this->requestStatuses ) ? $this->requestStatuses[$shortname] : null );
     }
 
+    public function getRequestsOverThreeDaysUnapproved()
+    {
+        $sql = new Sql($this->adapter);
+
+        $emailReminderCountSelect = $sql->select()
+                                        ->from(['EMAIL' => 'TIMEOFF_REQUEST_EMAIL_REMINDER'])
+                                        ->columns(array('RCOUNT' => new Expression('COUNT(*)')))
+                                        ->where("EMAIL.REQUEST_ID = TIMEOFF_REQUESTS.REQUEST_ID AND (EMAIL_SEND = 'N' OR (EMAIL_SEND = 'Y' AND date(EMAIL_SEND_ON) <> current_date))");
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUESTS');
+
+        $where = new Where();
+
+        $where->equalTo('REQUEST_STATUS', 'P')
+              ->and->literal("date(CREATE_TIMESTAMP) < current_date-3 days")
+              ->and->literal("(" . $emailReminderCountSelect->getSqlString($this->adapter->platform) . ") = 0" );
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray();
+        }
+
+        return [];
+    }
 }

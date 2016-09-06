@@ -5,9 +5,15 @@ namespace Request;
 $config = [
     'service_manager' => [
         'factories' => [
-//            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
+            'TimeOffEmailReminderService' => Factory\TimeOffEmailReminderServiceFactory::class,
+            'EmailService' => Factory\EmailServiceFactory::class,
+            //            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
 //            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
-        ]
+        ],
+        'invokables' => [
+//             'EmailService' => Factory\EmailServiceFactory::class,
+            'TimeOffEmailReminder' => Model\TimeOffEmailReminder::class,
+        ],
     ],
     'controllers' => [
 //        'factories' => [
@@ -31,7 +37,7 @@ $config = [
 //                'may_terminate' => 1,
 //                'child_routes' => []
 //            ],
-//            
+//
 //             'testPapaa' => [
 //                 'type' => 'Zend\Mvc\Router\Http\Literal',
 //                 'options' => [
@@ -44,7 +50,7 @@ $config = [
 //                 'may_terminate' => 1,
 //                 'child_routes' => []
 //             ],
-            
+
             'approvedRequest' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -213,7 +219,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'submittedForApproval' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -226,7 +232,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             'downloadReportManagerActionNeeded' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -239,10 +245,14 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ]
-            
+
         ]
     ],
     'view_manager' => [
+//         'email_reminder_template'       => 'email/reminder',
+//         'template_map' => [
+//             'email/reminder'             => __DIR__ . '/../view/email/TimeOffEmailReminder.phtml',
+//         ],
         'template_path_stack' => [
             __DIR__ . '/../view'
         ]

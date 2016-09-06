@@ -457,6 +457,7 @@ return [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
                     'route'    => '/api/scheduler/send_three_day_reminder_email_to_supervisor',
+//                     'route'    => 'send_three_day_reminder_email_to_supervisor',
                     'defaults' => array(
                         'controller' => 'API\Scheduler\Controller',
                         'action'     => 'sendThreeDayReminderEmailToSupervisor',
@@ -538,6 +539,17 @@ return [
     'console' => [
         'router' => [
             'routes' => [
+//                 'sendThreeDayReminderEmailToSupervisor' => array(
+// //                     'type' => 'Zend\Mvc\Router\Http\Literal',
+//                     'options' => array(
+// //                         'route'    => '/api/scheduler/send_three_day_reminder_email_to_supervisor',
+//                         'route'    => 'send_three_day_reminder_email_to_supervisor',
+//                         'defaults' => array(
+//                             'controller' => 'API\Scheduler\Controller',
+//                             'action'     => 'sendThreeDayReminderEmailToSupervisor',
+//                         ),
+//                     ),
+//                 ),
             ],
         ],
     ],
