@@ -292,6 +292,28 @@ class RequestApi extends ApiController {
     }
     
     /**
+     * Handle an API request to edit a Payroll Comment
+     */
+    public function submitPayrollModifyCommentAction() {
+        $posted = true;
+        if( empty( $data ) ) {
+            $post = $this->getRequest()->getPost();
+        } else {
+            $posted = false;
+            $post = (object) $data;
+        }
+        
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $TimeOffRequestLog->editLogEntry( $post );
+        
+        $result = new JsonModel( [
+            'success' => true
+        ] );
+        
+        return $result;
+    }
+    
+    /**
      * Handle an API request to allow Payroll to edit a request in Completed PAFs queue.
      *
      * @return JsonModel

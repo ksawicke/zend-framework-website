@@ -420,6 +420,20 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            
+            // payroll-modify-comment
+            'submitPayrollModifyComment' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-modify-comment',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollModifyComment'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
 
             'getSearchResults' => [
                 'type' => 'segment',
