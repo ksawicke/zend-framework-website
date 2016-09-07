@@ -24,7 +24,21 @@ var timeOffApproveRequestHandler = new function ()
     this.initialize = function() {
         $(document).ready(function () {
             timeOffApproveRequestHandler.handleApiButtonClick();
+            timeOffApproveRequestHandler.handleEditPayrollCommentButtonClick();
         });
+    }
+    
+    this.handleEditPayrollCommentButtonClick = function() {
+    	$('body').on('click', '.payrollEditPayrollComment', function() {
+    		var requestLogId = $(this).attr("data-payroll-request-log-id");
+    		// wrapper    data-payroll-comment-wrapper-id
+    		// textarea   data-payroll-comment-text-id
+    		
+    		$('[data-payroll-comment-wrapper-id="' + requestLogId + '"').toggle();
+//    		$('[data-payroll-comment-text-id="' + requestLogId + '"').html( "SAMPLE!!!" );
+    		
+    		console.log( "TEST: Edit Payroll comment for Request LOG ID " + requestLogId );
+    	});
     }
 
     this.handleApiButtonClick = function() {
