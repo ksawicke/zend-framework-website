@@ -45,5 +45,13 @@ class TimeoffRequestLog extends BaseDB {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
     }
+    
+    public function editLogEntry( $post ) {
+        $rawSql = "UPDATE TIMEOFF_REQUEST_LOG SET STATUS = '" . $post->STATUS . "' WHERE " .
+            "TRIM(EMPLOYEE_NUMBER) = " . $post->PAYROLLASSISTANT_EMPLOYEE_NUMBER;        
+        $payrollAssistantData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);
+        
+        return $payrollAssistantData;
+    }
 
 }
