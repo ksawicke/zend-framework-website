@@ -54,7 +54,7 @@ class ResultSetOutput
             $result = $statement->execute();
             $resultSet = new ResultSet;
             $resultSet->initialize( $result );
-        } catch( \Exception $ex ) {
+        } catch( \Exception $e ) {
             throw new \Exception( "The following error has occurred: " . $e->getMessage() );
         }
 
