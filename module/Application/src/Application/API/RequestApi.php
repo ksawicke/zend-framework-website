@@ -304,12 +304,13 @@ class RequestApi extends ApiController {
         }
         
         $TimeOffRequestLog = new TimeOffRequestLog();
+        $TimeOffRequestLog->editLogEntry( $post );
         
-        echo '<pre>';
-        var_dump( $post );
-        echo '</pre>';
+        $result = new JsonModel( [
+            'success' => true
+        ] );
         
-        die();
+        return $result;
     }
     
     /**

@@ -52,11 +52,11 @@ var timeOffApproveRequestHandler = new function ()
 				updatedCommentText: $('*[data-payroll-comment-text-id="' + requestLogId + '"').val()
             };
     		var requestId = ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") );
-    		var redirectCommentSavedCompleteUrl = redirectCommentSavedCompleteUrl + '/' + requestId;
+    		var redirectUrl = redirectCommentSavedCompleteUrl + '/' + requestId;
     		
     		timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
     		timeOffApproveRequestHandler.roundTripAPICall(
-    				data, apiSubmitPayrollSaveChangesToPayrollCommentUrl, redirectCommentSavedCompleteUrl, "Unable to Save Comment." );
+    				data, apiSubmitPayrollSaveChangesToPayrollCommentUrl, redirectUrl, "Unable to Save Comment." );
     	});
     }
 
