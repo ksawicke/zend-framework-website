@@ -16,6 +16,7 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
 
 /**
  * Description of RequestEntry
@@ -259,6 +260,70 @@ class RequestEntry extends BaseDB {
         $t1 = strtotime($a['date']);
         $t2 = strtotime($b['date']);
         return $t1 - $t2;
+    }
+
+    public function setRequestsToCompleted()
+    {
+        $sql = new Sql($this->adapter);
+
+        /* sub select for PAPAATMP */
+        $subSelectPapaatmp = $sql->select();
+        $subSelectPapaatmp->from('PAPAATMP');
+        $subSelectPapaatmp->columns([new Expression('COUNT(*) AS RCOUNT')]);
+        $subSelectPapaatmp->where('PAPAATMP.TIMEOFF_REQUEST_ID = TIMEOFF_REQUESTS.REQUEST_ID');
+
+        /* sub select for HPAPAATMP */
+        $subSelectHPapaatmp = $sql->select();
+        $subSelectHPapaatmp->from('HPAPAATMP');
+        $subSelectHPapaatmp->columns([new Expression('COUNT(*) AS RCOUNT')]);
+        $subSelectHPapaatmp->where('HPAPAATMP.TIMEOFF_REQUEST_ID = TIMEOFF_REQUESTS.REQUEST_ID');
+
+        /* define select for TIMEOFF_REQUESTS */
+        $select = $sql->select();
+        $select->from('TIMEOFF_REQUESTS');
+        $select->columns(['REQUEST_ID']);
+
+        $where = new Where();
+
+        $where->equalTo('REQUEST_STATUS', 'S')
+        ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectPapaatmp->getSqlString($this->adapter->platform) . ') = 0'))
+        ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectHPapaatmp->getSqlString($this->adapter->platform) . ') = 0'));
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        $selectedRecords = [];
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            $selectedRecords = $resultSet->toArray();
+        }
+
+        if (count($selectedRecords) == 0) {
+            return;
+        }
+        /* define the update */
+        $update = $sql->update();
+
+        $update->table('TIMEOFF_REQUESTS');
+
+        $update->set(['REQUEST_STATUS' => 'F']);
+
+        $update->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($update);
+
+        $result = $statement->execute();
+
+        /* write log entries */
+        $timeOffRequestLog = new TimeoffRequestLog();
+        foreach ($selectedRecords as $record) {
+            $timeOffRequestLog->logEntry($record['REQUEST_ID'], null, 'Status changed to Completed PAFs');
+        }
+
     }
 
 }

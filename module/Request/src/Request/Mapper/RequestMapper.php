@@ -4,7 +4,7 @@ namespace Request\Mapper;
 
 use Request\Model\RequestInterface;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Driver\ResultInterface;
+// use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
@@ -116,7 +116,7 @@ class RequestMapper implements RequestMapperInterface {
             'FLOAT_PENDING' => 'REQFLOAT',
             'SICK_PENDING' => 'REQSICK',
 //             'TOM_PENDING' => 'REQTOM',
-//             'VAC_PENDING' => 'REQVAC'            
+//             'VAC_PENDING' => 'REQVAC'
         ];
         $this->employeeCalendarColumns = [
             'REQUEST_EMPLOYEE_NUMBER' => 'PREN',
@@ -261,10 +261,10 @@ class RequestMapper implements RequestMapperInterface {
         $this->hydrator->setNamingStrategy(new ArrayMapNamingStrategy($this->employeeColumns, $this->employeeCalendarColumns, $this->supervisorAddonColumns, $this->timeoffRequestColumns));
         // $this->employeeSupervisorColumns
     }
-    
+
 //    if(!$this->requestService->findEmployeeSchedule($this->employeeNumber)) {
 //            $this->requestService->makeDefaultEmployeeSchedule($this->employeeNumber);
-//            
+//
 //        }
 //        $employeeSchedule = $this->requestService->findEmployeeSchedule($this->employeeNumber);
 
@@ -279,15 +279,15 @@ class RequestMapper implements RequestMapperInterface {
               "MANAGER_EMPLOYEE_NUMBER, MANAGER_POSITION, MANAGER_POSITION_TITLE," .
               "MANAGER_NAME, MANAGER_EMAIL_ADDRESS from table(sawik.timeoff_get_employee_data('" . $this->employerNumber .
             "', '" . $employeeNumber . "', '" . $this->includeApproved . "')) as data";
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
 
         return \Request\Helper\Format::trimData($employeeData);
     }
-    
+
     /**
      * Find time off balances by Employee Number lookup.
-     * 
+     *
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByEmployee()
      */
@@ -302,37 +302,37 @@ class RequestMapper implements RequestMapperInterface {
                 ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
                 ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
                 ->join(['pendingpto' => "(
-            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
-            	inner join timeoff_requests request ON request.request_id = entry.request_id
-            	where
-                		entry.request_id in (
-                    		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeNumber . "' AND
-                	    		request.request_status = 'P' AND
-            	    		entry.request_code = 'P'
-                		)
+              select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
+              inner join timeoff_requests request ON request.request_id = entry.request_id
+              where
+                    entry.request_id in (
+                        select request.request_id from timeoff_requests request where
+                            request.employee_number = '" . $employeeNumber . "' AND
+                          request.request_status = 'P' AND
+                      entry.request_code = 'P'
+                    )
                 )"], "pendingpto.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['PTO_PENDING_APPROVAL' => 'PTO_PENDING_APPROVAL'])
                 ->join(['pendingfloat' => "(
-            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
-            	inner join timeoff_requests request ON request.request_id = entry.request_id
-            	where
-                		entry.request_id in (
-                    		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeNumber . "' AND
-                	    		request.request_status = 'P' AND
-            	    		entry.request_code = 'K'
-                		)
+              select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as FLOAT_PENDING_APPROVAL from timeoff_request_entries entry
+              inner join timeoff_requests request ON request.request_id = entry.request_id
+              where
+                    entry.request_id in (
+                        select request.request_id from timeoff_requests request where
+                            request.employee_number = '" . $employeeNumber . "' AND
+                          request.request_status = 'P' AND
+                      entry.request_code = 'K'
+                    )
                 )"], "pendingfloat.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['FLOAT_PENDING_APPROVAL' => 'FLOAT_PENDING_APPROVAL'])
                 ->join(['pendingsick' => "(
-            	select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
-            	inner join timeoff_requests request ON request.request_id = entry.request_id
-            	where
-                		entry.request_id in (
-                    		select request.request_id from timeoff_requests request where
-                        		request.employee_number = '" . $employeeNumber . "' AND
-                	    		request.request_status = 'P' AND
-            	    		entry.request_code = 'S'
-                		)
+              select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as SICK_PENDING_APPROVAL from timeoff_request_entries entry
+              inner join timeoff_requests request ON request.request_id = entry.request_id
+              where
+                    entry.request_id in (
+                        select request.request_id from timeoff_requests request where
+                            request.employee_number = '" . $employeeNumber . "' AND
+                          request.request_status = 'P' AND
+                      entry.request_code = 'S'
+                    )
                 )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
                 ->where(['trim(employee.PREN)' => trim($employeeNumber)]);
 
@@ -340,7 +340,7 @@ class RequestMapper implements RequestMapperInterface {
         /**
          * This will get sum of all requests submitted for approval in the timeoff_request_entries
          * table by employee id
-         * 
+         *
          * select sum(entry.requested_hours) as pending_pto_local from timeoff_request_entries entry where
           entry.request_id in (
           select request.request_id from timeoff_requests request where
@@ -408,7 +408,7 @@ class RequestMapper implements RequestMapperInterface {
                 ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns)
                 ->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => $status])
                 ->order(['entry.REQUEST_DATE ASC']);
-        
+
         $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         return $return;
@@ -416,7 +416,7 @@ class RequestMapper implements RequestMapperInterface {
 
     /**
      * Find time off approved requests by Employee Number lookup.
-     * 
+     *
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffApprovedRequestsByEmployee()
      */
@@ -470,7 +470,7 @@ class RequestMapper implements RequestMapperInterface {
 
         return $return;
     }
-    
+
     public function findRequestCalendarInviteData($requestId = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -481,7 +481,7 @@ class RequestMapper implements RequestMapperInterface {
             ->where(['request.REQUEST_ID' => $requestId])
             ->order(['entry.REQUEST_DATE ASC']);
         $result = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
-        
+
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
             ->columns($this->employeeColumns)
@@ -490,16 +490,16 @@ class RequestMapper implements RequestMapperInterface {
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->where(['request.REQUEST_ID' => $requestId]);
         $result2 = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
-        
+
 //        echo '<pre>';
 //        print_r($result);
 //        echo '</pre>';
-        
+
 //        echo '<pre>2!!';
 //        print_r($result2);
 //        echo '</pre>';
 //        die("@@@");
-        
+
         $datesRequested = [];
         if(count($result) > 0) {
             $datesRequested[] = [ 'start' => $result[0]['REQUEST_DATE'],
@@ -526,12 +526,12 @@ class RequestMapper implements RequestMapperInterface {
                                           ];
             }
         }
-        
+
 //        $for = trim($result2['COMMON_NAME']) . " " . trim($result2['LAST_NAME']);
 //        $forEmail = trim($result2['EMAIL_ADDRESS']);
 //        $manager = trim($result2['MANAGER_FIRST_NAME']) . " " . trim($result2['MANAGER_LAST_NAME']);
 //        $managerEmail = trim($result2['MANAGER_EMAIL_ADDRESS']);
-        
+
         $return = [ 'datesRequested' => $datesRequested,
                     'for' => $result2
                   ];
@@ -539,7 +539,7 @@ class RequestMapper implements RequestMapperInterface {
 //        print_r($result2);
 //        echo '</pre>';
 //        die("@@");
-        
+
         return $return;
     }
 
@@ -550,7 +550,7 @@ class RequestMapper implements RequestMapperInterface {
             ->columns($this->timeoffRequestEntryColumns)
             ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', $this->timeoffRequestColumns)
             ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', $this->timeoffRequestCodeColumns);
-        
+
         if ($employeeNumber != null) {
             $select->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
                 ->join(['pendingpto' => "(
@@ -587,14 +587,14 @@ class RequestMapper implements RequestMapperInterface {
                                 )
                 )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL']);
         }
-        
+
         $select
             ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER', $this->employeeColumns)
             ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->join(['requester_addons' => 'PRPMS'], 'trim(requester_addons.PREN) = request.CREATE_USER', $this->requesterAddonColumns)
             ->order(['entry.REQUEST_DATE ASC']);
-        
+
         if ($requestId != null) {
 //             $select->where(['trim(request.EMPLOYEE_NUMBER)' => trim($employeeNumber), 'request.REQUEST_STATUS' => 'P', 'request.REQUEST_ID' => $requestId]);
             $select->where(['request.REQUEST_ID' => $requestId]);
@@ -803,7 +803,7 @@ class RequestMapper implements RequestMapperInterface {
 
     /**
      * Find time off calendar data by Manager Employee Number lookup.
-     * 
+     *
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffCalendarByManager()
      */
@@ -820,7 +820,7 @@ class RequestMapper implements RequestMapperInterface {
                     "entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'"
                 ])
                 ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
-        
+
         $calendarData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         return $calendarData;
@@ -828,7 +828,7 @@ class RequestMapper implements RequestMapperInterface {
 
     /**
      * Find Time off balances by Manager Employee Number lookup.
-     * 
+     *
      * {@inheritDoc}
      * @see \Request\Mapper\RequestMapperInterface::findTimeOffBalancesByManager()
      */
@@ -855,7 +855,7 @@ class RequestMapper implements RequestMapperInterface {
 
         return $employeeData;
     }
-    
+
     public function findEmployeeSchedule($employeeNumber = null)
     {
         $sql = new Sql($this->dbAdapter);
@@ -869,7 +869,7 @@ class RequestMapper implements RequestMapperInterface {
                            'SCHEDULE_SUN' => 'SCHEDULE_SUN'
                           ])
                 ->where(['schedule.EMPLOYEE_NUMBER' => $employeeNumber]);
-        
+
         $scheduleData = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
         if(!$scheduleData) {
             $scheduleData = false;
@@ -877,7 +877,7 @@ class RequestMapper implements RequestMapperInterface {
 
         return $scheduleData;
     }
-    
+
     public function makeDefaultEmployeeSchedule($employeeNumber = null)
     {
         $action = new Insert('timeoff_request_employee_schedules');
@@ -898,7 +898,7 @@ class RequestMapper implements RequestMapperInterface {
         } catch (\Exception $e) {
             throw new \Exception("Can't execute statement: " . $e->getMessage());
         }
-        
+
         if($result) {
             return true;
         }
@@ -917,7 +917,7 @@ class RequestMapper implements RequestMapperInterface {
             trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
             trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%'
         )";
-        
+
 //            trim(employee.PRCOMN) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
 //            trim(employee.PRCOMNk) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "' OR
 //            trim(employee.PRFNM) || ' ' || trim(employee.PRLNM) LIKE '%" . strtoupper($search) . "%' OR
@@ -1013,7 +1013,7 @@ class RequestMapper implements RequestMapperInterface {
             manager_addons.PRER AS MANAGER_EMPLOYER_NUMBER, manager_addons.PREN AS MANAGER_EMPLOYEE_NUMBER,
             manager_addons.PRFNM AS MANAGER_FIRST_NAME, manager_addons.PRMNM AS MANAGER_MIDDLE_INITIAL,
             manager_addons.PRLNM AS MANAGER_LAST_NAME, manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
-        
+
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
@@ -1047,7 +1047,7 @@ class RequestMapper implements RequestMapperInterface {
 
     /**
      * Returns whether employee is Payroll Admin OR Assistant.
-     * 
+     *
      * @param type $employeeNumber
      * @return type
      */
@@ -1056,10 +1056,10 @@ class RequestMapper implements RequestMapperInterface {
         return ( ( $this->isPayrollAdmin( $employeeNumber ) === "Y" &&
                    $this->isPayrollAssistant( $employeeNumber ) === "Y" ) ? "Y" : "N" );
     }
-    
+
     /**
      * Returns whether employee is a Payroll Admin.
-     * 
+     *
      * @param type $employeeNumber
      * @return type
      */
@@ -1067,9 +1067,9 @@ class RequestMapper implements RequestMapperInterface {
     {
         /**
          * sawik 05/06/16 Modify to the following:
-         * 
+         *
          * Set as Payroll Admin: If Level 2 = FIN (from file PPRMS, field PRL02) and Level 3 starts with PY (from file PRPMS, field PRL02) and Training group = MGR2 (from file PRPMS, field PRTGRP)
-         * 
+         *
          */
         $rawSql = "SELECT
             (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL_ADMIN
@@ -1080,10 +1080,10 @@ class RequestMapper implements RequestMapperInterface {
 
         return $isSupervisorData[0]->IS_MANAGER;
     }
-    
+
     /**
      * Returns whether employee is a Payroll Assistant.
-     * 
+     *
      * @param type $employeeNumber
      * @return string
      */
@@ -1142,13 +1142,13 @@ class RequestMapper implements RequestMapperInterface {
         $rawSql = "UPDATE timeoff_requests SET REQUEST_STATUS = '" . $action . "' WHERE REQUEST_ID = '" . $requestId . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql($this->dbAdapter, $rawSql);
         $requestReturnData['request_id'] = $requestId;
-        
+
         // Send calendar invites for this time off to appropriate individual(s)
-        
+
 
         return $requestReturnData;
     }
-    
+
     public function checkHoursRequestedPerCategory($requestId = null)
     {
         $rawSql = "SELECT
@@ -1177,12 +1177,12 @@ class RequestMapper implements RequestMapperInterface {
             ) AS GRANDFATHERED
             FROM TIMEOFF_REQUESTS request
             WHERE request.REQUEST_ID = '" . $requestId . "'";
-        
+
         $requestData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
 
         return $requestData;
     }
-    
+
     public function logEntry($requestId = null, $employeeNumber = null, $comment = null)
     {
         $logEntry = new Insert('timeoff_request_log');
