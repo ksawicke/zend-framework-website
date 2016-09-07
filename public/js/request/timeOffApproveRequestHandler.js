@@ -11,10 +11,12 @@ var timeOffApproveRequestHandler = new function ()
         apiSubmitPayrollUploadUrl = phpVars.basePath + '/api/request/payroll-upload',
         apiSubmitPayrollUpdateChecksUrl = phpVars.basePath + '/api/request/payroll-update-checks',
         apiSubmitPayrollSaveChangesToCompletedRequestUrl = phpVars.basePath + '/api/request/payroll-modify-completed',
+        apiSubmitPayrollSaveChangesToPayrollCommentUrl = phpVars.basePath + '/api/request/payroll-modify-comment',
         redirectManagerApprovedCompleteUrl = phpVars.basePath + '/request/approved-request',
         redirectManagerDeniedCompleteUrl = phpVars.basePath + '/request/denied-request',
         redirectUpdateChecksQueue = phpVars.basePath + '/request/view-payroll-queue/update-checks',
         redirectCompletedPAFsQueue = phpVars.basePath + '/request/view-payroll-queue/completed-pafs',
+        redirectCommentSavedCompleteUrl = phpVars.basePath + '/request/review-request',
         timeOffApproveRequestInUpdateChecksQueue = phpVars.basePath + '/api/request/approve-update-checks-request',
         doRealDelete = false;
 
@@ -25,19 +27,36 @@ var timeOffApproveRequestHandler = new function ()
         $(document).ready(function () {
             timeOffApproveRequestHandler.handleApiButtonClick();
             timeOffApproveRequestHandler.handleEditPayrollCommentButtonClick();
+            timeOffApproveRequestHandler.handleSavePayrollCommentButtonClick();
         });
     }
     
+    /**
+     * Enable editing a payroll comment.
+     */
     this.handleEditPayrollCommentButtonClick = function() {
     	$('body').on('click', '.payrollEditPayrollComment', function() {
     		var requestLogId = $(this).attr("data-payroll-request-log-id");
-    		// wrapper    data-payroll-comment-wrapper-id
-    		// textarea   data-payroll-comment-text-id
+    		$('*[data-payroll-comment-wrapper-id="' + requestLogId + '"').toggle();
+    	});
+    }
+    
+    /**
+     * Handle saving a payroll comment.
+     */
+    this.handleSavePayrollCommentButtonClick = function() {
+    	$('body').on('click', '.payrollSavePayrollComment', function() {
+    		var requestLogId = $(this).attr("data-payroll-request-log-id");
+    		var data = {
+				requestLogId: requestLogId,
+				updatedCommentText: $('*[data-payroll-comment-text-id="' + requestLogId + '"').val()
+            };
+    		var requestId = ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") );
+    		var redirectCommentSavedCompleteUrl = redirectCommentSavedCompleteUrl + '/' + requestId;
     		
-    		$('[data-payroll-comment-wrapper-id="' + requestLogId + '"').toggle();
-//    		$('[data-payroll-comment-text-id="' + requestLogId + '"').html( "SAMPLE!!!" );
-    		
-    		console.log( "TEST: Edit Payroll comment for Request LOG ID " + requestLogId );
+    		timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
+    		timeOffApproveRequestHandler.roundTripAPICall(
+    				data, apiSubmitPayrollSaveChangesToPayrollCommentUrl, redirectCommentSavedCompleteUrl, "Unable to Save Comment." );
     	});
     }
 
@@ -47,8 +66,8 @@ var timeOffApproveRequestHandler = new function ()
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             $.each(selectedDatesNew, function(index, blah) {
             	selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
-            	console.log( "COMPARE:" );
-            	console.log( selectedDatesNew );
+//            	console.log( "COMPARE:" );
+//            	console.log( selectedDatesNew );
             });
             var data = {
                 request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
