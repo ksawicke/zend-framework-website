@@ -406,7 +406,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             // payroll-modify-completed
             'submitPayrollModifyCompletedPAFs' => [
                 'type' => 'segment',
@@ -415,6 +415,20 @@ return [
                     'defaults' => [
                         'controller' => 'Application\API\RequestApi',
                         'action' => 'submitPayrollModifyCompletedPAFs'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+            
+            // payroll-modify-comment
+            'submitPayrollModifyComment' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/request/payroll-modify-comment',
+                    'defaults' => [
+                        'controller' => 'Application\API\RequestApi',
+                        'action' => 'submitPayrollModifyComment'
                     ]
                 ],
                 'may_terminate' => 1,
@@ -492,7 +506,8 @@ return [
             'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
         ],
         'factories' => array(
-            'API\Scheduler\Controller' => API\Scheduler\SchedulerFactory::class
+            'API\Scheduler\Controller' => API\Scheduler\SchedulerFactory::class,
+            'API\CLI\Controller' => API\CLI\CliFactory::class
         )
     ],
     'service_manager' => [
@@ -564,6 +579,17 @@ return [
 //                         ),
 //                     ),
 //                 ),
+                'setPendingTransactionsToCompleted' => array(
+//                     'type' => 'Zend\Mvc\Router\Http\Literal',
+                    'options' => array(
+//                         'route'    => '/api/scheduler/set_pending_transaction_to_completed',
+                        'route'    => 'set_pending_transaction_to_completed',
+                        'defaults' => array(
+                            'controller' => 'API\CLI\Controller',
+                            'action'     => 'setRequestsToCompleted',
+                        ),
+                    ),
+                ),
             ],
         ],
     ],

@@ -297,7 +297,20 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                         <?php
                                         foreach( $timeoffRequestData['LOG_ENTRIES'] as $ctr => $entry ) {
                                             echo '<tr>';
-                                            echo '<td' . ( $entry['COMMENT_TYPE']=="P" ? ' class="payrollComment"' : '') . '>' . $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] . '</td>';
+                                            echo '<td' . ( $entry['COMMENT_TYPE']=="P" ? ' class="payrollComment"' : '') . '>' .
+                                                 $entry['CREATE_TIMESTAMP'] . ' - ' . $entry['COMMENT'] .
+                                                 ( $entry['COMMENT_TYPE']=="P" ? '&nbsp;&nbsp;&nbsp;' .
+                                                   '<button type="button" class="btn btn-form-primary btn-xs payrollEditPayrollComment" ' .
+                                                   ' data-payroll-request-log-id="' . $entry['REQUEST_LOG_ID'] . '">Edit</button>' .
+                                                   '<div style="display:none;" data-payroll-comment-wrapper-id="' . $entry['REQUEST_LOG_ID'] . '"><br />' .
+                                                   '<span style="font-weight:normal;color:#000;">Edit Payroll Comment:<br />' .
+                                                   '<textarea maxlength="500" rows="4" cols="80" data-payroll-comment-text-id="' . $entry['REQUEST_LOG_ID'] . '">' .
+                                                   $entry['COMMENT'] . 
+                                                   '</textarea></span><br />' .
+                                                   '<button type="button" class="btn btn-form-primary btn-xs payrollSavePayrollComment" ' .
+                                                   ' data-payroll-request-log-id="' . $entry['REQUEST_LOG_ID'] . '">Save</button>' .
+                                                   '</div>' : '' ) .
+                                                 '</td>';
                                             echo '</tr>';
                                         }
                                         ?>
@@ -393,3 +406,6 @@ $phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE
              'request_id' => $timeoffRequestData['REQUEST_ID']
             ];
 $this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
+
+echo '<pre>';
+var_dump( $timeoffRequestData );

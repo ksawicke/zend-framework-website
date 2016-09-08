@@ -550,7 +550,7 @@ class TimeOffRequests extends BaseDB {
      */
     public function findRequestLogEntries( $requestId = null, $isPayroll = "N" ) {
         $nonPayrollAndClause = ( $isPayroll=="N" ? " AND COMMENT_TYPE = 'S'" : "" );
-        $rawSql = "SELECT COMMENT, COMMENT_TYPE, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
+        $rawSql = "SELECT REQUEST_LOG_ID, COMMENT, COMMENT_TYPE, varchar_format (CREATE_TIMESTAMP, 'mm/dd/yyyy HH12:MI:SS PM') AS CREATE_TIMESTAMP FROM
                    TIMEOFF_REQUEST_LOG log WHERE log.REQUEST_ID = " . $requestId . " " . $nonPayrollAndClause . " ORDER
                    BY log.CREATE_TIMESTAMP DESC";
 
