@@ -208,7 +208,7 @@ var timeOffCreateRequestHandler = new function() {
     	exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
     	
     	//+totalPTORequested > 0
-    	console.log( "BURP", exceededHours );
+    	console.log( "exceededHours", exceededHours );
     	
     	if( exceededHours.Grandfathered && +totalGrandfatheredRequested > 0 ) {
     		$("#warnExceededGrandfatheredHours").show();
@@ -545,7 +545,9 @@ var timeOffCreateRequestHandler = new function() {
                 isSelected = timeOffCreateRequestHandler.isSelected( $(this) ),
                 dateObject = isSelected.dateObject,
                 isDateDisabled = timeOffCreateRequestHandler.isDateDisabled( $(this) ),
-                foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject );
+                foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject ),
+                canAddOrSplit = true;
+        	
             if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
             	return;
             }
@@ -555,12 +557,17 @@ var timeOffCreateRequestHandler = new function() {
 //            if( employeeSickRemaining <= 0 ) {
 //            	alert( "Sick Time has been used up." );
 //            }
-            if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining <= 0 ) {
+            if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining < 0 ) {
             	return;
             }
-            if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining <= 0 ) {
+            if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining < 0 ) {
             	return;
             }
+            
+//            if( ( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining == 0 ) ||
+//            	( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining == 0 ) ) {
+//            	canAddOrSplit = false;
+//            }
             if( isCompanyHoliday ) {
 	            var takeHoliday = false;
 	            timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().then(function( answer ) {
@@ -1643,6 +1650,10 @@ var timeOffCreateRequestHandler = new function() {
             hoursToAdd = timeOffCreateRequestHandler.getHoursToAdd( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         dateObject.hours = parseFloat(hoursToAdd).toFixed(2);
+        
+        console.log( dateObject );
+        console.log( hoursToAdd );
+        
 //        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
 //        selectedDatesNew.push( dateObject );
         

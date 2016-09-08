@@ -18,10 +18,10 @@ class LoginForm extends Form
             'attributes' => array(
                 'id' => 'username',
                 'class' => 'form-control',
-                'placeholder' => 'lastf'
+                'placeholder' => 'User ID'
             ),
             'options' => array(
-                'label' => 'Username'
+                'label' => 'User ID'
             )
         ));
 
@@ -31,7 +31,7 @@ class LoginForm extends Form
             'attributes' => array(
                 'id' => 'password',
                 'class' => 'form-control',
-                'placeholder' => '**********'
+                'placeholder' => 'Password'
             ),
             'options' => array(
                 'label' => 'Password',
@@ -52,7 +52,7 @@ class LoginForm extends Form
             'name' => 'submit',
             'attributes' => array(
                 'type' => 'submit',
-                'value' => 'Submit',
+                'value' => 'Login',
                 'class' => 'btn btn-form-primary'
             )
         ));
