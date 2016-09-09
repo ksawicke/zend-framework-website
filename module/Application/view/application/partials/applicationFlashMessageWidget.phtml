@@ -6,7 +6,7 @@
                 if( ( $this->isManager || $this->isSupervisor ) && $this->countStaleManagerRequests > 0 ) {
                     ?>
                     <div id="applicationStaleManagerRequestsFlashMessage" class="alert alert-danger" role="alert">
-                        <i class="fa fa-exclamation-circle"></i> <strong>You have at least 1 request that is 3 or more days old.</strong><br />
+                        <i class="fa fa-warning"></i> <strong>You have at least 1 request that is 3 or more days old.</strong><br />
                         Please go to the <a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/pending-manager-approval">Pending Manager Approval</a> queue, then
                         Approve or Deny all requests where the First Day Requested is highlighted in red.
                     </div>

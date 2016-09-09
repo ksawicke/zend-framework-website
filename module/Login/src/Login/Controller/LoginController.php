@@ -59,7 +59,7 @@ class LoginController extends AbstractActionController
                 
                 return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
             } else {
-                $this->flashMessenger()->addMessage('Login incorrect. Try again.');
+                $this->flashMessenger()->addMessage('User ID or Password incorrect. Please try again.');
                 return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
             }
         }
