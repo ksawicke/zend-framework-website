@@ -689,7 +689,7 @@ class PayrollQueues extends BaseDB {
 
         if( $isFiltered ) {
             if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
-                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
+                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " ";
             }
         }
 
