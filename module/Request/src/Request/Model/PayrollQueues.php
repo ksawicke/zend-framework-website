@@ -699,11 +699,24 @@ class PayrollQueues extends BaseDB {
                 $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
             }
         }
+
+        $where = [];
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $warnType = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
+                $where[] = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
             }
         }
+
+        if( $isFiltered ) {
+            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+                $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+                            )";
+            }
+        }
+
+
         $rawSql = "
         SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
@@ -741,17 +754,7 @@ class PayrollQueues extends BaseDB {
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
-        ) AS DATA2" . $warnType;
-
-        $where = [];
-        if( $isFiltered ) {
-            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
-                            )";
-            }
-        }
+        ) AS DATA2";
 
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
