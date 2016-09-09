@@ -8,11 +8,12 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Resolver\TemplateMapResolver;
 use Request\Model\Employee;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 class TimeOffEmailReminderService extends AbstractActionController
 {
 
-    protected $serviceLocator;
+//     protected $serviceLocator;
 
     protected $timeOffRequests;
 
@@ -148,6 +149,11 @@ class TimeOffEmailReminderService extends AbstractActionController
         foreach ($requests as $request) {
             $this->timeOffEmailReminder->markRecordAsSend( $request['IDENTITY_ID'] );
         }
+    }
+
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
     }
 
 }

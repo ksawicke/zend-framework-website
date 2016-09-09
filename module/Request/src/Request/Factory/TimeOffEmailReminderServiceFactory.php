@@ -18,6 +18,7 @@ class TimeOffEmailReminderServiceFactory implements FactoryInterface
         $emailService = $serviceLocator->get('EmailService');
 
         $timeOffEmailReminderService = new TimeOffEmailReminderService($timeOffRequests, $timeOffEmailReminder, $emailService, $employeeModel);
+        $timeOffEmailReminderService->setServiceLocator($serviceLocator);
 
         return $timeOffEmailReminderService;
     }
