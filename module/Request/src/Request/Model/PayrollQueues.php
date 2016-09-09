@@ -2,13 +2,6 @@
 
 namespace Request\Model;
 
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 
 /**
@@ -693,7 +686,7 @@ class PayrollQueues extends BaseDB {
     public function countManagerActionQueueItems( $data = null, $isFiltered = false, $params = [] )
     {
         $singleManager = "";
-        $warnType = "";
+
         if( $isFiltered ) {
             if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
                 $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
@@ -703,7 +696,7 @@ class PayrollQueues extends BaseDB {
         $where = [];
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $where[] = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
+                $where[] = " MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
             }
         }
 
@@ -715,7 +708,6 @@ class PayrollQueues extends BaseDB {
                             )";
             }
         }
-
 
         $rawSql = "
         SELECT COUNT(*) AS RCOUNT FROM (
