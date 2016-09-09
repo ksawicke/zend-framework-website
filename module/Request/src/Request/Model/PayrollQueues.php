@@ -754,7 +754,6 @@ class PayrollQueues extends BaseDB {
         }
 
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
-
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $queueData['RCOUNT'];
@@ -769,15 +768,28 @@ class PayrollQueues extends BaseDB {
     public function getManagerActionEmailQueue( $data = [], $params = [] )
     {
         $singleManager = "";
-        $warnType = "";
+
         if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
             $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
         }
+
+        $where = [];
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $warnType = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
+                $where[] = " MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
             }
         }
+        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+            $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+                        )";
+        }
+        if( $data !== null && array_key_exists( 'start', $data ) && array_key_exists( 'length', $data ) &&
+            !empty( $data['start'] ) && !empty( $data['length'] ) ) {
+                $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
+            }
+
         $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
@@ -815,19 +827,7 @@ class PayrollQueues extends BaseDB {
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
-        ) AS DATA2" . $warnType;
-
-        $where = [];
-        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-            $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
-                        )";
-        }
-        if( $data !== null && array_key_exists( 'start', $data ) && array_key_exists( 'length', $data ) &&
-            !empty( $data['start'] ) && !empty( $data['length'] ) ) {
-            $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
-        }
+        ) AS DATA2";
 
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
 
