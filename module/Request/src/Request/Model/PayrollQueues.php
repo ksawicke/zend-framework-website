@@ -2,13 +2,6 @@
 
 namespace Request\Model;
 
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 
 /**
@@ -693,17 +686,29 @@ class PayrollQueues extends BaseDB {
     public function countManagerActionQueueItems( $data = null, $isFiltered = false, $params = [] )
     {
         $singleManager = "";
-        $warnType = "";
+
         if( $isFiltered ) {
             if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
                 $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
             }
         }
+
+        $where = [];
         if( array_key_exists( 'WARN_TYPE', $params ) ) {
             if( $params['WARN_TYPE'] === 'OLD_REQUESTS' ) {
-                $warnType = " WHERE MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
+                $where[] = " MIN_DATE_REQUESTED <= '" . $this->getManagerWarnDateToApproveRequests() . "'";
             }
         }
+
+        if( $isFiltered ) {
+            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+                $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+                            )";
+            }
+        }
+
         $rawSql = "
         SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
@@ -741,17 +746,7 @@ class PayrollQueues extends BaseDB {
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
-        ) AS DATA2" . $warnType;
-
-        $where = [];
-        if( $isFiltered ) {
-            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
-                            )";
-            }
-        }
+        ) AS DATA2";
 
         $rawSql .= ( !empty( $where ) ? " WHERE " . implode( " AND ", $where ) : "" );
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
