@@ -16,15 +16,15 @@
     if (count($flashMessage)) {
     ?>
       <div class="alert alert-danger" role="alert">
-            <?php
-        foreach ($flashMessage as $mid => $message) {
-                ?><?php echo $message; ?>
-            
-    	<?php } ?>
+        <?php foreach ($flashMessage as $mid => $message) { ?>
+            <i class="fa fa-warning"></i> <?php echo $message; ?>
+        <?php } ?>
      </div>
      <?php } ?>
     
-      <div class="alert alert-info" role="info">Log in with your AS/400 account</div>
+      <div class="alert alert-info" role="info">
+      	  <i class="fa fa-info-circle"></i> Log in with your AS/400 account
+      </div>
       <div class="form-group">
         
         <?php /***

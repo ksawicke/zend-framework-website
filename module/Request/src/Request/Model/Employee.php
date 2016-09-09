@@ -697,7 +697,7 @@ class Employee extends BaseDB {
      * @param type $employeeNumber
      */
     public function ensureEmployeeScheduleIsDefined( $employeeNumber = null ) {
-        if( $this->findEmployeeSchedule( $employeeNumber )===false ) {
+        if( empty( $this->findEmployeeSchedule( $employeeNumber ) ) ) {
             $this->makeDefaultEmployeeSchedule( $employeeNumber );
         }
     }
