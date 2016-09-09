@@ -2134,7 +2134,7 @@ var timeOffCreateRequestHandler = new function() {
             .removeClass("categorySick")
             .removeClass("timeOffSick")
             .removeClass("categoryGrandfathered")
-            .removeClass("timeOffyGrandfathered")
+            .removeClass("timeOffGrandfathered")
             .removeClass("categoryBereavement")
             .removeClass("timeOffBereavement")
             .removeClass("categoryCivicDuty")
