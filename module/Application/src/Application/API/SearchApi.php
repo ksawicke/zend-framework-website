@@ -38,7 +38,7 @@ class SearchApi extends ApiController {
             case 'proxies':
                 return new JsonModel( $this->getEmployeeProxySearchResults() );
                 break;
-            
+
             case 'employees':
             default:
                 return new JsonModel( $this->getEmployeeSearchResults() );
@@ -48,7 +48,7 @@ class SearchApi extends ApiController {
 
     /**
      * Returns an array of employees the logged in user may put in a request for.
-     * 
+     *
      * @return array
      */
     private function getEmployeeSearchResults() {
@@ -66,10 +66,10 @@ class SearchApi extends ApiController {
 
         return $return;
     }
-    
+
     /**
      * Returns an array of employees the logged in user may use as a proxy.
-     * 
+     *
      * @return array
      */
     private function getEmployeeProxySearchResults() {
