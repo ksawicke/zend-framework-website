@@ -18,11 +18,13 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $this->isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
     $this->isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
     $PayrollQueues = new \Request\Model\PayrollQueues();
-    /** Check the count here. If the manager/supervisor approves the "stale" requests, the error message will
-     *  no longer appear for them.
-     */
-    $this->countStaleManagerRequests = $PayrollQueues->countManagerActionQueueItems( null, true,
-        [ 'MANAGER_EMPLOYEE_NUMBER' => $this->employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+    if( $this->isManager=="Y" ) {
+        /** Check the count here. If the manager/supervisor approves the "stale" requests, the error message will
+         *  no longer appear for them.
+         */
+        $this->countStaleManagerRequests = $PayrollQueues->countManagerActionQueueItems( null, true,
+            [ 'MANAGER_EMPLOYEE_NUMBER' => $this->employeeNumber, 'WARN_TYPE' => 'OLD_REQUESTS' ] );
+    }
 }
 
 ?>
