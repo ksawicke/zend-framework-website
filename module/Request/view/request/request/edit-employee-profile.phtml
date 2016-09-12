@@ -1,51 +1,71 @@
 <h4>Allow Others to Request on My Behalf</h4>
 
-<div class="alert alert-info" role="alert">
-    Here, you may select proxies, or other individuals that can submit Time Off requests on your behalf.
+<div class="alert alert-info" role="alert">Here, you may select proxies,
+    or other individuals that can submit Time Off requests on your
+    behalf.</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="proxy-list" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th style="width: 550px;">Employee</th>
+                    <th>Active</th>
+                    <th style="width: 225px;">Actions</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 </div>
+<form>
+    <div class="form-group">
+        <label for="requestFor">Select Proxy</label> <select
+            id="requestFor" class="requestFor form-control select2">
+        </select>
+    </div>
+</form>
+<span
+    class="categoryCloseIcon requestIsForMe glyphicon glyphicon-remove-circle red"></span>
+<button type="button"
+    class="btn btn-form-primary btn-sm submitAddProxyRequest">Add Proxy</button>
+<button type="button"
+    class="btn btn-form-primary btn-sm clearProxyRequest">Clear</button>
 
-<table id="proxy-list" class="display" style="width:100%;">
-    <thead>
-        <tr>
-            <th style="width:550px;">Employee</th>
-            <th>Active</th>
-            <th style="width:225px;">Actions</th>
-        </tr>
-    </thead>
-</table>
-
-<select id="requestFor" class="requestFor form-control">
-</select><span class="categoryCloseIcon requestIsForMe glyphicon glyphicon-remove-circle red"></span>
-<br /><br />
-<button type="button" class="btn btn-form-primary btn-sm submitAddProxyRequest">Add Proxy</button>
-<button type="button" class="btn btn-form-primary btn-sm clearProxyRequest">Clear</button>
-
-<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/datatables/datatables.js"></script>
-<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffProxyHandler.js"></script>
-<script type="text/javascript" src="<?php echo $this->basePath(); ?>/js/request/timeOffEmployeeProfileHandler.js"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
+<script type="text/javascript"
+    src="<?php echo $this->basePath(); ?>/js/datatables/datatables.js"></script>
+<script type="text/javascript"
+    src="<?php echo $this->basePath(); ?>/js/request/timeOffProxyHandler.js"></script>
+<script type="text/javascript"
+    src="<?php echo $this->basePath(); ?>/js/request/timeOffEmployeeProfileHandler.js"></script>
+<script type="text/javascript"
+    src="<?php echo $this->basepath(); ?>/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript"
+    src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 
 <?php echo $this->partial( 'request/partials/dialogSelectAProxy.phtml' ); ?>
 
 
-<br /><br />
+<br />
+<br />
 
 
 <h4>Manage Calendar Invites</h4>
 
-<strong>Send me calendar invites for requests made for me</strong><br />
+<strong>Send me calendar invites for requests made for me</strong>
+<br />
 <div class="switch">
-    <input id="send_cal_inv_me" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-employee-number="<?php echo $employeeNumber; ?>">
-    <label for="send_cal_inv_me"></label>
+    <input id="send_cal_inv_me" class="cmn-toggle cmn-toggle-round-flat"
+        type="checkbox"
+        data-employee-number="<?php echo $employeeNumber; ?>"> <label
+        for="send_cal_inv_me"></label>
 </div>
 
 <?php if( $isManager=="Y" ) { ?>
-<strong>Send me calendar invites for my reports (direct and indirect)</strong><br />
+<strong>Send me calendar invites for my reports (direct and indirect)</strong>
+<br />
 <div class="switch">
-    <input id="send_cal_inv_rpt" class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
-           data-employee-number="<?php echo $employeeNumber; ?>">
-    <label for="send_cal_inv_rpt"></label>
+    <input id="send_cal_inv_rpt"
+        class="cmn-toggle cmn-toggle-round-flat" type="checkbox"
+        data-employee-number="<?php echo $employeeNumber; ?>"> <label
+        for="send_cal_inv_rpt"></label>
 </div>
 <?php } ?>
