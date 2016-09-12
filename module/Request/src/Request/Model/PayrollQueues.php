@@ -701,7 +701,7 @@ class PayrollQueues extends BaseDB {
         }
 
         if( $isFiltered ) {
-            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+            if( is_array( $data ) && array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( DATA2.EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               DATA2.EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               DATA2.EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'

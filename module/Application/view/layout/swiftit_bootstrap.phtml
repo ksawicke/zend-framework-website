@@ -5,6 +5,7 @@ $this->employeeNumber = '';
 $this->isLoggedIn = 'N';
 $this->isManager = 'N';
 $this->isSupervisor = 'N';
+$this->isPayroll = 'N';
 $this->isPayrollAdmin = 'N';
 $this->isPayrollAssistant = 'N';
 $this->countStaleManagerRequests = 0;
@@ -15,6 +16,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
     $this->isLoggedIn = 'Y';
     $this->isManager = \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' );
     $this->isSupervisor = \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' );
+    $this->isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
     $this->isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
     $this->isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
     $PayrollQueues = new \Request\Model\PayrollQueues();
