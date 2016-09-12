@@ -458,6 +458,27 @@ class TimeOffRequests extends BaseDB {
 
         return $requestReturnData;
     }
+    
+    /**
+     * Returns the data associated with a single request for time off.
+     *
+     * @param integer $requestId    Request ID
+     * @return array
+     */
+    public function findEmployeeNumberAssociatedWithRequest( $requestId, $isPayroll = "N" ) {
+        $sql = new Sql( $this->adapter );
+        $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
+            ->columns( [ 'EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER' ] )
+            ->where( [ 'request.REQUEST_ID' => $requestId ] );
+    
+        try {
+            $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
+        } catch ( \Exception $e ) {
+            var_dump( $e );
+        }
+
+        return $request;
+    }
 
     /**
      * Returns the data associated with a single request for time off.

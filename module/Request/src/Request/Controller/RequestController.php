@@ -384,6 +384,9 @@ class RequestController extends AbstractActionController
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
+        $employeeNumberAssociatedWithRequestData = $TimeOffRequests->findEmployeeNumberAssociatedWithRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
+        $employeeNumberAssociatedWithRequest = trim( $employeeNumberAssociatedWithRequestData->EMPLOYEE_NUMBER );
+        $Employee->ensureEmployeeScheduleIsDefined( $employeeNumberAssociatedWithRequest );
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
         
         return new ViewModel( [
