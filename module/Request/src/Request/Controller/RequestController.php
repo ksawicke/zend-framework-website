@@ -385,6 +385,11 @@ class RequestController extends AbstractActionController
         $ValidationHelper = new ValidationHelper();
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
 
+        echo '<pre>';
+        var_dump( $timeOffRequestData );
+        echo '</pre>';
+        die();
+        
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,

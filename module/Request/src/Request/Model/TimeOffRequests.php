@@ -668,11 +668,11 @@ class TimeOffRequests extends BaseDB {
         $select = $sql->select();
 
         $select->from('TIMEOFF_REQUESTS');
-
+        $select->join('TIMEOFF_REQUEST_ENTRIES', 'TIMEOFF_REQUESTS.REQUEST_ID = TIMEOFF_REQUEST_ENTRIES.REQUEST_ID', []);
         $where = new Where();
 
         $where->equalTo('REQUEST_STATUS', 'P')
-              ->and->literal("date(CREATE_TIMESTAMP) < current_date-3 days")
+              ->and->literal("REQUEST_DATE < current_date-3 days")
               ->and->literal("(" . $emailReminderCountSelect->getSqlString($this->adapter->platform) . ") = 0" );
 
         $select->where($where);
