@@ -295,7 +295,8 @@ class RequestController extends AbstractActionController
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
-        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y") {
+        $isPayroll = $Employee->isPayroll($this->employeeNumber);
+        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -384,11 +385,6 @@ class RequestController extends AbstractActionController
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
-
-        echo '<pre>';
-        var_dump( $timeOffRequestData );
-        echo '</pre>';
-        die();
         
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),

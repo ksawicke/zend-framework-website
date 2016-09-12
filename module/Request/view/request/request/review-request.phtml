@@ -406,6 +406,3 @@ $phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE
              'request_id' => $timeoffRequestData['REQUEST_ID']
             ];
 $this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
-
-echo '<pre>';
-var_dump( $timeoffRequestData );
