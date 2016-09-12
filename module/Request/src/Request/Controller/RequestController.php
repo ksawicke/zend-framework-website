@@ -295,7 +295,8 @@ class RequestController extends AbstractActionController
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
-        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y") {
+        $isPayroll = $Employee->isPayroll($this->employeeNumber);
+        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -384,11 +385,6 @@ class RequestController extends AbstractActionController
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
-
-//         echo '<pre>';
-//         var_dump( $timeOffRequestData );
-//         echo '</pre>';
-//         die();
         
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -473,6 +469,7 @@ class RequestController extends AbstractActionController
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+
             $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT']);
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
             $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
