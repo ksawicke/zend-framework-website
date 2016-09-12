@@ -6,10 +6,11 @@ use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Zend\Db\Sql\Where;
+use Zend\Db\Sql\Expression;
 
 /**
  * All Database functions for employee proxies
@@ -22,38 +23,38 @@ class EmployeeProxies extends BaseDB {
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Get count of Manager Queue data
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
     public function countProxyItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
         WHERE trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
         // INNER JOIN HRDBFA.PRPMS employee ON employee.PREN = p.PROXY_EMPLOYEE_NUMBER
-        
+
 //        $where = [];
 //        $where[] = "trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
-//            
+//
 //        if( $isFiltered ) {
 //            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
 //                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
 //                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
 //                            )";
 //            }
 //        }
 //        $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $employeeData['RCOUNT'];
     }
-    
+
     public function getProxies( $post )
     {
         $proxyData = [];
@@ -70,14 +71,14 @@ class EmployeeProxies extends BaseDB {
             WHERE
                trim(p.EMPLOYEE_NUMBER) = '" . $post['employeeNumber'] . "'
             ORDER BY employee.PRLNM ASC";
-        
+
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
         if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
             $resultSet = new ResultSet;
             $resultSet->initialize( $result );
-            
+
             foreach( $resultSet as $field => $proxyEmployeeNumber ) {
                 $proxyData[] = $proxyEmployeeNumber;
             }
@@ -85,31 +86,75 @@ class EmployeeProxies extends BaseDB {
 
         return $proxyData;
     }
-    
+
     /**
      * Adds a proxy to be able to submit time off requests for a designated employee.
-     * 
+     *
      * @param type $post
      * @throws \Exception
      */
     public function addProxy( $post ) {
-        $employeeProxy = new Insert( 'timeoff_request_employee_proxies' );
+
+        $employeeNumber = $post->EMPLOYEE_NUMBER;
+        $proxyEmployeeNumber = $post->PROXY_EMPLOYEE_NUMBER;
+
+        $existingProxyCount = $this->checkDuplicateProxy($employeeNumber, $proxyEmployeeNumber);
+        if ($existingProxyCount != 0) {
+            return;
+        }
+
+        $sql = new Sql($this->adapter);
+
+        $employeeProxy = $sql->insert();
+        $employeeProxy->into( 'timeoff_request_employee_proxies' );
+
         $employeeProxy->values( [
             'EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->EMPLOYEE_NUMBER ),
-            'PROXY_EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->PROXY_EMPLOYEE_NUMBER )
+            'PROXY_EMPLOYEE_NUMBER' => \Request\Helper\Format::rightPadEmployeeNumber( $post->PROXY_EMPLOYEE_NUMBER ),
+            'STATUS' => '1'
         ] );
-        $sql = new Sql( $this->adapter );
+
         $stmt = $sql->prepareStatementForSqlObject( $employeeProxy );
         try {
             $result = $stmt->execute();
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
     }
-    
+
+    public function checkDuplicateProxy( $employeeNumber, $proxyEmployeeNumber)
+    {
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from( 'timeoff_request_employee_proxies' );
+
+        $select->columns(['RCOUNT' => new Expression('count(*)')]);
+
+        $where = new Where();
+        $where->equalTo('EMPLOYEE_NUMBER', str_pad(trim($employeeNumber), 9 ,' ', STR_PAD_LEFT))
+              ->and->equalTo('PROXY_EMPLOYEE_NUMBER', str_pad(trim($proxyEmployeeNumber), 9, ' ', STR_PAD_LEFT));
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['RCOUNT'];
+        }
+
+        return 0;
+
+    }
+
     /**
      * Deletes a proxy for a designated employee.
-     * 
+     *
      * @param type $post
      * @return type
      */
@@ -158,16 +203,16 @@ class EmployeeProxies extends BaseDB {
 
         return array();
     }
-    
+
     public function toggleProxy( $post )
     {
         $rawSql = "UPDATE TIMEOFF_REQUEST_EMPLOYEE_PROXIES SET STATUS = '" . $post->STATUS . "' WHERE " .
                   "EMPLOYEE_NUMBER = " . $post->EMPLOYEE_NUMBER . " AND " .
                   "PROXY_EMPLOYEE_NUMBER = " . $post->PROXY_EMPLOYEE_NUMBER;
 
-        $proxyData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);        
+        $proxyData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);
 
         return $proxyData;
     }
-    
+
 }
