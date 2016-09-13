@@ -411,12 +411,6 @@ class TimeOffRequests extends BaseDB {
     public function submitRequestForManagerApproval( $post = [] ) {
         $requestReturnData = ['request_id' => null ];
 
-//        echo '<pre>REQUEST POST:';
-//        var_dump( $post );
-//        echo '</pre>';
-//
-//        die();
-
         /** Insert record into TIMEOFF_REQUESTS * */
         $action = new Insert( 'timeoff_requests' );
         $action->values( [

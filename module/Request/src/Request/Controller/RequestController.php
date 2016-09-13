@@ -404,7 +404,7 @@ class RequestController extends AbstractActionController
         $employeeNumberAssociatedWithRequest = trim( $employeeNumberAssociatedWithRequestData->EMPLOYEE_NUMBER );
         $Employee->ensureEmployeeScheduleIsDefined( $employeeNumberAssociatedWithRequest );
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
-        
+
         return new ViewModel( [
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,

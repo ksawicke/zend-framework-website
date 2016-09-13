@@ -46,7 +46,7 @@ class LoginMapper implements LoginMapperInterface
         $this->dbAdapter = $dbAdapter;
         $this->hydrator = $hydrator;
         $this->loginPrototype = $loginPrototype;
-        
+
 //         $this->employeeColumns = [
 //             'EMPLOYER_NUMBER' => 'PRER',
 //             'EMPLOYEE_NUMBER' => 'PREN',
@@ -62,7 +62,7 @@ class LoginMapper implements LoginMapperInterface
 //             'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
 //             'POSITION_TITLE' => 'PRTITL'
 //         ];
-        
+
         $this->supervisorAddonColumns = [
             'MANAGER_EMPLOYER_NUMBER' => 'PRER',
             'MANAGER_EMPLOYEE_NUMBER' => 'PREN',
@@ -71,7 +71,7 @@ class LoginMapper implements LoginMapperInterface
             'MANAGER_LAST_NAME' => 'PRLNM',
             'MANAGER_EMAIL_ADDRESS' => 'PREML1'
         ];
-        
+
         // Now tell the Hydrator to array_flip the keys on save.
         // Advantage: This allows us to refer to easier to understand field names on the
         // front end, but let the application deal with the real names on the back end
@@ -84,7 +84,7 @@ class LoginMapper implements LoginMapperInterface
     public function authenticateUser($username = null, $password = null)
     {
         $sql = new Sql($this->dbAdapter);
-        
+
         /**
          * We can validate differently in development or production here.
          */
@@ -117,33 +117,33 @@ class LoginMapper implements LoginMapperInterface
                     ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
                 break;
         }
-        
+
         $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
-        
+
         return $return;
     }
-    
+
     public function isManager($employeeNumber = null)
     {
         $rawSql = "select is_manager_mg('002', '" . $employeeNumber . "') AS IS_MANAGER FROM sysibm.sysdummy1";
-    
+
         $data = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
-    
+
         return $data->IS_MANAGER;
     }
-    
+
     public function isSupervisor($employeeNumber = null)
     {
         $rawSql = "select is_supervisor('002', '" . $employeeNumber . "') AS IS_SUPERVISOR FROM sysibm.sysdummy1";
-    
+
         $data = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql($this->dbAdapter, $rawSql);
-    
+
         return $data->IS_SUPERVISOR;
     }
-    
+
     /**
      * Returns whether employee is Payroll Admin OR Assistant.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
@@ -154,7 +154,7 @@ class LoginMapper implements LoginMapperInterface
 
     /**
      * Returns whether employee is Payroll or not.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
@@ -176,7 +176,7 @@ class LoginMapper implements LoginMapperInterface
                        FROM PRPMS
                        WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
         $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlPRPMS );
-        
+
         /**
          * 2nd check to see if they are added in the db
          */
@@ -184,20 +184,20 @@ class LoginMapper implements LoginMapperInterface
                           FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
                           WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 1";
         $dataTimeOffAdded = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlTimeOffAdded );
-        
+
         $rawSqlTimeOffDisabled = "SELECT COUNT(*) AS PAYROLL_ADMIN_DISABLED_COUNT
                           FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS
                           WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND STATUS = 0";
         $dataTimeOffDisabled = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlTimeOffDisabled );
-        
+
         $validation = [ 'IS_PAYROLL_ADMIN' => $dataPRPMS[0]->IS_PAYROLL_ADMIN,
                         'PAYROLL_ADMIN_ADDED_COUNT' => $dataTimeOffAdded[0]->PAYROLL_ADMIN_ADDED_COUNT,
                         'PAYROLL_ADMIN_DISABLED_COUNT' => $dataTimeOffDisabled[0]->PAYROLL_ADMIN_DISABLED_COUNT ];
-        
+
         $isPayrollAdmin = "N";
         if( ( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ||
             ( $validation['IS_PAYROLL_ADMIN']=="N" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==1 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==0 ) ) {
-            $isPayrollAdmin = "Y";        
+            $isPayrollAdmin = "Y";
         }
         if( $validation['IS_PAYROLL_ADMIN']=="Y" && $validation['PAYROLL_ADMIN_ADDED_COUNT']==0 && $validation['PAYROLL_ADMIN_DISABLED_COUNT']==1 ) {
             $isPayrollAdmin = "N";
@@ -205,10 +205,10 @@ class LoginMapper implements LoginMapperInterface
 
         return $isPayrollAdmin;
     }
-    
+
     /**
      * Returns whether employee is Payroll or not.
-     * 
+     *
      * @param integer $employeeNumber   Integer, up to 9 places. Does not need to be justified.
      * @return boolean   "Y" or "N"
      */
@@ -216,20 +216,31 @@ class LoginMapper implements LoginMapperInterface
         $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUESTS_PAYROLL_ASSISTANTS
                    WHERE TRIM(EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
                    STATUS = 1";
-    
+
         $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
-    
+
         return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
     }
-    
+
     public function isProxy($employeeNumber = null)
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES
                    WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
                    STATUS = 1";
-    
+
         $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
-    
+
+        return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
+    }
+
+    public function isProxyForManager($employeeNumber = null)
+    {
+        $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES
+                   WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
+                   STATUS = 1 AND (IS_MANAGER_MG('002', EMPLOYEE_NUMBER) = 'Y' OR IS_SUPERVISOR('002', EMPLOYEE_NUMBER) = 'Y' )";
+
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+
         return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
     }
 }

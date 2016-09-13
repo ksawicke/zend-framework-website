@@ -21,7 +21,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      * @see \Login\Service\LoginServiceInterface::authenticateUser($username, $password)
      */
@@ -29,34 +29,40 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         return $this->loginMapper->authenticateUser($username, $password);
     }
-    
+
     public function isManager($employeeNumber)
     {
         return $this->loginMapper->isManager($employeeNumber);
     }
-    
+
     public function isSupervisor($employeeNumber)
     {
         return $this->loginMapper->isSupervisor($employeeNumber);
     }
-    
+
     public function isPayroll($employeeNumber)
     {
         return $this->loginMapper->isPayroll($employeeNumber);
     }
-    
+
     public function isPayrollAdmin($employeeNumber)
     {
         return $this->loginMapper->isPayrollAdmin($employeeNumber);
     }
-    
+
     public function isPayrollAssistant($employeeNumber)
     {
         return $this->loginMapper->isPayrollAssistant($employeeNumber);
     }
-    
+
     public function isProxy($employeeNumber)
     {
         return $this->loginMapper->isProxy($employeeNumber);
     }
+
+    public function isProxyForManager($employeeNumber)
+    {
+        return $this->loginMapper->isProxyForManager($employeeNumber);
+    }
+
 }

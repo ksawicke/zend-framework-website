@@ -22,16 +22,16 @@ class ManagerQueues extends BaseDB {
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Get count of Manager Queue data
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
     public function countManagerQueueItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
         INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
         INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
@@ -47,20 +47,20 @@ class ManagerQueues extends BaseDB {
             ) as data
         ) hierarchy
             ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
-        
+
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'P'";
-            
+
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $employeeData['RCOUNT'];
@@ -68,11 +68,36 @@ class ManagerQueues extends BaseDB {
 
     /**
      * Get Manager Queue data to display in data table.
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return array
      */
-    public function getManagerQueue( $data = null ) {
+    public function getManagerQueue( $data = null, $proxyFor = null ) {
+
+        $careGetManagerEmployees = "SELECT
+        EMPLOYEE_ID AS EMPLOYEE_NUMBER,
+        TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+        DIRECT_INDIRECT,
+        MANAGER_LEVEL
+        FROM table (
+            CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+            ) as data";
+
+
+        if ($proxyFor !== null && is_array($proxyFor) && count($proxyFor) > 0) {
+            foreach ($proxyFor as $proxy) {
+                $careGetManagerEmployees .= " UNION ALL " .
+                    "SELECT " .
+                    "EMPLOYEE_ID AS EMPLOYEE_NUMBER, " .
+                    "TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER, " .
+                    "DIRECT_INDIRECT, " .
+                    "MANAGER_LEVEL " .
+                    "FROM table ( " .
+                    "CARE_GET_MANAGER_EMPLOYEES('002', '" . $proxy . "', 'D') " .
+                    ") as data";
+            }
+        }
+
         $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
@@ -96,22 +121,15 @@ class ManagerQueues extends BaseDB {
                 TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRFNM) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
                 TRIM(employee.PRFNM) AS EMPLOYEE_FIRST_NAME,
                 TRIM(employee.PRLNM) AS EMPLOYEE_LAST_NAME,
-		TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
+    TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
             INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN table (
-                SELECT
-                    EMPLOYEE_ID AS EMPLOYEE_NUMBER,
-                    TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-                    DIRECT_INDIRECT,
-                    MANAGER_LEVEL
-                FROM table (
-                    CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
-                ) as data
-            ) hierarchy
+            INNER JOIN table (" .
+            $careGetManagerEmployees .
+            ") hierarchy
                 ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
@@ -126,20 +144,20 @@ class ManagerQueues extends BaseDB {
                      "MIN_DATE_REQUESTED",
                      "ACTIONS"
                    ];
-        
+
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
-        
+
         $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
