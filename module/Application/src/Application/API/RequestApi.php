@@ -573,7 +573,7 @@ class RequestApi extends ApiController {
             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
             'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . $proxyLogText);
 
-        if( $isRequestToBeAutoApproved ) {
+        if( $isRequestToBeAutoApproved || ($isCreatorInEmployeeHierarchy == false && \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL') == 'Y')) {
             $post['request_id'] = $requestId;
             $this->emailRequestToEmployee( $requestId, $post );
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
