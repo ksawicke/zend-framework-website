@@ -251,11 +251,27 @@ class RequestController extends AbstractActionController
     public function approvedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
-        $this->redirect()->toRoute('viewManagerQueue', array(
-            'controller' => 'request',
-            'action' =>  'view-manager-queue',
-            'manager-view' => 'pending-manager-approval'
-        ));
+        if( \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER')=="Y" ) {
+            // route to Pending Manager Approval queue
+            $this->redirect()->toRoute('viewManagerQueue', array(
+                'controller' => 'request',
+                'action' =>  'view-manager-queue',
+                'manager-view' => 'pending-manager-approval'
+            ));
+        } else if( \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL')=="Y" ) {
+            // route to Pending Payroll Approval queue....
+            $this->redirect()->toRoute('viewPayrollQueue', array(
+                'controller' => 'request',
+                'action' =>  'view-payroll-queue',
+                'payroll-view' => 'pending-payroll-approval'
+            ));
+        } else {
+            // route to view my requests....
+            $this->redirect()->toRoute('viewMyRequests', array(
+                'controller' => 'request',
+                'action' =>  'view-my-requests'
+            ));
+        }
     }
 
     /**
