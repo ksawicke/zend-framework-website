@@ -548,6 +548,9 @@ var timeOffCreateRequestHandler = new function() {
                 foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject ),
                 canAddOrSplit = true;
         	
+//        	console.log( isCompanyHoliday );
+//        	console.log( $(this) );
+        	
             if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
             	return;
             }
@@ -569,6 +572,18 @@ var timeOffCreateRequestHandler = new function() {
 //            	canAddOrSplit = false;
 //            }
             if( isCompanyHoliday ) {
+            	if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+            		timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+            		if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                    	timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+                    }
+                    timeOffCreateRequestHandler.sortDatesSelected();
+                    timeOffCreateRequestHandler.drawHoursRequested();
+                    timeOffCreateRequestHandler.checkAndSetFormWarnings();
+                    timeOffCreateRequestHandler.highlightDates();
+            		return;
+            	}
+            	
 	            var takeHoliday = false;
 	            timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().then(function( answer ) {
 	            	var takeHoliday = answer.toString() == "true" ? true : false;
@@ -1396,18 +1411,23 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     this.handleHighlightingDatesReviewRequestScreen = function() {
+    	console.log( selectedDatesNew );
+    	
     	$.each( selectedDatesNew, function( index, blah ) {
         	isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         	thisDate = selectedDatesNew[index];
-        	isDeleted = (thisDate.hasOwnProperty('isDeleted') && thisDate.isDeleted===true);
-            isAdded = (thisDate.hasOwnProperty('isAdded') && thisDate.isAdded===true);
-        	
-            if( isAdded===true || isDeleted===false ) {
-    			$("td[data-date='" + thisDate.date + "']").addClass(thisDate.category + "Selected");
+        	isDeleted = (thisDate.hasOwnProperty('isDeleted') && thisDate.isDeleted===true) ? true : false;
+            isAdded = (thisDate.hasOwnProperty('isAdded') && thisDate.isAdded===true) ? true : false;
+            
+            if( isAdded===true && isDeleted===false ) {
+    			$("td[data-date='" + thisDate.date + "']").removeClass(thisDate.category + "Selected");
     		}
+            if( ( isAdded===false && isDeleted===false ) || ( isAdded===true && isDeleted===false ) ) {
+            	$("td[data-date='" + thisDate.date + "']").addClass(thisDate.category + "Selected");
+            }
     	});
     }
-
+    
     this.handleHighlightingDatesAddScreen = function() {
     	$.each($(".calendar-day"), function(index, blah) {
             if( $(this).attr("data-date") === moment().format('MM/DD/YYYY') ) {

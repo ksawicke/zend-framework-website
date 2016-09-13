@@ -393,6 +393,8 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
     </div>
 </div>
 
+<?php echo $this->partial( 'request/partials/dialogConfirmSelectHolidayAlertWidget.phtml' ); ?>
+
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/select2/select2.min.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
 <script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>
