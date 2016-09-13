@@ -9,6 +9,7 @@ use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 use Zend\Db\Sql\Where;
+use Login\Helper\UserSession;
 
 /**
  * All Database functions for employees
@@ -399,9 +400,84 @@ class Employee extends BaseDB {
                    WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
                    STATUS = 1 AND (IS_MANAGER_MG('002', EMPLOYEE_NUMBER) = 'Y' OR IS_SUPERVISOR('002', EMPLOYEE_NUMBER) = 'Y' )";
 
-        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
 
         return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
+    }
+
+    public function isProxyForManagerList($employeeNumber = null)
+    {
+        $rawSql = "SELECT EMPLOYEE_NUMBER AS RCOUNT FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES
+                   WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
+                   STATUS = 1 AND (IS_MANAGER_MG('002', EMPLOYEE_NUMBER) = 'Y' OR IS_SUPERVISOR('002', EMPLOYEE_NUMBER) = 'Y' )";
+
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->adapter, $rawSql);
+
+        return $data;
+    }
+
+    public function isCreatorInEmployeeHierarchy( $creatorId, $employeeId )
+    {
+        $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
+        foreach ($employeeHierarchy as $hierarchy) {
+            if (trim($hierarchy["MANAGER_EMPLOYEE_ID"]) == trim($creatorId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isCreatorProxyForManagerInHierarchy( $creatorId, $employeeId)
+    {
+        $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
+        $proxyList = $this->findProxiesByEmployeeNumber( $creatorId );
+
+        $proxyFor = [];
+        foreach ($proxyList as $proxy) {
+            $proxyFor[] = trim($proxy['EMPLOYEE_NUMBER']);
+        }
+
+        foreach ($employeeHierarchy as $hierarchy) {
+            if (in_array(trim($hierarchy["MANAGER_EMPLOYEE_ID"]), $proxyFor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getCreatorProxyForManagerInHierarchy( $creatorId, $employeeId)
+    {
+        $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
+        $proxyList = $this->findProxiesByEmployeeNumber( $creatorId );
+
+        $proxyFor = [];
+        foreach ($proxyList as $proxy) {
+            $proxyFor[] = trim($proxy['EMPLOYEE_NUMBER']);
+        }
+
+        foreach ($employeeHierarchy as $hierarchy) {
+            if (in_array(trim($hierarchy["MANAGER_EMPLOYEE_ID"]), $proxyFor)) {
+                return $this->getEmployeeAltDescription(trim($hierarchy["MANAGER_EMPLOYEE_ID"]));
+            }
+        }
+        return false;
+    }
+
+    public function getEmployeeHierarchy( $employeeId )
+    {
+        $rawSql = "select mh.* from table (care_get_manager_hierarchy_for_employee('002','" . str_pad(trim($employeeId), 9, ' ', STR_PAD_LEFT) . "')) mh";
+
+        $select = $this->adapter->query($rawSql);
+
+        $result = $select->execute();
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray();
+        }
+
+        return [];
     }
 
     /**
@@ -625,6 +701,35 @@ class Employee extends BaseDB {
         return $rawSql;
     }
 
+    public function getEmployeeAltDescription( $employee_id )
+    {
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('PRPMS');
+
+        $select->columns(['ALT_DESCRIPTION' => new Expression("TRIM ( PRFNM ) CONCAT ' ' CONCAT TRIM ( PRLNM ) CONCAT ' (' CONCAT TRIM ( PREN ) CONCAT ')'")]);
+
+        $where = new Where();
+
+        $where->equalTo('PREN', str_pad(trim($employee_id), 9, ' ', STR_PAD_LEFT))
+              ->and->equalTo('PRER', '002');
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['ALT_DESCRIPTION'];
+        }
+        return [];
+    }
+
     public function getManagerEmployeeSearchStatement( $where = null, $managerEmployeeNumber = null, $directReportFilter = null )
     {
         return "SELECT
@@ -719,10 +824,24 @@ class Employee extends BaseDB {
         $rawSql = "select mh.* from table (care_get_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
         $employeeManagerData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
+        $proxyFor = [];
+        if (\Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' ) == 'Y') {
+            $proxies = $this->isProxyForManagerList(UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ));
+            foreach ($proxies as $key => $value) {
+                $proxyFor[] = $value->RCOUNT;
+            }
+        }
+
         foreach( $employeeManagerData as $ctr => $managerData ) {
             if( $managerData['MANAGER_EMPLOYEE_ID'] == $byEmployee ) {
                 $byEmployeeInChain = true;
                 break;
+            }
+            if (count($proxyFor) != 0) {
+                if( in_array($managerData['MANAGER_EMPLOYEE_ID'], $proxyFor)) {
+                    $byEmployeeInChain = true;
+                    break;
+                }
             }
         }
 

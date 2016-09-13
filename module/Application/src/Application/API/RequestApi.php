@@ -548,6 +548,15 @@ class RequestApi extends ApiController {
         $post = $this->addRequestForEmployeeData( $post );
         $post = $this->addRequestByEmployeeData( $post );
 
+        $isCreatorInEmployeeHierarchy = $Employee->isCreatorInEmployeeHierarchy($post->request['byEmployee']['EMPLOYEE_NUMBER'], $post->request['forEmployee']['EMPLOYEE_NUMBER']);
+        $isCreatorProxyForManagerInHierarchy = $Employee->isCreatorProxyForManagerInHierarchy($post->request['byEmployee']['EMPLOYEE_NUMBER'], $post->request['forEmployee']['EMPLOYEE_NUMBER']);
+
+        $proxyLogText = '';
+        if ($isCreatorInEmployeeHierarchy == false && $isCreatorProxyForManagerInHierarchy == true) {
+            $proxyForEmployee = $Employee->getCreatorProxyForManagerInHierarchy($post->request['byEmployee']['EMPLOYEE_NUMBER'], $post->request['forEmployee']['EMPLOYEE_NUMBER']);
+            $proxyLogText = ' as proxy for ' . $proxyForEmployee;
+        }
+
         $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
                                                                            $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
 
@@ -557,11 +566,12 @@ class RequestApi extends ApiController {
         /** Submit the request to employee's manager; get the Request ID **/
         $requestReturnData = $TimeOffRequests->submitRequestForManagerApproval( $post );
         $requestId = $requestReturnData['request_id'];
+
         /** Log creation of this request **/
         $TimeOffRequestLog->logEntry(
             $requestId,
             $post->request['byEmployee']['EMPLOYEE_NUMBER'],
-            'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] );
+            'Created by ' . $post->request['byEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . $proxyLogText);
 
         if( $isRequestToBeAutoApproved ) {
             $post['request_id'] = $requestId;
@@ -569,7 +579,7 @@ class RequestApi extends ApiController {
             $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
 
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
-                'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor heirarchy of ' .
+                'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor hierarchy of ' .
                 $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . "." ] );
 
             return $return;
