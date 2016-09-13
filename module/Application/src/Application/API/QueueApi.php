@@ -20,6 +20,7 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Application\Factory\EmailFactory;
+use Request\Model\Employee;
 
 /**
  *
@@ -30,12 +31,12 @@ class QueueApi extends ApiController {
 
     /**
      * Array of email addresses to send all emails when running on SWIFT.
-     * 
+     *
      * @var unknown
      */
     public $testingEmailAddressList = null;
     public $developmentEmailAddressList = null;
-    
+
     public function __construct()
     {
         $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
@@ -46,7 +47,7 @@ class QueueApi extends ApiController {
         ];
         $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
-    
+
     /**
      * POST request from datatable UI to load Manager Queue.
      *
@@ -62,10 +63,10 @@ class QueueApi extends ApiController {
                 break;
         }
     }
-    
+
     /**
      * Adjusts dates to YYYY-mm-dd format.
-     * 
+     *
      * @param type $data
      * @return type
      */
@@ -77,11 +78,11 @@ class QueueApi extends ApiController {
         if( !empty( $data['endDate'] ) ) {
             $endDate = new \DateTime( $_POST['endDate'] );
             $data['endDate'] = date_format( $endDate, 'Y-m-d' );
-        }        
-        
+        }
+
         return $data;
     }
-    
+
     /**
      * POST request from datatable UI to load Payroll Queue.
      *
@@ -94,28 +95,28 @@ class QueueApi extends ApiController {
             case 'denied':
                 return new JsonModel( $this->getPayrollDeniedQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'update-checks':
                 return new JsonModel( $this->getPayrollUpdateChecksQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'pending-payroll-approval':
                 return new JsonModel( $this->getPayrollPendingPayrollApprovalQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'completed-pafs':
                 return new JsonModel( $this->getPayrollCompletedPAFsQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'pending-as400-upload':
                 return new JsonModel( $this->getPayrollPendingAS400UploadQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'by-status':
                 $_POST = $this->adjustStartAndEndDates( $_POST );
                 return new JsonModel( $this->getPayrollByStatusQueueDatatable( $_POST ) );
                 break;
-            
+
             case 'manager-action':
                 return new JsonModel( $this->getManagerActionQueueDatatable( $_POST ) );
                 break;
@@ -124,7 +125,7 @@ class QueueApi extends ApiController {
 
     /**
      * Get data for the Pending Manager Approval Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -142,11 +143,20 @@ class QueueApi extends ApiController {
         $draw = $data['draw'] ++;
 
         $ManagerQueues = new \Request\Model\ManagerQueues();
-        $queueData = $ManagerQueues->getManagerQueue( $_POST );
+        $Employee = new Employee();
+        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $_POST['employeeNumber']);
+
+        $proxyFor = [];
+        foreach ( $proxyForEntries as $proxy) {
+            $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
+        }
+
+        $queueData = $ManagerQueues->getManagerQueue( $_POST, $proxyFor );
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -178,10 +188,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Denied Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -201,11 +211,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getDeniedQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -219,7 +229,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countDeniedQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countDeniedQueueItems( $_POST, true );
 
@@ -240,10 +250,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Update Checks Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -263,11 +273,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getUpdateChecksQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'CYCLE_CODE' => $request['CYCLE_CODE'],
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
@@ -284,10 +294,10 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countUpdateChecksQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countUpdateChecksQueueItems( $_POST, true );
-        
+
 
         /**
          * prepare return result
@@ -306,10 +316,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Pending Payroll Approval Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -329,11 +339,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getPendingPayrollApprovalQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -347,7 +357,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countPendingPayrollApprovalQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countPendingPayrollApprovalQueueItems( $_POST, true );
 
@@ -371,7 +381,7 @@ class QueueApi extends ApiController {
 
     /**
      * Get data for the Completed PAFs Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -391,11 +401,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getCompletedPAFsQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -409,7 +419,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countCompletedPAFsQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countCompletedPAFsQueueItems( $_POST, true );
 
@@ -430,10 +440,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Pending AS400 Upload Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -453,11 +463,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getPendingAS400UploadQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -471,7 +481,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countPendingAS400UploadQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countPendingAS400UploadQueueItems( $_POST, true );
 
@@ -492,10 +502,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Update Checks Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -515,11 +525,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getByStatusQueue( $_POST );
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -533,7 +543,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countByStatusQueueItems( $_POST, false );
         $recordsFiltered = $PayrollQueues->countByStatusQueueItems( $_POST, true );
 
@@ -554,10 +564,10 @@ class QueueApi extends ApiController {
          */
         return $result;
     }
-    
+
     /**
      * Get data for the Manager Action Queue datatable.
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -577,11 +587,11 @@ class QueueApi extends ApiController {
 
         $PayrollQueues = new \Request\Model\PayrollQueues();
         $queueData = $PayrollQueues->getManagerActionEmailQueue( $_POST, [ 'WARN_TYPE' => 'OLD_REQUESTS' ]);
-        
+
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-            
+
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION_ALT'],
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
@@ -595,7 +605,7 @@ class QueueApi extends ApiController {
 
         $recordsTotal = 0;
         $recordsFiltered = 0;
-        
+
         $recordsTotal = $PayrollQueues->countManagerActionQueueItems( $_POST, false, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
         $recordsFiltered = $PayrollQueues->countManagerActionQueueItems( $_POST, true, [ 'WARN_TYPE' => 'OLD_REQUESTS' ] );
 
@@ -610,18 +620,18 @@ class QueueApi extends ApiController {
             "recordsTotal" => $recordsTotal,
             "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
         );
-        
+
 //        echo '<pre>';
 //        var_dump( $result );
 //        echo '</pre>';
 //        exit();
-        
+
         /**
          * return result
          */
         return $result;
     }
-    
+
     public function getManagerActionEmailDataAction( $data = [] )
     {
         $warnType = 'OLD_REQUESTS';
@@ -632,7 +642,7 @@ class QueueApi extends ApiController {
         if( $warnType == 'BEFORE_PAYROLL_RUN' ) {
             $warnTypeBody = "We are about to do a Payroll run, and this request requires your approval.";
         }
-        
+
         foreach( $queueData as $key => $queue ) {
             $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
                 $renderer->basePath( '/request/review-request/' . $queue['REQUEST_ID'] );
@@ -657,18 +667,18 @@ class QueueApi extends ApiController {
             );
             $Email->send();
         }
-        
+
         die('...EMAIL(S) SENT...');
-        
+
 //        echo '<pre>';
 //        print_r( $queueData );
 //        echo '</pre>';
 //        die( "...." );
     }
-    
+
     /**
      * Returns first day requested. Highlights if older than days passed in.
-     * 
+     *
      * @param date $minDateRequested
      * @param string $dateDiff
      * @return string
@@ -681,10 +691,10 @@ class QueueApi extends ApiController {
         if( is_null( $dateDiff ) ) {
             return $minDateRequestedNewFormat;
         }
-        
+
         return ( $minDateRequested < date( 'Y-m-d', strtotime( $dateDiff, strtotime( date( "Y-m-d" ) ) ) ) ?
                  '<span class="warnFirstDayRequestedTooOld">' . $minDateRequestedNewFormat . '</span>' :
                  $minDateRequestedNewFormat );
     }
-    
+
 }

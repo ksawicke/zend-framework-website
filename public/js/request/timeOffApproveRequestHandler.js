@@ -30,34 +30,34 @@ var timeOffApproveRequestHandler = new function ()
             timeOffApproveRequestHandler.handleSavePayrollCommentButtonClick();
         });
     }
-    
+
     /**
      * Enable editing a payroll comment.
      */
     this.handleEditPayrollCommentButtonClick = function() {
-    	$('body').on('click', '.payrollEditPayrollComment', function() {
-    		var requestLogId = $(this).attr("data-payroll-request-log-id");
-    		$('*[data-payroll-comment-wrapper-id="' + requestLogId + '"').toggle();
-    	});
+      $('body').on('click', '.payrollEditPayrollComment', function() {
+        var requestLogId = $(this).attr("data-payroll-request-log-id");
+        $('*[data-payroll-comment-wrapper-id="' + requestLogId + '"').toggle();
+      });
     }
-    
+
     /**
      * Handle saving a payroll comment.
      */
     this.handleSavePayrollCommentButtonClick = function() {
-    	$('body').on('click', '.payrollSavePayrollComment', function() {
-    		var requestLogId = $(this).attr("data-payroll-request-log-id");
-    		var data = {
-				requestLogId: requestLogId,
-				updatedCommentText: $('*[data-payroll-comment-text-id="' + requestLogId + '"').val()
+      $('body').on('click', '.payrollSavePayrollComment', function() {
+        var requestLogId = $(this).attr("data-payroll-request-log-id");
+        var data = {
+        requestLogId: requestLogId,
+        updatedCommentText: $('*[data-payroll-comment-text-id="' + requestLogId + '"').val()
             };
-    		var requestId = ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") );
-    		var redirectUrl = redirectCommentSavedCompleteUrl + '/' + requestId;
-    		
-    		timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
-    		timeOffApproveRequestHandler.roundTripAPICall(
-    				data, apiSubmitPayrollSaveChangesToPayrollCommentUrl, redirectUrl, "Unable to Save Comment." );
-    	});
+        var requestId = ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") );
+        var redirectUrl = redirectCommentSavedCompleteUrl + '/' + requestId;
+
+        timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
+        timeOffApproveRequestHandler.roundTripAPICall(
+            data, apiSubmitPayrollSaveChangesToPayrollCommentUrl, redirectUrl, "Unable to Save Comment." );
+      });
     }
 
     this.handleApiButtonClick = function() {
@@ -65,7 +65,7 @@ var timeOffApproveRequestHandler = new function ()
             var apiaction = $(this).attr("data-apiaction");
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             $.each(selectedDatesNew, function(index, blah) {
-            	selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
+              selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
 //            	console.log( "COMPARE:" );
 //            	console.log( selectedDatesNew );
             });
@@ -113,10 +113,10 @@ var timeOffApproveRequestHandler = new function ()
                 case 'payrollActionCompleteRequest':
                     timeOffApproveRequestHandler.payrollActionCompleteRequest( data );
                     break;
-                    
+
                 case 'payrollActionSaveChangesToCompletedRequest':
-                	timeOffApproveRequestHandler.payrollActionSaveChangesToCompletedRequest( data, $(this) );
-                	break;
+                  timeOffApproveRequestHandler.payrollActionSaveChangesToCompletedRequest( data, $(this) );
+                  break;
             }
         });
     }
@@ -249,9 +249,9 @@ var timeOffApproveRequestHandler = new function ()
         timeOffApproveRequestHandler.roundTripAPICall(
             data, timeOffApproveRequestInUpdateChecksQueue, redirectUpdateChecksQueue, "Unable to mark as Completed PAF." );
     }
-    
+
     this.payrollActionSaveChangesToCompletedRequest = function( data, selectedButton ) {
-    	if ($.trim($("#payrollComment").val()) == '') {
+      if ($.trim($("#payrollComment").val()) == '') {
             $("#noCommentEnteredWarning").removeClass("hidden");
             $("#payrollComment").addClass("borderColorRed");
             /* enable DENY button */
@@ -259,10 +259,10 @@ var timeOffApproveRequestHandler = new function ()
         } else {
             $("#noCommentEnteredWarning").addClass("hidden");
             $("#payrollComment").removeClass("borderColorRed");
-            
+
             timeOffApproveRequestHandler.roundTripAPICall(
                     data, apiSubmitPayrollSaveChangesToCompletedRequestUrl, redirectCompletedPAFsQueue, "Unable to update this Completed PAF." );
-            
+
 //            alert( "This feature is currently being developed." );
 //        	setTimeout(function() {
 //        		timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Save' );

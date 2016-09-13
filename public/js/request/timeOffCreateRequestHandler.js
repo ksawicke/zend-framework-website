@@ -1411,8 +1411,6 @@ var timeOffCreateRequestHandler = new function() {
     }
     
     this.handleHighlightingDatesReviewRequestScreen = function() {
-    	console.log( selectedDatesNew );
-    	
     	$.each( selectedDatesNew, function( index, blah ) {
         	isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         	thisDate = selectedDatesNew[index];
