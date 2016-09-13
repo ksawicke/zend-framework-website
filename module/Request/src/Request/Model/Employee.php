@@ -393,6 +393,17 @@ class Employee extends BaseDB {
         return "N";
     }
 
+    public function isProxyForManager($employeeNumber = null)
+    {
+        $rawSql = "SELECT COUNT(*) AS RCOUNT FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES
+                   WHERE TRIM(PROXY_EMPLOYEE_NUMBER) = '" . $employeeNumber . "' AND
+                   STATUS = 1 AND (IS_MANAGER_MG('002', EMPLOYEE_NUMBER) = 'Y' OR IS_SUPERVISOR('002', EMPLOYEE_NUMBER) = 'Y' )";
+
+        $data = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
+
+        return ( $data[0]->RCOUNT >= 1 ? 'Y' : 'N' );
+    }
+
     /**
      * Adds a where clause to exclude employees in Level 2.
      *
@@ -577,11 +588,12 @@ class Employee extends BaseDB {
     public function getProxyEmployeeSearchStatement( $where = null, $proxyFor = [] )
     {
         foreach( $proxyFor as $key => $proxy ) {
-            $proxyFor[$key] = "'" . $proxy . "'";
+            $proxyFor[$key] = "'" . trim($proxy) . "'";
         }
         $proxyForPartial = implode(",", $proxyFor);
 
-        $where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
+        //$where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
+        $where .= " AND trim(manager.SPSPEN) IN(" . $proxyForPartial . ")";
 
         $rawSql = "SELECT
             CASE
@@ -609,7 +621,7 @@ class Employee extends BaseDB {
              ON manager_addons.PREN = manager.SPSPEN
         " . $where . "
         ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
-
+// var_dump($rawSql);
         return $rawSql;
     }
 

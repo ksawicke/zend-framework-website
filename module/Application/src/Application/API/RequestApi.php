@@ -290,7 +290,7 @@ class RequestApi extends ApiController {
 
         return $result;
     }
-    
+
     /**
      * Handle an API request to edit a Payroll Comment
      */
@@ -302,17 +302,17 @@ class RequestApi extends ApiController {
             $posted = false;
             $post = (object) $data;
         }
-        
+
         $TimeOffRequestLog = new TimeOffRequestLog();
         $TimeOffRequestLog->editLogEntry( $post );
-        
+
         $result = new JsonModel( [
             'success' => true
         ] );
-        
+
         return $result;
     }
-    
+
     /**
      * Handle an API request to allow Payroll to edit a request in Completed PAFs queue.
      *
@@ -343,7 +343,7 @@ class RequestApi extends ApiController {
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Request modified by ' . UserSession::getFullUserInfo() );
         }
-        
+
         /** Log Payroll approval with comment **/
         $TimeOffRequestLog->logEntry(
             $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll modified by ' . UserSession::getFullUserInfo() .
@@ -972,6 +972,11 @@ class RequestApi extends ApiController {
         $isFirstDateRequestedTooOld = $this->isFirstDateRequestedTooOld( $dates );
         $isPayrollReviewRequired = $validationHelper->isPayrollReviewRequired( $post->request_id, $requestData['EMPLOYEE_NUMBER'] ); // $validationHelper->isPayrollReviewRequired( $requestData, $employeeData );
 
+        $proxyLogText = '';
+        if ($requestData['EMPLOYEE_NUMBER'] != UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' )) {
+            $proxyLogText = ' as proxy for ' . $requestData['EMPLOYEE_DATA']->MANAGER_DESCRIPTION_ALT;
+        }
+
         if ( $isPayrollReviewRequired === true || $isFirstDateRequestedTooOld === true ) {
             $payrollReviewRequiredReason = '';
             if( $isPayrollReviewRequired ) {
@@ -983,7 +988,7 @@ class RequestApi extends ApiController {
             /** Log supervisor approval with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request approved by ' . UserSession::getFullUserInfo() .
-                ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
+                $proxyLogText . ' for ' . $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT .
                 ( (!empty( $post->manager_comment )) ? ' with the comment: ' . $post->manager_comment : '' ) );
 
             /** Change status to Approved */
@@ -1010,7 +1015,7 @@ class RequestApi extends ApiController {
 
             /** Log supervisor approval with comment **/
             $supervisorApprovalComment = 'Approved by ' . UserSession::getFullUserInfo() .
-                (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' );
+                $proxyLogText . (!empty( $post->manager_comment ) ? ' with the comment: ' . $post->manager_comment : '' );
             if( property_exists( $post, "review_request_reason" ) ) { // In case this is an auto-approval
                 $supervisorApprovalComment = $post->review_request_reason;
             }

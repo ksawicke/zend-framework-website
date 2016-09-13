@@ -5,7 +5,7 @@
 }
 </style>
 
-<?php 
+<?php
 $viewQueueLink = '';
 switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
     case "Pending Manager Approval":
@@ -31,12 +31,12 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
 
 <div class="row gutter-10">
     <div class="col-md-6 col-lg-6">
-    	<h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
+      <h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
     </div>
     <div class="col-md-6 col-lg-6 text-right">
-    	<a href="<?php echo $this->basePath() . $viewQueueLink; ?>">
-    		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-    	</a>
+      <a href="<?php echo $this->basePath() . $viewQueueLink; ?>">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+      </a>
     </div>
 </div>
 
@@ -226,20 +226,20 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                 <strong>Time Off Requested</strong>
                             </div>
                             <div class="col-lg-10 col-md-10">
-                            	<?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Denied" ) {
-                            	          echo $this->partial( 'request/partials/categoryButtonsWidget.phtml' );
-										  echo $this->partial( 'request/partials/oneCalendarWidget.phtml' );
-										  echo $this->partial( 'request/partials/managerEditRequestFormWidget.phtml', [ 'isBeingReviewed' => 'Y' ] );
-                            	      } else {
-                            	          ?>
-                            	          
-                            	          <div id="deniedRequestFlashMessage" class="alert alert-info" role="alert">
+                              <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']!="Denied" ) {
+                                        echo $this->partial( 'request/partials/categoryButtonsWidget.phtml' );
+                      echo $this->partial( 'request/partials/oneCalendarWidget.phtml' );
+                      echo $this->partial( 'request/partials/managerEditRequestFormWidget.phtml', [ 'isBeingReviewed' => 'Y' ] );
+                                    } else {
+                                        ?>
+
+                                        <div id="deniedRequestFlashMessage" class="alert alert-info" role="alert">
                                                <i class="fa fa-info"></i> <strong>Denied requests can no longer be edited.</strong>
                                           </div>
-                            	          
-                            	          <?php
-                            	      }
-							    ?>
+
+                                        <?php
+                                    }
+                  ?>
                             </div>
                         </div>
 
@@ -305,7 +305,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                                    '<div style="display:none;" data-payroll-comment-wrapper-id="' . $entry['REQUEST_LOG_ID'] . '"><br />' .
                                                    '<span style="font-weight:normal;color:#000;">Edit Payroll Comment:<br />' .
                                                    '<textarea maxlength="500" rows="4" cols="80" data-payroll-comment-text-id="' . $entry['REQUEST_LOG_ID'] . '">' .
-                                                   $entry['COMMENT'] . 
+                                                   $entry['COMMENT'] .
                                                    '</textarea></span><br />' .
                                                    '<button type="button" class="btn btn-form-primary btn-xs payrollSavePayrollComment" ' .
                                                    ' data-payroll-request-log-id="' . $entry['REQUEST_LOG_ID'] . '">Save</button>' .
@@ -348,7 +348,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                     </div>
                                 </div>
                                 <input type="hidden" id="requestId" value="<?php echo $timeoffRequestData['REQUEST_ID']; ?>">
-                                
+
                                 <p>
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
@@ -372,7 +372,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionCompleteRequest">Approve</button>
                                     <?php } ?>
-                                    
+
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
@@ -406,6 +406,3 @@ $phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE
              'request_id' => $timeoffRequestData['REQUEST_ID']
             ];
 $this->headScript()->prependScript( 'var phpVars=' . json_encode( $phpVars ) );
-
-echo '<pre>';
-var_dump( $timeoffRequestData );

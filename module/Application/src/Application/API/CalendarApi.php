@@ -43,39 +43,39 @@ class CalendarApi extends ApiController {
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = $this->getCompanyHolidays();
     }
-    
+
     /**
      * Gets a list of company holidays.
-     * 
+     *
      * @return date
      */
     public function getCompanyHolidays()
     {
         $TimeOffRequests = new \Request\Model\TimeOffRequests();
         $companyHolidays = $TimeOffRequests->getCompanyHolidays();
-        
+
         return $companyHolidays;
     }
-    
+
     /**
      * Allow Payroll to put in a request up to 6 months ago from today's date.
      * All other roles can go back 1 month.
-     * 
+     *
      * @return date
      */
     public function getEarliestRequestDate()
     {
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserPayroll = $Employee->isPayroll( $_SESSION['Timeoff_'.ENVIRONMENT]['EMPLOYEE_NUMBER'] );
-        
+
         return ( $isLoggedInUserPayroll=="Y" ? date("m/d/Y", strtotime("-6 months", strtotime(date("m/d/Y"))))
                                               : date("m/d/Y", strtotime("-1 month", strtotime(date("m/d/Y")))) );
-        
+
     }
 
     /**
      * Load three calendars and employee data.
-     * 
+     *
      * @return JsonModel
      */
     public function loadCalendarAction() {
@@ -85,14 +85,14 @@ class CalendarApi extends ApiController {
         $employeeData = $Employee->findEmployeeTimeOffData( $post->employeeNumber, "Y" );
         $startYear = null;
         $startMonth = null;
-        
+
         if( empty( $post->calendarsToLoad ) ) {
             $post->calendarsToLoad = 3;
         }
         if( !empty( $post->appendDatesAsHighlighted ) ) {
             \Request\Helper\Calendar::setPreHighlightedDates($post->appendDatesAsHighlighted);
         }
-        
+
         if( $post->calendarsToLoad==1 && $post->startYear==date("Y") && $post->startMonth==date("n") ) {
             $startDateData = $Employee->getStartDateDataFromRequest( $post->requestId );
             $startYear = $startDateData['START_YEAR'];
@@ -101,42 +101,42 @@ class CalendarApi extends ApiController {
             $startYear = $post->startYear;
             $startMonth = $post->startMonth;
         }
-        
+
         $startDate = $startYear . "-" . $startMonth . "-01";
         $endDate = date( "Y-m-t", strtotime( $startDate ) );
         $dates = [];
         $headers = [];
         $calendars = [];
-        
+
         \Request\Helper\Calendar::setCalendarHeadings( ['S', 'M', 'T', 'W', 'T', 'F', 'S' ] );
         \Request\Helper\Calendar::setBeginWeekOne( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setBeginCalendarRow( '<tr class="calendar-row" style="height:40px;">' );
         \Request\Helper\Calendar::setInvalidRequestDates( $this->invalidRequestDates );
-        
+
         switch( $post->calendarsToLoad ) {
             case 3:
                 $calendarDates = \Request\Helper\Calendar::getDatesForThreeCalendars( $startYear, $startMonth );
                 break;
-            
+
             case 1:
             default:
                 $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $startYear, $startMonth );
                 break;
         }
-        
+
         foreach( $calendarDates as $timeFrame => $timeObject ) {
             $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
         }
-        
+
         $highlightDates = $Employee->findTimeOffCalendarByEmployeeNumber( $post->employeeNumber, $startDate,
             ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] ), $post->requestId );
-        
+
 //        echo '<pre>';
 //        var_dump( $post );
 //        echo '</pre>';
 //        die( ">>>>>" );
-        
-        
+
+
         if( $post->calendarsToLoad==1) {
             $threeCalendars = \Request\Helper\Calendar::getOneCalendar( $startYear, $startMonth, $highlightDates, $post->requestId );
             $navigation = [ 'calendarNavigationFastRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
@@ -153,16 +153,16 @@ class CalendarApi extends ApiController {
                             'calendarNavigationFastForward' => [ 'month' => $calendarDates['sixMonthsOut']->format( "m" ), 'year' => $calendarDates['sixMonthsOut']->format( "Y" ) ],
                           ];
         }
-        
+
         foreach( $threeCalendars['calendars'] as $key => $calendar ) {
             $headers[$key] = $calendar['header'];
             $calendars[$key] = $calendar['data'];
         }
-        
+
         foreach( $highlightDates as $key => $dateObject ) {
             $highlightDates[$key]['REQUEST_DATE'] = date( "m/d/Y", strtotime( $dateObject['REQUEST_DATE'] ) );
         }
-        
+
         $result = new JsonModel( [
             'success' => true,
             'employeeData' => $employeeData,
@@ -171,7 +171,8 @@ class CalendarApi extends ApiController {
                                     'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
                                     'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
                                     'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
-                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
+                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' ),
+                                    'isProxyForManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' )
             ],
             'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
                             $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :
@@ -185,14 +186,14 @@ class CalendarApi extends ApiController {
                 'holidays' => $this->invalidRequestDates['individual']
             ]
         ] );
-        
+
         if( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ) {
-            
+
         }
 //        if( $result['loggedInUserData']['isProxy']==='Y' ) {
 //            $result['employeeData']->PROXY_FOR = [];
 //        }
-        
+
         return $result;
     }
 
