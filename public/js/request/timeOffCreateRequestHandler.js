@@ -2054,7 +2054,7 @@ var timeOffCreateRequestHandler = new function() {
                         directReportFilter : directReportFilter,
                         employeeNumber : phpVars.employee_number,
                         isProxy : loggedInUserData.isProxy,
-                        proxyFor : loggedInUserData.PROXY_FOR,
+                        proxyFor : loggedInUserData.proxyFor,
                         page : params.page
                     };
                 },
@@ -2351,4 +2351,5 @@ var timeOffCreateRequestHandler = new function() {
     }
 };
 //Initialize the class
+
 timeOffCreateRequestHandler.initialize();

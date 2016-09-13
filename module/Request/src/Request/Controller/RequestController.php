@@ -251,11 +251,27 @@ class RequestController extends AbstractActionController
     public function approvedRequestAction()
     {
         $this->flashMessenger()->addSuccessMessage('You approved the request succesfully.');
-        $this->redirect()->toRoute('viewManagerQueue', array(
-            'controller' => 'request',
-            'action' =>  'view-manager-queue',
-            'manager-view' => 'pending-manager-approval'
-        ));
+        if( \Login\Helper\UserSession::getUserSessionVariable('IS_MANAGER')=="Y" ) {
+            // route to Pending Manager Approval queue
+            $this->redirect()->toRoute('viewManagerQueue', array(
+                'controller' => 'request',
+                'action' =>  'view-manager-queue',
+                'manager-view' => 'pending-manager-approval'
+            ));
+        } else if( \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL')=="Y" ) {
+            // route to Pending Payroll Approval queue....
+            $this->redirect()->toRoute('viewPayrollQueue', array(
+                'controller' => 'request',
+                'action' =>  'view-payroll-queue',
+                'payroll-view' => 'pending-payroll-approval'
+            ));
+        } else {
+            // route to view my requests....
+            $this->redirect()->toRoute('viewMyRequests', array(
+                'controller' => 'request',
+                'action' =>  'view-my-requests'
+            ));
+        }
     }
 
     /**
@@ -293,9 +309,10 @@ class RequestController extends AbstractActionController
     {
         $managerView = $this->params()->fromRoute('manager-view');
         $Employee = new \Request\Model\Employee();
-        $isLoggedInUserManager = $Employee->isManager($this->employeeNumber) || $Employee->isProxyForManager($this->employeeNumber);
+        $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
-        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y") {
+        $isPayroll = $Employee->isPayroll($this->employeeNumber);
+        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -383,6 +400,9 @@ class RequestController extends AbstractActionController
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $ValidationHelper = new ValidationHelper();
+        $employeeNumberAssociatedWithRequestData = $TimeOffRequests->findEmployeeNumberAssociatedWithRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
+        $employeeNumberAssociatedWithRequest = trim( $employeeNumberAssociatedWithRequestData->EMPLOYEE_NUMBER );
+        $Employee->ensureEmployeeScheduleIsDefined( $employeeNumberAssociatedWithRequest );
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
 
         return new ViewModel( [
@@ -458,10 +478,10 @@ class RequestController extends AbstractActionController
         $worksheet->getStyle('D1')->getFont()->setBold(true);
         $worksheet->getStyle('E1')->getFont()->setBold(true);
         $worksheet->getStyle('F1')->getFont()->setBold(true);
-        $worksheet->getColumnDimension('A')->setWidth(26.00);
+        $worksheet->getColumnDimension('A')->setWidth(16.00);
         $worksheet->getColumnDimension('B')->setWidth(26.00);
         $worksheet->getColumnDimension('C')->setWidth(26.00);
-        $worksheet->getColumnDimension('D')->setWidth(16.00);
+        $worksheet->getColumnDimension('D')->setWidth(26.00);
         $worksheet->getColumnDimension('E')->setWidth(16.00);
         $worksheet->getColumnDimension('F')->setWidth(16.00);
 
@@ -501,37 +521,41 @@ class RequestController extends AbstractActionController
         $objPHPExcel->setActiveSheetIndex(0);
         $worksheet = $objPHPExcel->getActiveSheet();
         $worksheet->setTitle('test worksheet');
-        $worksheet->setCellValue('A1', 'Employee');
-        $worksheet->setCellValue('B1', 'Approver Queue');
-        $worksheet->setCellValue('C1', 'Request Status');
-        $worksheet->setCellValue('D1', 'Hours Requested');
-        $worksheet->setCellValue('E1', 'Last Payroll Comment');
-        $worksheet->setCellValue('F1', 'First Day Requested');
+        $worksheet->setCellValue('A1', 'Cycle Code');
+        $worksheet->setCellValue('B1', 'Employee');
+        $worksheet->setCellValue('C1', 'Approver Queue');
+        $worksheet->setCellValue('D1', 'Request Status');
+        $worksheet->setCellValue('E1', 'Hours Requested');
+        $worksheet->setCellValue('F1', 'Last Payroll Comment');
+        $worksheet->setCellValue('G1', 'First Day Requested');
         $worksheet->getStyle('A1')->getFont()->setBold(true);
         $worksheet->getStyle('B1')->getFont()->setBold(true);
         $worksheet->getStyle('C1')->getFont()->setBold(true);
         $worksheet->getStyle('D1')->getFont()->setBold(true);
         $worksheet->getStyle('E1')->getFont()->setBold(true);
         $worksheet->getStyle('F1')->getFont()->setBold(true);
-        $worksheet->getColumnDimension('A')->setWidth(26.00);
+        $worksheet->getStyle('G1')->getFont()->setBold(true);
+        $worksheet->getColumnDimension('A')->setWidth(16.00);
         $worksheet->getColumnDimension('B')->setWidth(26.00);
         $worksheet->getColumnDimension('C')->setWidth(26.00);
-        $worksheet->getColumnDimension('D')->setWidth(16.00);
+        $worksheet->getColumnDimension('D')->setWidth(26.00);
         $worksheet->getColumnDimension('E')->setWidth(16.00);
         $worksheet->getColumnDimension('F')->setWidth(16.00);
+        $worksheet->getColumnDimension('G')->setWidth(16.00);
 
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
 
-            $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION']);
-            $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
-            $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
-            $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
-            $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
+            $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['CYCLE_CODE']);
+            $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION']);
+            $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
+            $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
+            $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
+            $worksheet->getStyle('E'.($key+2))->getNumberFormat()->setFormatCode(
                 PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
-            $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['LAST_PAYROLL_COMMENT']);
-            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+            $worksheet->setCellValue('F'.($key+2), $spreadsheetRow['LAST_PAYROLL_COMMENT']);
+            $worksheet->setCellValue('G'.($key+2), $minDateRequested);
         }
 
         // Redirect output to a client's web browser (Excel2007)
