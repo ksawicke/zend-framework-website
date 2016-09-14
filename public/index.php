@@ -8,13 +8,13 @@ error_reporting(E_ALL);
  */
 chdir(dirname(__DIR__));
 
-$currentSystem = $_SERVER['SERVER_NAME'];
-// $currentSystem = gethostname();
+//$currentSystem = $_SERVER['SERVER_NAME'];
+$currentSystem = gethostname();
 $currentPath = getcwd();
 
 define('CURRENT_PATH', $currentPath);
 
-if( trim($currentSystem) == 'swift' || trim($currentSystem) == 'swift.swift.com' ) {
+if( strtolower(trim($currentSystem)) == 'swift' || strtolower(trim($currentSystem)) == 'swift.swift.com' ) {
     switch ($currentPath) {
         case '/www/zendsvr6/htdocs/timeoff':
             define('ENVIRONMENT', 'testing');
