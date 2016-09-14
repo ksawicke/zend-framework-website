@@ -1669,37 +1669,26 @@ var timeOffCreateRequestHandler = new function() {
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         dateObject.hours = parseFloat(hoursToAdd).toFixed(2);
 
-        console.log( dateObject );
-        console.log( hoursToAdd );
-
-//        timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
-//        selectedDatesNew.push( dateObject );
-
+        if( hoursToAdd==0 ) {
+        	return; // Can't add something with 0 hours
+        }
         isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
-//        console.log( 'isHandledFromReviewRequestScreen', isHandledFromReviewRequestScreen );
-//        console.log( 'method', method );
         if( isHandledFromReviewRequestScreen ) {
-//        	console.log( "YA YO YEE" );
-//        	console.log( isSelected );
           if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===true ) {
-//                console.log( "AAA" );
               selectedDatesNew[index].isAdded = false;
                 selectedDatesNew[index].fieldDirty = false;
                 timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
             } else if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===false ) {
-//            	console.log( "BBB" );
               selectedDatesNew[index].isAdded = true;
                 selectedDatesNew[index].fieldDirty = true;
                 timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
             } else {
-//            	console.log( "CCC" );
               dateObject.fieldDirty = true;
             dateObject.isAdded = true;
             selectedDatesNew.push( dateObject );
             timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
             }
         } else {
-//        	console.log( "DDD" );
           selectedDatesNew.push( dateObject );
           timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
         }
