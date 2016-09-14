@@ -73,6 +73,9 @@ class EmailService extends AbstractActionController
     public function setSubject( $emailSubject )
     {
         $this->emailSubject = $emailSubject;
+        if ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) {
+            $this->emailSubject = '[' . ENVIRONMENT . '] ' . $this->emailSubject;
+        }
         return $this;
     }
 
