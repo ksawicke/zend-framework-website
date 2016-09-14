@@ -171,8 +171,7 @@ class CalendarApi extends ApiController {
                                     'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
                                     'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
                                     'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
-                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' ),
-                                    'isProxyForManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' )
+                                    'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )
             ],
             'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
                             $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :

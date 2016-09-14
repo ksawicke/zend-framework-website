@@ -6,11 +6,11 @@ use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 
 class ValidationHelper {
-    
+
     /**
      * Checks if a request exceeds employee's remaining PTO, Float, Sick, or Grandfathered time.
      * Also check if a request contains more than 24 hours of Civic Duty.
-     * 
+     *
      * @param integer $requestId
      * @param integer $employeeNumber
      * @return boolean
@@ -19,18 +19,18 @@ class ValidationHelper {
     {
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
-        
+
         $hoursRequestedData = $Employee->checkHoursRequestedPerCategory( $requestId );
         $employeeData = $Employee->findEmployeeTimeOffData( $employeeNumber );
         $request = $TimeOffRequests->findRequest( $requestId );
 
-        return ( ( $hoursRequestedData['PTO'] > $request['EMPLOYEE_DATA']->PTO_REMAINING ||
-                   $hoursRequestedData['FLOAT'] > $request['EMPLOYEE_DATA']->FLOAT_REMAINING ||
-                   $hoursRequestedData['SICK'] > $request['EMPLOYEE_DATA']->SICK_REMAINING ||
-                   $hoursRequestedData['GRANDFATHERED'] > $request['EMPLOYEE_DATA']->GF_REMAINING ||
-                   $hoursRequestedData['CIVIC_DUTY'] > 0
+        return ( ( ($hoursRequestedData['PTO'] > $request['EMPLOYEE_DATA']->PTO_REMAINING && $hoursRequestedData['PTO'] != 0 )||
+                   ($hoursRequestedData['FLOAT'] > $request['EMPLOYEE_DATA']->FLOAT_REMAINING && $hoursRequestedData['FLOAT'] != 0 ) ||
+                   ($hoursRequestedData['SICK'] > $request['EMPLOYEE_DATA']->SICK_REMAINING && $hoursRequestedData['SICK'] != 0 ) ||
+                   ($hoursRequestedData['GRANDFATHERED'] > $request['EMPLOYEE_DATA']->GF_REMAINING && $hoursRequestedData['GRANDFATHERED'] != 0 ) ||
+                   ($hoursRequestedData['CIVIC_DUTY'] > 0 && $hoursRequestedData['CIVIC_DUTY'] != 0 )
                  ) ? true : false
                );
     }
-    
+
 }
