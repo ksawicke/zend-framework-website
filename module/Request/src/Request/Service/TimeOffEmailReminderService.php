@@ -81,7 +81,7 @@ class TimeOffEmailReminderService extends AbstractActionController
             $employeeList .= '</ul>';
 
             /* add URL link for email body */
-            $employeeList .= 'Please review this request at the following URL:<br /><br /><a href="' . $route . '">' . $route . '</a>';
+            $employeeList .= 'Please review the request(s) at the following URL:<br /><br /><a href="' . $route . '">' . $route . '</a>';
 
             /* render email from view */
             $renderedEmail = $this->renderEmail($employeeList);
