@@ -102,8 +102,7 @@ class CalendarApi extends ApiController {
             $startMonth = $post->startMonth;
         }
 
-        $startDate = $startYear . "-" . $startMonth . "-01";
-        $endDate = date( "Y-m-t", strtotime( $startDate ) );
+        $startDate = date( "Y-m-d", strtotime( $startYear . "-" . $startMonth . "-01" ) );
         $dates = [];
         $headers = [];
         $calendars = [];
@@ -163,6 +162,7 @@ class CalendarApi extends ApiController {
             $highlightDates[$key]['REQUEST_DATE'] = date( "m/d/Y", strtotime( $dateObject['REQUEST_DATE'] ) );
         }
 
+        $endDate = ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] );
         $result = new JsonModel( [
             'success' => true,
             'employeeData' => $employeeData,
@@ -183,7 +183,9 @@ class CalendarApi extends ApiController {
                 'calendars' => $calendars,
                 'navigation' => $navigation,
                 'highlightDates' => $highlightDates,
-                'holidays' => $this->invalidRequestDates['individual']
+                'holidays' => $this->invalidRequestDates['individual'],
+                'startDate' => date( "m/d/Y", strtotime( $startDate ) ),
+                'endDate' => date( "m/d/Y", strtotime( $endDate ) )
             ]
         ] );
 

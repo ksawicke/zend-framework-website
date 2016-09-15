@@ -320,9 +320,18 @@ var timeOffViewRequestHandler = new function ()
      * @param {type} highlightDates
      * @returns {undefined}
      */
-    this.drawDaysRequested = function (highlightDates) {
-        var datesSelectedDetailsHtml = '';
-        if( highlightDates.length===0 ) {
+    this.drawDaysRequested = function (highlightDates, startDate, endDate) {
+    	var datesSelectedDetailsHtml = '';
+        var countDates = 0;
+        $.each( highlightDates, function( key, dateObject ) {
+        	console.log( dateObject.REQUEST_DATE + " :: " + startDate + " :: " + endDate );
+        	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
+        		countDates++;
+        	}
+        });
+        console.log( "countDates", countDates );
+    	
+    	if( countDates==0 ) {
             $("#noDatesSelectedWarning").show();
         } else {
             $("#noDatesSelectedWarning").hide();
@@ -342,21 +351,24 @@ var timeOffViewRequestHandler = new function ()
                                             '<tbody>';
                                     
             $.each( highlightDates, function( key, dateObject ) {
-                var dow = moment(dateObject.REQUEST_DATE, "MM/DD/YYYY").format("ddd").toUpperCase();
-                datesSelectedDetailsHtml += '<tr>' +
-                                                '<td>' + ( ( dateObject.REQUEST_STATUS==="P" ) ?
-                                                                            '<span class="glyphicon glyphicon-user red"></span>' :
-                                                                            '<span class="glyphicon glyphicon-ok green"></span>' ) +
-                                                '</td>' +
-                                                '<td>' + dow + '</td>' +
-                                                '<td>' + dateObject.REQUEST_DATE + '</td>' +
-                                                '<td><input class="selectedDateHours" value="' + dateObject.REQUESTED_HOURS +
-                                                '" style="width:50px;" disabled="disabled"></td>' +
-                                                '<td><span class="badge ' + dateObject.CALENDAR_DAY_CLASS + '">' +
-                                                timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
-                                                '</span></td>' +
-                                            '</tr>';                  
-                                    
+//            	console.log( dateObject.REQUEST_DATE + " vs " + startDate );
+//            	console.log( dateObject.REQUEST_DATE + " vs " + endDate );
+            	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
+            		var dow = moment(dateObject.REQUEST_DATE, "MM/DD/YYYY").format("ddd").toUpperCase();
+            		datesSelectedDetailsHtml += '<tr>' +
+                        '<td>' + ( ( dateObject.REQUEST_STATUS=="P" || dateObject.REQUEST_STATUS=="Y" ) ?
+                                                    '<span class="glyphicon glyphicon-user red"></span>' :
+                                                    '<span class="glyphicon glyphicon-ok green"></span>' ) +
+                        '</td>' +
+                        '<td>' + dow + '</td>' +
+                        '<td>' + dateObject.REQUEST_DATE + '</td>' +
+                        '<td><input class="selectedDateHours" value="' + dateObject.REQUESTED_HOURS +
+                        '" style="width:50px;" disabled="disabled"></td>' +
+                        '<td><span class="badge ' + dateObject.CALENDAR_DAY_CLASS + '">' +
+                        timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
+                        '</span></td>' +
+                    '</tr>';
+            	}
             });
             
             
@@ -402,7 +414,7 @@ var timeOffViewRequestHandler = new function ()
                 timeOffViewRequestHandler.drawThreeCalendars(json.calendarData);
             }
             timeOffCreateRequestHandler.updateButtonsWithEmployeeHours(json.employeeData);
-            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
+            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates, json.calendarData.startDate, json.calendarData.endDate);
 //            timeOffViewRequestHandler.setHours( json.employeeData );
             if (json.employeeData.GF_REMAINING > 0) {
                 $('.categoryPTO').addClass('disableTimeOffCategorySelection');
@@ -412,6 +424,8 @@ var timeOffViewRequestHandler = new function ()
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
             timeOffCreateRequestHandler.postLoadCalendarButtonAdjust( requestForEmployeeObject );
+            
+            console.log( "calendarData", json.calendarData );
             return;
         })
         .error(function () {
@@ -476,7 +490,7 @@ var timeOffViewRequestHandler = new function ()
             if( calendarsToLoad===3 ) {
                 timeOffViewRequestHandler.drawThreeCalendars(json.calendarData);
             }
-            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates);
+            timeOffViewRequestHandler.drawDaysRequested(json.calendarData.highlightDates, json.calendarData.startDate, json.calendarData.endDate);
             timeOffViewRequestHandler.setHours( json.employeeData );
             return;
         })
