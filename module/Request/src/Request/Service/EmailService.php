@@ -74,7 +74,7 @@ class EmailService extends AbstractActionController
     {
         $this->emailSubject = $emailSubject;
         if ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) {
-            $this->emailSubject = '[' . ENVIRONMENT . '] ' . $this->emailSubject;
+            $this->emailSubject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $this->emailSubject;
         }
         return $this;
     }
