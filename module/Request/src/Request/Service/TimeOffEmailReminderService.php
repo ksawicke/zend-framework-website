@@ -50,8 +50,11 @@ class TimeOffEmailReminderService extends AbstractActionController
 
         /* resolve route 'home' with server name */
 //         $route = $getRouteUrl('home');
-        $route = $getRouteUrl('home',array(),array('force_canonical' => true));
-//         var_dump($route);die();
+        $route = $getRouteUrl( 'viewManagerQueue', array(
+            'controller' => 'request',
+            'action' => 'view-manager-queue',
+            'manager-view' => 'pending-manager-approval'
+        ), array('force_canonical' => true));
 
         /* retrieve all unapproved records */
         $timeOffRequestsResult = $this->timeOffRequests->getRequestsOverThreeDaysUnapproved();
@@ -78,7 +81,7 @@ class TimeOffEmailReminderService extends AbstractActionController
             $employeeList .= '</ul>';
 
             /* add URL link for email body */
-            $employeeList .= '<a href="' . $route . '">Time-Off</a>';
+            $employeeList .= 'Please review this request at the following URL:<br /><br /><a href="' . $route . '">' . $route . '</a>';
 
             /* render email from view */
             $renderedEmail = $this->renderEmail($employeeList);
@@ -88,7 +91,7 @@ class TimeOffEmailReminderService extends AbstractActionController
 
             /* prepare and send email */
             $this->emailService->setTo($supervisorEmail)
-                               ->setFrom('timeoffrequests-donotreply@swifttrans.com')
+                               ->setFrom('Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>')
                                ->setSubject('SWIFT - Time Off Requests')
                                ->setBody($renderedEmail)
                                ->send();
