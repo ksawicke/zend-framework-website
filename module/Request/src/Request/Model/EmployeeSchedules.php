@@ -25,16 +25,16 @@ class EmployeeSchedules extends BaseDB {
 //            ],
 //            'platform_options' => ['quote_identifiers' => false]
 //        );
-//        
+//
 //        $configPath = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))).'/config/autoload/global.php';
 //        $config = new \Zend\Config\Config( include $configPath );
 //        echo '<pre>';
 //        print_r($config->database);
-//        
+//
 //        echo '</pre>';
-//        
-//        
-//        
+//
+//
+//
 //        die("#");
 //        // )
 //
@@ -77,7 +77,7 @@ class EmployeeSchedules extends BaseDB {
 //        return array();
 //        // var_dump($results);
 //    }
-    
+
     public function updateEmployeeSchedule( $post = null )
     {
         $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
@@ -87,11 +87,11 @@ class EmployeeSchedules extends BaseDB {
                   "SCHEDULE_WED = '" . $post->request['forEmployee']['SCHEDULE_WED'] . "', " .
                   "SCHEDULE_THU = '" . $post->request['forEmployee']['SCHEDULE_THU'] . "', " .
                   "SCHEDULE_FRI = '" . $post->request['forEmployee']['SCHEDULE_FRI'] . "', " .
-                  "SCHEDULE_SAT = '" . $post->request['forEmployee']['SCHEDULE_SUN'] . "' " .
+                  "SCHEDULE_SAT = '" . $post->request['forEmployee']['SCHEDULE_SAT'] . "' " .
                   "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->request['byEmployee'] . "'";
-        $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );   
+        $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
     }
-    
+
     public function getEmployeeProfile( $employeeNumber = null )
     {
         $rawSql = "select sch.SEND_CAL_INV_ME AS SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE,
@@ -103,22 +103,22 @@ class EmployeeSchedules extends BaseDB {
                    LEFT JOIN TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES sch2
                    ON TRIM(sch2.EMPLOYEE_NUMBER) = TRIM(data.MANAGER_EMPLOYEE_NUMBER)
                    WHERE TRIM(sch.EMPLOYEE_NUMBER) = '" . $employeeNumber . "'";
-        
+
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return $employeeData;
     }
-    
+
     public function toggleCalendarInvites( $post = null )
     {
         $currentToggleValue = $this->getCurrentCalendarInviteSetting( $post );
         $which = $this->getCalendarInvitationField( $post ) . " = '" . ( $currentToggleValue=="1" ? "0" : "1" ) . "' ";
         $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
-                  $which . 
+                  $which .
                   "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->EMPLOYEE_NUMBER . "'";
         \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
     }
-    
+
     public function getCurrentCalendarInviteSetting( $post = null )
     {
         $field = $this->getCalendarInvitationField( $post );
@@ -126,7 +126,7 @@ class EmployeeSchedules extends BaseDB {
         $record = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
         return $record->{$field};
     }
-    
+
     private function getCalendarInvitationField( $post )
     {
         return "SEND_CAL_INV_" . ( $post->TYPE=="me" ? "ME" : "RPT" );
