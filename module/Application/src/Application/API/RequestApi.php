@@ -658,11 +658,10 @@ class RequestApi extends ApiController {
     protected function emailRequestToEmployee( $requestId, $post )
     {
         $emailVariables = $this->getEmailRequestVariables( $requestId );
-        $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        $cc = '';
         if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
-            $cc = '';
         }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
@@ -688,10 +687,9 @@ class RequestApi extends ApiController {
             $renderer->basePath( '/request/review-request/' . $requestId );
         $emailVariables = $this->getEmailRequestVariables( $requestId );
         $to = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
-        $cc = $post->request['forEmployee']['EMAIL_ADDRESS'];
+        $cc = '';
         if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
-            $cc = '';
         }
         $Email = new EmailFactory(
             'Time off requested for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'],
