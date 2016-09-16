@@ -1222,6 +1222,10 @@ class RequestApi extends ApiController {
                 UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
                 'Sent calendar invites of the request' );
 
+            /** Write record(s) to HPAPAATMP or PAPAATMP **/
+            $Papaa = new Papaatmp();
+            $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $post->request_id );
+
             $result = new JsonModel([
                 'success' => true,
                 'request_id' => $post->request_id
