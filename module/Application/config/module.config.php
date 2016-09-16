@@ -420,7 +420,7 @@ return [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-            
+
             // payroll-modify-comment
             'submitPayrollModifyComment' => [
                 'type' => 'segment',
@@ -489,6 +489,18 @@ return [
                     'defaults' => array(
                         'controller' => 'API\Scheduler\Controller',
                         'action'     => 'sendThreeDayReminderEmailToSupervisor',
+                    ),
+                ),
+            ),
+
+            'setPendingTransactionsToCompleted' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/api/scheduler/set_pending_transaction_to_completed',
+//                     'route'    => 'set_pending_transaction_to_completed',
+                    'defaults' => array(
+                        'controller' => 'API\CLI\Controller',
+                        'action'     => 'setRequestsToCompleted',
                     ),
                 ),
             ),
@@ -579,17 +591,17 @@ return [
 //                         ),
 //                     ),
 //                 ),
-                'setPendingTransactionsToCompleted' => array(
-//                     'type' => 'Zend\Mvc\Router\Http\Literal',
-                    'options' => array(
-//                         'route'    => '/api/scheduler/set_pending_transaction_to_completed',
-                        'route'    => 'set_pending_transaction_to_completed',
-                        'defaults' => array(
-                            'controller' => 'API\CLI\Controller',
-                            'action'     => 'setRequestsToCompleted',
-                        ),
-                    ),
-                ),
+//                 'setPendingTransactionsToCompleted' => array(
+// //                     'type' => 'Zend\Mvc\Router\Http\Literal',
+//                     'options' => array(
+// //                         'route'    => '/api/scheduler/set_pending_transaction_to_completed',
+//                         'route'    => 'set_pending_transaction_to_completed',
+//                         'defaults' => array(
+//                             'controller' => 'API\CLI\Controller',
+//                             'action'     => 'setRequestsToCompleted',
+//                         ),
+//                     ),
+//                 ),
             ],
         ],
     ],

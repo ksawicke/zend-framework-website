@@ -286,8 +286,8 @@ class RequestEntry extends BaseDB {
         $where = new Where();
 
         $where->equalTo('REQUEST_STATUS', 'S')
-        ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectPapaatmp->getSqlString($this->adapter->platform) . ') = 0'))
-        ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectHPapaatmp->getSqlString($this->adapter->platform) . ') = 0'));
+              ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectPapaatmp->getSqlString($this->adapter->platform) . ') = 0'))
+              ->and->expression('?', new \Zend\Db\Sql\Predicate\Expression('(' . $subSelectHPapaatmp->getSqlString($this->adapter->platform) . ') = 0'));
 
         $select->where($where);
 
