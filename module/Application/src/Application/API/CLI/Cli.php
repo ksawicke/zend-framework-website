@@ -1,12 +1,14 @@
 <?php
 namespace Application\API\CLI;
 
-use Zend\Mvc\Controller\AbstractActionController;
+// use Zend\Mvc\Controller\AbstractActionController;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Console\Request as ConsoleRequest;
+// use Zend\Console\Request as ConsoleRequest;
 use Request\Model\RequestEntry;
+use Application\API\ApiController;
+use Zend\View\Model\JsonModel;
 
-class Cli extends AbstractActionController
+class Cli extends ApiController //AbstractActionController
 {
     public $serviceLocator;
 
@@ -14,14 +16,15 @@ class Cli extends AbstractActionController
     {
         $request = $this->getRequest();
 
-        if (!$request instanceof ConsoleRequest) {
-            throw new \RuntimeException('You can only use this action from a console!');
-        }
+//         if (!$request instanceof ConsoleRequest) {
+//             throw new \RuntimeException('You can only use this action from a console!');
+//         }
 
         $requestService = new RequestEntry();
         $requestService->setRequestsToCompleted();
 
-        return 'Ok!';
+//         return 'Ok!';
+        return new JsonModel([]);
     }
 
     public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
