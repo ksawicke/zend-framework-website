@@ -303,6 +303,14 @@ div.container {
     background-color:transparent;
     color: yellow;
 }
+#navbar > ul > li.dropdown:hover > ul > li > a {
+	padding:15px 15px 15px 15px;
+    margin-top:-30px;
+}
+#navbar > ul > li.dropdown.open:hover > ul > li > a {
+	padding:15px 15px 15px 15px;
+    margin-top:-30px;
+}
 
 .parsley-errorUserid {
     color: red;
