@@ -557,12 +557,8 @@ class RequestApi extends ApiController {
             $proxyLogText = ' as proxy for ' . $proxyForEmployee;
         }
 
-        if (trim($post->request['forEmployee']['EMPLOYEE_NUMBER']) == trim($post->request['byEmployee']['EMPLOYEE_NUMBER'])) {
-            $isRequestToBeAutoApproved = false;
-        } else {
-            $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
-                                                                               $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
-        }
+        $isRequestToBeAutoApproved = $Employee->isRequestToBeAutoApproved( $post->request['forEmployee']['EMPLOYEE_NUMBER'],
+                                                                           $post->request['byEmployee']['EMPLOYEE_NUMBER'] );
 
         /** Ensure Employee has a default schedule created **/
         $Employee->ensureEmployeeScheduleIsDefined( $post->request['forEmployee']['EMPLOYEE_NUMBER'] );
