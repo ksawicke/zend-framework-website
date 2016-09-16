@@ -104,18 +104,22 @@ var timeOffCreateRequestHandler = new function() {
                  * SELECT2 is opened
                  */
                 // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
-            	var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
                 if ( ( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) &&
                        loggedInUserData.isPayrollAdmin == "N" &&
-                       loggedInUserData.isPayrollAssistant == "N" )
+                       loggedInUserData.isPayrollAssistant == "N" ) ||
+                       loggedInUserData.isProxy == "Y"
                    ) {
                     /**
                      * Allow user to search their reports (for Managers/Supervisors) and/or
                      * employees for which they are a proxy.
                      */
                     $("span").remove(".select2CustomTag");
+                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">';
                 }
-                if( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) && loggedInUserData.isPayrollAdmin == "N" && loggedInUserData.isPayrollAssistant == "N" ) {
+                if( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) &&
+                	  loggedInUserData.isPayrollAdmin == "N" &&
+                	  loggedInUserData.isPayrollAssistant == "N"
+                		) {
                     $filter += '<input type="radio" name="directReportFilter" value="B"'
                         + ((directReportFilter == 'B') ? ' checked'
                             : '')
