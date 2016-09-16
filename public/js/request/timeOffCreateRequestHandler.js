@@ -311,7 +311,7 @@ var timeOffCreateRequestHandler = new function() {
         var validates = false;
         bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
 
-        if( +bereavementTotalForRequest >= 24 ) {
+        if( +bereavementTotalForRequest > 24 ) {
             validates = true;
             if( +bereavementTotalForRequest > 24 ||
                 timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
