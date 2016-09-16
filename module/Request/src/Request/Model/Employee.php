@@ -820,34 +820,33 @@ class Employee extends BaseDB {
     }
 
     public function isRequestToBeAutoApproved( $forEmployee = null, $byEmployee = null ) {
-        $byEmployeeInChain = false;
-        $rawSql = "select mh.* from table (care_get_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
-        $employeeManagerData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
+        $isRequestToBeAutoApproved = false;
+        if( $forEmployee != $byEmployee ) {
+            $rawSql = "select mh.* from table (care_get_manager_hierarchy_for_employee('002','" . $forEmployee . "')) mh";
+            $employeeManagerData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
-        $proxyFor = [];
-        if (\Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' ) == 'Y') {
-            $proxies = $this->isProxyForManagerList(UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ));
-            foreach ($proxies as $key => $value) {
-                $proxyFor[] = $value->RCOUNT;
+            $proxyFor = [];
+            if (\Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' ) == 'Y') {
+                $proxies = $this->isProxyForManagerList(UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ));
+                foreach ($proxies as $key => $value) {
+                    $proxyFor[] = $value->RCOUNT;
+                }
             }
-        }
 
-        foreach( $employeeManagerData as $ctr => $managerData ) {
-            if( $managerData['MANAGER_EMPLOYEE_ID'] == $byEmployee ) {
-                $byEmployeeInChain = true;
-                break;
-            }
-            if (count($proxyFor) != 0) {
-                if( in_array($managerData['MANAGER_EMPLOYEE_ID'], $proxyFor)) {
-                    $byEmployeeInChain = true;
+            foreach( $employeeManagerData as $ctr => $managerData ) {
+                if( $managerData['MANAGER_EMPLOYEE_ID'] == $byEmployee ) {
+                    $isRequestToBeAutoApproved = true;
                     break;
+                }
+                if (count($proxyFor) != 0) {
+                    if( in_array($managerData['MANAGER_EMPLOYEE_ID'], $proxyFor)) {
+                        $isRequestToBeAutoApproved = true;
+                        break;
+                    }
                 }
             }
         }
-
-        return $byEmployeeInChain;
-
-        // select mh.* from table (care_get_entire_manager_hierarchy_for_employee(in_employer_id,in_employee_id)) mh
+        return $isRequestToBeAutoApproved;
     }
 
     /**

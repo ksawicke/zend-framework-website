@@ -312,7 +312,8 @@ class RequestController extends AbstractActionController
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
         $isPayroll = $Employee->isPayroll($this->employeeNumber);
-        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y") {
+        $isProxyForManager = $Employee->isProxyForManager($this->employeeNumber);
+        if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y" && $isProxyForManager!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('create');
         }
@@ -322,6 +323,7 @@ class RequestController extends AbstractActionController
         $view = new ViewModel([
             'isLoggedInUserManager' => $isLoggedInUserManager,
             'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
+            'isProxyForManager' => $isProxyForManager,
             'managerView' => $managerView,
             'managerViewName' => $this->managerViewName[$managerView],
             'employeeNumber' => $this->employeeNumber,
