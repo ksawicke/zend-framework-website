@@ -672,7 +672,7 @@ class PayrollQueues extends BaseDB {
         if( array_key_exists( 'endDate', $data) && !empty( $data['endDate'] ) ) {
             $where2[] = "MAX_DATE_REQUESTED <= '" . $data['endDate'] . "'";
         }
-        if( $data !== null ) {
+        if( $data !== null && empty($where2) ) {
             $where2[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
 
