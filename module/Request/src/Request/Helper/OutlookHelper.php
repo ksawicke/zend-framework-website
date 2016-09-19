@@ -18,24 +18,32 @@ class OutlookHelper {
     public $endDate = '';
     public $startTime = '';
     public $endTime = '';
-    
+
     /**
      * Array of email addresses to send all emails when running on SWIFT.
-     * 
+     *
      * @var unknown
      */
     public $testingEmailAddressList = null;
     public $developmentEmailAddressList = null;
-    
+
     public function __construct() {
+        $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
+        $emailOverrideList = $TimeOffRequestSettings->getEmailOverrideList();
+        $this->overrideEmails = $TimeOffRequestSettings->getOverrideEmailsSetting();
+        $this->testingEmailAddressList = ( ( ENVIRONMENT=='testing' ) ?
+            $emailOverrideList : '' );
+
         $this->startTime = '0000';
         $this->endTime = '2359';
-        $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-                                           'sarah_koogle@swifttrans.com',
-                                           'heather_baehr@swifttrans.com',
-                                           'jessica_yanez@swifttrans.com',
-                                           'nedra_munoz@swifttrans.com'
-        ];
+
+//         $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
+//                                            'sarah_koogle@swifttrans.com',
+//                                            'heather_baehr@swifttrans.com',
+//                                            'jessica_yanez@swifttrans.com',
+//                                            'nedra_munoz@swifttrans.com'
+//         ];
+
         $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
 
@@ -155,7 +163,7 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
      */
     public function addToCalendar( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
         $calendarRequestObject = $this->buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager );
-        
+
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );
             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
@@ -176,7 +184,7 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
 
     /*     * **
      * GOOD...SAVING
-     * 
+     *
      * $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
       $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
 
