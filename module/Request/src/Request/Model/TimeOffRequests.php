@@ -183,7 +183,7 @@ class TimeOffRequests extends BaseDB {
             'B' => 'Bereavement',
             'J' => 'Civic Duty',
             'R' => 'Grandfathered',
-            'A' => 'Unpaid Time Off'
+            'A' => 'Time Off Without Pay'
         ];
 
         $this->codesToKronos = [
@@ -452,7 +452,7 @@ class TimeOffRequests extends BaseDB {
 
         return $requestReturnData;
     }
-    
+
     /**
      * Returns the data associated with a single request for time off.
      *
@@ -464,7 +464,7 @@ class TimeOffRequests extends BaseDB {
         $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
             ->columns( [ 'EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER' ] )
             ->where( [ 'request.REQUEST_ID' => $requestId ] );
-    
+
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
         } catch ( \Exception $e ) {
