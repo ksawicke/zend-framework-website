@@ -31,20 +31,11 @@ class OutlookHelper {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
         $emailOverrideList = $TimeOffRequestSettings->getEmailOverrideList();
         $this->overrideEmails = $TimeOffRequestSettings->getOverrideEmailsSetting();
-        $this->testingEmailAddressList = ( ( ENVIRONMENT=='testing' ) ?
+        $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ?
             $emailOverrideList : '' );
 
         $this->startTime = '0000';
         $this->endTime = '2359';
-
-//         $this->testingEmailAddressList = [ 'kevin_sawicke@swifttrans.com',
-//                                            'sarah_koogle@swifttrans.com',
-//                                            'heather_baehr@swifttrans.com',
-//                                            'jessica_yanez@swifttrans.com',
-//                                            'nedra_munoz@swifttrans.com'
-//         ];
-
-        $this->developmentEmailAddressList = [ 'kevin_sawicke@swifttrans.com' ];
     }
 
     public function outputBeginVCalendar() {
