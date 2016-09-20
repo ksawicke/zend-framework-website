@@ -24,8 +24,7 @@ class OutlookHelper {
      *
      * @var unknown
      */
-    public $testingEmailAddressList = null;
-    public $developmentEmailAddressList = null;
+    public $emailOverrideList = null;
 
     public function __construct() {
         $TimeOffRequestSettings = new \Request\Model\TimeOffRequestSettings();
@@ -134,12 +133,8 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         if( $sendToManager ) {
             $participants[] = [ 'name' => ucwords( strtolower( trim( $employeeData['MANAGER_NAME'] ) ) ), 'email' => trim( $employeeData['MANAGER_EMAIL_ADDRESS'] ) ];
         }
-        if( ENVIRONMENT=='development' ) {
-            $to = implode( ',', $this->developmentEmailAddressList );
-            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
-        }
-        if( ENVIRONMENT=='testing' ) {
-            $to = implode( ',', $this->testingEmailAddressList );
+        if( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) {
+            $to = implode( ',', $this->emailOverrideList );
             $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
         }
         return [ 'datesRequested' => $calendarInviteData['datesRequested'], 'for' => $employeeData['EMPLOYEE_NAME'],
