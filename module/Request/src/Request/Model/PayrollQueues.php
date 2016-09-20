@@ -398,11 +398,19 @@ class PayrollQueues extends BaseDB {
 
     public function getCompletedPAFsQueue( $data = null )
     {
+        $where = [];
+        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+            $where[] = " EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'";
+        }
+
         $rawSql = "
         SELECT DATA2.* FROM (
             SELECT
                 ROW_NUMBER () OVER (ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS ROW_NUMBER,
-                DATA.* FROM (
+            DATA.* FROM (
+            select * from (
                 SELECT
                 request.REQUEST_ID AS REQUEST_ID,
                 TRIM(request.EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER,
@@ -428,8 +436,11 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'F'
-            ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
+            WHERE request.REQUEST_STATUS = 'F' ) as X ";
+            if (count($where) > 0) {
+                $rawSql .= ' WHERE ' . implode( " AND ", $where );
+            }
+            $rawSql .= "ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
 
         $columns = [ "EMPLOYEE_DESCRIPTION",
@@ -442,12 +453,12 @@ class PayrollQueues extends BaseDB {
                    ];
 
         $where = [];
-        if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-            $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
-                        )";
-        }
+//         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
+//             $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+//                           EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
+//                           EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+//                         )";
+//         }
         if( $data !== null ) {
             $where[] = "ROW_NUMBER BETWEEN " . ( $data['start'] + 1 ) . " AND " . ( $data['start'] + $data['length'] );
         }
