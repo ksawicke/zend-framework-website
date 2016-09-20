@@ -210,9 +210,6 @@ var timeOffCreateRequestHandler = new function() {
       timeOffCreateRequestHandler.updateHours();
       exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
 
-      //+totalPTORequested > 0
-      console.log( "exceededHours", exceededHours );
-
       if( exceededHours.Grandfathered && +totalGrandfatheredRequested > 0 ) {
         $("#warnExceededGrandfatheredHours").show();
       } else {
@@ -437,13 +434,7 @@ var timeOffCreateRequestHandler = new function() {
                 FLOAT_REMAINING: +requestForEmployeeObject.FLOAT_REMAINING + +totalFloatDeleted - +totalFloatAdded,
                   SICK_REMAINING: +requestForEmployeeObject.SICK_REMAINING + +totalSickDeleted - +totalSickAdded };
       }
-//    	console.log( "requestForEmployeeObject" );
-//    	console.log( requestForEmployeeObject );
-//    	console.log( "data" );
-//    	console.log( data );
-//    	console.log( "+requestForEmployeeObject.PTO_REMAINING", +requestForEmployeeObject.PTO_REMAINING );
-//    	console.log( "+totalPTORequested", +totalPTORequested );
-//    	console.log( "+totalPTODeleted", +totalPTODeleted );
+
       timeOffCreateRequestHandler.updateButtonsWithEmployeeRemainingTime( data );
     }
 
@@ -499,7 +490,7 @@ var timeOffCreateRequestHandler = new function() {
             //   1. If on the Create New Request screen, adjust the remaining time
             //   2. If in review (Pending Manger Approval or Pending Payroll Approval),
             //      leave the remaining time alone for that day.
-            console.log( "isHandledFromReviewRequestScreen", timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() );
+
             if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
               timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
             }
@@ -551,18 +542,10 @@ var timeOffCreateRequestHandler = new function() {
                 foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject ),
                 canAddOrSplit = true;
 
-//        	console.log( isCompanyHoliday );
-//        	console.log( $(this) );
-
             if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
               return;
             }
-//            if( employeeGrandfatheredRemaining <= 0 ) {
-//            	alert( "Grandfathered time has been used up." );
-//            }
-//            if( employeeSickRemaining <= 0 ) {
-//            	alert( "Sick Time has been used up." );
-//            }
+
             if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining < 0 ) {
               return;
             }
@@ -570,10 +553,6 @@ var timeOffCreateRequestHandler = new function() {
               return;
             }
 
-//            if( ( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining == 0 ) ||
-//            	( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining == 0 ) ) {
-//            	canAddOrSplit = false;
-//            }
             if( isCompanyHoliday ) {
               if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                 timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
@@ -784,7 +763,7 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
 
             /**
-             * Allow manager to edit request
+             * Allow manager/payroll to edit request
              */
             if( calendarsToLoad===1 ) {
                 $("#datesSelectedDetails").html("");
@@ -816,7 +795,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * This will add dates as selected so manager can edit the request.
+     * This will add dates as selected so manager/payroll can edit the request.
      *
      * @param {type} highlightDates
      * @returns {undefined}
@@ -990,7 +969,7 @@ var timeOffCreateRequestHandler = new function() {
                 dates : selectedDatesNew,
                 reason : requestReason
             } };
-//        console.log( "requestData", requestData );
+        
         $.ajax({
             url : timeOffSubmitTimeOffRequestUrl,
             type : 'POST',
@@ -1062,10 +1041,7 @@ var timeOffCreateRequestHandler = new function() {
              * Allow manager to edit request
              */
             if( calendarsToLoad==1 ) {
-//                console.log( "selectedDatesNew &&", selectedDatesNew );
-//                console.log( "calendarData &&", json.calendarData );
 
-//                timeOffCreateRequestHandler.addLoadedDatesAsSelected( json.calendarData.highlightDates );
             }
             return;
         }).error(function() {
@@ -1362,9 +1338,6 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.highlightDates = function() {
-//        console.log( "CHECK>>>>>> " + doRealDelete );
-//        var blahhh = typeof timeOffCreateRequestInitHandler;
-//        console.log(blahhh);
         $.each($(".calendar-day"), function(index, blah) {
             $(this).removeClass('timeOffPTOSelected');
             $(this).removeClass('timeOffFloatSelected');
@@ -1383,34 +1356,6 @@ var timeOffCreateRequestHandler = new function() {
         } else {
           timeOffCreateRequestHandler.handleHighlightingDatesReviewRequestScreen();
         }
-        /***
-         *  var isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
-            if( isBeingReviewed ) {
-                if( selectedDatesNew[key].hasOwnProperty('isDeleted') && selectedDatesNew[key].isDeleted===true ) {
-                    console.log( "REVIEWED>>RESTORE" );
-                    delete selectedDatesNew[deleteIndex].fieldDirty;
-                    delete selectedDatesNew[deleteIndex].isDeleted;
-                    $('#formDirty').val('false');
-                } else {
-                    console.log( "REVIEWED>>DELETE" );
-                    selectedDatesNew[deleteIndex].fieldDirty = true;
-                    selectedDatesNew[deleteIndex].isDeleted = true;
-                    $('#formDirty').val('true');
-                }
-                console.log( "YAYAYA" );
-            } else {
-                console.log( "CREATE>>DELETE" );
-                selectedDatesNew.splice(deleteIndex, 1);
-            }
-         */
-
-//        $.each( selectedDatesNew ), function( index, blah ) {
-//        	console.log( selectedDatesNew[index] );
-//        	// $("td[data-date='08/30/2016']").addClass("timeOffFloatSelected");
-//        	$("td[data-date='" + selectedDatesNew[index].date + "']").addClass("timeOffFloatSelected");
-//        }
-
-
     }
 
     this.handleHighlightingDatesReviewRequestScreen = function() {
@@ -1435,29 +1380,10 @@ var timeOffCreateRequestHandler = new function() {
                 $(this).addClass("today");
             }
             for (i = 0; i < selectedDatesNew.length; i++) {
-//                isDeleted = (selectedDatesNew[i].hasOwnProperty('isDeleted') && selectedDatesNew[i].isDeleted===true);
-//                isAdded = (selectedDatesNew[i].hasOwnProperty('isAdded') && selectedDatesNew[i].isAdded===true);
-//                isBeingReviewed = ( typeof timeOffApproveRequestHandler==="object" ? true : false );
-//                if (selectedDatesNew[i].date && selectedDatesNew[i].date==$(this).attr("data-date") &&
-//                    isDeleted ) {
-//                	console.log( selectedDatesNew[i] );
-//                }
-//                if (selectedDatesNew[i].date && selectedDatesNew[i].date==$(this).attr("data-date") &&
-//                        isAdded ) {
-//                    	console.log( selectedDatesNew[i] );
-//                    }
-
                 if (selectedDatesNew[i].date && selectedDatesNew[i].date==$(this).attr("data-date")) {
-                  thisClass = selectedDatesNew[i].category + "Selected";
-//                    if( isBeingReviewed && isAdded ) {
-//                    }
-
-//                    if( isBeingReviewed && isDeleted ) {
-//                        $(this).removeClass(thisClass);
-//                    } else {
-                        $(this).addClass(thisClass);
-//                    }
-                    break;
+                   thisClass = selectedDatesNew[i].category + "Selected";
+                   $(this).addClass(thisClass);
+                   break;
                 }
             }
 
@@ -1505,8 +1431,6 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.adjustRemainingDate = function( method, isSelected ) {
         var indexRemaining = timeOffCreateRequestHandler.getRemainingRequestedTimeByDate( isSelected.dateObject.date );
-//        console.log( "LOOOOK", indexRemaining );
-//        console.log( selectedDatesNew[indexRemaining] );
         if( indexRemaining!=null &&
             ( selectedDatesNew[indexRemaining].hours < 8 || selectedDatesNew[indexRemaining].hours > 12 ) ) {
 
@@ -1514,9 +1438,6 @@ var timeOffCreateRequestHandler = new function() {
                 remainingCategory = selectedDatesNew[indexRemaining].category,
                 scheduleDOW = requestForEmployeeObject["SCHEDULE_" + selectedDatesNew[indexRemaining].dow];
             selectedDatesNew[indexRemaining].hours = scheduleDOW;
-//            console.log( "remainingCategory", remainingCategory );
-//            console.log( "scheduleDOW", scheduleDOW );
-//            console.log( "remainingTime", remainingTime );
             timeOffCreateRequestHandler.addTime( remainingCategory, (scheduleDOW-remainingTime) );
         }
     }
@@ -1634,21 +1555,45 @@ var timeOffCreateRequestHandler = new function() {
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
         splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject, scheduleThisDay );
         if( splitHours.first.hours<=0 || splitHours.second.hours<=0 || splitHours.totalHoursOff < scheduleThisDay ) {
-          timeOffCreateRequestHandler.alertUserUnableToSplitTime();
-          return;
+           timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+           return;
         } else {
-          // Add back the time first for the category we're going to end up splitting.
-            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
+           isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+           if( isHandledFromReviewRequestScreen ) {
+        	  selectedDatesNew[foundIndex].fieldDirty = true;
+        	  selectedDatesNew[foundIndex].isEdited = true;
+        	  
+        	  // Add back the time first for the category we're going to end up splitting.
+              timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
 
-            // Subtract the split times
-            timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first.hours );
-            timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second.hours );
+              // Subtract the split times
+              timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first.hours );
+              timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second.hours );
 
-          selectedDatesNew[foundIndex].hours = splitHours.first.hours;
-          dateObject.hours = splitHours.second.hours;
-          selectedDatesNew.push( dateObject );
-          timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
+              selectedDatesNew[foundIndex].hours = splitHours.first.hours;
+              dateObject.hours = splitHours.second.hours;
+              dateObject.fieldDirty = true;
+              dateObject.isAdded = true;
+              selectedDatesNew.push( dateObject );
+              timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
+           } else {
+              // Add back the time first for the category we're going to end up splitting.
+              timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, 0-selectedDatesNew[foundIndex].hours );
+
+              // Subtract the split times
+              timeOffCreateRequestHandler.addTime( selectedDatesNew[foundIndex].category, splitHours.first.hours );
+              timeOffCreateRequestHandler.addTime( dateObject.category, splitHours.second.hours );
+
+              selectedDatesNew[foundIndex].hours = splitHours.first.hours;
+              dateObject.hours = splitHours.second.hours;
+              selectedDatesNew.push( dateObject );
+              timeOffCreateRequestHandler.toggleDateCategorySelection( dateObject.date, dateObject.category );
+           }
+           
         }
+        
+        console.log( "CHANGED DATES REQUESTED" );
+        console.log( selectedDatesNew );
     }
 
     this.getHoursToAdd = function( dateObject ) {
@@ -1679,22 +1624,25 @@ var timeOffCreateRequestHandler = new function() {
         if( isHandledFromReviewRequestScreen ) {
           if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===true ) {
               selectedDatesNew[index].isAdded = false;
-                selectedDatesNew[index].fieldDirty = false;
-                timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
+              selectedDatesNew[index].fieldDirty = false;
+              timeOffCreateRequestHandler.subtractTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
             } else if( selectedDatesNew.hasOwnProperty(index) && selectedDatesNew[index].hasOwnProperty('isAdded') && selectedDatesNew[index].isAdded===false ) {
               selectedDatesNew[index].isAdded = true;
-                selectedDatesNew[index].fieldDirty = true;
-                timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
+              selectedDatesNew[index].fieldDirty = true;
+              timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
             } else {
               dateObject.fieldDirty = true;
-            dateObject.isAdded = true;
-            selectedDatesNew.push( dateObject );
-            timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
+              dateObject.isAdded = true;
+              selectedDatesNew.push( dateObject );
+              timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
             }
         } else {
           selectedDatesNew.push( dateObject );
           timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
         }
+        
+        console.log( "CHANGED DATES REQUESTED" );
+        console.log( selectedDatesNew );
     }
 
     /**
@@ -1707,26 +1655,20 @@ var timeOffCreateRequestHandler = new function() {
     this.removeRequestedDate = function( method, isSelected ) {
       var index = isSelected.deleteIndex;
       selectedDatesNew[index].hours = +selectedDatesNew[index].hours;
-//    	console.log( "REMOVE REQUESTED DATE" );
-//    	console.log( isSelected );
         timeOffCreateRequestHandler.addTime( selectedDatesNew[index].category, selectedDatesNew[index].hours );
         switch( method ) {
             case 'do':
-//            	console.log( "RACK" );
                 selectedDatesNew.splice(index, 1);
                 break;
 
             case 'mark':
-//            	console.log( "ROCK" );
               console.log( selectedDatesNew[index] );
                 if( selectedDatesNew[index].hasOwnProperty('isDeleted') ) {
                     if( selectedDatesNew[index].isDeleted===true ) {
 //	                	delete selectedDatesNew[index].fieldDirty;
 //	                    delete selectedDatesNew[index].isDeleted;
                       selectedDatesNew[index].isDeleted = false;
-//                    	console.log( "RARE" );
                     } else {
-//	                	console.log( "ROOK" );
                       selectedDatesNew[index].fieldDirty = true;
                       selectedDatesNew[index].isDeleted = true;
                     }
@@ -1737,7 +1679,8 @@ var timeOffCreateRequestHandler = new function() {
                 $('#formDirty').val('true');
                 break;
         }
-//        console.log( selectedDatesNew );
+        console.log( "CHANGED DATES REQUESTED" );
+        console.log( selectedDatesNew );
     }
 
     this.getHoursRequestedHeader = function() {
@@ -1756,14 +1699,6 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.getHoursRequestedRow = function( dow, hideMe, selectedIndex, isDeleted ) {
-      console.log( "_______" );
-      console.log( dow );
-      console.log( hideMe );
-      console.log( selectedIndex );
-      console.log( typeof isDeleted );
-      console.log( isDeleted );
-      console.log( selectedDatesNew[selectedIndex] )
-      console.log( "_______" );
       if( typeof isDeleted=="boolean" && isDeleted===true || selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ) {
         return '';
       } else {
@@ -1816,9 +1751,6 @@ var timeOffCreateRequestHandler = new function() {
       totalGrandfatheredDeleted = 0;
       totalApprovedNoPayDeleted = 0;
 
-//    	console.log( "VERIFY..." );
-//    	console.log( selectedDatesNew );
-
         for (var selectedIndex = 0; selectedIndex < selectedDatesNew.length; selectedIndex++) {
           var isDeleted = ( selectedDatesNew[selectedIndex].hasOwnProperty('isDeleted') && selectedDatesNew[selectedIndex].isDeleted===true ?
                     true : false );
@@ -1868,8 +1800,7 @@ var timeOffCreateRequestHandler = new function() {
                   break;
           }
         }
-//        console.log( "totalPTORequested", totalPTORequested );
-//        console.log( "totalPTODeleted", totalPTODeleted );
+
         totalPTORequested = parseFloat(totalPTORequested).toFixed(2);
         totalFloatRequested = parseFloat(totalFloatRequested).toFixed(2);
         totalSickRequested = parseFloat(totalSickRequested).toFixed(2);
@@ -1907,8 +1838,6 @@ var timeOffCreateRequestHandler = new function() {
             switch (selectedDatesNew[selectedIndex].category) {
                 case 'timeOffPTO':
                   totalPTORequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
-//                	totalPTORequested += ( isDeleted===false ? +selectedDatesNew[selectedIndex].hours : 0 );
-//                	console.log( isDeleted + " :::::: " );
                     break;
                 case 'timeOffFloat':
                     totalFloatRequested += parseInt(selectedDatesNew[selectedIndex].hours, 10);
@@ -1934,8 +1863,6 @@ var timeOffCreateRequestHandler = new function() {
             }
         }
 
-        console.log( "selectedDatesNew", selectedDatesNew );
-
         $("#datesSelectedDetails").html(datesSelectedDetailsHtml);
         if (selectedDatesNew.length === 0) {
             $('#datesSelectedDetails').hide();
@@ -1960,7 +1887,6 @@ var timeOffCreateRequestHandler = new function() {
 
     this.checkIfRequestFormShouldBeDisabled = function() {
       var wow = timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay();
-//    	console.log( wow )
     }
 
     /**
@@ -1976,7 +1902,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.selectResult = function(item) {
-        //    	timeOffCreateRequestHandler.loadCalendars(item.value);
+    	// Do nothing
     }
 
     /**
@@ -2030,18 +1956,15 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.checkAllowRequestOnBehalfOf = function() {
-        console.log( "Selected Employee:", requestForEmployeeObject );
         if ( ( loggedInUserData.isManager == "Y" ||
                loggedInUserData.isSupervisor == "Y" ||
                loggedInUserData.isPayrollAdmin == "Y" ||
                loggedInUserData.isPayrollAssistant == "Y" ||
                loggedInUserData.isProxy === "Y" )
         ) {
-//            alert("ENABLE");
             timeOffCreateRequestHandler.enableSelectRequestFor();
             $("#requestFor").prop('disabled', false);
         } else {
-//            alert("DISABLE");
             $("#requestFor").prop('disabled', true);
             $(".categoryBereavement").hide();
             $(".categoryCivicDuty").hide();
@@ -2154,7 +2077,6 @@ var timeOffCreateRequestHandler = new function() {
             .removeClass("categoryApprovedNoPay")
             .removeClass("timeOffApprovedNoPay");
         for (category in categoryText) {
-//            console.log('.' + category + 'CloseIcon');
             $('.' + category + 'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
             $('.buttonDisappear' + category.substr(7)).show();
         }
@@ -2251,11 +2173,7 @@ var timeOffCreateRequestHandler = new function() {
         /**
          * Delete date from request.
          */
-        console.log( "XYZ", calendarDateObject );
-        console.log( "XYZ", deleteKey );
-        console.log( "XYZ", object );
         if ( copy == null && deleteKey !== null && foundCounter === 1 ) {
-            console.log( "XYZ", "addDa" );
             timeOffCreateRequestHandler.deleteRequestedDateByIndex(calendarDateObject, deleteKey, object);
         }
 
@@ -2338,26 +2256,21 @@ var timeOffCreateRequestHandler = new function() {
      * @param {type} object
      * @returns {undefined} */
     this.deleteRequestedDateByIndex = function( deleteIndex ) {
-//        console.log( "CHECKING...", selectedDatesNew[deleteIndex] );
       timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
         timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[deleteIndex].date, selectedDatesNew[deleteIndex].category );
-//        console.log( "QQQQQ", timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() );
         if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===false ) {
           selectedDatesNew.splice(deleteIndex, 1); // taco
         } else if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===true ) {
            if( selectedDatesNew[deleteIndex].hasOwnProperty('isDeleted') &&
              selectedDatesNew[deleteIndex].isDeleted===true ) {
-//       			alert( "Q" );
             selectedDatesNew[deleteIndex].fieldDirty = false;
               selectedDatesNew[deleteIndex].isDeleted = false;
             } else {
-//            	alert( "P" );
             selectedDatesNew[deleteIndex].fieldDirty = true;
             selectedDatesNew[deleteIndex].isDeleted = true;
           }
         }
         timeOffCreateRequestHandler.drawHoursRequested();
-//        timeOffCreateRequestHandler.toggleFirstDateRequestedTooOldWarning();
     }
 };
 //Initialize the class
