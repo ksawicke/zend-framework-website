@@ -381,24 +381,42 @@ class TimeOffRequests extends BaseDB {
      * @param array $entries    Array of requested days.
      * @return string
      */
-    public function drawHoursRequested( $entries )
+    public function drawHoursRequested( $entries, $method = "table" )
     {
-        $htmlData = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
-        foreach( $entries as $ctr => $data ) {
-            $data = (object) $data;
-            $code = $data->REQUEST_CODE;
-            $date = new \DateTime( $data->REQUEST_DATE );
-            $date = $date->format( "m/d/Y" );
-            $htmlData .= '<tr>' .
-                '<td>' . $data->REQUEST_DAY_OF_WEEK . '</td>' .
-                '<td>' . $date . '</td>' .
-                '<td>' . $data->REQUESTED_HOURS . '</td>' .
-                '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
-                '</tr>';
-        }
-        $htmlData .= '</tbody></table>';
+        switch( $method ) {
+            case 'array':
+                $return = [];
+                foreach( $entries as $ctr => $data ) {
+                    $data = (object) $data;
+                    $code = $data->REQUEST_CODE;
+                    $date = new \DateTime( $data->REQUEST_DATE );
+                    $date = $date->format( "m/d/Y" );
 
-        return $htmlData;
+                    $return[] = $data->REQUEST_DAY_OF_WEEK . " " . $date . " " . $data->REQUESTED_HOURS . " " . $this->codesToCategory[$code];
+                }
+                break;
+
+            case 'table':
+            default:
+                $return = '<table class="hoursRequested"><thead><tr><th>Day</th><th>Date</th><th>Hours</th><th>Type</th></tr></thead></tbody>';
+                foreach( $entries as $ctr => $data ) {
+                    $data = (object) $data;
+                    $code = $data->REQUEST_CODE;
+                    $date = new \DateTime( $data->REQUEST_DATE );
+                    $date = $date->format( "m/d/Y" );
+                    $return .= '<tr>' .
+                        '<td>' . $data->REQUEST_DAY_OF_WEEK . '</td>' .
+                        '<td>' . $date . '</td>' .
+                        '<td>' . $data->REQUESTED_HOURS . '</td>' .
+                        '<td><span class="badge ' . $this->codesToClass[$code] . '">' . $this->codesToCategory[$code] . '</span></td>' .
+                        '</tr>';
+                }
+                $return .= '</tbody></table>';
+
+                break;
+        }
+
+        return $return;
     }
 
     /**
