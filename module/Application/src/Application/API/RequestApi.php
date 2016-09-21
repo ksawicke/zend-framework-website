@@ -800,7 +800,7 @@ class RequestApi extends ApiController {
         }
 
         $Email = new EmailFactory(
-            'Time off requst has been modified',
+            'Time off request has been modified',
             'The request for ' .
                 $emailVariables['forName'] . ' has been modified' .
                 '<br /><br />' .
