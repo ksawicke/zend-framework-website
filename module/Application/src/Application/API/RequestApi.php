@@ -888,49 +888,6 @@ class RequestApi extends ApiController {
     }
 
     /**
-     * Crates an array of text that can be used to insert into the log of changes made to a request.
-     * Later we will prepend who made the change to each entry.
-     *
-     * @param unknown $post
-     * @param unknown $requestedDatesOld
-     */
-    public function createLogEntriesTextForChangesMadeToForm( $post, $requestedDatesOld )
-    {
-        $logEntriesText = [];
-        foreach( $post->selectedDatesNew as $ctr => $entry ) {
-            if( $this->requestEntryIsEdited( $entry ) ) {
-                $logEntriesText[] =
-
-                $data = [ 'ENTRY_ID' => $entry['entryId'],
-                    'REQUEST_ID' => $post->request_id,
-                    'REQUEST_DATE' => $entry['date'],
-                    'REQUESTED_HOURS' => $entry['hours'],
-                    'REQUEST_CATEGORY' => $entry['category'],
-                    'REQUEST_DAY_OF_WEEK' => $entry['dow']
-                ];
-
-                $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
-                $TimeOffRequests->updateRequestEntry( $data );
-            }
-            if( $this->requestEntryIsDeleted( $entry ) ) {
-                $TimeOffRequests->copyRequestEntriesToArchive( $post->request_id );
-                $TimeOffRequests->markRequestEntryAsDeleted( $entry['entryId'] );
-            }
-            if( $this->requestEntryIsAdded( $entry ) ) {
-                $data = [ 'REQUEST_ID' => $post->request_id,
-                    'REQUEST_DATE' => $entry['date'],
-                    'REQUESTED_HOURS' => $entry['hours'],
-                    'REQUEST_CATEGORY' => $entry['category'],
-                    'REQUEST_DAY_OF_WEEK' => $entry['dow']
-                ];
-
-                $TimeOffRequests->addRequestEntry( $data );
-            }
-
-        }
-    }
-
-    /**
      * Checks if updates have been made to original request submitted.
      *
      * @param type $post
