@@ -333,17 +333,24 @@ var timeOffCreateRequestHandler = new function() {
 
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-              selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
+        	  if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted===true ) {
+        		  // do nothing
+        	  } else {
+        		  selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
+        	  }
           } else {
-              selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
+        	  selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
           }
       });
+
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
           if( requestForEmployeeObject.SALARY_TYPE=='H' && validates ) {
-            validates = ( +hoursOff <= 12 ? true : false );
+            validates = ( +hoursOff <= 12 && +hoursOff >= 0 ? true : false );
           }
       });
+      
+      console.log( "selectedDatesNewHoursByDate", selectedDatesNewHoursByDate );
 
       return validates;
     }
@@ -356,10 +363,14 @@ var timeOffCreateRequestHandler = new function() {
             selectedDatesNewHoursByDate = [];
 
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-            if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
+        	if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
+          	  if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted===true ) {
+          		  // do nothing
+          	  } else {
+          		  selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
+          	  }
             } else {
-                selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
+          	  selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
             }
         });
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
