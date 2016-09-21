@@ -507,8 +507,8 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.confirmIfUserWantsToRequestOffCompanyHoliday = function() {
-        var defer = $.Deferred();
-      $("#dialogConfirmSelectHoliday").dialog({
+       var defer = $.Deferred();
+       $("#dialogConfirmSelectHoliday").dialog({
             modal : true,
             closeOnEscape: false,
             buttons : {
@@ -524,6 +524,25 @@ var timeOffCreateRequestHandler = new function() {
         });
       return defer.promise();
     }
+    
+    this.confirmIfUserWantsToEditSchedule = function() {
+        var defer = $.Deferred();
+        $("#dialogConfirmEditSchedule").dialog({
+             modal : true,
+             closeOnEscape: false,
+             buttons : {
+                 Yes : function() {
+                    defer.resolve("true");
+                    $(this).dialog("close");
+                 },
+                 No : function() {
+                    defer.resolve("false");
+                   $(this).dialog("close");
+                 }
+             }
+         });
+       return defer.promise();
+     }
 
     /**
      * Handle clicking on a calendar date.
@@ -532,7 +551,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
-          var selectedCalendarDateObject = $(this),
+           var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
@@ -542,32 +561,50 @@ var timeOffCreateRequestHandler = new function() {
                 foundIndex = timeOffCreateRequestHandler.datesAlreadyInRequestArray( dateObject ),
                 canAddOrSplit = true;
 
-            if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
-              return;
-            }
+          dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
+          scheduleDOW = requestForEmployeeObject["SCHEDULE_" + dow];
+          if( +scheduleDOW==0 ) {
+             timeOffCreateRequestHandler.confirmIfUserWantsToEditSchedule().then(function( answer ) {
+                var editSchedule = answer.toString() == "true" ? true : false;
+                if( editSchedule ) {
+                   //TRUE
+                   $( ".launchDialogEditEmployeeSchedule" ).trigger( "click" );
+                   return;
+                } else {
+                   // FALSE
+                   return;
+                }
+             });
+        	  
+        	 return;
+          }
+          
+          if( timeOffCommon.empty( selectedTimeOffCategory ) ) {
+             return;
+          }
 
-            if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining < 0 ) {
-              return;
-            }
-            if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining < 0 ) {
-              return;
-            }
+          if( selectedTimeOffCategory=="timeOffGrandfathered" && employeeGrandfatheredRemaining < 0 ) {
+             return;
+          }
+          if( selectedTimeOffCategory=="timeOffSick" && employeeSickRemaining < 0 ) {
+             return;
+          }
 
-            if( isCompanyHoliday ) {
-              if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
-                timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
-                      timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
-                    }
-                    timeOffCreateRequestHandler.sortDatesSelected();
-                    timeOffCreateRequestHandler.drawHoursRequested();
-                    timeOffCreateRequestHandler.checkAndSetFormWarnings();
-                    timeOffCreateRequestHandler.highlightDates();
+          if( isCompanyHoliday ) {
+             if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+               timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+               if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                  timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+               }
+               timeOffCreateRequestHandler.sortDatesSelected();
+               timeOffCreateRequestHandler.drawHoursRequested();
+               timeOffCreateRequestHandler.checkAndSetFormWarnings();
+               timeOffCreateRequestHandler.highlightDates();
                 return;
-              }
+             }
 
-              var takeHoliday = false;
-              timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().then(function( answer ) {
+             var takeHoliday = false;
+             timeOffCreateRequestHandler.confirmIfUserWantsToRequestOffCompanyHoliday().then(function( answer ) {
                 var takeHoliday = answer.toString() == "true" ? true : false;
                 if( takeHoliday ) {
                   //TRUE
