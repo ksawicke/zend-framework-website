@@ -258,6 +258,12 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
+
         if( $requestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ) {
             /** Log Approval **/
             $TimeOffRequestLog->logEntry( $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -336,6 +342,9 @@ class RequestApi extends ApiController {
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
 
         if( $updatesToFormMade ) {
             $TimeOffRequestLog->logEntry(
