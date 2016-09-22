@@ -258,6 +258,12 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
+
         if( $requestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ) {
             /** Log Approval **/
             $TimeOffRequestLog->logEntry( $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -336,6 +342,9 @@ class RequestApi extends ApiController {
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
 
         if( $updatesToFormMade ) {
             $TimeOffRequestLog->logEntry(
@@ -976,29 +985,8 @@ class RequestApi extends ApiController {
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
-
         if( $updatesToFormMade ) {
-            $arrayOfRequestChangesMade = $this->getArrayOfRequestChanges( $post->request_id );
-
-            $oldText = implode( ", ", $arrayOfRequestChangesMade['old'] );
-            $newText = implode( ", ", $arrayOfRequestChangesMade['new'] );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request modified by ' . UserSession::getFullUserInfo() );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request changed from: ' . $oldText );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request changed to: ' . $newText );
-
-            $this->emailChangesToRequestMade( $post );
+            $this->logChangesMadeToRequest( $post );
         }
 
         $dates = [];
@@ -1188,6 +1176,39 @@ class RequestApi extends ApiController {
     }
 
     /**
+     * Adds log entries to show:
+     * 1. Who modified the requested dates
+     * 2. What the original request dates looked like
+     * 3. What the changes are.
+     * s
+     * @param unknown $post
+     */
+    public function logChangesMadeToRequest( $post )
+    {
+        $TimeOffRequestLog = new TimeOffRequestLog();
+        $arrayOfRequestChangesMade = $this->getArrayOfRequestChanges( $post->request_id );
+        $oldText = implode( ", ", $arrayOfRequestChangesMade['old'] );
+        $newText = implode( ", ", $arrayOfRequestChangesMade['new'] );
+
+        $TimeOffRequestLog->logEntry(
+            $post->request_id,
+            UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+            'Request modified by ' . UserSession::getFullUserInfo() );
+
+        $TimeOffRequestLog->logEntry(
+            $post->request_id,
+            UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+            'Request changed from: ' . $oldText );
+
+        $TimeOffRequestLog->logEntry(
+            $post->request_id,
+            UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+            'Request changed to: ' . $newText );
+
+        $this->emailChangesToRequestMade( $post );
+    }
+
+    /**
      * Handles the Payroll approval process.
      *
      * @return JsonModel
@@ -1209,27 +1230,7 @@ class RequestApi extends ApiController {
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
-            $arrayOfRequestChangesMade = $this->getArrayOfRequestChanges( $post->request_id );
-
-            $oldText = implode( ", ", $arrayOfRequestChangesMade['old'] );
-            $newText = implode( ", ", $arrayOfRequestChangesMade['new'] );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request modified by ' . UserSession::getFullUserInfo() );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request changed from: ' . $oldText );
-
-            $TimeOffRequestLog->logEntry(
-                $post->request_id,
-                UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
-                'Request changed to: ' . $newText );
-
-            $this->emailChangesToRequestMade( $post );
+            $this->logChangesMadeToRequest( $post );
         }
 
         try {
@@ -1350,6 +1351,12 @@ class RequestApi extends ApiController {
         $RequestEntry = new RequestEntry();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
+
         try {
             /** Change status to Upload */
             $requestReturnData = $TimeOffRequests->submitApprovalResponse(
@@ -1398,6 +1405,12 @@ class RequestApi extends ApiController {
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
+
+        // Check if there were any updates to the form
+        $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+        if( $updatesToFormMade ) {
+            $this->logChangesMadeToRequest( $post );
+        }
 
         try {
             $this->emailUploadNoticeToPayroll( $post );

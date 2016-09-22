@@ -325,32 +325,18 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     /**
-     * Verify that no single day has more than 12 hours requested if the employee is Hourly.
+     * Verify that no single day has less than 0 or more than 12 hours requested if the employee is Hourly.
      */
     this.verifyHourlyTakingRequiredHoursPerDay = function() {
       var validates = true,
-          selectedDatesNewHoursByDate = [];
+         selectedDatesNewHoursByDate = timeOffCreateRequestHandler.getSelectedDatesNewHoursByDate();
 
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-          if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-        	  if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted===true ) {
-        		  // do nothing
-        	  } else {
-        		  selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
-        	  }
-          } else {
-        	  selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
+          var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
+          if( requestForEmployeeObject.SALARY_TYPE=='H' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
+        	 validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
           }
       });
-
-      $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-        var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
-          if( requestForEmployeeObject.SALARY_TYPE=='H' && validates ) {
-            validates = ( +hoursOff <= 12 && +hoursOff >= 0 ? true : false );
-          }
-      });
-      
-      console.log( "selectedDatesNewHoursByDate", selectedDatesNewHoursByDate );
 
       return validates;
     }
@@ -360,9 +346,25 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifySalaryTakingRequiredHoursPerDay = function() {
         var validates = true,
-            selectedDatesNewHoursByDate = [];
-
+           selectedDatesNewHoursByDate = timeOffCreateRequestHandler.getSelectedDatesNewHoursByDate();
+        
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+        	var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
+            if( requestForEmployeeObject.SALARY_TYPE=='S' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
+          	   validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
+            }
+        });
+
+        return validates;
+    }
+    
+    /**
+     * Returns an array of dates and how many hours have been requested per day.
+     */
+    this.getSelectedDatesNewHoursByDate = function() {
+    	selectedDatesNewHoursByDate = [];
+    	
+    	$.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
           	  if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted===true ) {
           		  // do nothing
@@ -373,14 +375,8 @@ var timeOffCreateRequestHandler = new function() {
           	  selectedDatesNewHoursByDate[selectedDateNewObject.date] += +selectedDateNewObject.hours;
             }
         });
-        $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
-          var hoursOff = selectedDatesNewHoursByDate[selectedDateNewObject.date];
-            if( requestForEmployeeObject.SALARY_TYPE=='S' && validates ) {
-              validates = ( +hoursOff >= 8 && +hoursOff <= 12 ? true : false );
-            }
-        });
-
-        return validates;
+    	
+    	return selectedDatesNewHoursByDate;
     }
 
     /**
