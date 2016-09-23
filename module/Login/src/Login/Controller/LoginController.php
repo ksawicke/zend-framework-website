@@ -8,6 +8,7 @@ use Zend\View\Model\ViewModel;
 use Login\Form\LoginForm;
 use Login\Form\Filter\LoginFilter;
 use Zend\Session\Container;
+use Zend\Crypt\BlockCipher;
 
 class LoginController extends AbstractActionController
 {
@@ -41,6 +42,8 @@ class LoginController extends AbstractActionController
 
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
             if(count($result)==1) {
+                echo "LALALA<pre>";
+                var_dump($result); die();
                 $session = \Login\Helper\UserSession::createUserSession($result[0]);
 
                 $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
@@ -78,6 +81,22 @@ class LoginController extends AbstractActionController
         return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
     }
 
-}
+    public function ssoAction()
+    {
+        $encryptedData = $this->params()->fromQuery('sso');
 
-?>
+        if ($encryptedData == null) {
+            return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
+        }
+
+        $blockCipher = BlockCipher::factory('mcrypt', array('algo' => '3des'));
+        $blockCipher->setKey('ssssssss');
+        $decryptedData = $blockCipher->decrypt($encryptedData);
+
+        if ($decryptedData === false) {
+            return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
+        }
+
+
+    }
+}

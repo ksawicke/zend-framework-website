@@ -51,8 +51,19 @@ return [
                 ],
                 'may_terminate' => true,
                 'child_routes' => []
-            ]
-        ]
+            ],
+            'sso' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/login/sso',
+                    'defaults' => [
+                        'controller' => 'Login\Controller\Login',
+                        'action' => 'sso'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ]        ]
     ],
     'view_manager' => [
         'template_path_stack' => [
