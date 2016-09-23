@@ -112,7 +112,7 @@ class LoginController extends AbstractActionController
         /* reroute to login screen if decrypt not possible */
         if ($decryptedData === false) {
             return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
-        } 
+        }
 
         /* unfortunately the login mapper is not cortrect created, we have to instantiate it here again to get to the method */
         $loginMapper = new LoginMapper($this->serviceLocator->get('Zend\Db\Adapter\Adapter'), new ClassMethods(false), new Login());
