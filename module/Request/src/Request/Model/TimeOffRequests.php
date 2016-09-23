@@ -712,10 +712,6 @@ class TimeOffRequests extends BaseDB {
 
         $statement = $sql->prepareStatementForSqlObject($select);
 
-        echo '<pre>';
-        var_dump( $statement );
-        die();
-
         $result = $statement->execute();
 
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
