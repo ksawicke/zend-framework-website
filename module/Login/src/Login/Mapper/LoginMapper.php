@@ -35,6 +35,8 @@ class LoginMapper implements LoginMapperInterface
      */
     protected $loginPrototype;
 
+    private $nonProductionPassword = 'timeoffrocks';
+
     /**
      *
      * @param AdapterInterface $dbAdapter
@@ -81,46 +83,54 @@ class LoginMapper implements LoginMapperInterface
         // $this->employeeSupervisorColumns
     }
 
-    public function authenticateUser($username = null, $password = null)
+    public function authenticateUser( $username = null, $password = null )
     {
-        $sql = new Sql($this->dbAdapter);
-
         /**
          * We can validate differently in development or production here.
          */
         switch(ENVIRONMENT) {
             case 'testing':
             case 'development':
+                $return = ( $password==$this->nonProductionPassword ? $this->getUserDataByUsername( $username ) : 0 );
+            break;
+
             case 'production':
             default:
-                $select = $sql->select(['employee' => 'PRPMS'])
-                    ->columns([
-                               'EMPLOYER_NUMBER' => 'PRER',
-                               'EMPLOYEE_NUMBER' => 'PREN',
-                               'LEVEL_1' => 'PRL01',
-                               'LEVEL_2' => 'PRL02',
-                               'LEVEL_3' => 'PRL03',
-                               'LEVEL_4' => 'PRL04',
-                               'COMMON_NAME' => 'PRCOMN',
-                               'FIRST_NAME' => 'PRFNM',
-                               'MIDDLE_INITIAL' => 'PRMNM',
-                               'LAST_NAME' => 'PRLNM',
-                               'POSITION' => 'PRPOS',
-                               'EMAIL_ADDRESS' => 'PREML1',
-                               'USERNAME' => 'PRURL1',
-                               'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
-                               'POSITION_TITLE' => 'PRTITL'
-                             ])
-//                     ->where(['trim(employee.PREML1)' => trim($username)]);
-                    ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
-                    ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-                    ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
+                $Login = new \Login\Model\Login();
+                $verifyLogin = $Login->verifyLogin( strtoupper(trim($username)), $password );
+                $return = ( $verifyLogin===true ? $this->getUserDataByUsername( $username ) : 0 );
                 break;
         }
 
-        $return = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
-
         return $return;
+    }
+
+    public function getUserDataByUsername( $username = null )
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['employee' => 'PRPMS'])
+            ->columns([
+                'EMPLOYER_NUMBER' => 'PRER',
+                'EMPLOYEE_NUMBER' => 'PREN',
+                'LEVEL_1' => 'PRL01',
+                'LEVEL_2' => 'PRL02',
+                'LEVEL_3' => 'PRL03',
+                'LEVEL_4' => 'PRL04',
+                'COMMON_NAME' => 'PRCOMN',
+                'FIRST_NAME' => 'PRFNM',
+                'MIDDLE_INITIAL' => 'PRMNM',
+                'LAST_NAME' => 'PRLNM',
+                'POSITION' => 'PRPOS',
+                'EMAIL_ADDRESS' => 'PREML1',
+                'USERNAME' => 'PRURL1',
+                'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
+                'POSITION_TITLE' => 'PRTITL'
+            ])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
+
+        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
 
     public function isManager($employeeNumber = null)
