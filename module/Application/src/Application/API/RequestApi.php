@@ -729,7 +729,7 @@ class RequestApi extends ApiController {
      *
      * @param integer $requestId
      */
-    protected function emailDeniedNoticeToEmployee( $post )
+    protected function emailDeniedNoticeToEmployee( $post, $deniedBy )
     {
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
         $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
@@ -745,7 +745,7 @@ class RequestApi extends ApiController {
         $Email = new EmailFactory(
             'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' was denied',
             'The request for ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied by Payroll' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied by ' . $deniedBy .
                 ( !empty( $post->review_request_reason ) ? ' with the reason: ' . $post->review_request_reason : '' ) . '<br /><br />' .
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'For details please visit the following URL:<br /><br />' .
@@ -1140,7 +1140,7 @@ class RequestApi extends ApiController {
         $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] = $requestData['EMPLOYEE_DATA']->MANAGER_EMAIL_ADDRESS;
         $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] = $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT;
 
-        $this->emailDeniedNoticeToEmployee( $post );
+        $this->emailDeniedNoticeToEmployee( $post, UserSession::getFullUserInfo() );
 
         /** Log supervisor deny with comment **/
         $TimeOffRequestLog->logEntry(
@@ -1298,7 +1298,8 @@ class RequestApi extends ApiController {
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
         try {
-            $this->emailDeniedNoticeToEmployee( $post );
+            $deniedBy = ( $requestData['REQUEST_STATUS_DESCRIPTION']=='Pending Payroll Approval' ? 'Payroll' : UserSession::getFullUserInfo() );
+            $this->emailDeniedNoticeToEmployee( $post, $deniedBy );
 
             /** Log Payroll denied with comment **/
             $TimeOffRequestLog->logEntry(
