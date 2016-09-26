@@ -130,7 +130,8 @@ class LoginMapper implements LoginMapperInterface
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $data = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        return ( !empty( $data ) ? \Request\Helper\ResultSetOutput::getResultArray($sql, $select) : 0 );
     }
 
     public function isManager($employeeNumber = null)

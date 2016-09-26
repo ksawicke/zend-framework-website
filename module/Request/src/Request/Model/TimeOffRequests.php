@@ -657,8 +657,7 @@ class TimeOffRequests extends BaseDB {
         $group = 0;
 
         for ( $ctr = 1; $ctr <= (count( $result ) - 1); $ctr++ ) {
-            if ( $result[$ctr]['REQUEST_DATE'] !== $datesRequested[$group]['end'] &&
-                    $result[$ctr]['REQUEST_DATE'] === date( "Y-m-d", strtotime( "+1 day", strtotime( $datesRequested[$group]['end'] ) ) )
+            if ( $result[$ctr]['REQUEST_DATE'] <= date( "Y-m-d", strtotime( "+1 day", strtotime( $datesRequested[$group]['end'] ) ))
             ) {
                 $datesRequested[$group]['end'] = $result[$ctr]['REQUEST_DATE'];
             } else {
@@ -670,6 +669,7 @@ class TimeOffRequests extends BaseDB {
         }
 
         $data = [ 'datesRequested' => $datesRequested, 'for' => $result2, 'requestId' => $requestId ];
+
         return $data;
     }
 
