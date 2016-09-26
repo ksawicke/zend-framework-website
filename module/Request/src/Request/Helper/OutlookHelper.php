@@ -88,10 +88,10 @@ END:VTIMEZONE\r\n";
     public function outputDescriptionString( $data ) {
         $descriptionString = '';
         $descriptionString .=
-                ($data['start'] === $data['end']) ?
-                $data['hours'] . " " . $data['type'] . ' on ' . date( "m/d/Y", strtotime( $data['start'] ) ) . '; ' :
-                $data['hours'] . " " . $data['type'] . ' daily from ' . date( "m/d/Y", strtotime( $data['start'] ) ) . ' - ' . date( "m/d/Y", strtotime( $data['end'] ) ) . '; ';
-        return substr( $descriptionString, 0, -2 );
+            ($data['start'] === $data['end']) ?
+            'Time off on ' . date( "m/d/Y", strtotime( $data['start'] ) ) :
+            'Time off from ' . date( "m/d/Y", strtotime( $data['start'] ) ) . ' - ' . date( "m/d/Y", strtotime( $data['end'] ) );
+        return $descriptionString;
     }
 
     public function outputVEvents( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText ) {
@@ -149,10 +149,6 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
      */
     public function addToCalendar( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
         $calendarRequestObject = $this->buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager );
-
-        echo '<pre>';
-        var_dump( $calendarInviteData );
-        die( '.....' );
 
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );

@@ -139,14 +139,9 @@ class RequestEntry extends BaseDB {
         /**
          * instantiate DatePeriod object
          */
-        //$period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
         $period = new \DatePeriod( $startDateObject, $interval, $endDateObject->modify('+1 day') );
 
         $data = [];
-//        echo '<pre>PERIOD';
-//        print_r( $period );
-//        echo '</pre>';
-//        exit();
 
         foreach( $period as $chunk ) {
             // Check if any have hours, if so:
