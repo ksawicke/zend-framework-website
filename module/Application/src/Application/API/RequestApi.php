@@ -1112,10 +1112,14 @@ class RequestApi extends ApiController {
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post['request_id'] );
             $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
 
-            if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
+            echo '<pre>';
+            var_dump( $employeeProfile );
+            echo '</pre>';
+
+//             if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
                 $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
                     $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
-            }
+//             }
         }
     }
 

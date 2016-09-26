@@ -150,6 +150,10 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
     public function addToCalendar( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
         $calendarRequestObject = $this->buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager );
 
+        echo '<pre>';
+        var_dump( $calendarInviteData );
+        die( '.....' );
+
         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
             $descriptionString = $this->outputDescriptionString( $request );
             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
