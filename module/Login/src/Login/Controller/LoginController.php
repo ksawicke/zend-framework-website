@@ -40,7 +40,7 @@ class LoginController extends AbstractActionController
             $loginForm->setData($data);
 
             $result = $this->authenticationService->authenticateUser($data->username, $data->password);
-            if(count($result)==1) {
+            if( is_array($result) ) {
                 $session = \Login\Helper\UserSession::createUserSession($result[0]);
 
                 $employeeNumber = \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER');
