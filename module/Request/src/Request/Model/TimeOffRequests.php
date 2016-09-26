@@ -651,31 +651,26 @@ class TimeOffRequests extends BaseDB {
         $datesRequested = [ ];
         if ( count( $result ) > 0 ) {
             $datesRequested[] = [ 'start' => $result[0]['REQUEST_DATE'],
-                'end' => $result[0]['REQUEST_DATE'],
-                'type' => $result[0]['DESCRIPTION'],
-                'hours' => $result[0]['REQUESTED_HOURS']
+                'end' => $result[0]['REQUEST_DATE']
             ];
         }
         $group = 0;
 
         for ( $ctr = 1; $ctr <= (count( $result ) - 1); $ctr++ ) {
             if ( $result[$ctr]['REQUEST_DATE'] !== $datesRequested[$group]['end'] &&
-                    $result[$ctr]['REQUEST_DATE'] === date( "Y-m-d", strtotime( "+1 day", strtotime( $datesRequested[$group]['end'] ) ) ) &&
-                    $result[$ctr]['DESCRIPTION'] === $datesRequested[$group]['type'] &&
-                    $result[$ctr]['REQUESTED_HOURS'] === $datesRequested[$group]['hours']
+                    $result[$ctr]['REQUEST_DATE'] === date( "Y-m-d", strtotime( "+1 day", strtotime( $datesRequested[$group]['end'] ) ) )
             ) {
                 $datesRequested[$group]['end'] = $result[$ctr]['REQUEST_DATE'];
             } else {
                 $group++;
                 $datesRequested[$group] = [ 'start' => $result[$ctr]['REQUEST_DATE'],
-                    'end' => $result[$ctr]['REQUEST_DATE'],
-                    'type' => $result[$ctr]['DESCRIPTION'],
-                    'hours' => $result[$ctr]['REQUESTED_HOURS']
+                    'end' => $result[$ctr]['REQUEST_DATE']
                 ];
             }
         }
 
-        return [ 'datesRequested' => $datesRequested, 'for' => $result2 ];
+        $data = [ 'datesRequested' => $datesRequested, 'for' => $result2, 'requestId' => $requestId ];
+        return $data;
     }
 
     /**
