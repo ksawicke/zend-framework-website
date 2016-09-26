@@ -1,6 +1,4 @@
-<?php
-if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) && ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ) {
-?>
+<?php if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) && ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ) { ?>
 <pre style="margin-top:50px;font-size:75%;">
     <strong>The following is information used for troubleshooting in non-Production environments.</strong>
 

@@ -214,8 +214,11 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                             </ul>
                         </li>
 
-                        <li class="dropdown" id="menuMyAccount">
-                            <a href="<?php echo $this->basePath( 'documents/Time%20Off%20Requests%20-%20Help%20Documentation.pdf' ); ?>" class="dropdown-toggle" target="_new"><i class="fa fa-question-circle-o fa-lg"></i></a>
+                        <li class="dropdown" id="menuHelp">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help <b class="caret"></b></a>
+                            <ul class="dropdown-menu" role="menu">
+                            	<?php echo $this->partial( 'application/partials/helpMenuWidget.phtml' ); ?>
+                            </ul>
                         </li>
 
                         <?php } ?>
