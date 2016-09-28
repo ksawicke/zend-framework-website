@@ -105,6 +105,25 @@ class LoginMapper implements LoginMapperInterface
         return $return;
     }
 
+    public function authenticateUserSSO( $employeeId = null, $timestamp = null )
+    {
+        if ($employeeId == null || $timestamp == null) {
+            return [];
+        }
+
+        $ssoTimestamp = new \DateTime($timestamp); // DateTime::createFromFormat(DATE_ATOM, $timestamp);
+        $nowTimestamp = new \DateTime('now'); // \DateTime::createFromFormat(DATE_ATOM, date('Y-m-d\TH:i:sP'));
+        $diff = $ssoTimestamp->diff($nowTimestamp);
+
+        if ($diff->i > 5 || $diff->h != 0 || $diff->d != 0 || $diff->m || $diff->y) {
+            return [];
+        }
+
+        $return = $this->getUserDataByEmployeeId( $employeeId );
+
+        return $return;
+    }
+
     public function getUserDataByUsername( $username = null )
     {
         $sql = new Sql($this->dbAdapter);
@@ -131,6 +150,36 @@ class LoginMapper implements LoginMapperInterface
             ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
 
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+    }
+
+    public function getUserDataByEmployeeId( $employeeId = null )
+    {
+        $sql = new Sql($this->dbAdapter);
+        $select = $sql->select(['employee' => 'PRPMS'])
+            ->columns([
+                'EMPLOYER_NUMBER' => 'PRER',
+                'EMPLOYEE_NUMBER' => 'PREN',
+                'LEVEL_1' => 'PRL01',
+                'LEVEL_2' => 'PRL02',
+                'LEVEL_3' => 'PRL03',
+                'LEVEL_4' => 'PRL04',
+                'COMMON_NAME' => 'PRCOMN',
+                'FIRST_NAME' => 'PRFNM',
+                'MIDDLE_INITIAL' => 'PRMNM',
+                'LAST_NAME' => 'PRLNM',
+                'POSITION' => 'PRPOS',
+                'EMAIL_ADDRESS' => 'PREML1',
+                'USERNAME' => 'PRURL1',
+                'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
+                'POSITION_TITLE' => 'PRTITL'
+            ])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PREN)' => trim($employeeId)]);
+//             ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
+        $xx = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+//         var_dump($xx);
+        return $xx;
     }
 
     public function isManager($employeeNumber = null)
