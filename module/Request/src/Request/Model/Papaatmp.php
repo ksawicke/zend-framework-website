@@ -45,6 +45,10 @@ class Papaatmp extends BaseDB {
         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
 
+//         echo '<pre>@@##';
+//         var_dump( $dateRequestBlocks );
+//         die();
+
         foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
             $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection, $request_id );
         }
@@ -59,19 +63,33 @@ class Papaatmp extends BaseDB {
      */
     public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [], $request_id = null )
     {
+//         echo '<pre>';
+//         var_dump( $dateCollection );
+//         echo '</pre>';
+//         exit();
+
         $this->table = ( ( $employeeData['salary_type']==="H" ? "HPAPAATMP" : "PAPAATMP" ) );
 
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "WeekEndingData" ], [ $dateCollection ] );
 
         for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
-            $date = new \DateTime( $dateCollection[$i-1]['date'] );
+            $date = new \DateTime( $dateCollection[$i-1][0]['date'] );
             $weekdayAbbr = strtoupper( $date->format( "D" ) );
             $dateFormat = $date->format( "mdY" );
-            call_user_func_array(
-                [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
-                [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1]['hours'], $dateCollection[$i-1]['type'], '0.00', '' ]
-            );
+
+            if( count( $dateCollection[$i-1] )==1 ) {
+                call_user_func_array(
+                    [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
+                    [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1][0]['hours'], $dateCollection[$i-1][0]['type'], '0.00', '' ]
+                );
+            }
+            if( count( $dateCollection[$i-1] )==2 ) {
+                call_user_func_array(
+                    [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
+                    [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1][0]['hours'], $dateCollection[$i-1][0]['type'], $dateCollection[$i-1][1]['hours'], $dateCollection[$i-1][1]['type'] ]
+                );
+            }
         }
 
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "Reason" ], [ $reason ] );
@@ -92,6 +110,9 @@ class Papaatmp extends BaseDB {
             $action->values( $this->collection );
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
+
+            die( $rawSql );
+
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
@@ -122,7 +143,7 @@ class Papaatmp extends BaseDB {
     {
         $Date = new \Request\Helper\Date();
 
-        $lastDate = $dateCollection[ count( $dateCollection ) - 1 ]['date'];
+        $lastDate = $dateCollection[ count( $dateCollection ) - 1 ][0]['date'];
         $dateEnding  = new \DateTime( $lastDate );
         $weekEndingHY = $Date->convertToHYD( $lastDate );
 

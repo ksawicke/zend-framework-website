@@ -981,13 +981,16 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $validationHelper = new ValidationHelper();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
-        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
+
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
 
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
@@ -1216,6 +1219,11 @@ class RequestApi extends ApiController {
     public function submitPayrollApprovedAction()
     {
         $post = $this->getRequest()->getPost();
+
+//         echo '<pre>POST';
+//         var_dump( $post );
+//         echo '</pre>';
+
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -1225,15 +1233,31 @@ class RequestApi extends ApiController {
         $RequestEntry = new RequestEntry();
         $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
         $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
+
+//         // Check if there were any updates to the form
+//         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+//         if( $updatesToFormMade ) {
+//             $this->logChangesMadeToRequest( $post );
+//             // Re-grab $dateRequestBlocks since there may have been updates
+//             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+//         }
+//         $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
         try {
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+
             /** Log Payroll approval with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
@@ -1356,6 +1380,8 @@ class RequestApi extends ApiController {
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
         try {
@@ -1411,6 +1437,8 @@ class RequestApi extends ApiController {
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
         try {
