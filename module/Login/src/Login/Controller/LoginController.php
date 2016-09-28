@@ -7,14 +7,8 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Login\Form\LoginForm;
 use Login\Form\Filter\LoginFilter;
-use Zend\Crypt\BlockCipher;
-use Login\Mapper\LoginMapper;
 use Login\Model\Login;
-use Zend\Hydrator\ClassMethods;
-use Zend\Filter\Decrypt;
-use Zend\Crypt\Symmetric\Mcrypt;
 use Zend\Http\Request;
-use Zend\Form\Annotation\Hydrator;
 
 class LoginController extends AbstractActionController
 {

@@ -88,10 +88,10 @@ END:VTIMEZONE\r\n";
     public function outputDescriptionString( $data ) {
         $descriptionString = '';
         $descriptionString .=
-                ($data['start'] === $data['end']) ?
-                $data['hours'] . " " . $data['type'] . ' on ' . date( "m/d/Y", strtotime( $data['start'] ) ) . '; ' :
-                $data['hours'] . " " . $data['type'] . ' daily from ' . date( "m/d/Y", strtotime( $data['start'] ) ) . ' - ' . date( "m/d/Y", strtotime( $data['end'] ) ) . '; ';
-        return substr( $descriptionString, 0, -2 );
+            ($data['start'] === $data['end']) ?
+            'Time off on ' . date( "m/d/Y", strtotime( $data['start'] ) ) :
+            'Time off from ' . date( "m/d/Y", strtotime( $data['start'] ) ) . ' - ' . date( "m/d/Y", strtotime( $data['end'] ) );
+        return $descriptionString;
     }
 
     public function outputVEvents( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText ) {

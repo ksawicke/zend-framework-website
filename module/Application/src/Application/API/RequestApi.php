@@ -729,7 +729,7 @@ class RequestApi extends ApiController {
      *
      * @param integer $requestId
      */
-    protected function emailDeniedNoticeToEmployee( $post )
+    protected function emailDeniedNoticeToEmployee( $post, $deniedBy )
     {
         $renderer = $this->serviceLocator->get( 'Zend\View\Renderer\RendererInterface' );
         $reviewUrl = ( ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) ? 'http://swift:10080' : 'http://aswift:10080' ) .
@@ -745,7 +745,7 @@ class RequestApi extends ApiController {
         $Email = new EmailFactory(
             'Time off request for ' . $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' was denied',
             'The request for ' .
-                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied by Payroll' .
+                $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] . ' has been denied by ' . $deniedBy .
                 ( !empty( $post->review_request_reason ) ? ' with the reason: ' . $post->review_request_reason : '' ) . '<br /><br />' .
                 $emailVariables['hoursRequestedHtml'] . '<br /><br />' .
                 'For details please visit the following URL:<br /><br />' .
@@ -981,13 +981,16 @@ class RequestApi extends ApiController {
         $TimeOffRequestLog = new TimeOffRequestLog();
         $validationHelper = new ValidationHelper();
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
-        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
+
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
 
         $dates = [];
         foreach( $requestData['ENTRIES'] as $ctr => $requestObject ) {
@@ -1140,7 +1143,7 @@ class RequestApi extends ApiController {
         $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'] = $requestData['EMPLOYEE_DATA']->MANAGER_EMAIL_ADDRESS;
         $post->request['forEmployee']['EMPLOYEE_DESCRIPTION_ALT'] = $requestData['EMPLOYEE_DATA']->EMPLOYEE_DESCRIPTION_ALT;
 
-        $this->emailDeniedNoticeToEmployee( $post );
+        $this->emailDeniedNoticeToEmployee( $post, UserSession::getFullUserInfo() );
 
         /** Log supervisor deny with comment **/
         $TimeOffRequestLog->logEntry(
@@ -1216,6 +1219,11 @@ class RequestApi extends ApiController {
     public function submitPayrollApprovedAction()
     {
         $post = $this->getRequest()->getPost();
+
+//         echo '<pre>POST';
+//         var_dump( $post );
+//         echo '</pre>';
+
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -1225,15 +1233,31 @@ class RequestApi extends ApiController {
         $RequestEntry = new RequestEntry();
         $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post->request_id );
         $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
+        $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
         // Check if there were any updates to the form
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
+
+//         // Check if there were any updates to the form
+//         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
+//         if( $updatesToFormMade ) {
+//             $this->logChangesMadeToRequest( $post );
+//             // Re-grab $dateRequestBlocks since there may have been updates
+//             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+//         }
+//         $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+
         try {
+            $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
+
             /** Log Payroll approval with comment **/
             $TimeOffRequestLog->logEntry(
                 $post->request_id, UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ), 'Time off request Payroll approved by ' . UserSession::getFullUserInfo() .
@@ -1298,7 +1322,8 @@ class RequestApi extends ApiController {
         $requestData = $TimeOffRequests->findRequest( $post->request_id );
 
         try {
-            $this->emailDeniedNoticeToEmployee( $post );
+            $deniedBy = ( $requestData['REQUEST_STATUS_DESCRIPTION']=='Pending Payroll Approval' ? 'Payroll' : UserSession::getFullUserInfo() );
+            $this->emailDeniedNoticeToEmployee( $post, $deniedBy );
 
             /** Log Payroll denied with comment **/
             $TimeOffRequestLog->logEntry(
@@ -1355,6 +1380,8 @@ class RequestApi extends ApiController {
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
         try {
@@ -1410,6 +1437,8 @@ class RequestApi extends ApiController {
         $updatesToFormMade = $this->checkForUpdatesMadeToForm( $post, $requestData['ENTRIES'] );
         if( $updatesToFormMade ) {
             $this->logChangesMadeToRequest( $post );
+            // Re-grab requestData since there may have been updates
+            $requestData = $TimeOffRequests->findRequest( $post->request_id );
         }
 
         try {

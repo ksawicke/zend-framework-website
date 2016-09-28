@@ -324,12 +324,12 @@ var timeOffViewRequestHandler = new function ()
     	var datesSelectedDetailsHtml = '';
         var countDates = 0;
         $.each( highlightDates, function( key, dateObject ) {
-        	console.log( dateObject.REQUEST_DATE + " :: " + startDate + " :: " + endDate );
-        	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
+////        	console.log( dateObject.REQUEST_DATE + " :: " + startDate + " :: " + endDate );
+////        	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
         		countDates++;
-        	}
+////        	}
         });
-        console.log( "countDates", countDates );
+//        console.log( "countDates", countDates );
     	
     	if( countDates==0 ) {
             $("#noDatesSelectedWarning").show();
@@ -351,9 +351,7 @@ var timeOffViewRequestHandler = new function ()
                                             '<tbody>';
                                     
             $.each( highlightDates, function( key, dateObject ) {
-//            	console.log( dateObject.REQUEST_DATE + " vs " + startDate );
-//            	console.log( dateObject.REQUEST_DATE + " vs " + endDate );
-            	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
+////            	if( moment(dateObject.REQUEST_DATE) >= moment(startDate) && moment(dateObject.REQUEST_DATE) < moment(endDate) ) {
             		var dow = moment(dateObject.REQUEST_DATE, "MM/DD/YYYY").format("ddd").toUpperCase();
             		datesSelectedDetailsHtml += '<tr>' +
                         '<td>' + ( ( dateObject.REQUEST_STATUS=="P" || dateObject.REQUEST_STATUS=="Y" ) ?
@@ -368,7 +366,7 @@ var timeOffViewRequestHandler = new function ()
                         timeOffViewRequestHandler.getCategoryText( dateObject.CALENDAR_DAY_CLASS ) +
                         '</span></td>' +
                     '</tr>';
-            	}
+////            	}
             });
             
             

@@ -52,7 +52,7 @@ class RequestEntry extends BaseDB {
                 ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_CODE' => 'REQUEST_CODE' ])
                 ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID',
                        ['EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_REASON' => 'REQUEST_REASON'])
-                ->where(['request.REQUEST_ID' => $requestId])
+                ->where(['request.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => 0])
                 ->order(['entry.REQUEST_DATE ASC']);
         $requestEntries = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
@@ -64,6 +64,7 @@ class RequestEntry extends BaseDB {
         $request['for']['employee_number'] = trim( $requestEntries[0]['EMPLOYEE_NUMBER'] );
 
         $request = $this->sortRequestDates( $request );
+
         $requestObject = $this->buildDateMatrix( $request );
 
         return $requestObject;
@@ -139,22 +140,19 @@ class RequestEntry extends BaseDB {
         /**
          * instantiate DatePeriod object
          */
-        //$period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
         $period = new \DatePeriod( $startDateObject, $interval, $endDateObject->modify('+1 day') );
 
         $data = [];
-//        echo '<pre>PERIOD';
-//        print_r( $period );
-//        echo '</pre>';
-//        exit();
 
         foreach( $period as $chunk ) {
             // Check if any have hours, if so:
             $hoursTotal = 0;
 
             $childData = $this->buildChildDateMatrix( $request, $chunk );
-            foreach( $childData as $cdKey => $cdValues ) {
-                $hoursTotal += $cdValues['hours'];
+            foreach( $childData as $counter => $cdata ) {
+                foreach( $cdata as $cdKey => $cdValues ) {
+                    $hoursTotal += $cdValues['hours'];
+                }
             }
             if( $hoursTotal > 0 ) {
                 $data[] = $childData;
@@ -219,14 +217,18 @@ class RequestEntry extends BaseDB {
                  */
                 if ( !isset( $dataMatrix[$dayOfPeriod] ) ) {
                     // do a blank one
-                    $dataMatrix[$dayOfPeriod] = [ 'hours' => '0.00', 'type' => '', 'date' => $dt->format('Y-m-d') ];
+                    $counter = 0;
+                    $dataMatrix[$dayOfPeriod][$counter] = [ 'hours' => '0.00', 'type' => '', 'date' => $dt->format('Y-m-d') ];
                 }
 
                 /**
-                 * if day of date perios matches data
+                 * if day of date period matches data
                  */
                 if ( $dt == $offDate ) {
-                    $dataMatrix[$dayOfPeriod] = $requestData;
+                    if( $dataMatrix[$dayOfPeriod][0]['hours'] != '0.00' ) {
+                        $counter++;
+                    }
+                    $dataMatrix[$dayOfPeriod][$counter] = $requestData;
                 }
 
                 /**

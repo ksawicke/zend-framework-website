@@ -3,14 +3,7 @@ namespace Login\Mapper;
 
 use Login\Model\LoginInterface;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\HydratingResultSet;
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Expression;
-use Zend\Db\ResultSet\ResultSet;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\Stdlib\Hydrator\NamingStrategy\ArrayMapNamingStrategy;
 
@@ -149,7 +142,8 @@ class LoginMapper implements LoginMapperInterface
             ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
             ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
 
-        return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        $data = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
+        return ( !empty( $data ) ? \Request\Helper\ResultSetOutput::getResultArray($sql, $select) : 0 );
     }
 
     public function getUserDataByEmployeeId( $employeeId = null )
