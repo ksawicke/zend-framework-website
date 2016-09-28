@@ -45,10 +45,6 @@ class Papaatmp extends BaseDB {
         $dateRequestBlocks['for']['level4'] = $employeeData['LEVEL_4'];
         $dateRequestBlocks['for']['salary_type'] = $employeeData['SALARY_TYPE'];
 
-//         echo '<pre>@@##';
-//         var_dump( $dateRequestBlocks );
-//         die();
-
         foreach ( $dateRequestBlocks['dates'] as $ctr => $dateCollection ) {
             $this->SaveDates( $dateRequestBlocks['for'], $dateRequestBlocks['reason'], $dateCollection, $request_id );
         }
@@ -63,11 +59,6 @@ class Papaatmp extends BaseDB {
      */
     public function SaveDates( $employeeData = [], $reason = '', $dateCollection = [], $request_id = null )
     {
-//         echo '<pre>';
-//         var_dump( $dateCollection );
-//         echo '</pre>';
-//         exit();
-
         $this->table = ( ( $employeeData['salary_type']==="H" ? "HPAPAATMP" : "PAPAATMP" ) );
 
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
@@ -110,8 +101,6 @@ class Papaatmp extends BaseDB {
             $action->values( $this->collection );
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
-
-            die( $rawSql );
 
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( \Exception $e ) {
