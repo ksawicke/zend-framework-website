@@ -126,7 +126,7 @@ class LoginController extends AbstractActionController
 
         /* SSO Key might be to old, send message */
         if(count($result) != 1) {
-            $this->flashMessenger()->addMessage('Your SSO Key is to old. Please login with your Username and Password');
+            $this->flashMessenger()->addMessage('Your SSO Key has expired. Please login with your Username and Password.');
             return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
 
         }
