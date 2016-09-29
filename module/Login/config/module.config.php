@@ -6,7 +6,6 @@
  * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
-
 namespace Login;
 
 return [
@@ -21,11 +20,11 @@ return [
             'Login\Controller\Login' => 'Login\Factory\LoginControllerFactory'
         ]
     ],
-//     'controllers' => [
-//         'invokables' => [
-//             'Login\Controller\Login' => 'Login\Controller\LoginController'
-//         ],
-//     ],
+    // 'controllers' => [
+    // 'invokables' => [
+    // 'Login\Controller\Login' => 'Login\Controller\LoginController'
+    // ],
+    // ],
     'router' => [
         'routes' => [
             'login' => [
@@ -47,6 +46,18 @@ return [
                     'defaults' => [
                         'controller' => 'Login\Controller\Login',
                         'action' => 'logout'
+                    ]
+                ],
+                'may_terminate' => true,
+                'child_routes' => []
+            ],
+            'sso' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/login/sso',
+                    'defaults' => [
+                        'controller' => 'Login\Controller\Login',
+                        'action' => 'sso'
                     ]
                 ],
                 'may_terminate' => true,

@@ -30,6 +30,11 @@ class AuthenticationService implements AuthenticationServiceInterface
         return $this->loginMapper->authenticateUser($username, $password);
     }
 
+    public function authenticateUserSSO($employeeId, $timestamp)
+    {
+        return $this->loginMapper->authenticateUserSSO($employeeId, $timestamp);
+    }
+
     public function isManager($employeeNumber)
     {
         return $this->loginMapper->isManager($employeeNumber);
