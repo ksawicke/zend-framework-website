@@ -26,38 +26,12 @@ var timeOffPayrollAssistantHandler = new function ()
              * for form submission, and refresh the calendars.
              */
             $requestForEventSelect.on("select2:select", function(e) {
-//                timeOffCreateRequestHandler.resetCategorySelection();
                 var selectedEmployee = e.params.data;
                 selectedPayrollAssistantEmployeeNumber = selectedEmployee.id;
-                
-//                requestForEmployeeName = selectedEmployee.text;
-//                timeOffCreateRequestHandler.loadCalendars(requestForEmployeeNumber);
-//                $('.requestIsForMe').show();
             }).on("select2:open", function(e) {
                 /**
                  * SELECT2 is opened
                  */
-//                if (loggedInUserData.IS_LOGGED_IN_USER_PAYROLL === "N") {
-//                    $("span").remove(".select2CustomTag");
-//                    var $filter = '<form id="directReportForm" style="display:inline-block;padding 5px;">'
-//                        + '<input type="radio" name="directReportFilter" value="B"'
-//                        + ((directReportFilter === 'B') ? ' checked'
-//                            : '')
-//                        + '> Both&nbsp;&nbsp;&nbsp;'
-//                        + '<input type="radio" name="directReportFilter" value="D"'
-//                        + ((directReportFilter === 'D') ? ' checked'
-//                            : '')
-//                        + '> Direct Reports&nbsp;&nbsp;&nbsp;'
-//                        + '<input type="radio" name="directReportFilter" value="I"'
-//                        + ((directReportFilter === 'I') ? ' checked'
-//                            : '')
-//                        + '> Indirect Reports&nbsp;&nbsp;&nbsp;'
-//                        + '</form>';
-//                    $("<span class='select2CustomTag' style='padding-left:6px;'>"
-//                        + $filter
-//                        + "</span>")
-//                    .insertBefore('.select2-results');
-//                }
             }).on("select2:close", function(e) {
                 /**
                  * SELECT2 is closed
@@ -65,9 +39,7 @@ var timeOffPayrollAssistantHandler = new function ()
             });
             
             $("#requestFor").prop('disabled', false);
-//            $("#requestFor").empty().append(
-//                '<option value="SELECT PROXY HERE</option>').val('229589').trigger('change');
-            
+
             $requestForEventSelect.select2({
                 ajax : {
                     url : timeOffPayrollAssistantSearchUrl,
@@ -97,7 +69,6 @@ var timeOffPayrollAssistantHandler = new function ()
             });
             
             $(document).on('click', '.submitAddPayrollAssistantRequest', function() {
-                console.log( "selectedPayrollAssistantEmployeeNumber", selectedPayrollAssistantEmployeeNumber );
                 if( timeOffCommon.empty(selectedPayrollAssistantEmployeeNumber)===false ) {
                     timeOffPayrollAssistantHandler.handleAddPayrollAssistant();
                 } else {

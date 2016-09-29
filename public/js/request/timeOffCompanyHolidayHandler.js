@@ -79,10 +79,6 @@ var timeOffCompanyHolidayHandler = new function ()
                     }
                 }
             });
-//            console.log( "Delete date " + $(this).data('date') );
-//            if( !timeOffCommon.empty( $("#newCompanyHoliday").val() ) ) {
-//                timeOffCompanyHolidayHandler.saveNewCompanyHoliday( $("#newCompanyHoliday").val() );
-//            }
         });
     }
     

@@ -51,64 +51,6 @@ var timeOffEmployeeProfileHandler = new function ()
         });
     }
     
-//    this.handleAddProxy = function() {
-//        $.ajax({
-//            url : timeOffAddProxyUrl,
-//            type : 'POST',
-//            data : {
-//                EMPLOYEE_NUMBER : phpVars.employee_number,
-//                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber
-//            },
-//            dataType : 'json'
-//        }).success(function(json) {
-//            if (json.success == true) {
-//                timeOffProxyHandler.reloadProxies();
-//            } else {
-//                alert(json.message);
-//            }
-//            return;
-//        }).error(function() {
-//            console.log('There was an error submitting request to add a proxy.');
-//            return;
-//        });
-//    }
-//    
-//    this.handleRemoveProxy = function( selectedProxyEmployeeNumber ) {
-//        $.ajax({
-//            url : timeOffRemoveProxyUrl,
-//            type : 'POST',
-//            data : {
-//                EMPLOYEE_NUMBER : phpVars.employee_number,
-//                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber
-//            },
-//            dataType : 'json'
-//        }).success(function(json) {
-//            timeOffProxyHandler.reloadProxies();
-//            return;
-//        }).error(function() {
-//            console.log('There was an error submitting request to add a proxy.');
-//            return;
-//        });
-//    }
-//    
-//    this.handleToggleProxy = function( selectedProxyEmployeeNumber, status ) {
-//        $.ajax({
-//            url : timeOffToggleProxyUrl,
-//            type : 'POST',
-//            data : {
-//                EMPLOYEE_NUMBER : phpVars.employee_number,
-//                PROXY_EMPLOYEE_NUMBER : selectedProxyEmployeeNumber,
-//                STATUS : ( status==1 ? 0 : 1 )
-//            },
-//            dataType : 'json'
-//        }).success(function(json) {
-//            return;
-//        }).error(function() {
-//            console.log('There was an error submitting request to toggle a proxy.');
-//            return;
-//        });
-//    }
-    
     /**
      * Gets the proxies for passed in Employee Number.
      * 
@@ -139,19 +81,6 @@ var timeOffEmployeeProfileHandler = new function ()
             return;
         });
     }
-    
-//    /**
-//     * Reload datatable for proxies
-//     */
-//    this.reloadProxies = function() {
-//        $("#proxy-list").DataTable().ajax.reload( function() {} );
-//        $("#requestFor").select2("val", "");
-//    }
-//    
-//    this.resetErrors = function() {
-//        $("#warnNoProxiesSelected").hide();
-//        $("#warnErrorLoadingProxies").hide();
-//    }
     
 }
 

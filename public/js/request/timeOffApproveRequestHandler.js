@@ -66,8 +66,6 @@ var timeOffApproveRequestHandler = new function ()
             var formDirty = ($("#formDirty").val() == "true"); // Converts from string to boolean
             $.each(selectedDatesNew, function(index, blah) {
               selectedDatesNew[index].dow = moment(selectedDatesNew[index].date, "MM/DD/YYYY").format("ddd").toUpperCase();
-//            	console.log( "COMPARE:" );
-//            	console.log( selectedDatesNew );
             });
             var data = {
                 request_id: ( !timeOffCommon.empty( $("#requestId").val() ) ? $("#requestId").val() : $(this).attr("data-request-id") ),
@@ -78,8 +76,6 @@ var timeOffApproveRequestHandler = new function ()
                 selectedDatesNew: selectedDatesNew,
                 loggedInUserEmployeeNumber: timeOffCreateRequestHandler.getLoggedInUserEmployeeNumber()
             };
-
-            console.log( "data", data );
 
             timeOffApproveRequestHandler.handlePleaseWaitStatus( $(this) );
 
@@ -129,7 +125,6 @@ var timeOffApproveRequestHandler = new function ()
      */
     this.handlePleaseWaitStatus = function( selectedButton ) {
         $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
-        //selectedButton.addClass( 'disabled' );
         selectedButton.blur(); // Click out of button.
 
         // Add a spinning icon and a couple of spaces before the button text.
@@ -262,11 +257,6 @@ var timeOffApproveRequestHandler = new function ()
 
             timeOffApproveRequestHandler.roundTripAPICall(
                     data, apiSubmitPayrollSaveChangesToCompletedRequestUrl, redirectCompletedPAFsQueue, "Unable to update this Completed PAF." );
-
-//            alert( "This feature is currently being developed." );
-//        	setTimeout(function() {
-//        		timeOffApproveRequestHandler.stopPleaseWaitStatus( selectedButton, 'Save' );
-//        	}, 1000);
         }
     }
 };

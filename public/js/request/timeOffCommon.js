@@ -4,7 +4,6 @@
  */
 var timeOffCommon = new function ()
 {
-	// Test!
     var timeOffSubmitEmployeeScheduleRequestUrl = phpVars.basePath + '/api/employee-schedule',
         employeeScheduleFormErrors = 0;
     
@@ -44,14 +43,7 @@ var timeOffCommon = new function ()
                                 timeOffCommon.submitEmployeeScheduleUpdate();
                             } else {
                                 timeOffCommon.setEmployeeScheduleFormError( 'error' );
-                            }        
-                            
-//                            if( $('#employeeScheduleForm').parsley().validate() &&
-//                                $('#employeeScheduleForm').parsley().isValid() ) {
-//                                console.log( "Form looks good" );
-//                            } else {
-//                                console.log( "Form is sad." );
-//                            }
+                            }
                         },
                         Cancel : function() {
                             $(this).dialog("close");
