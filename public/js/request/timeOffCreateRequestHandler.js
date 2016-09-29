@@ -3,7 +3,7 @@
  *
  */
 var timeOffCreateRequestHandler = new function() {
-    var timeOffLoadCalendarUrl = phpVars.basePath + '/api/calendar/get', // http://swift:10080/sawik/timeoff/public
+    var timeOffLoadCalendarUrl = phpVars.basePath + '/api/calendar/get', 
         timeOffSubmitTimeOffRequestUrl = phpVars.basePath + '/api/request',
         timeOffSubmitTimeOffSuccessUrl = phpVars.basePath + '/request/submitted-for-approval',
         timeOffEmployeeSearchUrl = phpVars.basePath + '/api/search/employees',
@@ -103,7 +103,6 @@ var timeOffCreateRequestHandler = new function() {
                 /**
                  * SELECT2 is opened
                  */
-                // loggedInUserData.IS_LOGGED_IN_USER_PROXY === "Y"
                 if ( ( ( loggedInUserData.isManager == "Y" || loggedInUserData.isSupervisor == "Y" ) &&
                        loggedInUserData.isPayrollAdmin == "N" &&
                        loggedInUserData.isPayrollAssistant == "N" ) ||
@@ -290,7 +289,6 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handlePleaseWaitStatus = function( selectedButton ) {
         $( '.btn' ).addClass( 'disabled' ); // Disable all buttons from being selected first.
-        //selectedButton.addClass( 'disabled' );
         selectedButton.blur(); // Click out of button.
 
         // Add a spinning icon and a couple of spaces before the button text.
@@ -471,14 +469,6 @@ var timeOffCreateRequestHandler = new function() {
             $("#formDirty").val('true');
             // Recalculate totals
             timeOffCreateRequestHandler.updateTotalsPerCategory();
-//            totalPTORequested = 0;
-//        	totalFloatRequested = 0;
-//        	totalSickRequested = 0;
-//        	totalUnexcusedAbsenceRequested = 0;
-//        	totalBereavementRequested = 0;
-//        	totalCivicDutyRequested = 0;
-//        	totalGrandfatheredRequested = 0;
-//        	totalApprovedNoPayRequested = 0;
             timeOffCreateRequestHandler.checkAndSetFormWarnings();
         });
     }
@@ -712,7 +702,6 @@ var timeOffCreateRequestHandler = new function() {
         $('.btn-requestCategory').removeClass(selectedTimeOffCategory);
         for (category in categoryText) {
             $('.' + category + 'CloseIcon').removeClass('categoryCloseIcon glyphicon glyphicon-remove-circle');
-            // timeOffPTO
             $('.buttonDisappear' + category.substr(7)).show();
         }
     }
@@ -884,9 +873,6 @@ var timeOffCreateRequestHandler = new function() {
         $("#employeeScheduleFor").val( data.EMPLOYEE_NUMBER );
         $("#employeeScheduleBy").val( requestForEmployeeNumber );
     }
-
-//    var data = {};
-//    data.GF_REMAINING
 
     this.updateButtonsWithEmployeeRemainingTime = function( data ) {
       timeOffCreateRequestHandler.setEmployeeGrandfatheredRemaining( data.GF_REMAINING );

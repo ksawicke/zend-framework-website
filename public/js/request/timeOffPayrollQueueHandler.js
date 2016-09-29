@@ -16,7 +16,6 @@ var timeOffPayrollQueueHandler = new function ()
             timeOffPayrollQueueHandler.handleLoadingDeniedQueue();
             timeOffPayrollQueueHandler.handleLoadingByStatusQueue();
             timeOffPayrollQueueHandler.handleLoadingManagerActionQueue();
-//            timeOffPayrollQueueHandler.handleApproveUpdateChecksRequest();
         });
     }
 
@@ -352,14 +351,6 @@ var timeOffPayrollQueueHandler = new function ()
         .on("error.dt", function (e, settings, techNote, message) {
             console.log("An error has been reported by DataTables: ", message);
         });
-
-
-
-        // Apply the search
-//        table.columns().every( function () {
-            // SAVE...this appends 'a' value to each dropdown
-//            $('select', this.footer() ).append( '<option value="a">a</option>' );
-//        } );
     }
 
     /**

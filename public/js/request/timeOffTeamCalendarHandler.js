@@ -47,12 +47,6 @@ var timeOffTeamCalendarHandler = new function()
         		    json.closeHeader +
         		    thisCalendarHtml.data);
         	});
-        	
-//        	timeOffCreateRequestHandler.setEmployeePTORemaining(json.employeeData.PTO_AVAILABLE);
-//        	timeOffCreateRequestHandler.setEmployeeFloatRemaining(json.employeeData.FLOAT_AVAILABLE);
-//        	timeOffCreateRequestHandler.setEmployeeSickRemaining(json.employeeData.SICK_AVAILABLE);
-//        	timeOffCreateRequestHandler.setSelectedDates(json.approvedRequestJson, json.pendingRequestJson);
-//        	timeOffCreateRequestHandler.highlightDates();
             return;
         })
         .error( function() {
