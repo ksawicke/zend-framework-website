@@ -88,41 +88,53 @@ class LoginController extends AbstractActionController
     public function ssoAction()
     {
 
+        /* set Passphrase and IV */
         $passphrase = 'I am so rich I wish I ha';
         $iv = 'Phoenix1';
-        $ivHex = bin2hex($iv);
 
         /* get encrypted data from query string */
         $encryptedDataBase64 = $this->params()->fromQuery('q');
+
+        /* fill blanks in string with "+" */
         if (strpos($encryptedDataBase64, ' ') !== false) {
             $encryptedDataBase64 = str_replace(' ', '+', $encryptedDataBase64);
         }
 
+        /* base64 decode encrypted string */
         $encryptedDataBase64 = base64_decode($encryptedDataBase64);
+
+        /* decrypt string */
         $decryptedData = mcrypt_decrypt(MCRYPT_3DES, $passphrase, $encryptedDataBase64, MCRYPT_MODE_CBC, $iv);
-        $decryptedData = str_replace("\8", "", $decryptedData);
+
+        /* string seems to have hex 8 (backspace) characters attached, remove */
         $decryptedData = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $decryptedData);
 
+        /* convert json to object */
         $jsonData = json_decode(html_entity_decode($decryptedData, ENT_QUOTES));
 
+        /* extract data */
         $employeeId = $jsonData->zcid;
         $timestamp = $jsonData->t;
-//         die();
 
         /* reroute to login screen if decrypt not possible */
         if ($employeeId === false) {
             return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
         }
+
+        /* modified authentication */
         $result = $this->authenticationService->authenticateUserSSO($employeeId, $timestamp);
 
+        /* SSO Key might be to old, send message */
         if(count($result) != 1) {
             $this->flashMessenger()->addMessage('Your SSO-Key is to old. Please login with your Username and Password');
             return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
 
         }
 
+        /* set session */
         $this->setSession($result);
 
+        /* reroute to request view */
         return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
 
     }
