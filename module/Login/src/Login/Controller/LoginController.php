@@ -41,7 +41,8 @@ class LoginController extends AbstractActionController
         $loginForm->setData($data);
 
         $result = $this->authenticationService->authenticateUser($data->username, $data->password);
-        if(count($result) != 1) {
+
+        if( !is_array( $result ) && $result == 0 ) {
             $this->flashMessenger()->addMessage('User ID or Password incorrect. Please try again.');
             return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/login/index' );
         }
