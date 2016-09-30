@@ -325,8 +325,6 @@ var timeOffViewRequestHandler = new function ()
             requestForEmployeeName = json.employeeData.EMPLOYEE_NAME +
                 ' (' + json.employeeData.EMPLOYEE_NUMBER + ') - ' + json.employeeData.POSITION_TITLE;
             timeOffCreateRequestHandler.postLoadCalendarButtonAdjust( requestForEmployeeObject );
-            
-            console.log( "calendarData", json.calendarData );
             return;
         })
         .error(function () {
@@ -534,7 +532,6 @@ var timeOffViewRequestHandler = new function ()
         if (timeOffViewRequestHandler.setTwoDecimalPlaces(employeeGrandfatheredRemaining) <= 0) {
             $('.buttonDisappearGrandfathered').addClass('hidden');
         }
-        console.log("employeeGrandfatheredRemaining", employeeGrandfatheredRemaining);
     }
 
     this.printEmployeeGrandfatheredPending = function () {
