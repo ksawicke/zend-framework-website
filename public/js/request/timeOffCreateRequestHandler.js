@@ -555,6 +555,21 @@ var timeOffCreateRequestHandler = new function() {
      }
     
     /**
+     * Pop up a dialog box to warn the user that they can't take a previously requested day off.
+     */
+    this.alertUserDateIsAlreadySubmitted = function() {
+    	$("#dialogDateIsAlreadySubmitted").dialog({
+            modal : true,
+            closeOnEscape: false,
+            buttons : {
+                OK : function() {
+                  $(this).dialog("close");
+                }
+            }
+        });
+    }
+    
+    /**
      * Pop up a dialog box to warn the user that they can't take a disabled day off.
      */
     this.alertUserDateIsUnavailableForSelection = function() {
@@ -579,7 +594,12 @@ var timeOffCreateRequestHandler = new function() {
           if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===true ) {
             return;
           }
-            
+          
+          if( $(this).hasClass( 'requestPending') ) {
+             timeOffCreateRequestHandler.alertUserDateIsAlreadySubmitted();
+             return;
+          }
+          
           if( $(this).hasClass( 'calendar-day-disabled') ) {
             timeOffCreateRequestHandler.alertUserDateIsUnavailableForSelection();
             return;
@@ -1568,6 +1588,17 @@ var timeOffCreateRequestHandler = new function() {
 
         return ( counter===1 ? found : null );
     }
+    
+    this.countDatesAlreadyInRequestArray = function( dateObject ) {
+        var counter = 0;
+        $.each( selectedDatesNew, function( index, requestedDateObject ) {
+            if( requestedDateObject.date==dateObject.date ) {
+                counter++;
+            }
+        });
+
+        return counter;
+    }
 
     /**
      * Returns an object showing the split hours for the requested date/category combos.
@@ -1641,7 +1672,9 @@ var timeOffCreateRequestHandler = new function() {
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         scheduleThisDay = requestForEmployeeObject["SCHEDULE_" + dateObject.dow];
         splitHours = timeOffCreateRequestHandler.getSplitHours( selectedDatesNew[foundIndex], dateObject, scheduleThisDay );
-        if( splitHours.first.hours<=0 || splitHours.second.hours<=0 || splitHours.totalHoursOff < scheduleThisDay ) {
+        countFound = timeOffCreateRequestHandler.countDatesAlreadyInRequestArray( dateObject );
+        
+        if( countFound>=2 || splitHours.first.hours<=0 || splitHours.second.hours<=0 || splitHours.totalHoursOff < scheduleThisDay ) {
            timeOffCreateRequestHandler.alertUserUnableToSplitTime();
            return;
         } else {
@@ -1700,7 +1733,12 @@ var timeOffCreateRequestHandler = new function() {
             hoursToAdd = timeOffCreateRequestHandler.getHoursToAdd( dateObject );
         dateObject.dow = moment(dateObject.date, "MM/DD/YYYY").format("ddd").toUpperCase();
         dateObject.hours = parseFloat(hoursToAdd).toFixed(2);
+        countFound = timeOffCreateRequestHandler.countDatesAlreadyInRequestArray( dateObject );
 
+        if( countFound>=2 ) {
+        	timeOffCreateRequestHandler.alertUserUnableToSplitTime();
+        	return;
+        }
         if( hoursToAdd==0 ) {
         	return; // Can't add something with 0 hours
         }

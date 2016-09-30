@@ -1144,7 +1144,8 @@ button .full-width {
 #dialogConfirmDeleteCompanyHoliday,
 #dialogConfirmEditSchedule,
 #warningEmailOverridesTurnedOff,
-#dialogDateIsUnavailableForSelection {
+#dialogDateIsUnavailableForSelection,
+#dialogDateIsAlreadySubmitted {
     display: none;
 }
 
