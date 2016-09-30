@@ -53,7 +53,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .copyright {
     color: #fff;
-	padding-bottom:25px;
+  padding-bottom:25px;
 }
 
 .form-control {
@@ -71,7 +71,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 .navbar-brand {
-	padding: 15px 0px 15px 15px;
+  padding: 15px 0px 15px 15px;
 }
 
 .swift-header-item {
@@ -93,10 +93,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 table.siteLogoHeaderTable th, table.siteLogoHeaderTable td {
-	border: 0px;	
+  border: 0px;
 }
 table.siteLogoHeaderTable td {
-	margin: 0px;
+  margin: 0px;
 }
 
 .swift-header-item-sm {
@@ -130,12 +130,12 @@ table.siteLogoHeaderTable td {
 }
 
 .swift-welcome-message-lg {
-	font-size:120%;
-	margin-left:15px;
+  font-size:120%;
+  margin-left:15px;
 }
 .swift-welcome-message-md {
-	font-size:100%;
-	margin-left:10px;
+  font-size:100%;
+  margin-left:10px;
 }
 
 .swiftlogo-lg {
@@ -304,8 +304,8 @@ div.container {
     color: yellow;
 }
 #navbar > ul > li.dropdown > ul > li { /* Fixes so we don't have extra padding when hovering over different main menus */
-	padding-top:0px;
-	margin-top:0px;
+  padding-top:0px;
+  margin-top:0px;
 }
 
 .parsley-errorUserid {
@@ -1205,7 +1205,7 @@ button .full-width {
 }
 
 #calendarLegend {
-    display:none;
+    display: block;
 }
 
 /** Employee Schedule **/
@@ -1427,85 +1427,85 @@ div.buttons {
  **/
 /* Custom, iPhone and Retina */
 @media only screen and (max-width: 479px) {
-	div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
-	    margin-top:-18px;
-		background-color: #fff;
-	}
-	.navbar-nav>li>.dropdown-menu {
-	    background-color: rgba(22,19,12,0.8);
-	    padding:0px;
-	    margin:0px;
-	}
-	#navbar > ul > li.dropdown.open > ul > li {
-	    padding:0px;
-	    margin:0px;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown.open > ul > li a {
-	    color: rgba(22,19,12,0.8);
-	    padding:15px 15px 15px 15px;
-	    margin:0px;
-	    font-weight:normal;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown > ul > li a {
-	    color: rgba(22,19,12,0.8);
-	    padding:15px 15px 15px 15px;
-	    margin:0px;
-	    font-weight:normal;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown.open > ul > li:hover a {
-	    background-color:rgba(22,19,12,0.8);
-	    color: yellow;
-	}
+  div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
+      margin-top:-18px;
+    background-color: #fff;
+  }
+  .navbar-nav>li>.dropdown-menu {
+      background-color: rgba(22,19,12,0.8);
+      padding:0px;
+      margin:0px;
+  }
+  #navbar > ul > li.dropdown.open > ul > li {
+      padding:0px;
+      margin:0px;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown.open > ul > li a {
+      color: rgba(22,19,12,0.8);
+      padding:15px 15px 15px 15px;
+      margin:0px;
+      font-weight:normal;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown > ul > li a {
+      color: rgba(22,19,12,0.8);
+      padding:15px 15px 15px 15px;
+      margin:0px;
+      font-weight:normal;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown.open > ul > li:hover a {
+      background-color:rgba(22,19,12,0.8);
+      color: yellow;
+  }
 }
 /* Extra Small Devices, Phones */
 @media only screen and (min-width: 480px) {
 div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
-	    margin-top:-18px;
-		background-color: #fff;
-	}
-	.navbar-nav>li>.dropdown-menu {
-	    background-color: rgba(22,19,12,0.8);
-	    padding:0px;
-	    margin:0px;
-	}
-	#navbar > ul > li.dropdown.open > ul > li {
-	    padding:0px;
-	    margin:0px;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown.open > ul > li a {
-	    color: rgba(22,19,12,0.8);
-	    padding:15px 15px 15px 15px;
-	    margin:0px;
-	    font-weight:normal;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown > ul > li a {
-	    color: rgba(22,19,12,0.8);
-	    padding:15px 15px 15px 15px;
-	    margin:0px;
-	    font-weight:normal;
-	    background-color:#fff;
-	}
-	#navbar > ul > li.dropdown.open > ul > li:hover a {
-	    background-color:rgba(22,19,12,0.8);
-	    color: yellow;
-	}
+      margin-top:-18px;
+    background-color: #fff;
+  }
+  .navbar-nav>li>.dropdown-menu {
+      background-color: rgba(22,19,12,0.8);
+      padding:0px;
+      margin:0px;
+  }
+  #navbar > ul > li.dropdown.open > ul > li {
+      padding:0px;
+      margin:0px;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown.open > ul > li a {
+      color: rgba(22,19,12,0.8);
+      padding:15px 15px 15px 15px;
+      margin:0px;
+      font-weight:normal;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown > ul > li a {
+      color: rgba(22,19,12,0.8);
+      padding:15px 15px 15px 15px;
+      margin:0px;
+      font-weight:normal;
+      background-color:#fff;
+  }
+  #navbar > ul > li.dropdown.open > ul > li:hover a {
+      background-color:rgba(22,19,12,0.8);
+      color: yellow;
+  }
 }
 /* Small Devices, Tablets */
 @media only screen and (min-width: 768px) {
-	div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
-	    background-color: #fff;
-	}
+  div#navbar.navbar-collapse.collapse.in { /* Background color of dropdown menu parent */
+      background-color: #fff;
+  }
 }
 /* Medium Devices, Desktops */
 @media only screen and (min-width: 992px) {
-	
+
 }
 /* Large Devices, Wide Screens */
 @media only screen and (min-width: 1200px) {
-	
+
 }
