@@ -1143,7 +1143,8 @@ button .full-width {
 #dialogSelectAPayrollAssistant,
 #dialogConfirmDeleteCompanyHoliday,
 #dialogConfirmEditSchedule,
-#warningEmailOverridesTurnedOff {
+#warningEmailOverridesTurnedOff,
+#dialogDateIsUnavailableForSelection {
     display: none;
 }
 

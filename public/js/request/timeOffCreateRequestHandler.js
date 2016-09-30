@@ -498,11 +498,21 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
 
+    /**
+     * Checks if we should mark days to delete or actually delete them.
+     * Reason: On the "Review Request" screen, such as when request is in Pending Manager Approval
+     * or Pending Payroll Approval status, we handle things differently than on the Create
+     * New Request screen. So if a Manager or Payroll delete or add dates to an existing request,
+     * we want to keep history of the changes.
+     */
     this.getMethodToModifyDates = function() {
         var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
         return ( isHandledFromReviewRequestScreen ? 'mark' : 'do' );
     }
 
+    /**
+     * Pop up a dialog box and return the user's answer really want to take a company holiday off.
+     */
     this.confirmIfUserWantsToRequestOffCompanyHoliday = function() {
        var defer = $.Deferred();
        $("#dialogConfirmSelectHoliday").dialog({
@@ -522,6 +532,9 @@ var timeOffCreateRequestHandler = new function() {
       return defer.promise();
     }
     
+    /**
+     * Pop up a dialog box and return user's answer if they want to edit their schedule.
+     */
     this.confirmIfUserWantsToEditSchedule = function() {
         var defer = $.Deferred();
         $("#dialogConfirmEditSchedule").dialog({
@@ -540,6 +553,21 @@ var timeOffCreateRequestHandler = new function() {
          });
        return defer.promise();
      }
+    
+    /**
+     * Pop up a dialog box to warn the user that they can't take a disabled day off.
+     */
+    this.alertUserDateIsUnavailableForSelection = function() {
+        $("#dialogDateIsUnavailableForSelection").dialog({
+             modal : true,
+             closeOnEscape: false,
+             buttons : {
+                 OK : function() {
+                   $(this).dialog("close");
+                 }
+             }
+         });
+     }
 
     /**
      * Handle clicking on a calendar date.
@@ -548,7 +576,16 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCalendarDate = function() {
         $(document).on('click', '.calendar-day', function() {
-           var selectedCalendarDateObject = $(this),
+          if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===true ) {
+            return;
+          }
+            
+          if( $(this).hasClass( 'calendar-day-disabled') ) {
+            timeOffCreateRequestHandler.alertUserDateIsUnavailableForSelection();
+            return;
+          } 
+        	
+          var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
                 method = timeOffCreateRequestHandler.getMethodToModifyDates(),
                 selectedDate = selectedCalendarDateObject.data("date"),
@@ -644,20 +681,35 @@ var timeOffCreateRequestHandler = new function() {
         });
     }
 
+    /**
+     * Return if date is a company holiday.
+     */
     this.isCompanyHoliday = function( selectedCalendarDateObject ) {
         return ( selectedCalendarDateObject.hasClass("calendar-day-holiday") ? true : false );
     }
 
+    /**
+     * Return whether we are on the review request screen or not.
+     */
     this.isHandledFromReviewRequestScreen = function() {
         return ( typeof timeOffApproveRequestHandler==="object" ? true : false );
     }
 
     /**
+     * Return whether we are on the View My Requests screen or not.
+     */
+    this.isHandledFromViewMyRequestsScreen = function() {
+        return ( typeof timeOffViewRequestHandler==="object" ? true : false );
+    }
+    
+    /**
      * Handle clicking category
      */
     this.handleClickCategory = function() {
         $(".selectTimeOffCategory").click(function() {
-            timeOffCreateRequestHandler.selectCategory($(this));
+        	if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===false ) {
+        		timeOffCreateRequestHandler.selectCategory($(this));
+        	}
         });
     }
 
@@ -1042,7 +1094,10 @@ var timeOffCreateRequestHandler = new function() {
      * Handles loading calendars after initial load
      */
     this.loadNewCalendars = function(startMonth, startYear, calendarsToLoad, request_id) {
-        $.ajax({
+    	if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===true ) {
+           selectedDatesNew = [];
+        }
+    	$.ajax({
             url : timeOffLoadCalendarUrl,
             type : 'POST',
             data : {
@@ -1064,8 +1119,10 @@ var timeOffCreateRequestHandler = new function() {
             if( calendarsToLoad==3 ) {
                 timeOffCreateRequestHandler.drawThreeCalendars(json.calendarData);
             }
-
-            timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
+            
+            if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===false ) {
+            	timeOffCreateRequestHandler.updateEmployeeSchedule( requestForEmployeeObject );
+            }
 
             /**
              * Allow manager to edit request
@@ -1621,9 +1678,6 @@ var timeOffCreateRequestHandler = new function() {
            }
            
         }
-        
-        console.log( "CHANGED DATES REQUESTED" );
-        console.log( selectedDatesNew );
     }
 
     this.getHoursToAdd = function( dateObject ) {
@@ -1670,9 +1724,6 @@ var timeOffCreateRequestHandler = new function() {
           selectedDatesNew.push( dateObject );
           timeOffCreateRequestHandler.addTime( dateObject.category, dateObject.hours );
         }
-        
-        console.log( "CHANGED DATES REQUESTED" );
-        console.log( selectedDatesNew );
     }
 
     /**
@@ -1692,7 +1743,6 @@ var timeOffCreateRequestHandler = new function() {
                 break;
 
             case 'mark':
-              console.log( selectedDatesNew[index] );
                 if( selectedDatesNew[index].hasOwnProperty('isDeleted') ) {
                     if( selectedDatesNew[index].isDeleted===true ) {
 //	                	delete selectedDatesNew[index].fieldDirty;
@@ -1709,8 +1759,6 @@ var timeOffCreateRequestHandler = new function() {
                 $('#formDirty').val('true');
                 break;
         }
-        console.log( "CHANGED DATES REQUESTED" );
-        console.log( selectedDatesNew );
     }
 
     this.getHoursRequestedHeader = function() {
