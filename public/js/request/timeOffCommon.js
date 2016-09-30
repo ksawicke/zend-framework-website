@@ -6,10 +6,10 @@ var timeOffCommon = new function ()
 {
     var timeOffSubmitEmployeeScheduleRequestUrl = phpVars.basePath + '/api/employee-schedule',
         employeeScheduleFormErrors = 0;
-    
+
     /**
      * What to run on initialize of this class.
-     * 
+     *
      * @returns {undefined}
      */
     this.initialize = function () {
@@ -17,11 +17,11 @@ var timeOffCommon = new function ()
             timeOffCommon.fadeOutFlashMessage();
             timeOffCommon.autoOpenDropdownOnHover();
             timeOffCommon.handleToggleLegend();
-            
+
             $( "#dialogEditEmployeeSchedule" ).on( "dialogopen", function( event, ui ) {
                 $('#employeeScheduleForm').parsley().validate();
             });
-            
+
             $( "form#employeeScheduleForm :input" ).on( 'blur', function() {
                 if( timeOffCommon.checkFormValidates() ) {
                     timeOffCommon.setEmployeeScheduleFormError( 'success' );
@@ -29,7 +29,7 @@ var timeOffCommon = new function ()
                     timeOffCommon.setEmployeeScheduleFormError( 'error' );
                 }
             });
-            
+
             $( ".launchDialogEditEmployeeSchedule" ).on( 'click', function() {
                 $("#dialogEditEmployeeSchedule").dialog({
                     modal : true,
@@ -51,14 +51,14 @@ var timeOffCommon = new function ()
                     }
                 });
             });
-            
+
             $('#employeeScheduleForm').parsley( { showErrors: true } );
         });
     }
-    
+
     /**
      * Sets error message for the Employee Schedule form.
-     * 
+     *
      * @param {type} type
      * @returns {undefined}
      */
@@ -68,17 +68,17 @@ var timeOffCommon = new function ()
                 $('.employeeScheduleFormValidates').addClass('hidden');
                 $('.employeeScheduleDailyHoursExceeded').removeClass('hidden');
                 break;
-                
+
             case 'uploadError':
                 $('.employeeScheduleFormValidates').addClass('hidden');
                 $('.employeeScheduleUploadError').removeClass('hidden');
                 break;
-                
+
             case 'saveError':
                 $('.employeeScheduleFormValidates').addClass('hidden');
                 $('.employeeScheduleSaveError').removeClass('hidden');
                 break;
-                
+
             case 'success':
             default:
                 $('.employeeScheduleFormValidates').removeClass('hidden');
@@ -86,10 +86,10 @@ var timeOffCommon = new function ()
                 break;
         }
     }
-    
+
     /**
      * Validate the number of hours input.
-     * 
+     *
      * @param {type} hours
      * @returns {Boolean}
      */
@@ -99,10 +99,10 @@ var timeOffCommon = new function ()
         }
         return false;
     }
-    
+
     /**
      * Check if the form validates
-     * 
+     *
      * @returns {_L5.checkFormValidates.validates|Boolean}
      */
     this.checkFormValidates = function() {
@@ -116,10 +116,10 @@ var timeOffCommon = new function ()
             timeOffCommon.validateNumberHours( $("#employeeScheduleSAT").val() ) ) {
                 validates = true;
         }
-        
+
         return validates;
     }
-    
+
     this.submitEmployeeScheduleUpdate = function () {
         var validates = timeOffCommon.checkFormValidates();
         if( validates==true ) {
@@ -157,7 +157,7 @@ var timeOffCommon = new function ()
             timeOffCommon.setEmployeeScheduleFormError( 'error' );
         }
     }
-    
+
     /**
      * Fade out flash messages automatically.
      */
@@ -171,34 +171,34 @@ var timeOffCommon = new function ()
             }
         }, 1000);
     }
-    
+
     /**
      * Handles the site navigation menus on hover.
-     * 
+     *
      * @returns {undefined}
      */
     this.autoOpenDropdownOnHover = function() {
-        $(".dropdown").hover(            
+        $(".dropdown").hover(
             function() {
                 $('.dropdown-menu', this).stop( true, true ).fadeIn("fast");
                 $(this).toggleClass('open');
-                $('b', this).toggleClass("caret caret-up");                
+                $('b', this).toggleClass("caret caret-up");
             },
             function() {
                 $('.dropdown-menu', this).stop( true, true ).fadeOut("fast");
                 $(this).toggleClass('open');
-                $('b', this).toggleClass("caret caret-up");                
+                $('b', this).toggleClass("caret caret-up");
             });
     }
-    
+
     this.empty = function(data) {
         if(typeof(data) == 'number' || typeof(data) == 'boolean')
-        { 
-          return false; 
+        {
+          return false;
         }
         if(typeof(data) == 'undefined' || data === null)
         {
-          return true; 
+          return true;
         }
         if(typeof(data.length) != 'undefined')
         {
@@ -214,7 +214,7 @@ var timeOffCommon = new function ()
         }
         return count == 0;
     }
-    
+
     /**
      * Toggle the category color legend
      */
@@ -223,9 +223,9 @@ var timeOffCommon = new function ()
             timeOffCommon.toggleLegend();
         });
     }
-    
+
     /**
-     * Toggle the calendar legend showing the wonderful color system for categories. 
+     * Toggle the calendar legend showing the wonderful color system for categories.
      *
      * @returns {undefined}     */
     this.toggleLegend = function() {
