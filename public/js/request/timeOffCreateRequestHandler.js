@@ -259,8 +259,6 @@ var timeOffCreateRequestHandler = new function() {
         }
     }
 
-
-
     this.handleNewRequestFormIsUpdated = function() {
       $('#newTimeOffRequestForm').on('change', function() {
         timeOffCreateRequestHandler.checkAndSetFormWarnings();
@@ -404,7 +402,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededSickHours = function() {
       var validates = false;
-      if( +totalSickRequested > +requestForEmployeeObject.SICK_REMAINING ) {
+      if( +totalSickRequested > 0 && +totalSickRequested > +requestForEmployeeObject.SICK_REMAINING ) {
         validates = true;
       }
       return validates;
@@ -415,7 +413,7 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyExceededGrandfatheredHours = function() {
       var validates = false;
-      if( +totalGrandfatheredRequested > +requestForEmployeeObject.GF_REMAINING ) {
+      if( +totalGrandfatheredRequested > 0 && +totalGrandfatheredRequested > +requestForEmployeeObject.GF_REMAINING ) {
         validates = true;
       }
       return validates;
@@ -453,6 +451,7 @@ var timeOffCreateRequestHandler = new function() {
       validatesGrandfathered = timeOffCreateRequestHandler.verifyExceededGrandfatheredHours();
       validates = ( (validatesPTO || validatesFloat || validatesSick || validatesGrandfathered) ? true : false );
       validatesObject = { validates: validates, PTO: validatesPTO, Float: validatesFloat, Sick: validatesSick, Grandfathered: validatesGrandfathered };
+      
       return validatesObject;
     }
 
