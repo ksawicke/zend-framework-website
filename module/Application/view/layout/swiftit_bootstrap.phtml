@@ -179,6 +179,9 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Requests <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">My Requests</a></li>
+                                <?php if( $this->isManager=="Y" || $this->isSupervisor=="Y" || $this->isProxyForManager=="Y" ) { ?>
+                                	<li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/my-employees-requests">My Employee's Requests</a></li>
+                                <?php } ?>
                                 <li><a href="<?php echo $this->basepath(); ?>/request/create">New</a></li>
                             </ul>
                         </li>

@@ -38,15 +38,16 @@ class RequestController extends AbstractActionController
     ];
 
     public $managerViewName = [
-        'pending-manager-approval' => 'Pending Manager Approval'
+        'my-employees-requests' => 'My Employee\'s Requests',
+        'pending-manager-approval' => 'Pending Manager Approval Queue'
     ];
 
     public $payrollViewName = [
-        'update-checks' => 'Update Checks',
-        'pending-payroll-approval' => 'Pending Payroll Approval',
-        'completed-pafs' => 'Completed PAFs',
-        'pending-as400-upload' => 'Pending AS400 Upload',
-        'denied' => 'Denied',
+        'update-checks' => 'Update Checks Queue',
+        'pending-payroll-approval' => 'Pending Payroll Approval Queue',
+        'completed-pafs' => 'Completed PAFs Queue',
+        'pending-as400-upload' => 'Pending AS400 Upload Queue',
+        'denied' => 'Denied Queue',
         'by-status' => 'By Status',
         'manager-action' => 'Manager Action Needed'
     ];
@@ -325,12 +326,38 @@ class RequestController extends AbstractActionController
             'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
             'isProxyForManager' => $isProxyForManager,
             'managerView' => $managerView,
-            'managerViewName' => $this->managerViewName[$managerView],
+            'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => $this->getFlashMessages()
         ]);
         $view->setTemplate( 'request/manager-queues/manager-queue.phtml' );
         return $view;
+    }
+
+    /**
+     * Returns a manager view/queue name.
+     *
+     * @param string $key
+     */
+    protected function getManagerViewName( $key = null ) {
+        $managerViewName = 'View Requests';
+        if( array_key_exists( $key, $this->managerViewName ) ) {
+            $managerViewName =  $this->managerViewName[$key];
+        }
+        return $managerViewName;
+    }
+
+    /**
+     * Returns a payroll view/queue name.
+     *
+     * @param string $key
+     */
+    protected function getPayrollViewName( $key = null ) {
+        $payrollViewName = 'View Requests';
+        if( array_key_exists( $key, $this->payrollViewName ) ) {
+            $payrollViewName =  $this->payrollViewName[$key];
+        }
+        return $payrollViewName;
     }
 
     /**

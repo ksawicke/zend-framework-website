@@ -219,7 +219,6 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-
             'submittedForApproval' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

@@ -9,7 +9,47 @@ var timeOffManagerQueueHandler = new function ()
      */
     this.initialize = function () {
         $(document).ready(function () {
+        	timeOffManagerQueueHandler.loadManagerEmployeeRequestsView(); // Not under Queue menu but easiest to implement
             timeOffManagerQueueHandler.loadPendingManagerApprovalQueue();
+        });
+    }
+    
+    this.loadManagerEmployeeRequestsView = function() {
+    	$('#manager-queue-my-employees-requests').DataTable({
+            dom: 'fltirp',
+            searching: true,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='" + phpVars.basePath +  "/img/loading/clock.gif'>"
+            },
+            columns: [
+                {"data": "EMPLOYEE_DESCRIPTION"},
+                {"data": "APPROVER_QUEUE"},
+                {"data": "REQUEST_STATUS_DESCRIPTION"},
+                {"data": "REQUESTED_HOURS"},
+                {"data": "REQUEST_REASON"},
+                {"data": "MIN_DATE_REQUESTED"},
+                {"data": "ACTIONS"}
+            ],
+            order: [],
+            columnDefs: [{"orderable": false,
+                    "targets": [1, 2, 3, 4, 6]
+                },
+                { className: "breakLongWord", "targets": [ 4 ] }
+            ],
+            ajax: {
+                url: phpVars.basePath + "/api/queue/manager/my-employees-requests",
+                data: function (d) {
+                    return $.extend({}, d, {
+                        "employeeNumber": phpVars.employee_number
+                    });
+                },
+                type: "POST",
+            }
+        })
+        .on("error.dt", function (e, settings, techNote, message) {
+            console.log("An error has been reported by DataTables: ", message);
         });
     }
 
@@ -43,7 +83,7 @@ var timeOffManagerQueueHandler = new function ()
                 { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
-                url: phpVars.basePath + "/api/queue/manager/p",
+                url: phpVars.basePath + "/api/queue/manager/pending-manager-approval",
                 data: function (d) {
                     return $.extend({}, d, {
                         "employeeNumber": phpVars.employee_number

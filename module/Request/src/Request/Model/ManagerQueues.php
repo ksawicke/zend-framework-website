@@ -24,12 +24,12 @@ class ManagerQueues extends BaseDB {
     }
 
     /**
-     * Get count of Manager Queue data
+     * Get count of Pending Manager Approval Queue data
      *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
-    public function countManagerQueueItems( $data = null, $isFiltered = false )
+    public function countPendingManagerApprovalQueueItems( $data = null, $isFiltered = false )
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
@@ -67,12 +67,12 @@ class ManagerQueues extends BaseDB {
     }
 
     /**
-     * Get Manager Queue data to display in data table.
+     * Get Pending Manager Approval Queue data to display in data table.
      *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return array
      */
-    public function getManagerQueue( $data = null, $proxyFor = null ) {
+    public function getPendingManagerApprovalQueue( $data = null, $proxyFor = null ) {
 
         $careGetManagerEmployees = "SELECT
         EMPLOYEE_ID AS EMPLOYEE_NUMBER,
