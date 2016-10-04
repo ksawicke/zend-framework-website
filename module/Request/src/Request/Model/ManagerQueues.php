@@ -192,7 +192,7 @@ class ManagerQueues extends BaseDB {
                 CASE WHEN status.DESCRIPTION IN('Pending Manager Approval') THEN
                     TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')'
                 ELSE
-                    CASE WHEN status.DESCRIPTION IN('Pending Payroll Approval') THEN 'PAYROLL' ELSE '' END
+                    CASE WHEN status.DESCRIPTION IN('Pending Payroll Approval','Update Checks') THEN 'PAYROLL' ELSE '' END
                 END
                 as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
