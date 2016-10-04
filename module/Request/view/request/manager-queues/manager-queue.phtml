@@ -18,6 +18,11 @@
     </thead>
 </table>
 
+<?php if( $this->managerView === 'my-employees-requests') { ?>
+    <br />
+    <a href="<?php echo $this->basePath(); ?>/request/download-report-my-employees-requests"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+<?php } ?>
+
 <?php } else { ?>
 
 <div class="alert alert-danger" role="alert">

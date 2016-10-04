@@ -232,6 +232,19 @@ $config = [
                 'child_routes' => []
             ],
 
+            'downloadMyEmployeesRequests' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/download-report-my-employees-requests',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'downloadMyEmployeesRequests'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+
             'downloadReportManagerActionNeeded' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

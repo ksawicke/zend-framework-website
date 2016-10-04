@@ -56,12 +56,12 @@ class QueueApi extends ApiController {
     {
         switch( $this->params()->fromRoute('manager-queue') ) {
             case 'my-employees-requests':
-                return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST ) );
+                return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST, [] ) );
                 break;
 
             case 'pending-manager-approval':
             default:
-                return new JsonModel( $this->getPendingManagerApprovalQueueDatatable( $_POST ) );
+                return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST, ['P'] ) );
                 break;
         }
     }
@@ -126,78 +126,12 @@ class QueueApi extends ApiController {
     }
 
     /**
-     * Get data for the Manager View My Employee's Requests view.
-     *
-     * @param array $data
-     * @return array
-     */
-    public function getManagerEmployeesRequestsDatatable( $data = null ) {
-        /**
-         * return empty result if not called by Datatable
-         */
-        if ( !array_key_exists( 'draw', $data ) ) {
-            return [ ];
-        }
-
-        /**
-         * increase draw counter for adatatable
-         */
-        $draw = $data['draw'] ++;
-
-        $ManagerQueues = new \Request\Model\ManagerQueues();
-        $Employee = new Employee();
-        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $_POST['employeeNumber']);
-
-        $proxyFor = [];
-        foreach ( $proxyForEntries as $proxy) {
-            $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
-        }
-
-        $queueData = $ManagerQueues->getPendingManagerApprovalQueue( $_POST, $proxyFor );
-
-        $data = [];
-        foreach ( $queueData as $ctr => $request ) {
-            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
-
-            $data[] = [
-                'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
-                'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
-                'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
-                'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
-                'REQUEST_REASON' => $request['REQUEST_REASON'],
-                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 3 days' ),
-                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
-            ];
-        }
-
-        $recordsTotal = $ManagerQueues->countPendingManagerApprovalQueueItems( $_POST, false );
-        $recordsFiltered = $ManagerQueues->countPendingManagerApprovalQueueItems( $_POST, true );
-
-        /**
-         * prepare return result
-         */
-        $result = array(
-            "status" => "success",
-            "message" => "data loaded",
-            "draw" => $draw,
-            "data" => $data,
-            "recordsTotal" => $recordsTotal,
-            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
-        );
-
-        /**
-         * return result
-         */
-        return $result;
-    }
-
-    /**
      * Get data for the Pending Manager Approval Queue datatable.
      *
      * @param array $data
      * @return array
      */
-    public function getPendingManagerApprovalQueueDatatable( $data = null ) {
+    public function getManagerEmployeesRequestsDatatable( $data = null, $statuses = [] ) {
         /**
          * return empty result if not called by Datatable
          */
@@ -219,7 +153,7 @@ class QueueApi extends ApiController {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
         }
 
-        $queueData = $ManagerQueues->getPendingManagerApprovalQueue( $_POST, $proxyFor );
+        $queueData = $ManagerQueues->getManagerEmployeeRequests( $_POST, $proxyFor, $statuses );
 
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
@@ -236,8 +170,8 @@ class QueueApi extends ApiController {
             ];
         }
 
-        $recordsTotal = $ManagerQueues->countPendingManagerApprovalQueueItems( $_POST, false );
-        $recordsFiltered = $ManagerQueues->countPendingManagerApprovalQueueItems( $_POST, true );
+        $recordsTotal = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, false, $proxyFor, $statuses );
+        $recordsFiltered = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, true, $proxyFor, $statuses );
 
         /**
          * prepare return result

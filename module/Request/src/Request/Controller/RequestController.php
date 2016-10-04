@@ -462,6 +462,24 @@ class RequestController extends AbstractActionController
                ];
     }
 
+    public function downloadMyEmployeesRequestsAction()
+    {
+        $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $queue = $this->params()->fromRoute('queue');
+        $ManagerQueues = new \Request\Model\ManagerQueues();
+        $Employee = new Employee();
+        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber']);
+        $proxyFor = [];
+        foreach ( $proxyForEntries as $proxy) {
+            $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
+        }
+        $queueData = $ManagerQueues->getManagerEmployeeRequests( $data, $proxyFor,  [] );
+
+        $this->outputReportMyEmployeesRequests( $queueData );
+
+        exit;
+    }
+
     public function downloadReportManagerActionNeededAction()
     {
         $queue = $this->params()->fromRoute('queue');
@@ -482,6 +500,13 @@ class RequestController extends AbstractActionController
         $this->outputUpdatesCheckQueue( $queueData );
 
         exit;
+    }
+
+    private function outputReportMyEmployeesRequests( $spreadsheetRows = [] )
+    {
+        echo '<pre>';
+        var_dump( $spreadsheetRows );
+        die();
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
