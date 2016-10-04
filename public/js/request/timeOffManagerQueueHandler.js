@@ -15,7 +15,7 @@ var timeOffManagerQueueHandler = new function ()
     }
     
     this.loadManagerEmployeeRequestsView = function() {
-    	$('#manager-queue-my-employees-requests').DataTable({
+    	$('#manager-queue-my-employee-requests').DataTable({
             dom: 'fltirp',
             searching: true,
             processing: true,
@@ -39,7 +39,7 @@ var timeOffManagerQueueHandler = new function ()
                 { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
-                url: phpVars.basePath + "/api/queue/manager/my-employees-requests",
+                url: phpVars.basePath + "/api/queue/manager/my-employee-requests",
                 data: function (d) {
                     return $.extend({}, d, {
                         "employeeNumber": phpVars.employee_number
@@ -48,7 +48,7 @@ var timeOffManagerQueueHandler = new function ()
                 type: "POST",
             },
             initComplete: function () {
-                var table = $('#manager-queue-my-employees-requests').DataTable();
+                var table = $('#manager-queue-my-employee-requests').DataTable();
 
                 table.columns().every( function () {
                     var column = this;

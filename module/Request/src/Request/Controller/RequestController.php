@@ -39,7 +39,7 @@ class RequestController extends AbstractActionController
     ];
 
     public $managerViewName = [
-        'my-employees-requests' => 'My Employee Requests',
+        'my-employee-requests' => 'My Employee Requests',
         'pending-manager-approval' => 'Pending Manager Approval Queue'
     ];
 
@@ -463,7 +463,7 @@ class RequestController extends AbstractActionController
                ];
     }
 
-    public function downloadMyEmployeesRequestsAction()
+    public function downloadMyEmployeeRequestsAction()
     {
         $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
         $queue = $this->params()->fromRoute('queue');
@@ -476,7 +476,7 @@ class RequestController extends AbstractActionController
         }
         $queueData = $ManagerQueues->getManagerEmployeeRequests( $data, $proxyFor,  [] );
 
-        $this->outputReportMyEmployeesRequests( $queueData );
+        $this->outputReportMyEmployeeRequests( $queueData );
 
         exit;
     }
@@ -503,7 +503,7 @@ class RequestController extends AbstractActionController
         exit;
     }
 
-    private function outputReportMyEmployeesRequests( $spreadsheetRows = [] )
+    private function outputReportMyEmployeeRequests( $spreadsheetRows = [] )
     {
         $objPHPExcel = new PHPExcel();
         $phpColor = new PHPExcel_Style_Color();

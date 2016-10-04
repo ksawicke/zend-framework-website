@@ -180,7 +180,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">My Requests</a></li>
                                 <?php if( $this->isManager=="Y" || $this->isSupervisor=="Y" || $this->isProxyForManager=="Y" ) { ?>
-                                	<li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/my-employees-requests">My Employee's Requests</a></li>
+                                	<li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/my-employee-requests">My Employee Requests</a></li>
                                 <?php } ?>
                                 <li><a href="<?php echo $this->basepath(); ?>/request/create">New</a></li>
                             </ul>

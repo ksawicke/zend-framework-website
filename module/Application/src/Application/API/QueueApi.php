@@ -55,7 +55,7 @@ class QueueApi extends ApiController {
     public function getManagerQueueAction()
     {
         switch( $this->params()->fromRoute('manager-queue') ) {
-            case 'my-employees-requests':
+            case 'my-employee-requests':
                 return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST, [] ) );
                 break;
 
