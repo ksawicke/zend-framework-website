@@ -543,8 +543,8 @@ class RequestController extends AbstractActionController
 
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
-            $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
-            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
+            $minDateRequested = date( "Y-m-d", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("Y-m-d", strtotime("-3 days", strtotime(date("m/d/Y"))));
 
             $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
@@ -553,11 +553,12 @@ class RequestController extends AbstractActionController
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
                 \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
-            if( $minDateRequested < $dateToCompare ) {
+            if( $minDateRequested <= $dateToCompare ) {
                 $phpColor->setRGB('ff0000');
                 $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+                $worksheet->getStyle('F'.($key+2))->getFont()->setBold(true);
             }
-            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+            $worksheet->setCellValue('F'.($key+2), date( "m/d/Y", strtotime( $minDateRequested ) ) );
         }
 
         // Redirect output to a client's web browser (Excel2007)
@@ -600,8 +601,8 @@ class RequestController extends AbstractActionController
 
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
-            $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
-            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
+            $minDateRequested = date( "Y-m-d", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("Y-m-d", strtotime("-3 days", strtotime(date("m/d/Y"))));
 
             $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION_ALT', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
@@ -613,8 +614,9 @@ class RequestController extends AbstractActionController
             if( $minDateRequested <= $dateToCompare ) {
                 $phpColor->setRGB('ff0000');
                 $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+                $worksheet->getStyle('F'.($key+2))->getFont()->setBold(true);
             }
-            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+            $worksheet->setCellValue('F'.($key+2), date( "m/d/Y", strtotime( $minDateRequested ) ) );
         }
 
         // Redirect output to a client's web browser (Excel2007)
