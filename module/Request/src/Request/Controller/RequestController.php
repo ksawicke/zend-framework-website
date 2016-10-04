@@ -310,6 +310,11 @@ class RequestController extends AbstractActionController
     public function viewManagerQueueAction()
     {
         $managerView = $this->params()->fromRoute('manager-view');
+        if( !in_array( $managerView, ['pending-manager-approval','my-employee-requests'] ) ) {
+            $this->flashMessenger()->addWarningMessage('Not a valid queue.');
+            return $this->redirect()->toRoute('home');
+            exit;
+        }
         $Employee = new \Request\Model\Employee();
         $isLoggedInUserManager = $Employee->isManager($this->employeeNumber);
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
@@ -317,7 +322,7 @@ class RequestController extends AbstractActionController
         $isProxyForManager = $Employee->isProxyForManager($this->employeeNumber);
         if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y" && $isProxyForManager!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
-            return $this->redirect()->toRoute('create');
+            return $this->redirect()->toRoute('home');
         }
 
         $this->layout()->setVariable( 'managerView', $managerView );
@@ -369,13 +374,17 @@ class RequestController extends AbstractActionController
     public function viewPayrollQueueAction()
     {
         $payrollView = $this->params()->fromRoute('payroll-view');
+        if( !in_array( $payrollView, ['by-status','completed-pafs','denied','manager-action','pending-as400-upload','pending-payroll-approval','update-checks'] ) ) {
+            $this->flashMessenger()->addWarningMessage('Not a valid queue.');
+            return $this->redirect()->toRoute('home');
+        }
         $Employee = new \Request\Model\Employee();
         $isPayroll = $Employee->isPayroll( $this->employeeNumber );
         $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
 
         if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
-            return $this->redirect()->toRoute('create');
+            return $this->redirect()->toRoute('home');
         }
 
         $this->layout()->setVariable( 'payrollView', $payrollView );
