@@ -55,9 +55,13 @@ class QueueApi extends ApiController {
     public function getManagerQueueAction()
     {
         switch( $this->params()->fromRoute('manager-queue') ) {
+            case 'my-employees-requests':
+                return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST, [] ) );
+                break;
+
             case 'pending-manager-approval':
             default:
-                return new JsonModel( $this->getPendingManagerApprovalQueueDatatable( $_POST ) );
+                return new JsonModel( $this->getManagerEmployeesRequestsDatatable( $_POST, ['P'] ) );
                 break;
         }
     }
@@ -127,7 +131,7 @@ class QueueApi extends ApiController {
      * @param array $data
      * @return array
      */
-    public function getPendingManagerApprovalQueueDatatable( $data = null ) {
+    public function getManagerEmployeesRequestsDatatable( $data = null, $statuses = [] ) {
         /**
          * return empty result if not called by Datatable
          */
@@ -149,7 +153,7 @@ class QueueApi extends ApiController {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
         }
 
-        $queueData = $ManagerQueues->getManagerQueue( $_POST, $proxyFor );
+        $queueData = $ManagerQueues->getManagerEmployeeRequests( $_POST, $proxyFor, $statuses );
 
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
@@ -166,8 +170,8 @@ class QueueApi extends ApiController {
             ];
         }
 
-        $recordsTotal = $ManagerQueues->countManagerQueueItems( $_POST, false );
-        $recordsFiltered = $ManagerQueues->countManagerQueueItems( $_POST, true );
+        $recordsTotal = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, false, $proxyFor, $statuses );
+        $recordsFiltered = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, true, $proxyFor, $statuses );
 
         /**
          * prepare return result

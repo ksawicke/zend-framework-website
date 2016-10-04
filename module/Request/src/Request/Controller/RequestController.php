@@ -16,6 +16,7 @@ use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
 use PHPExcel;
 use PHPExcel_Style_NumberFormat;
+use PHPExcel_Style_Color;
 use PHPExcel_IOFactory;
 // use Request\Helper\PHPExcel\PHPExcel;
 // use PHPExcel_Style_NumberFormat;
@@ -38,15 +39,16 @@ class RequestController extends AbstractActionController
     ];
 
     public $managerViewName = [
-        'pending-manager-approval' => 'Pending Manager Approval'
+        'my-employees-requests' => 'My Employee\'s Requests',
+        'pending-manager-approval' => 'Pending Manager Approval Queue'
     ];
 
     public $payrollViewName = [
-        'update-checks' => 'Update Checks',
-        'pending-payroll-approval' => 'Pending Payroll Approval',
-        'completed-pafs' => 'Completed PAFs',
-        'pending-as400-upload' => 'Pending AS400 Upload',
-        'denied' => 'Denied',
+        'update-checks' => 'Update Checks Queue',
+        'pending-payroll-approval' => 'Pending Payroll Approval Queue',
+        'completed-pafs' => 'Completed PAFs Queue',
+        'pending-as400-upload' => 'Pending AS400 Upload Queue',
+        'denied' => 'Denied Queue',
         'by-status' => 'By Status',
         'manager-action' => 'Manager Action Needed'
     ];
@@ -325,12 +327,38 @@ class RequestController extends AbstractActionController
             'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
             'isProxyForManager' => $isProxyForManager,
             'managerView' => $managerView,
-            'managerViewName' => $this->managerViewName[$managerView],
+            'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => $this->getFlashMessages()
         ]);
         $view->setTemplate( 'request/manager-queues/manager-queue.phtml' );
         return $view;
+    }
+
+    /**
+     * Returns a manager view/queue name.
+     *
+     * @param string $key
+     */
+    protected function getManagerViewName( $key = null ) {
+        $managerViewName = 'View Requests';
+        if( array_key_exists( $key, $this->managerViewName ) ) {
+            $managerViewName =  $this->managerViewName[$key];
+        }
+        return $managerViewName;
+    }
+
+    /**
+     * Returns a payroll view/queue name.
+     *
+     * @param string $key
+     */
+    protected function getPayrollViewName( $key = null ) {
+        $payrollViewName = 'View Requests';
+        if( array_key_exists( $key, $this->payrollViewName ) ) {
+            $payrollViewName =  $this->payrollViewName[$key];
+        }
+        return $payrollViewName;
     }
 
     /**
@@ -435,6 +463,24 @@ class RequestController extends AbstractActionController
                ];
     }
 
+    public function downloadMyEmployeesRequestsAction()
+    {
+        $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $queue = $this->params()->fromRoute('queue');
+        $ManagerQueues = new \Request\Model\ManagerQueues();
+        $Employee = new Employee();
+        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber']);
+        $proxyFor = [];
+        foreach ( $proxyForEntries as $proxy) {
+            $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
+        }
+        $queueData = $ManagerQueues->getManagerEmployeeRequests( $data, $proxyFor,  [] );
+
+        $this->outputReportMyEmployeesRequests( $queueData );
+
+        exit;
+    }
+
     public function downloadReportManagerActionNeededAction()
     {
         $queue = $this->params()->fromRoute('queue');
@@ -457,12 +503,11 @@ class RequestController extends AbstractActionController
         exit;
     }
 
-    private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
+    private function outputReportMyEmployeesRequests( $spreadsheetRows = [] )
     {
-        /** Include PHPExcel */
-        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-        require_once( $path );
-        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel = new PHPExcel();
+        $phpColor = new PHPExcel_Style_Color();
+        $phpColor->setRGB('000000');
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -490,14 +535,76 @@ class RequestController extends AbstractActionController
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
 
-            $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT']);
+            $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
             $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
             $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
                 \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
+            if( $minDateRequested < $dateToCompare ) {
+                $phpColor->setRGB('ff0000');
+                $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+            }
+            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+        }
+
+        // Redirect output to a client's web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
+    {
+        $objPHPExcel = new PHPExcel();
+        $phpColor = new PHPExcel_Style_Color();
+        $phpColor->setRGB('000000');
+
+        // Initialize spreadsheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet = $objPHPExcel->getActiveSheet();
+        $worksheet->setTitle('test worksheet');
+        $worksheet->setCellValue('A1', 'Employee');
+        $worksheet->setCellValue('B1', 'Approver Queue');
+        $worksheet->setCellValue('C1', 'Request Status');
+        $worksheet->setCellValue('D1', 'Hours Requested');
+        $worksheet->setCellValue('E1', 'Request Reason');
+        $worksheet->setCellValue('F1', 'First Day Requested');
+        $worksheet->getStyle('A1')->getFont()->setBold(true);
+        $worksheet->getStyle('B1')->getFont()->setBold(true);
+        $worksheet->getStyle('C1')->getFont()->setBold(true);
+        $worksheet->getStyle('D1')->getFont()->setBold(true);
+        $worksheet->getStyle('E1')->getFont()->setBold(true);
+        $worksheet->getStyle('F1')->getFont()->setBold(true);
+        $worksheet->getColumnDimension('A')->setWidth(16.00);
+        $worksheet->getColumnDimension('B')->setWidth(26.00);
+        $worksheet->getColumnDimension('C')->setWidth(26.00);
+        $worksheet->getColumnDimension('D')->setWidth(26.00);
+        $worksheet->getColumnDimension('E')->setWidth(16.00);
+        $worksheet->getColumnDimension('F')->setWidth(16.00);
+
+        foreach($spreadsheetRows as $key => $spreadsheetRow)
+        {
+            $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
+
+            $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION_ALT', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT'] : '' ) );
+            $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
+            $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
+            $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
+            $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
+                \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
+            $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
+            if( $minDateRequested <= $dateToCompare ) {
+                $phpColor->setRGB('ff0000');
+                $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+            }
             $worksheet->setCellValue('F'.($key+2), $minDateRequested);
         }
 
