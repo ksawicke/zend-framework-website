@@ -504,9 +504,55 @@ class RequestController extends AbstractActionController
 
     private function outputReportMyEmployeesRequests( $spreadsheetRows = [] )
     {
-        echo '<pre>';
-        var_dump( $spreadsheetRows );
-        die();
+        /** Include PHPExcel */
+        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
+        require_once( $path );
+        $objPHPExcel = new \PHPExcel();
+
+        // Initialize spreadsheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet = $objPHPExcel->getActiveSheet();
+        $worksheet->setTitle('test worksheet');
+        $worksheet->setCellValue('A1', 'Employee');
+        $worksheet->setCellValue('B1', 'Approver Queue');
+        $worksheet->setCellValue('C1', 'Request Status');
+        $worksheet->setCellValue('D1', 'Hours Requested');
+        $worksheet->setCellValue('E1', 'Request Reason');
+        $worksheet->setCellValue('F1', 'First Day Requested');
+        $worksheet->getStyle('A1')->getFont()->setBold(true);
+        $worksheet->getStyle('B1')->getFont()->setBold(true);
+        $worksheet->getStyle('C1')->getFont()->setBold(true);
+        $worksheet->getStyle('D1')->getFont()->setBold(true);
+        $worksheet->getStyle('E1')->getFont()->setBold(true);
+        $worksheet->getStyle('F1')->getFont()->setBold(true);
+        $worksheet->getColumnDimension('A')->setWidth(16.00);
+        $worksheet->getColumnDimension('B')->setWidth(26.00);
+        $worksheet->getColumnDimension('C')->setWidth(26.00);
+        $worksheet->getColumnDimension('D')->setWidth(26.00);
+        $worksheet->getColumnDimension('E')->setWidth(16.00);
+        $worksheet->getColumnDimension('F')->setWidth(16.00);
+
+        foreach($spreadsheetRows as $key => $spreadsheetRow)
+        {
+            $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+
+            $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION'] : '' ) );
+            $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
+            $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
+            $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
+            $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
+                \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
+            $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
+            $worksheet->setCellValue('F'.($key+2), $minDateRequested);
+        }
+
+        // Redirect output to a client's web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
@@ -543,7 +589,7 @@ class RequestController extends AbstractActionController
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
 
-            $worksheet->setCellValue('A'.($key+2), $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT']);
+            $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION_ALT', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
             $worksheet->setCellValue('C'.($key+2), $spreadsheetRow['REQUEST_STATUS_DESCRIPTION']);
             $worksheet->setCellValue('D'.($key+2), $spreadsheetRow['REQUESTED_HOURS']);
