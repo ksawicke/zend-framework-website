@@ -16,6 +16,7 @@ use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
 use PHPExcel;
 use PHPExcel_Style_NumberFormat;
+use PHPExcel_Style_Color;
 use PHPExcel_IOFactory;
 // use Request\Helper\PHPExcel\PHPExcel;
 // use PHPExcel_Style_NumberFormat;
@@ -504,10 +505,9 @@ class RequestController extends AbstractActionController
 
     private function outputReportMyEmployeesRequests( $spreadsheetRows = [] )
     {
-        /** Include PHPExcel */
-        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-        require_once( $path );
-        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel = new PHPExcel();
+        $phpColor = new PHPExcel_Style_Color();
+        $phpColor->setRGB('000000');
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -535,6 +535,7 @@ class RequestController extends AbstractActionController
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
 
             $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
@@ -543,6 +544,10 @@ class RequestController extends AbstractActionController
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
                 \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
+            if( $minDateRequested < $dateToCompare ) {
+                $phpColor->setRGB('ff0000');
+                $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+            }
             $worksheet->setCellValue('F'.($key+2), $minDateRequested);
         }
 
@@ -551,16 +556,15 @@ class RequestController extends AbstractActionController
         header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
     {
-        /** Include PHPExcel */
-        $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-        require_once( $path );
-        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel = new PHPExcel();
+        $phpColor = new PHPExcel_Style_Color();
+        $phpColor->setRGB('000000');
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -588,6 +592,7 @@ class RequestController extends AbstractActionController
         foreach($spreadsheetRows as $key => $spreadsheetRow)
         {
             $minDateRequested = date( "m/d/Y", strtotime( $spreadsheetRow['MIN_DATE_REQUESTED'] ) );
+            $dateToCompare = date("m/d/Y", strtotime("-3 days", strtotime(date("m/d/Y"))));
 
             $worksheet->setCellValue('A'.($key+2), ( array_key_exists( 'EMPLOYEE_DESCRIPTION_ALT', $spreadsheetRow ) ? $spreadsheetRow['EMPLOYEE_DESCRIPTION_ALT'] : '' ) );
             $worksheet->setCellValue('B'.($key+2), $spreadsheetRow['APPROVER_QUEUE']);
@@ -596,6 +601,10 @@ class RequestController extends AbstractActionController
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
                 \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
+            if( $minDateRequested <= $dateToCompare ) {
+                $phpColor->setRGB('ff0000');
+                $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
+            }
             $worksheet->setCellValue('F'.($key+2), $minDateRequested);
         }
 
