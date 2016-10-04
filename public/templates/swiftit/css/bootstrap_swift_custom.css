@@ -183,6 +183,23 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 1px solid #fff;
 }
 
+/** Bootstrap tabs **/
+ul.nav.nav-tabs li a {
+	color: #ccc;
+	background-color: #919194;
+}
+ul.nav.nav-tabs li.active a {
+	color: #000;
+	background-color: #C0AF2C;
+}
+/**
+Swift Blue: #005590
+ * Swift Gold: #C0AF2C
+ * Swift Light Grey: #CFD4D8
+ * Swift Mid Grey: #919194
+ * Swift White: #254061 **/
+/** /Bootstrap tabs **/
+
 li {
     margin-top: 30px;
 }
