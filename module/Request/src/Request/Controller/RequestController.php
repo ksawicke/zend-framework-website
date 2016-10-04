@@ -39,7 +39,7 @@ class RequestController extends AbstractActionController
     ];
 
     public $managerViewName = [
-        'my-employees-requests' => 'My Employee\'s Requests',
+        'my-employees-requests' => 'My Employee Requests',
         'pending-manager-approval' => 'Pending Manager Approval Queue'
     ];
 
