@@ -232,13 +232,13 @@ $config = [
                 'child_routes' => []
             ],
 
-            'downloadMyEmployeesRequests' => [
+            'downloadMyEmployeeRequests' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
-                    'route' => '/request/download-report-my-employees-requests',
+                    'route' => '/request/download-report-my-employee-requests',
                     'defaults' => [
                         'controller' => 'RequestController',
-                        'action' => 'downloadMyEmployeesRequests'
+                        'action' => 'downloadMyEmployeeRequests'
                     ]
                 ],
                 'may_terminate' => 1,
