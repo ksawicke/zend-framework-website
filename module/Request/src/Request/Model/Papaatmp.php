@@ -92,11 +92,6 @@ class Papaatmp extends BaseDB {
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
 
-            echo "RAW SQL:<br /><br />";
-            echo $rawSql;
-
-            die();
-
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( \Exception $e ) {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
