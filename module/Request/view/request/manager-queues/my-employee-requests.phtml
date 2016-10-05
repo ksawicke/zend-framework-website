@@ -1,0 +1,45 @@
+<h4><?php echo $managerViewName; ?></h4>
+
+<br />
+
+<?php if($isLoggedInUserManager=="Y" || $isLoggedInUserSupervisor=="Y" || $isProxyForManager=="Y" ) { ?>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#myEmployeeRequestsQueueView" data-toggle="tab"><i class="fa fa-th-list"></i> List View</a></li>
+    <li><a href="#myEmployeeRequestsCalendarView" data-toggle="tab"><i class="fa fa-calendar"></i> Calendar View</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade in active" id="myEmployeeRequestsQueueView">
+		<table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Approver queue</th>
+                    <th>Request Status</th>
+                    <th>Hours Requested</th>
+                    <th>Request Reason</th>
+                    <th>First Day<br />Requested</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+        </table>
+
+        <br />
+		<a href="<?php echo $this->basePath(); ?>/request/download-report-my-employee-requests"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+	</div>
+    <div class="tab-pane fade" id="myEmployeeRequestsCalendarView">
+    	<?php echo $this->partial( 'request/partials/my-employee-requests-calendar-view.phtml' ); ?>
+	</div>
+</div>
+
+<?php } else { ?>
+
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+  <strong>You do not have access to this page.</strong>
+</div>
+
+<?php } ?>
+
+<script type="text/javascript" src="<?php echo $this->basePath( 'js/datatables/datatables.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath( 'js/request/timeOffManagerQueueHandler.js'); ?>"></script>
