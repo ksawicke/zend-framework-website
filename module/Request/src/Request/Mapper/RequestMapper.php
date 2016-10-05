@@ -298,8 +298,8 @@ class RequestMapper implements RequestMapperInterface {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
                 ->columns($this->employeeColumns)
-                ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-                ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+                ->join(['manager' => 'PRPSP'], "employee.PREN = manager.SPEN AND employee.prer = manager.sper ", []) // $this->employeeSupervisorColumns
+                ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN and manager_addons.prer = manager.spsper', $this->supervisorAddonColumns)
                 ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '" . $employeeNumber . "'", $this->pendingRequestColumns, 'LEFT OUTER')
                 ->join(['pendingpto' => "(
               select '" . $employeeNumber . "' as employee_number, sum(entry.requested_hours) as PTO_PENDING_APPROVAL from timeoff_request_entries entry
@@ -334,7 +334,7 @@ class RequestMapper implements RequestMapperInterface {
                       entry.request_code = 'S'
                     )
                 )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
-                ->where(['trim(employee.PREN)' => trim($employeeNumber)]);
+                ->where(['trim(employee.PREN)' => trim($employeeNumber), 'employee.PREN' => '002']);
 
         // select * from papreq where reqclk# = '101639';;
         /**
@@ -485,9 +485,9 @@ class RequestMapper implements RequestMapperInterface {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(['employee' => 'PRPMS'])
             ->columns($this->employeeColumns)
-            ->join(['request' => 'TIMEOFF_REQUESTS'], 'trim(request.EMPLOYEE_NUMBER) = trim(employee.PREN)', [])
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->join(['request' => 'TIMEOFF_REQUESTS'], "trim(request.EMPLOYEE_NUMBER) = trim(employee.PREN) and employee.prer = '002'", [])
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN and employee.PRER = manager.SPER', [])
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns)
             ->where(['request.REQUEST_ID' => $requestId]);
         $result2 = \Request\Helper\ResultSetOutput::getResultRecord($sql, $select);
 
@@ -589,10 +589,10 @@ class RequestMapper implements RequestMapperInterface {
         }
 
         $select
-            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = request.EMPLOYEE_NUMBER', $this->employeeColumns)
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->join(['requester_addons' => 'PRPMS'], 'trim(requester_addons.PREN) = request.CREATE_USER', $this->requesterAddonColumns)
+            ->join(['employee' => 'PRPMS'], "trim(employee.PREN) = request.EMPLOYEE_NUMBER and employee.prer = '002'", $this->employeeColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN and employee.PRER = manager.SPER', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns)
+            ->join(['requester_addons' => 'PRPMS'], "trim(requester_addons.PREN) = request.CREATE_USER and trim(requester_addons.PRER) = '002'", $this->requesterAddonColumns)
             ->order(['entry.REQUEST_DATE ASC']);
 
         if ($requestId != null) {
@@ -814,9 +814,9 @@ class RequestMapper implements RequestMapperInterface {
                 ->columns(['REQUEST_DATE' => 'REQUEST_DATE', 'REQUESTED_HOURS' => 'REQUESTED_HOURS'])
                 ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID', [])
                 ->join(['requestcode' => 'TIMEOFF_REQUEST_CODES'], 'requestcode.REQUEST_CODE = entry.REQUEST_CODE', ['REQUEST_TYPE' => 'DESCRIPTION'])
-                ->join(['employee' => 'PRPMS'], 'trim(PREN) = request.EMPLOYEE_NUMBER', ['EMPLOYEE_NUMBER' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
+                ->join(['employee' => 'PRPMS'], "trim(PREN) = request.EMPLOYEE_NUMBER and trim(PRER) = '002'", ['EMPLOYEE_NUMBER' => 'PREN', 'LAST_NAME' => 'PRLNM', 'FIRST_NAME' => 'PRFNM']) // 'EMPLOYEENAME' => 'get_employee_common_name(employee.PRER, employee.PREN)'
                 ->where(['request.REQUEST_STATUS' => 'A',
-                    "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' )",
+                    "trim(employee.PREN) IN( SELECT trim(SPEN) as EMPLOYEE_IDS FROM PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeNumber . "' and trim(SPSPER) = '002' )",
                     "entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "'"
                 ])
                 ->order(['REQUEST_DATE ASC', 'LAST_NAME ASC', 'FIRST_NAME ASC']);
@@ -837,9 +837,9 @@ class RequestMapper implements RequestMapperInterface {
         $sql = new Sql($this->dbAdapter);
         $select = $sql->select(["data" => "table (SELECT trim(SPEN) as EMPLOYEE_NUMBER FROM sawik.PRPSP WHERE trim(SPSPEN) = '" . $managerEmployeeId . "')"]) // (care_get_manager_employees('002', '   229589', ''))
             ->columns(['EMPLOYEE_NUMBER'])
-            ->join(['employee' => 'PRPMS'], 'trim(employee.PREN) = data.EMPLOYEE_NUMBER', $this->employeeColumns)
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', []) // $this->employeeSupervisorColumns
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
+            ->join(['employee' => 'PRPMS'], "trim(employee.PREN) = data.EMPLOYEE_NUMBER and trim(employee.PRER) = '002'", $this->employeeColumns)
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN and employee.PRER = manager.SPER', []) // $this->employeeSupervisorColumns
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns)
             ->join(['pendingrequests' => 'PAPREQ'], "pendingrequests.REQCLK# = '101639'", $this->pendingRequestColumns);
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
@@ -954,11 +954,11 @@ class RequestMapper implements RequestMapperInterface {
                       CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                   ) as data
             ) hierarchy
-                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+                  ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
             INNER JOIN PRPSP manager
-                  ON employee.PREN = manager.SPEN
+                  ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
             INNER JOIN PRPMS manager_addons
-                 ON manager_addons.PREN = manager.SPSPEN
+                 ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             " . $where . "
             ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
         } else {
@@ -1015,9 +1015,9 @@ class RequestMapper implements RequestMapperInterface {
             manager_addons.PRLNM AS MANAGER_LAST_NAME, manager_addons.PREML1 AS MANAGER_EMAIL_ADDRESS
 
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+        INNER JOIN PRPMS employee ON trim(employee.PREN) = request.EMPLOYEE_NUMBER and trim(employee.PRER) = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
         INNER JOIN table (
             SELECT
                 trim(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
@@ -1028,7 +1028,7 @@ class RequestMapper implements RequestMapperInterface {
                 CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'D')
             ) as data
         ) hierarchy
-            ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+            ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
         WHERE request.REQUEST_STATUS = 'P'
         ORDER BY MIN_REQUEST_DATE ASC";
 
@@ -1074,7 +1074,7 @@ class RequestMapper implements RequestMapperInterface {
         $rawSql = "SELECT
             (CASE WHEN (SUBSTRING(PRL03,0,3) = 'PY' AND PRTEDH = 0) THEN '1' ELSE '0' END) AS IS_PAYROLL_ADMIN
             FROM PRPMS
-            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+            WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "' and TRIM(PRPMS.PRER) = '002'";
 
         $isSupervisorData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql($this->dbAdapter, $rawSql);
 

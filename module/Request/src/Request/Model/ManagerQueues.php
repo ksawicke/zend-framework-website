@@ -88,13 +88,13 @@ class ManagerQueues extends BaseDB {
                 TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN table (" .
             $careGetManagerEmployees .
             ") hierarchy
-                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
+                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $whereStatusStatement . "
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -197,13 +197,13 @@ class ManagerQueues extends BaseDB {
                 as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN table (" .
             $careGetManagerEmployees .
             ") hierarchy
-                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
+                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $whereStatusStatement . "
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA

@@ -101,9 +101,9 @@ class Employee extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
         INNER JOIN table (
             SELECT
                 EMPLOYEE_ID AS EMPLOYEE_NUMBER,
@@ -114,7 +114,7 @@ class Employee extends BaseDB {
                 CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
             ) as data
         ) hierarchy
-            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
+            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002'  = employee.PRER";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'P'";
@@ -194,9 +194,9 @@ class Employee extends BaseDB {
     TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN table (
                 SELECT
                     EMPLOYEE_ID AS EMPLOYEE_NUMBER,
@@ -207,7 +207,7 @@ class Employee extends BaseDB {
                     CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
                 ) as data
             ) hierarchy
-                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
+                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -319,7 +319,7 @@ class Employee extends BaseDB {
                            PRTEDH = 0
                         ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
                        FROM PRPMS
-                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "' and TRIM(PRPMS.PRER) = '002'";
         $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSqlPRPMS );
 
         /**
@@ -688,9 +688,9 @@ class Employee extends BaseDB {
             manager_addons.PREML1 AS DIRECT_MANAGER_EMAIL_ADDRESS
         FROM PRPMS employee
         INNER JOIN PRPSP manager
-              ON employee.PREN = manager.SPEN
+              ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
         INNER JOIN PRPMS manager_addons
-             ON manager_addons.PREN = manager.SPSPEN
+             ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
         " . $where . "
         ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
 // var_dump($rawSql);
@@ -752,11 +752,11 @@ class Employee extends BaseDB {
                           CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                       ) as data
                 ) hierarchy
-                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
                 INNER JOIN PRPSP manager
-                      ON employee.PREN = manager.SPEN
+                      ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
                 INNER JOIN PRPMS manager_addons
-                     ON manager_addons.PREN = manager.SPSPEN
+                     ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
                 " . $where . "
                 ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
     }

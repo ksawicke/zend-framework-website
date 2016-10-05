@@ -67,7 +67,7 @@ class EmployeeProxies extends BaseDB {
             TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
             p.STATUS
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
-            LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(p.PROXY_EMPLOYEE_NUMBER)
+            LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(p.PROXY_EMPLOYEE_NUMBER) and TRIM(employee.PRER) = '002'
             WHERE
                trim(p.EMPLOYEE_NUMBER) = '" . $post['employeeNumber'] . "'
             ORDER BY employee.PRLNM ASC";
