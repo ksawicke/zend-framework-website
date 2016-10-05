@@ -56,6 +56,11 @@ class RequestEntry extends BaseDB {
                 ->order(['entry.REQUEST_DATE ASC']);
         $requestEntries = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
+//         echo 'REQUEST ENTRIES<br /><br />';
+//         echo '<pre>';
+//         var_dump( $requestEntries );
+//         echo '</pre>';
+
         foreach( $requestEntries as $ctr => $entry ) {
             $request['dates'][] = [ 'hours' => $entry['REQUESTED_HOURS'], 'type' => $entry['REQUEST_CODE'], 'date' => $entry['REQUEST_DATE'] ];
         }
@@ -64,6 +69,11 @@ class RequestEntry extends BaseDB {
         $request['for']['employee_number'] = trim( $requestEntries[0]['EMPLOYEE_NUMBER'] );
 
         $request = $this->sortRequestDates( $request );
+
+//         echo 'REQUEST ENTRIES SORTED<br /><br />';
+//         echo '<pre>';
+//         var_dump( $request );
+//         echo '</pre>';
 
         $requestObject = $this->buildDateMatrix( $request );
 
@@ -124,8 +134,6 @@ class RequestEntry extends BaseDB {
 //    }
 
     public function buildDateMatrix( $request ) {
-
-        //$endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
         $endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
         $startDate = $request['dates'][0]['date'];
         $startDateObject = new \DateTime( $startDate );
@@ -145,7 +153,9 @@ class RequestEntry extends BaseDB {
         $data = [];
 
         foreach( $period as $chunk ) {
-            // Check if any have hours, if so:
+            /**
+             * Check if any have hours, if so:
+             */
             $hoursTotal = 0;
 
             $childData = $this->buildChildDateMatrix( $request, $chunk );
@@ -193,14 +203,33 @@ class RequestEntry extends BaseDB {
          */
         $period = new \DatePeriod( $startDateObject, $interval, $endDateObject );
 
-        /**
-         * loop thru passed in data
-         */
-        foreach ( $request['dates'] as $requestData ) {
+        $newDatesArray = [];
+        $currentDate = '';
+        foreach ( $request['dates'] as $requestDataObjectCounter => $requestData ) {
+            if( !array_key_exists( $requestData['date'], $newDatesArray ) ) {
+                $currentDate = $requestData['date'];
+            }
+            if( !array_key_exists( $currentDate, $newDatesArray ) ) {
+                $counter = 0;
+            } else {
+                $counter = 1;
+            }
             /**
-             * instantiate two DateTime objects from hoteldata
+             * Let's format our $requestData this way:
+             * [ '2016-09-30' => [ 0 => [ 'hours' => 4.00, 'type' => 'P' ], '1' => [ 'hours' => 8.00, 'type' => 'K' ] ],
+             *   '2016-10-01' => [ 0 => [ 'hours' => 4.00, 'type' => 'P' ], '1' => [ 'hours' => 8.00, 'type' => 'K' ] ]
+             * ]
              */
-            $offDate = new \DateTime( date('Y-m-d', strtotime( $requestData['date'] ) ));
+            $thisDateObject = new \DateTime( $currentDate );
+            $newDatesArray[$currentDate][$counter] = [ 'hours' => $requestData['hours'], 'type' => $requestData['type'],
+                'dow' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "D" ) ) : '' ) ];
+        }
+
+        foreach ( $newDatesArray as $requestDataDate => $requestData ) {
+            /**
+             * instantiate two DateTime objects
+             */
+            $offDate = new \DateTime( date('Y-m-d', strtotime( $requestDataDate ) ));
 
             /**
              * initialize array key
@@ -212,23 +241,26 @@ class RequestEntry extends BaseDB {
              */
             foreach ( $period as $dt ) {
 
+                $currentDate = $dt->format('Y-m-d');
+
                 /**
                  * pre set array index in not yet set
                  */
                 if ( !isset( $dataMatrix[$dayOfPeriod] ) ) {
-                    // do a blank one
-                    $counter = 0;
-                    $dataMatrix[$dayOfPeriod][$counter] = [ 'hours' => '0.00', 'type' => '', 'date' => $dt->format('Y-m-d') ];
-                }
-
-                /**
-                 * if day of date period matches data
-                 */
-                if ( $dt == $offDate ) {
-                    if( $dataMatrix[$dayOfPeriod][0]['hours'] != '0.00' ) {
-                        $counter++;
+                    /**
+                     * Does an entry exist for $newDatesArray[$currentDate]?
+                     */
+                    if( array_key_exists( $currentDate, $newDatesArray ) ) {
+                        if( count( $newDatesArray[$currentDate] )==1 ) {
+                            $newDatesArray[$currentDate][1] = [ 'hours' => '', 'type' => '', 'dow' => '' ];
+                        } else {
+                            $newDatesArray[$currentDate][0]['dow'] = ( !empty( $newDatesArray[$currentDate][0] ) ? strtoupper( $dt->format( "D" ) ) : '' );
+                            $newDatesArray[$currentDate][1]['dow'] = ( !empty( $newDatesArray[$currentDate][1] ) ? strtoupper( $dt->format( "D" ) ) : '' );
+                        }
+                        $dataMatrix[$currentDate] = $newDatesArray[$currentDate];
+                    } else {
+                        $dataMatrix[$currentDate] = [ 0 => [ 'hours' => '', 'type' => '', 'dow' => '' ], 1 => [ 'hours' => '', 'type' => '', 'dow' => '' ] ];
                     }
-                    $dataMatrix[$dayOfPeriod][$counter] = $requestData;
                 }
 
                 /**

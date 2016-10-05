@@ -402,6 +402,18 @@ class RequestController extends AbstractActionController
 
     public function viewMyRequestsAction()
     {
+        ///// TROUBLESHOOT PAPAATMP STUFF
+        $request_id = '101298';
+        $TimeOffRequests = new TimeOffRequests();
+        $requestData = $TimeOffRequests->findRequest( $request_id );
+        $employeeData = (array) $requestData['EMPLOYEE_DATA'];
+        $RequestEntry = new RequestEntry();
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $request_id );
+        $Papaa = new Papaatmp();
+        $Papaa->prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id );
+        die();
+        ///// END!
+
         $startDate = date("Y") . "-" . date("m") . "-01";
         $endDate = date("Y-m-t", strtotime($startDate));
         $employeeNumber = trim($this->employeeNumber);

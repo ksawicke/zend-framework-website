@@ -64,6 +64,13 @@ class Papaatmp extends BaseDB {
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "WeekEndingData" ], [ $dateCollection ] );
 
+        echo "TABLE NAME: " . $this->table . "<br />";
+        echo "DATE COLLECTION:<br /><br />";
+
+        echo "<pre>";
+        var_dump( $dateCollection );
+        echo '</pre>';
+
         for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
             $date = new \DateTime( $dateCollection[$i-1][0]['date'] );
             $weekdayAbbr = strtoupper( $date->format( "D" ) );
@@ -101,6 +108,15 @@ class Papaatmp extends BaseDB {
             $action->values( $this->collection );
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
+
+            echo "RAW SQL:<br /><br />";
+            echo $rawSql;
+
+            echo "COLLECTION:<br />";
+            echo "<pre>";
+            var_dump( $this->collection );
+            echo "</pre>";
+            die();
 
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( \Exception $e ) {
