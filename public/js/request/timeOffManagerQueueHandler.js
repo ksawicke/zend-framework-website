@@ -55,6 +55,23 @@ var timeOffManagerQueueHandler = new function ()
                     var idx = this.index();
                     var title = table.column( idx ).header();
 
+                    if( $(title).html()=="Employee" ) {
+                        var select = $('<br /><select><option value="B" selected>Both</option><option value="D">Direct Reports</option><option value="I">Indirect Reports</option></select>')
+                            .appendTo( $(column.header()) )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                console.log( "SEARCH " + val );
+
+                                column
+                                    .search( val ? val : '', true, false )
+                                    .draw();
+                            } );
+//                        column.data().unique().sort().each( function ( d, j ) {
+//                            select.append( '<option value="'+d+'">'+d+'</option>' )
+//                        } );
+                    }
                     if( $(title).html()=="Request Status" ) {
                         var select = $('<br /><select><option value="All" selected>All</option></select>')
                             .appendTo( $(column.header()) )
