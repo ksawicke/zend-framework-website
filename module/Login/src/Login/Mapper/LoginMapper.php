@@ -138,9 +138,9 @@ class LoginMapper implements LoginMapperInterface
                 'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
                 'POSITION_TITLE' => 'PRTITL'
             ])
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where(['trim(employee.PRURL1)' => strtoupper(trim($username))]);
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN AND employee.PRER = manager.SPER', [])
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN AND manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PRURL1)' => strtoupper(trim($username)), 'employee.PRER' => '002']);
 
         $data = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
@@ -168,9 +168,9 @@ class LoginMapper implements LoginMapperInterface
                 'EMPLOYEE_HIRE_DATE' => 'PRDOHE',
                 'POSITION_TITLE' => 'PRTITL'
             ])
-            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN', [])
-            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns)
-            ->where(['trim(employee.PREN)' => trim($employeeId)]);
+            ->join(['manager' => 'PRPSP'], 'employee.PREN = manager.SPEN AND employee.PRER = manager.SPER', [])
+            ->join(['manager_addons' => 'PRPMS'], 'manager_addons.PREN = manager.SPSPEN AND manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns)
+            ->where(['trim(employee.PREN)' => trim($employeeId), 'trim(employee.PRER)' => '002']);
 
         return \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
     }
@@ -226,7 +226,7 @@ class LoginMapper implements LoginMapperInterface
                            PRTEDH = 0
                         ) THEN 'Y' ELSE 'N' END) AS IS_PAYROLL_ADMIN
                        FROM PRPMS
-                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "'";
+                       WHERE TRIM(PRPMS.PREN) = '" . $employeeNumber . "' AND PRPMS.PRER = '002'";
         $dataPRPMS = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->dbAdapter, $rawSqlPRPMS );
 
         /**

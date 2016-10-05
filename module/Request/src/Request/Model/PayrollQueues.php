@@ -30,9 +30,9 @@ class PayrollQueues extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'D'";
@@ -85,9 +85,9 @@ class PayrollQueues extends BaseDB {
                 '' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'D'
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -181,10 +181,10 @@ class PayrollQueues extends BaseDB {
                 '' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-      INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
+      INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER and payroll_master_file.PYER = '002'
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $whereStatement . "
             ) AS DATA
@@ -240,10 +240,10 @@ class PayrollQueues extends BaseDB {
                 'PAYROLL' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
-            INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
+            INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER and payroll_master_file.PYER = '002'
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'U' " . $where1 . "
       ) AS DATA
@@ -284,9 +284,9 @@ class PayrollQueues extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'Y'";
@@ -334,9 +334,9 @@ class PayrollQueues extends BaseDB {
                 'PAYROLL' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'Y'
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -373,9 +373,9 @@ class PayrollQueues extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'F'";
@@ -431,9 +431,9 @@ class PayrollQueues extends BaseDB {
                 '' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'F' ) as X ";
             if (count($where) > 0) {
@@ -473,9 +473,9 @@ class PayrollQueues extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN";
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'S'";
@@ -523,9 +523,9 @@ class PayrollQueues extends BaseDB {
                 '' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'S'
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -591,9 +591,9 @@ class PayrollQueues extends BaseDB {
     TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
@@ -658,9 +658,9 @@ class PayrollQueues extends BaseDB {
                 as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS " . $where1 . "
             ORDER BY REQUEST_STATUS_DESCRIPTION ASC, MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
@@ -704,7 +704,7 @@ class PayrollQueues extends BaseDB {
 
         if( $isFiltered ) {
             if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
-                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " ";
+                $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " and TRIM(manager_addons.PRER) = '002' ";
             }
         }
 
@@ -752,9 +752,9 @@ class PayrollQueues extends BaseDB {
                 CREATE_TIMESTAMP,
                 date( CREATE_TIMESTAMP ) as CREATE_DATE
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
                   " . $singleManager . "
@@ -780,7 +780,7 @@ class PayrollQueues extends BaseDB {
         $singleManager = "";
 
         if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
-            $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND ";
+            $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND TRIM(manager_addons.PRER) = '002' AND ";
         }
 
         $where = [];
@@ -828,9 +828,9 @@ class PayrollQueues extends BaseDB {
                 CREATE_TIMESTAMP,
                 date( CREATE_TIMESTAMP ) as CREATE_DATE
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN
+            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
+            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
+            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
                   " . $singleManager . "
