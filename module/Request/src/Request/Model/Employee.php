@@ -1095,6 +1095,47 @@ class Employee extends BaseDB {
         return null;
     }
 
+    public function getEmployeeManagerEmailAddress( $employeeId = null, $employerId = '002')
+    {
+        $employeeId = str_pad(trim($employeeId), 9, ' ', STR_PAD_LEFT);
+
+        $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
+
+        foreach ($employeeHierarchy as $hierarchyRecord) {
+            if ($hierarchyRecord['MANAG00004'] == 'Manager') {
+                $employeeId = $hierarchyRecord['MANAG00002'];
+                break;
+            }
+        }
+
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('PRPMS');
+
+        $select->columns(['PREML1']);
+
+        $where = new Where();
+
+        $where->equalTo('PRER', $employerId)
+              ->and->equalTo('PREN', $employeeId);
+
+        $select->where($where);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['PREML1'];
+        }
+
+        return null;
+    }
+
     /**
      * Use Table Gateway to do queries
      *

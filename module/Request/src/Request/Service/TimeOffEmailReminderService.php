@@ -87,7 +87,7 @@ class TimeOffEmailReminderService extends AbstractActionController
             $renderedEmail = $this->renderEmail($employeeList);
 
             /* retrieve supervisor email address */
-            $supervisorEmail = $this->employeeModel->getEmployeeEmailAddress( key($emailReminder) );
+            $supervisorEmail = $this->employeeModel->getEmployeeManagerEmailAddress( key($emailReminder) );
 
             /* prepare and send email */
             $this->emailService->setTo($supervisorEmail)
