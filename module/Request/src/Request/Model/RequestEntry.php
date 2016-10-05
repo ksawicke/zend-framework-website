@@ -159,9 +159,11 @@ class RequestEntry extends BaseDB {
             $hoursTotal = 0;
 
             $childData = $this->buildChildDateMatrix( $request, $chunk );
-            foreach( $childData as $counter => $cdata ) {
-                foreach( $cdata as $cdKey => $cdValues ) {
-                    $hoursTotal += $cdValues['hours'];
+            foreach( $childData as $childDataCounter => $childDataObject ) {
+                foreach( $childDataObject as $childDataObjectCounter => $cdata ) {
+                    foreach( $cdata as $cdKey => $cdValues ) {
+                        $hoursTotal += $cdValues['hours'];
+                    }
                 }
             }
             if( $hoursTotal > 0 ) {
@@ -222,7 +224,9 @@ class RequestEntry extends BaseDB {
              */
             $thisDateObject = new \DateTime( $currentDate );
             $newDatesArray[$currentDate][$counter] = [ 'hours' => $requestData['hours'], 'type' => $requestData['type'],
-                'dow' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "D" ) ) : '' ) ];
+                'dow' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "D" ) ) : '' ),
+                'mdY' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "mdY" ) ) : '' )
+            ];
         }
 
         foreach ( $newDatesArray as $requestDataDate => $requestData ) {
@@ -255,11 +259,14 @@ class RequestEntry extends BaseDB {
                             $newDatesArray[$currentDate][1] = [ 'hours' => '', 'type' => '', 'dow' => '' ];
                         } else {
                             $newDatesArray[$currentDate][0]['dow'] = ( !empty( $newDatesArray[$currentDate][0] ) ? strtoupper( $dt->format( "D" ) ) : '' );
+                            $newDatesArray[$currentDate][0]['mdY'] = ( !empty( $newDatesArray[$currentDate][0] ) ? strtoupper( $dt->format( "mdY" ) ) : '' );
                             $newDatesArray[$currentDate][1]['dow'] = ( !empty( $newDatesArray[$currentDate][1] ) ? strtoupper( $dt->format( "D" ) ) : '' );
+                            $newDatesArray[$currentDate][1]['mdY'] = ( !empty( $newDatesArray[$currentDate][1] ) ? strtoupper( $dt->format( "mdY" ) ) : '' );
                         }
-                        $dataMatrix[$currentDate] = $newDatesArray[$currentDate];
+                        $dataMatrix[$dayOfPeriod][$currentDate] = $newDatesArray[$currentDate];
                     } else {
-                        $dataMatrix[$currentDate] = [ 0 => [ 'hours' => '', 'type' => '', 'dow' => '' ], 1 => [ 'hours' => '', 'type' => '', 'dow' => '' ] ];
+                        $dataMatrix[$dayOfPeriod][$currentDate] = [ 0 => [ 'hours' => '', 'type' => '', 'dow' => '', 'mdY' => '' ],
+                                                                    1 => [ 'hours' => '', 'type' => '', 'dow' => '', 'mdY' => '' ] ];
                     }
                 }
 

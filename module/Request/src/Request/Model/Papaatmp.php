@@ -64,28 +64,11 @@ class Papaatmp extends BaseDB {
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "EmployeeData" ], [ $employeeData ] );
         call_user_func_array( [ __NAMESPACE__ ."\Papaatmp", "WeekEndingData" ], [ $dateCollection ] );
 
-        echo "TABLE NAME: " . $this->table . "<br />";
-        echo "DATE COLLECTION:<br /><br />";
-
-        echo "<pre>";
-        var_dump( $dateCollection );
-        echo '</pre>';
-
-        for( $i = 1; $i <= count( $dateCollection ); $i++ ) {
-            $date = new \DateTime( $dateCollection[$i-1][0]['date'] );
-            $weekdayAbbr = strtoupper( $date->format( "D" ) );
-            $dateFormat = $date->format( "mdY" );
-
-            if( count( $dateCollection[$i-1] )==1 ) {
+        for( $i = 1; $i <= count( $dateCollection ) ; $i++ ) {
+            foreach( $dateCollection[$i-1] as $date => $data ) {
                 call_user_func_array(
                     [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
-                    [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1][0]['hours'], $dateCollection[$i-1][0]['type'], '0.00', '' ]
-                );
-            }
-            if( count( $dateCollection[$i-1] )==2 ) {
-                call_user_func_array(
-                    [ __NAMESPACE__ . "\Papaatmp", "Day$i" ],
-                    [ $weekdayAbbr, $dateFormat, $dateCollection[$i-1][0]['hours'], $dateCollection[$i-1][0]['type'], $dateCollection[$i-1][1]['hours'], $dateCollection[$i-1][1]['type'] ]
+                    [ $data[0]['dow'], $data[0]['mdY'], $data[0]['hours'], $data[0]['type'], $data[1]['hours'], $data[1]['type'] ]
                 );
             }
         }
@@ -112,10 +95,6 @@ class Papaatmp extends BaseDB {
             echo "RAW SQL:<br /><br />";
             echo $rawSql;
 
-            echo "COLLECTION:<br />";
-            echo "<pre>";
-            var_dump( $this->collection );
-            echo "</pre>";
             die();
 
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
@@ -148,7 +127,11 @@ class Papaatmp extends BaseDB {
     {
         $Date = new \Request\Helper\Date();
 
-        $lastDate = $dateCollection[ count( $dateCollection ) - 1 ][0]['date'];
+        $lastDate = '';
+        foreach( $dateCollection[ count( $dateCollection ) - 1 ] as $objectDate => $objectData ) {
+            $lastDate = $objectDate;
+        }
+
         $dateEnding  = new \DateTime( $lastDate );
         $weekEndingHY = $Date->convertToHYD( $lastDate );
 
