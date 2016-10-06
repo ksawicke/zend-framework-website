@@ -58,7 +58,7 @@ var timeOffManagerQueueHandler = new function ()
                     if( $(title).html()=="Employee" ) {
                         var select = $('<br /><select><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option><option value="B">Both</option></select>')
                             .appendTo( $(column.header()) )
-                            .on( 'change', function () {
+                            .on( 'select', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
                                 );
