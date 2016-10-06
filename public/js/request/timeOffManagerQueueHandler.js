@@ -65,12 +65,15 @@ var timeOffManagerQueueHandler = new function ()
                                 column
                                     .search( val ? val : '', true, false )
                                     .draw();
+                                // #downloadReportMyEmployeeRequests
+                                var excelReportUrlMyEmployeeRequests = '/request/download-report-my-employee-requests';
+                                var hyperlink = $( "#downloadReportMyEmployeeRequests" );
+                                var href = hyperlink.attr("href");
+                                var s = href.substring( 0, href.indexOf( excelReportUrlMyEmployeeRequests ) );
+                                hyperlink.attr( 'href', s + excelReportUrlMyEmployeeRequests + '/' + val );
                             } );
                         
-                        // #downloadReportMyEmployeeRequests
-                        var hyperlink = $( "#downloadReportMyEmployeeRequests" );
-                        console.log( "HYPERLINK" );
-                        console.log( hyperlink.baseURI );
+                        
                         
 //                        column.data().unique().sort().each( function ( d, j ) {
 //                            select.append( '<option value="'+d+'">'+d+'</option>' )
