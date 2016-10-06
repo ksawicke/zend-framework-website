@@ -9,7 +9,7 @@ var timeOffManagerQueueHandler = new function ()
      */
     this.initialize = function () {
         $(document).ready(function () {
-        	timeOffManagerQueueHandler.loadManagerEmployeeRequestsView(); // Not under Queue menu but easiest to implement
+        	timeOffManagerQueueHandler.loadManagerEmployeeRequestsView();
             timeOffManagerQueueHandler.loadPendingManagerApprovalQueue();
         });
     }
@@ -56,14 +56,12 @@ var timeOffManagerQueueHandler = new function ()
                     var title = table.column( idx ).header();
 
                     if( $(title).html()=="Employee" ) {
-                        var select = $('<br /><select><option value="B">Both</option><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option></select>')
+                        var select = $('<br /><select><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option><option value="B">Both</option></select>')
                             .appendTo( $(column.header()) )
                             .on( 'change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
                                 );
-                                console.log( "SEARCH " + val );
-
                                 column
                                     .search( val ? val : '', true, false )
                                     .draw();

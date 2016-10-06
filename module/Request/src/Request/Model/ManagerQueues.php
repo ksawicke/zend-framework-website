@@ -31,6 +31,7 @@ class ManagerQueues extends BaseDB {
      */
     public function countManagerEmployeeRequestItems( $data = null, $isFiltered = false, $proxyFor = null, $statuses = [] )
     {
+        $managerReportsType = ( $data['columns'][0]['search']['value']!=="" ? $data['columns'][0]['search']['value']!=="" : "D" );
         $whereStatusStatement = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
             "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
 
@@ -44,7 +45,7 @@ class ManagerQueues extends BaseDB {
         DIRECT_INDIRECT,
         MANAGER_LEVEL
         FROM table (
-            CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+            CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', '" . $managerReportsType . "')
             ) as data";
 
 
@@ -57,7 +58,7 @@ class ManagerQueues extends BaseDB {
                     "DIRECT_INDIRECT, " .
                     "MANAGER_LEVEL " .
                     "FROM table ( " .
-                    "CARE_GET_MANAGER_EMPLOYEES('002', '" . $proxy . "', 'D') " .
+                    "CARE_GET_MANAGER_EMPLOYEES('002', '" . $proxy . "', '" . $managerReportsType . "') " .
                     ") as data";
             }
         }
@@ -133,6 +134,7 @@ class ManagerQueues extends BaseDB {
      * @return array
      */
     public function getManagerEmployeeRequests( $data = null, $proxyFor = null, $statuses = [] ) {
+        $managerReportsType = ( $data['columns'][0]['search']['value']!=="" ? $data['columns'][0]['search']['value']!=="" : "D" );
         $whereStatusStatement = "";
         if( array_key_exists( 'columns', $data ) ) {
             $whereStatusStatement = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
@@ -148,7 +150,7 @@ class ManagerQueues extends BaseDB {
         DIRECT_INDIRECT,
         MANAGER_LEVEL
         FROM table (
-            CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+            CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', '" . $managerReportsType . "')
             ) as data";
 
 
@@ -161,7 +163,7 @@ class ManagerQueues extends BaseDB {
                     "DIRECT_INDIRECT, " .
                     "MANAGER_LEVEL " .
                     "FROM table ( " .
-                    "CARE_GET_MANAGER_EMPLOYEES('002', '" . $proxy . "', 'D') " .
+                    "CARE_GET_MANAGER_EMPLOYEES('002', '" . $proxy . "', '" . $managerReportsType . "') " .
                     ") as data";
             }
         }
