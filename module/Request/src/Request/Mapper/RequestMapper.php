@@ -334,7 +334,7 @@ class RequestMapper implements RequestMapperInterface {
                       entry.request_code = 'S'
                     )
                 )"], "pendingsick.EMPLOYEE_NUMBER = '" . $employeeNumber . "'", ['SICK_PENDING_APPROVAL' => 'SICK_PENDING_APPROVAL'])
-                ->where(['trim(employee.PREN)' => trim($employeeNumber), 'employee.PREN' => '002']);
+                ->where(['trim(employee.PREN)' => trim($employeeNumber), 'employee.PRER' => '002']);
 
         // select * from papreq where reqclk# = '101639';;
         /**
