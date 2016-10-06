@@ -31,10 +31,12 @@ class ManagerQueues extends BaseDB {
      */
     public function countManagerEmployeeRequestItems( $data = null, $isFiltered = false, $proxyFor = null, $statuses = [] )
     {
-        $managerReportsType = ( $data['columns'][0]['search']['value']!=="" ? $data['columns'][0]['search']['value'] : "D" );
-        $whereStatusStatement = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
-            "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
-
+        $managerReportsType = ( array_key_exists( 'columns', $data ) && $data['columns'][0]['search']['value']!="" ? $data['columns'][0]['search']['value'] : "D" );
+        $whereStatusStatement = "";
+        if( array_key_exists( 'columns', $data ) ) {
+            $whereStatusStatement = ( ( $data['columns'][2]['search']['value']!="" && $data['columns'][2]['search']['value']!="All" ) ?
+                "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
+        }
         if( !empty( $statuses ) ) {
             $whereStatusStatement .= " AND request.REQUEST_STATUS IN('" . implode( "','", $statuses ) . "') ";
         }
@@ -134,10 +136,10 @@ class ManagerQueues extends BaseDB {
      * @return array
      */
     public function getManagerEmployeeRequests( $data = null, $proxyFor = null, $statuses = [] ) {
-        $managerReportsType = ( $data['columns'][0]['search']['value']!=="" ? $data['columns'][0]['search']['value'] : "D" );
+        $managerReportsType = ( array_key_exists( 'columns', $data ) && $data['columns'][0]['search']['value']!="" ? $data['columns'][0]['search']['value'] : "D" );
         $whereStatusStatement = "";
         if( array_key_exists( 'columns', $data ) ) {
-            $whereStatusStatement = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+            $whereStatusStatement = ( ( $data['columns'][2]['search']['value']!="" && $data['columns'][2]['search']['value']!="All" ) ?
                 "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
         }
         if( !empty( $statuses ) ) {

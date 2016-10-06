@@ -58,7 +58,7 @@ var timeOffManagerQueueHandler = new function ()
                     if( $(title).html()=="Employee" ) {
                         var select = $('<br /><select><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option><option value="B">Both</option></select>')
                             .appendTo( $(column.header()) )
-                            .on( 'select', function () {
+                            .on( 'change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
                                 );
@@ -66,6 +66,12 @@ var timeOffManagerQueueHandler = new function ()
                                     .search( val ? val : '', true, false )
                                     .draw();
                             } );
+                        
+                        // #downloadReportMyEmployeeRequests
+                        var hyperlink = $( "#downloadReportMyEmployeeRequests" );
+                        console.log( "HYPERLINK" );
+                        console.log( hyperlink.baseURI );
+                        
 //                        column.data().unique().sort().each( function ( d, j ) {
 //                            select.append( '<option value="'+d+'">'+d+'</option>' )
 //                        } );
