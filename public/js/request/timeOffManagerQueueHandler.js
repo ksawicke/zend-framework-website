@@ -27,6 +27,15 @@ var timeOffManagerQueueHandler = new function ()
                       dataType: 'json',
                       data: { reportFilter: currentManagerReportFilter },
                       success: function(data) {
+                    	  /**
+                    	   * Dynamically load the Excel spreadsheet.
+                    	   */
+                    	  var $a = $("<a>");
+                    	  $a.attr( "href", data.fileContents );
+                    	  $( "body" ).append( $a );
+                    	  $a.attr( "download", data.fileName );
+                    	  $a[0].click();
+                    	  $a.remove();
                       }
             } );
     	});

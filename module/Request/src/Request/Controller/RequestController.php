@@ -563,12 +563,23 @@ class RequestController extends AbstractActionController
         }
 
         // Redirect output to a client's web browser (Excel2007)
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
-        header('Cache-Control: max-age=0');
+//         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
+//         header('Cache-Control: max-age=0');
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        ob_start();
         $objWriter->save('php://output');
+        $xlsData = ob_get_contents();
+        ob_end_clean();
+
+//         $response = [ 'op' => 'ok', 'file' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData) ];
+        $response = [ 'op' => 'ok',
+                      'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
+                      'fileName' => 'MyEmployeesRequests_' . date('Ymd-his') . '.xlsx'
+        ];
+
+        die( json_encode( $response ) );
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )
@@ -627,7 +638,6 @@ class RequestController extends AbstractActionController
 
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
-        die();
     }
 
     private function outputUpdatesCheckQueue( $spreadsheetRows = [] )
