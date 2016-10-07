@@ -336,7 +336,7 @@ class RequestController extends AbstractActionController
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => $this->getFlashMessages()
         ]);
-        $view->setTemplate( 'request/manager-queues/manager-queue.phtml' );
+        $view->setTemplate( 'request/manager-queues/' . $managerView . '.phtml' );
         return $view;
     }
 
@@ -415,7 +415,6 @@ class RequestController extends AbstractActionController
         $employeeData = $Employee->findEmployeeTimeOffData($employeeNumber, "Y");
         $requestData = $Employee->findTimeOffRequestData($employeeNumber, $calendarDates);
 
-//        var_dump($this->layout()->employeeData);
         return new ViewModel([
             'employeeData' => $employeeData,
             'requestData' => $requestData,

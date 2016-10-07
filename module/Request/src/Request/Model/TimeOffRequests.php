@@ -503,10 +503,10 @@ class TimeOffRequests extends BaseDB {
         $select = $sql->select( [ 'request' => 'TIMEOFF_REQUESTS' ] )
                 ->columns( [ 'REQUEST_ID' => 'REQUEST_ID', 'EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_STATUS' => 'REQUEST_STATUS', 'CREATE_USER' => 'CREATE_USER',
                     'REQUEST_REASON' => 'REQUEST_REASON', 'EMPLOYEE_DATA' => 'EMPLOYEE_DATA', 'CREATE_TIMESTAMP' => 'CREATE_TIMESTAMP' ] )
-                ->join( [ 'employee' => 'PRPMS' ], 'employee.PREN = request.EMPLOYEE_NUMBER', [ 'LEVEL1' => 'PRL01', 'LEVEL2' => 'PRL02', 'LEVEL03' => 'PRL03', 'LEVEL4' => 'PRL04',
+                ->join( [ 'employee' => 'PRPMS' ], "employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'", [ 'LEVEL1' => 'PRL01', 'LEVEL2' => 'PRL02', 'LEVEL03' => 'PRL03', 'LEVEL4' => 'PRL04',
                     'POSITION' => 'PRPOS', 'EMAIL_ADDRESS' => 'PREML1',
                     'EMPLOYEE_HIRE_DATE' => 'PRDOHE', 'POSITION_TITLE' => 'PRTITL' ] )
-                ->join( [ 'creator' => 'PRPMS' ], 'creator.PREN = request.CREATE_USER', [ 'CREATOR_POSITION' => 'PRPOS', 'CREATOR_EMAIL_ADDRESS' => 'PREML1', 'CREATOR_POSITION_TITLE' => 'PRTITL',
+                ->join( [ 'creator' => 'PRPMS' ], "creator.PREN = request.CREATE_USER and creator.PRER = '002'", [ 'CREATOR_POSITION' => 'PRPOS', 'CREATOR_EMAIL_ADDRESS' => 'PREML1', 'CREATOR_POSITION_TITLE' => 'PRTITL',
                     'CREATOR_LAST_NAME' => 'PRLNM', 'CREATOR_FIRST_NAME' => 'PRFNM' ] ) // employee.CREATOR_LAST_NAME CONCAT "," CONCAT employee.CREATOR_FIRST_NAME CONCAT " (" CONCAT employee.CREATE_USER CONCAT ") - " CONCAT employee.PRTITL
                 ->join( [ 'status' => 'TIMEOFF_REQUEST_STATUSES' ], 'status.REQUEST_STATUS = request.REQUEST_STATUS', [ 'REQUEST_STATUS_DESCRIPTION' => 'DESCRIPTION' ] )
                 ->join( [ 'schedule' => 'TIMEOFF_REQUEST_EMPLOYEE_SCHEDULES' ], 'schedule.EMPLOYEE_NUMBER = request.EMPLOYEE_NUMBER', [ 'SCHEDULE_MON' => 'SCHEDULE_MON', 'SCHEDULE_TUE' => 'SCHEDULE_TUE', 'SCHEDULE_WED' => 'SCHEDULE_WED',
@@ -642,9 +642,9 @@ class TimeOffRequests extends BaseDB {
         $sql = new Sql( $this->adapter );
         $select = $sql->select( ['employee' => 'PRPMS' ] )
                 ->columns( $this->employeeColumns )
-                ->join( ['request' => 'TIMEOFF_REQUESTS' ], 'trim(request.EMPLOYEE_NUMBER) = trim(employee.PREN)', [ ] )
-                ->join( ['manager' => 'PRPSP' ], 'employee.PREN = manager.SPEN', [ ] )
-                ->join( ['manager_addons' => 'PRPMS' ], 'manager_addons.PREN = manager.SPSPEN', $this->supervisorAddonColumns )
+                ->join( ['request' => 'TIMEOFF_REQUESTS' ], "trim(request.EMPLOYEE_NUMBER) = trim(employee.PREN) and '002' = trim(employee.PRER)", [ ] )
+                ->join( ['manager' => 'PRPSP' ], 'employee.PREN = manager.SPEN and employee.PRER = manager.SPER', [ ] )
+                ->join( ['manager_addons' => 'PRPMS' ], 'manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER', $this->supervisorAddonColumns )
                 ->where( ['request.REQUEST_ID' => $requestId ] );
         $result2 = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
 

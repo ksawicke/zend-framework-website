@@ -22,37 +22,37 @@ class PayrollAdmins extends BaseDB {
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Get count of Payroll Admin data
-     * 
+     *
      * @param array $data   $data = [ 'employeeData' => 'xxxxxxxxx' ];
      * @return int
      */
     public function countPayrollAdminItems( $data = null, $isFiltered = false )
     {
-        $rawSql = "SELECT COUNT(*) AS RCOUNT       
+        $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS";
         // INNER JOIN HRDBFA.PRPMS employee ON employee.PREN = p.PROXY_EMPLOYEE_NUMBER
-        
+
 //        $where = [];
 //        $where[] = "trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
-//            
+//
 //        if( $isFiltered ) {
 //            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
 //                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
 //                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' 
+//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
 //                            )";
 //            }
 //        }
 //        $rawSql .=  " WHERE " . implode( " AND ", $where );
-        
+
         $payrollAdminData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $payrollAdminData['RCOUNT'];
     }
-    
+
     public function getPayrollAdmins( $post )
     {
         $payrollAdminData = [];
@@ -60,16 +60,16 @@ class PayrollAdmins extends BaseDB {
             TRIM(employee.PRLNM) CONCAT ', ' CONCAT TRIM(employee.PRCOMN) CONCAT ' (' CONCAT TRIM(employee.PREN) CONCAT ')' as EMPLOYEE_DESCRIPTION,
             pa.STATUS
             FROM TIMEOFF_REQUESTS_PAYROLL_ADMINS pa
-            LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(pa.EMPLOYEE_NUMBER)
+            LEFT JOIN PRPMS employee ON TRIM(employee.PREN) = trim(pa.EMPLOYEE_NUMBER) and TRIM(employee.PRER) = '002'
             ORDER BY employee.PRLNM ASC";
-                
+
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 
         if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
             $resultSet = new ResultSet;
             $resultSet->initialize( $result );
-            
+
             foreach( $resultSet as $field => $proxyEmployeeNumber ) {
                 $payrollAdminData[] = $proxyEmployeeNumber;
             }
@@ -77,10 +77,10 @@ class PayrollAdmins extends BaseDB {
 
         return $payrollAdminData;
     }
-    
+
     /**
      * Adds a Payroll Admin to be able to submit time off requests for a designated employee.
-     * 
+     *
      * @param type $post
      * @throws \Exception
      */
@@ -98,10 +98,10 @@ class PayrollAdmins extends BaseDB {
             throw new \Exception( "Can't execute statement: " . $e->getMessage() );
         }
     }
-    
+
     /**
      * Deletes a proxy for a designated employee.
-     * 
+     *
      * @param type $post
      * @return type
      */
@@ -149,17 +149,17 @@ class PayrollAdmins extends BaseDB {
 
         return array();
     }
-    
+
     public function togglePayrollAdmin( $post )
     {
         $rawSql = "UPDATE TIMEOFF_REQUESTS_PAYROLL_ADMINS SET STATUS = '" . $post->STATUS . "' WHERE " .
                   "TRIM(EMPLOYEE_NUMBER) = " . $post->PAYROLLADMIN_EMPLOYEE_NUMBER;
 
 //        die( $rawSql );
-        
-        $payrollAdminData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);        
+
+        $payrollAdminData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);
 
         return $payrollAdminData;
     }
-    
+
 }
