@@ -474,10 +474,11 @@ class RequestController extends AbstractActionController
     public function downloadMyEmployeeRequestsAction()
     {
         $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $data['columns'][0]['search']['value'] = ( !empty( $this->getRequest()->getPost('reportFilter') ) ? $this->getRequest()->getPost('reportFilter') : 'D' );
         $queue = $this->params()->fromRoute('queue');
         $ManagerQueues = new \Request\Model\ManagerQueues();
         $Employee = new Employee();
-        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber']);
+        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber'] );
         $proxyFor = [];
         foreach ( $proxyForEntries as $proxy) {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
@@ -561,12 +562,23 @@ class RequestController extends AbstractActionController
         }
 
         // Redirect output to a client's web browser (Excel2007)
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
-        header('Cache-Control: max-age=0');
+//         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
+//         header('Cache-Control: max-age=0');
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        ob_start();
         $objWriter->save('php://output');
+        $xlsData = ob_get_contents();
+        ob_end_clean();
+
+//         $response = [ 'op' => 'ok', 'file' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData) ];
+        $response = [ 'op' => 'ok',
+                      'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
+                      'fileName' => 'MyEmployeesRequests_' . date('Ymd-his') . '.xlsx'
+        ];
+
+        die( json_encode( $response ) );
     }
 
     private function outputReportManagerActionNeeded( $spreadsheetRows = [] )

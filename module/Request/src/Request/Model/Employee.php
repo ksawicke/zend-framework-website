@@ -554,9 +554,6 @@ class Employee extends BaseDB {
                    left join (select * from timeoff_request_employee_schedules sch where sch.employee_number = refactor_employee_id('" . $employeeNumber . "')) sch
                    on sch.employee_number = data.employee_number";
 
-//        var_dump( $rawSql );
-//        die();
-
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
 

@@ -1,0 +1,36 @@
+<h4><?php echo $managerViewName; ?></h4>
+
+<br />
+
+<?php if($isLoggedInUserManager=="Y" || $isLoggedInUserSupervisor=="Y" || $isProxyForManager=="Y" ) { ?>
+
+<table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Approver queue</th>
+            <th>Request Status</th>
+            <th>Hours Requested</th>
+            <th>Request Reason</th>
+            <th>First Day<br />Requested</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+</table>
+
+<?php if( $this->managerView == 'my-employee-requests') { ?>
+    <br />
+    <a id="downloadReportMyEmployeeRequests" href="<?php echo $this->basePath(); ?>/request/download-report-my-employee-requests"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+<?php } ?>
+
+<?php } else { ?>
+
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
+  <strong>You do not have access to this page.</strong>
+</div>
+
+<?php } ?>
+
+<script type="text/javascript" src="<?php echo $this->basePath( 'js/datatables/datatables.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath( 'js/request/timeOffManagerQueueHandler.js'); ?>"></script>
