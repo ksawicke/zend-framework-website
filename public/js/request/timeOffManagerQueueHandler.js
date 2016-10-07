@@ -4,6 +4,8 @@
  */
 var timeOffManagerQueueHandler = new function ()
 {
+	var currentManagerReportFilter = 'D'; // Defaults to Direct Reports
+	
     /**
      * Initializes binding
      */
@@ -11,7 +13,23 @@ var timeOffManagerQueueHandler = new function ()
         $(document).ready(function () {
         	timeOffManagerQueueHandler.loadManagerEmployeeRequestsView();
             timeOffManagerQueueHandler.loadPendingManagerApprovalQueue();
+            timeOffManagerQueueHandler.handleDownloadMyEmployeeRequestsReport();
         });
+    }
+    
+    this.handleDownloadMyEmployeeRequestsReport = function() {
+    	$( '#downloadReportMyEmployeeRequests' ).on( 'click', function(e) {
+    		e.preventDefault();
+    		var hyperlink = $( "#downloadReportMyEmployeeRequests" );
+            var href = hyperlink.attr("href");
+            $.ajax( { type: 'post',
+                      url: href,
+                      dataType: 'json',
+                      data: { reportFilter: currentManagerReportFilter },
+                      success: function(data) {
+                      }
+            } );
+    	});
     }
     
     this.loadManagerEmployeeRequestsView = function() {
@@ -65,12 +83,15 @@ var timeOffManagerQueueHandler = new function ()
                                 column
                                     .search( val ? val : '', true, false )
                                     .draw();
+                                
+                                currentManagerReportFilter = val;
+                                
                                 // #downloadReportMyEmployeeRequests
-                                var excelReportUrlMyEmployeeRequests = '/request/download-report-my-employee-requests';
-                                var hyperlink = $( "#downloadReportMyEmployeeRequests" );
-                                var href = hyperlink.attr("href");
-                                var s = href.substring( 0, href.indexOf( excelReportUrlMyEmployeeRequests ) );
-                                hyperlink.attr( 'href', s + excelReportUrlMyEmployeeRequests + '/' + val );
+//                                var excelReportUrlMyEmployeeRequests = '/request/download-report-my-employee-requests';
+//                                var hyperlink = $( "#downloadReportMyEmployeeRequests" );
+//                                var href = hyperlink.attr("href");
+//                                var s = href.substring( 0, href.indexOf( excelReportUrlMyEmployeeRequests ) );
+//                                hyperlink.attr( 'href', s + excelReportUrlMyEmployeeRequests + '/' + val );
                             } );
                         
                         

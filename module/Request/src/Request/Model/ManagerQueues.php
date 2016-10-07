@@ -138,10 +138,9 @@ class ManagerQueues extends BaseDB {
     public function getManagerEmployeeRequests( $data = null, $proxyFor = null, $statuses = [] ) {
         $managerReportsType = ( array_key_exists( 'columns', $data ) && $data['columns'][0]['search']['value']!="" ? $data['columns'][0]['search']['value'] : "D" );
         $whereStatusStatement = "";
-        if( array_key_exists( 'columns', $data ) ) {
-            $whereStatusStatement = ( ( $data['columns'][2]['search']['value']!="" && $data['columns'][2]['search']['value']!="All" ) ?
-                "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
-        }
+        $whereStatusStatement = ( ( array_key_exists( 'columns', $data ) && array_key_exists( '2', $data['columns'] ) &&
+                                    $data['columns'][2]['search']['value']!="" && $data['columns'][2]['search']['value']!="All" ) ?
+                                  "WHERE status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
         if( !empty( $statuses ) ) {
             $whereStatusStatement .= ( !empty( $whereStatusStatement ) ? " AND " : " WHERE " ) . "request.REQUEST_STATUS IN('" . implode( "','", $statuses ) . "') ";
         }

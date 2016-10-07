@@ -475,10 +475,11 @@ class RequestController extends AbstractActionController
     public function downloadMyEmployeeRequestsAction()
     {
         $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $data['columns'][0]['search']['value'] = ( !empty( $this->getRequest()->getPost('reportFilter') ) ? $this->getRequest()->getPost('reportFilter') : 'D' );
         $queue = $this->params()->fromRoute('queue');
         $ManagerQueues = new \Request\Model\ManagerQueues();
         $Employee = new Employee();
-        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber']);
+        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $data['employeeNumber'] );
         $proxyFor = [];
         foreach ( $proxyForEntries as $proxy) {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
@@ -626,6 +627,7 @@ class RequestController extends AbstractActionController
 
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
+        die();
     }
 
     private function outputUpdatesCheckQueue( $spreadsheetRows = [] )
