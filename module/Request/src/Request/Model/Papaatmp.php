@@ -12,6 +12,7 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
+use Application\Factory\Logger;
 
 /**
  * Build and save bjects for tables: PAPAATMP, HPAPAATMP
@@ -28,6 +29,7 @@ class Papaatmp extends BaseDB {
         parent::__construct();
         $this->collection = [];
         $this->table = "PAPAATMP";
+        $this->request_id = null;
     }
 
     /**
@@ -38,6 +40,7 @@ class Papaatmp extends BaseDB {
      */
     public function prepareToWritePapaatmpRecords( $employeeData, $dateRequestBlocks, $request_id )
     {
+        $this->request_id = $request_id;
         $dateRequestBlocks['for']['employer_number'] = $employeeData['EMPLOYER_NUMBER'];
         $dateRequestBlocks['for']['level1'] = $employeeData['LEVEL_1'];
         $dateRequestBlocks['for']['level2'] = $employeeData['LEVEL_2'];
@@ -86,15 +89,19 @@ class Papaatmp extends BaseDB {
      */
     protected function insertPapaatmpRecord()
     {
+        $logger = new Logger();
+
         try {
             $action = new Insert( $this->table );
             $action->values( $this->collection );
             $sql = new Sql( $this->adapter );
             $rawSql = $sql->getSqlStringForSqlObject( $action );
 
+            $logger->logEntry( "Attempted to write entry to table " . $this->table . " for Request ID " . $this->request_id . ": " . $rawSql );
+
             \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch ( \Exception $e ) {
-            throw new \Exception( "Can't execute statement: " . $e->getMessage() );
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Can't execute statement: " . $e->getMessage() );
         }
     }
 

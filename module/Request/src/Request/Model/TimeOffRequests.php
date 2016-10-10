@@ -14,6 +14,7 @@ use Zend\Db\Sql\Where;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Expression;
+use Application\Factory\Logger;
 
 /**
  * Common Request arrays
@@ -212,7 +213,9 @@ class TimeOffRequests extends BaseDB {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
             $companyHolidays = json_decode( $request->SYSTEM_VALUE );
         } catch ( \Exception $e ) {
-            var_dump( $e );
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Unable to get company holidays: " . $e->getMessage() );
+            throw new \Exception( "Unable to get company holidays." );
         }
 
         return $companyHolidays;
@@ -265,6 +268,8 @@ class TimeOffRequests extends BaseDB {
 
                 return $requestEntryId;
             } catch ( \Exception $e ) {
+                $logger = new Logger();
+                $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when trying to add a request entry: " . $e->getMessage() );
                 throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
             }
         }
@@ -285,6 +290,8 @@ class TimeOffRequests extends BaseDB {
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch( \Exception $e ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when attempting to mark entry as deleted: " . $e->getMessage() );
             throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
         }
     }
@@ -300,6 +307,8 @@ class TimeOffRequests extends BaseDB {
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch( \Exception $e ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when attempting to mark entry as deleted: " . $e->getMessage() );
             throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
         }
     }
@@ -315,7 +324,9 @@ class TimeOffRequests extends BaseDB {
         try {
             $markedAsDeleted = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
         } catch( \Exception $e ) {
-            throw new \Exception( "Error when attempting to mark entry as deleted: " . $e->getMessage() );
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when attempting to mark entry as deleted by request: " . $e->getMessage() );
+            throw new \Exception( "Error when attempting to mark entry as deleted by request: " . $e->getMessage() );
         }
     }
 
@@ -342,6 +353,8 @@ class TimeOffRequests extends BaseDB {
 
             return $requestEntryId;
         } catch ( \Exception $e ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when trying to add a request entry: " . $e->getMessage() );
             throw new \Exception( "Error when trying to add a request entry: " . $e->getMessage() );
         }
     }
@@ -371,6 +384,8 @@ class TimeOffRequests extends BaseDB {
 
             return $requestEntryId;
         } catch ( \Exception $e ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Error when trying to add request update entry: " . $e->getMessage() );
             throw new \Exception( "Error when trying to add request update entry: " . $e->getMessage() );
         }
     }
@@ -463,6 +478,8 @@ class TimeOffRequests extends BaseDB {
             try {
                 $result = $stmt->execute();
             } catch ( \Exception $e ) {
+                $logger = new Logger();
+                $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Can't execute statement: " . $e->getMessage() );
                 throw new \Exception( "Can't execute statement: " . $e->getMessage() );
             }
         }
@@ -517,6 +534,8 @@ class TimeOffRequests extends BaseDB {
         try {
             $request = \Request\Helper\ResultSetOutput::getResultRecord( $sql, $select );
         } catch ( \Exception $e ) {
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Unable to get find Request ID " . $requestId . ": " . $e->getMessage() );
             var_dump( $e );
         }
 
@@ -569,7 +588,8 @@ class TimeOffRequests extends BaseDB {
         try {
             $entries = \Request\Helper\ResultSetOutput::getResultArray( $sql, $select );
         } catch ( \Exception $e ) {
-            var_dump( $e );
+            $logger = new Logger();
+            $logger->logEntry( __CLASS__ .'->'.__FUNCTION__.' ERROR: [LINE: ' . $e->getLine() . '] ' . "Unable to find request entries for Request ID " . $requestId . ": " . $e->getMessage() );
         }
 
         return $entries;

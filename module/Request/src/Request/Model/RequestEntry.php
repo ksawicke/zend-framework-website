@@ -49,7 +49,7 @@ class RequestEntry extends BaseDB {
 
         $sql = new Sql( $this->adapter );
         $select = $sql->select(['entry' => 'TIMEOFF_REQUEST_ENTRIES'])
-                ->columns(['REQUEST_ID' => 'REQUEST_ID', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_CODE' => 'REQUEST_CODE' ])
+                ->columns(['ENTRY_ID' => 'ENTRY_ID', 'REQUEST_ID' => 'REQUEST_ID', 'REQUESTED_HOURS' => 'REQUESTED_HOURS', 'REQUEST_DATE' => 'REQUEST_DATE', 'REQUEST_CODE' => 'REQUEST_CODE' ])
                 ->join(['request' => 'TIMEOFF_REQUESTS'], 'request.REQUEST_ID = entry.REQUEST_ID',
                        ['EMPLOYEE_NUMBER' => 'EMPLOYEE_NUMBER', 'REQUEST_REASON' => 'REQUEST_REASON'])
                 ->where(['request.REQUEST_ID' => $requestId, 'entry.IS_DELETED' => 0])
@@ -57,58 +57,94 @@ class RequestEntry extends BaseDB {
         $requestEntries = \Request\Helper\ResultSetOutput::getResultArray($sql, $select);
 
         foreach( $requestEntries as $ctr => $entry ) {
-            $request['dates'][] = [ 'hours' => $entry['REQUESTED_HOURS'], 'type' => $entry['REQUEST_CODE'], 'date' => $entry['REQUEST_DATE'] ];
+            $request['dates'][] = [ 'entry_id' => $entry['ENTRY_ID'], 'hours' => $entry['REQUESTED_HOURS'], 'type' => $entry['REQUEST_CODE'], 'date' => $entry['REQUEST_DATE'] ];
         }
 
-        $request['reason'] = trim( $requestEntries[0]['REQUEST_REASON'] );
-        $request['for']['employee_number'] = trim( $requestEntries[0]['EMPLOYEE_NUMBER'] );
+        $request['reason'] = ( count( $requestEntries ) >= 0 ? trim( $requestEntries[0]['REQUEST_REASON'] ) : '' );
+        $request['for']['employee_number'] = ( count( $requestEntries ) >= 0 ? trim( $requestEntries[0]['EMPLOYEE_NUMBER'] ) : '' );
 
-        $request = $this->sortRequestDates( $request );
+        $request['dates'] = $this->multisort( $request['dates'], 'entry_id' );
 
         $requestObject = $this->buildDateMatrix( $request );
 
         return $requestObject;
     }
 
-    public function buildDateMatrix( $request ) {
-        $endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
-        $startDate = $request['dates'][0]['date'];
-        $startDateObject = new \DateTime( $startDate );
-        $endDate = $request['dates'][$endCounter]['date'];
-        $endDateObject = new \DateTime( $endDate );
-
-        /**
-         * instantiate DateInterval object
-         */
-        $interval = \DateInterval::createFromDateString('14 days');
-
-        /**
-         * instantiate DatePeriod object
-         */
-        $period = new \DatePeriod( $startDateObject, $interval, $endDateObject->modify('+1 day') );
-
-        $data = [];
-
-        foreach( $period as $chunk ) {
-            /**
-             * Check if any have hours, if so:
-             */
-            $hoursTotal = 0;
-
-            $childData = $this->buildChildDateMatrix( $request, $chunk );
-            foreach( $childData as $childDataCounter => $childDataObject ) {
-                foreach( $childDataObject as $childDataObjectCounter => $cdata ) {
-                    foreach( $cdata as $cdKey => $cdValues ) {
-                        $hoursTotal += $cdValues['hours'];
+    /**
+     * Bubble sort a 3-dimensional array
+     *
+     * @param unknown $array
+     * @param unknown $key
+     * @param string $sort_flags
+     * @see http://stackoverflow.com/questions/13722865/sort-multidimensional-array-with-an-index
+     */
+    protected function multisort($array, $key, $sort_flags = SORT_REGULAR) {
+        if (is_array($array) && count($array) > 0) {
+            if (!empty($key)) {
+                $mapping = array();
+                foreach ($array as $k => $v) {
+                    $sort_key = '';
+                    if (!is_array($key)) {
+                        $sort_key = $v[$key];
+                    } else {
+                        foreach ($key as $key_key) {
+                            $sort_key .= $v[$key_key];
+                        }
+                        $sort_flags = SORT_STRING;
                     }
+                    $mapping[$k] = $sort_key;
                 }
-            }
-            if( $hoursTotal > 0 ) {
-                $data[] = $childData;
+                asort($mapping, $sort_flags);
+                $sorted = array();
+                foreach ($mapping as $k => $v) {
+                    $sorted[] = $array[$k];
+                }
+                return $sorted;
             }
         }
+        return $array;
+    }
 
-        $request['dates'] = $data;
+    public function buildDateMatrix( $request ) {
+        if( count( $request['dates'] ) > 0 ) {
+            $endCounter = ( (count($request['dates'])==1) ? 0 : (count($request['dates']) - 1) );
+            $startDate = $request['dates'][0]['date'];
+            $startDateObject = new \DateTime( $startDate );
+            $endDate = $request['dates'][$endCounter]['date'];
+            $endDateObject = new \DateTime( $endDate );
+
+            /**
+             * instantiate DateInterval object
+             */
+            $interval = \DateInterval::createFromDateString('14 days');
+
+            /**
+             * instantiate DatePeriod object
+             */
+            $period = new \DatePeriod( $startDateObject, $interval, $endDateObject->modify('+1 day') );
+
+            $data = [];
+
+            foreach( $period as $chunk ) {
+                /**
+                 * Check if any have hours, if so:
+                 */
+                $hoursTotal = 0;
+
+                $childData = $this->buildChildDateMatrix( $request, $chunk );
+                foreach( $childData as $childDataCounter => $childDataObject ) {
+                    foreach( $childDataObject as $childDataObjectCounter => $cdata ) {
+                        foreach( $cdata as $cdKey => $cdValues ) {
+                            $hoursTotal += $cdValues['hours'];
+                        }
+                    }
+                }
+                if( $hoursTotal > 0 ) {
+                    $data[] = $childData;
+                }
+            }
+            $request['dates'] = $data;
+        }
 
         return $request;
     }
@@ -160,9 +196,9 @@ class RequestEntry extends BaseDB {
              * ]
              */
             $thisDateObject = new \DateTime( $currentDate );
-            $newDatesArray[$currentDate][$counter] = [ 'hours' => $requestData['hours'], 'type' => $requestData['type'],
-                'dow' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "D" ) ) : '' ),
-                'mdY' => ( !empty( $requestData['hours'] ) ? strtoupper( $thisDateObject->format( "mdY" ) ) : '' )
+            $newDatesArray[$currentDate][$counter] = [ 'entry_id' => $requestData['entry_id'], 'hours' => $requestData['hours'], 'type' => $requestData['type'],
+                'dow' => strtoupper( $thisDateObject->format( "D" ) ),
+                'mdY' => strtoupper( $thisDateObject->format( "mdY" ) )
             ];
         }
 
@@ -183,6 +219,7 @@ class RequestEntry extends BaseDB {
             foreach ( $period as $dt ) {
 
                 $currentDate = $dt->format('Y-m-d');
+                $thisDateObject = new \DateTime( $currentDate );
 
                 /**
                  * pre set array index in not yet set
@@ -193,7 +230,7 @@ class RequestEntry extends BaseDB {
                      */
                     if( array_key_exists( $currentDate, $newDatesArray ) ) {
                         if( count( $newDatesArray[$currentDate] )==1 ) {
-                            $newDatesArray[$currentDate][1] = [ 'hours' => '0.00', 'type' => '', 'dow' => '' ];
+                            $newDatesArray[$currentDate][1] = [ 'entry_id' => null, 'hours' => '0.00', 'type' => '', 'dow' => strtoupper( $thisDateObject->format( "D" ) ), 'mdY' => strtoupper( $thisDateObject->format( "mdY" ) ) ];
                         } else {
                             $newDatesArray[$currentDate][0]['dow'] = strtoupper( $dt->format( "D" ) );
                             $newDatesArray[$currentDate][0]['mdY'] = strtoupper( $dt->format( "mdY" ) );
@@ -202,8 +239,8 @@ class RequestEntry extends BaseDB {
                         }
                         $dataMatrix[$dayOfPeriod][$currentDate] = $newDatesArray[$currentDate];
                     } else {
-                        $dataMatrix[$dayOfPeriod][$currentDate] = [ 0 => [ 'hours' => '0.00', 'type' => '', 'dow' => strtoupper( $dt->format( "D" ) ), 'mdY' => strtoupper( $dt->format( "mdY" ) ) ],
-                                                                    1 => [ 'hours' => '0.00', 'type' => '', 'dow' => strtoupper( $dt->format( "D" ) ), 'mdY' => strtoupper( $dt->format( "mdY" ) ) ] ];
+                        $dataMatrix[$dayOfPeriod][$currentDate] = [ 0 => [ 'entry_id' => null, 'hours' => '0.00', 'type' => '', 'dow' => strtoupper( $dt->format( "D" ) ), 'mdY' => strtoupper( $dt->format( "mdY" ) ) ],
+                                                                    1 => [ 'entry_id' => null, 'hours' => '0.00', 'type' => '', 'dow' => strtoupper( $dt->format( "D" ) ), 'mdY' => strtoupper( $dt->format( "mdY" ) ) ] ];
                     }
                 }
 
@@ -220,10 +257,10 @@ class RequestEntry extends BaseDB {
         return $dataMatrix;
     }
 
-    private function sortRequestDates( $request )
+    private function sortRequestDates( $dates )
     {
-        usort($request['dates'], [__CLASS__, 'sortRequestDatesAscending']);
-        return $request;
+        usort($dates, [__CLASS__, 'sortRequestDatesAscending']);
+        return $dates;
     }
 
     public function sortRequestDatesDescending( $a, $b )
