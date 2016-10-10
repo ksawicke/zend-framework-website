@@ -402,6 +402,12 @@ class RequestController extends AbstractActionController
 
     public function viewMyRequestsAction()
     {
+        $redirect = \Login\Helper\UserSession::getUserSessionVariable('redirect');
+        if ($redirect != false) {
+            \Login\Helper\UserSession::setUserSessionVariable('redirect', false);
+            return $this->redirect()->toUrl($redirect);
+        }
+
         $startDate = date("Y") . "-" . date("m") . "-01";
         $endDate = date("Y-m-t", strtotime($startDate));
         $employeeNumber = trim($this->employeeNumber);

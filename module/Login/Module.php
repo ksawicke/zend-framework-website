@@ -74,6 +74,13 @@ class Module
                        'API\Scheduler\Controller-sendThreeDayReminderEmailToSupervisor',
                        'API\CLI\Controller-setRequestsToCompleted'
         ];
+
+        $redirectUrl = $event->getRequest()->getQuery('q');
+
+        if (trim($redirectUrl) != '') {
+            $session->redirect = $redirectUrl;
+        }
+
         if( $session->offsetExists ( 'EMPLOYEE_NUMBER' ) ) {
             if ( in_array( $requestedResource, $whiteList ) ) {
                 $response->setHeaders ( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInTrueRedirectToUrl ) );
