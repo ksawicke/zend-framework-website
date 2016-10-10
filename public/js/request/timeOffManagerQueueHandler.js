@@ -89,25 +89,11 @@ var timeOffManagerQueueHandler = new function ()
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
                                 );
+                                currentManagerReportFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
                                 column
                                     .search( val ? val : '', true, false )
                                     .draw();
-                                
-                                currentManagerReportFilter = val;
-                                
-                                // #downloadReportMyEmployeeRequests
-//                                var excelReportUrlMyEmployeeRequests = '/request/download-report-my-employee-requests';
-//                                var hyperlink = $( "#downloadReportMyEmployeeRequests" );
-//                                var href = hyperlink.attr("href");
-//                                var s = href.substring( 0, href.indexOf( excelReportUrlMyEmployeeRequests ) );
-//                                hyperlink.attr( 'href', s + excelReportUrlMyEmployeeRequests + '/' + val );
                             } );
-                        
-                        
-                        
-//                        column.data().unique().sort().each( function ( d, j ) {
-//                            select.append( '<option value="'+d+'">'+d+'</option>' )
-//                        } );
                     }
                     if( $(title).html()=="Request Status" ) {
                         var select = $('<br /><select><option value="All" selected>All</option></select>')
