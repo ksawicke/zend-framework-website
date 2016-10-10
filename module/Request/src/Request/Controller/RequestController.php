@@ -1,7 +1,7 @@
 <?php
 namespace Request\Controller;
 
-//use Request\Service\RequestServiceInterface;
+use Request\Service\RequestServiceInterface;
 //use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -24,7 +24,7 @@ use PHPExcel_IOFactory;
 
 class RequestController extends AbstractActionController
 {
-//    protected $requestService;
+   protected $requestService;
 //
 //    protected $requestForm;
 
@@ -325,6 +325,11 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('home');
         }
 
+        $calendarData = $Employee->findTimeOffCalendarByEmployeeNumber( '229589', '2016-11-01', '2016-11-31');
+        $calendarData[0]['FIRST_NAME'] = 'MARY';
+        $calendarData[0]['LAST_NAME'] = 'JACKSON';
+        $calendarData[0]['REQUEST_TYPE'] = 'PTO';
+
         $this->layout()->setVariable( 'managerView', $managerView );
 
         $view = new ViewModel([
@@ -334,7 +339,9 @@ class RequestController extends AbstractActionController
             'managerView' => $managerView,
             'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
-            'flashMessages' => $this->getFlashMessages()
+            'flashMessages' => $this->getFlashMessages(),
+            'calendarData' => $calendarData,
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('11', '2016', $calendarData)
         ]);
         $view->setTemplate( 'request/manager-queues/' . $managerView . '.phtml' );
         return $view;
