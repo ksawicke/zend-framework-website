@@ -64,6 +64,8 @@ class Calendar
 
     public static $preHighlightedDates = [];
 
+    public static $calendarDateTextToAppend = [];
+
     public static function getOneCalendar($startYear = null, $startMonth = null, $calendarData = [], $requestId = null)
     {
         if( !empty( self::$preHighlightedDates ) ) {
@@ -351,12 +353,18 @@ class Calendar
     public static function addDataToCalendarDay($list_day, $calendarData)
     {
         $data = self::$beforeDayData;
-        foreach($calendarData as $key => $cal) {
-            $date = \DateTime::createFromFormat("Y-m-d", $cal['REQUEST_DATE']);
+        foreach( self::$calendarDateTextToAppend as $date => $text ) {
+            $date = \DateTime::createFromFormat("Y-m-d", $date);
             if($list_day==$date->format('j')) {
-//                 $data .= '' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . ' - ' . $cal['REQUESTED_HOURS'] . '<br />';
+                $data .= $text;
             }
         }
+//         foreach($calendarData as $key => $cal) {
+//             $date = \DateTime::createFromFormat("Y-m-d", $cal['REQUEST_DATE']);
+//             if($list_day==$date->format('j')) {
+// //                 $data .= '' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . ' - ' . $cal['REQUESTED_HOURS'] . '<br />';
+//             }
+//         }
         $data .= self::$afterDayData;
 
         return $data;
@@ -674,5 +682,19 @@ class Calendar
         }
 
         self::$preHighlightedDates = $return;
+    }
+
+    public static function setCalendarDateTextToAppend( $calendarDateTextData )
+    {
+        $calendarDateTextToAppend = [];
+        foreach( $calendarDateTextData as $date => $data ) {
+            foreach( $data as $i => $d ) {
+                if( !array_key_exists( $date, $calendarDateTextToAppend ) ) {
+                    $calendarDateTextToAppend[$date] = '';
+                }
+                $calendarDateTextToAppend[$date] .= $d['EMPLOYEE_NAME'] . " - " . $d['TOTAL_HOURS'] . '<br />';
+            }
+        }
+        self::$calendarDateTextToAppend = $calendarDateTextToAppend;
     }
 }

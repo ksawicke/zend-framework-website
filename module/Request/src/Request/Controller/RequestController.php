@@ -11,9 +11,9 @@ use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 use \Request\Helper\ValidationHelper;
 use \Login\Helper\UserSession;
-
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
+use \Request\Helper\Calendar;
 use PHPExcel;
 use PHPExcel_Style_NumberFormat;
 use PHPExcel_Style_Color;
@@ -325,10 +325,12 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('home');
         }
 
-        $calendarData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-11-01', '2016-11-30' );
-        echo '<pre>';
-        var_dump( $calendarData );
-        die();
+        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-10-01', '2016-10-31' );
+        \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
+
+//         echo '<pre>';
+//         var_dump( $calendarData );
+//         die();
 //         $calendarData[0]['FIRST_NAME'] = 'GUIDO';
 //         $calendarData[0]['LAST_NAME'] = 'FAECKE';
 //         $calendarData[0]['REQUEST_TYPE'] = 'PTO';
@@ -343,8 +345,8 @@ class RequestController extends AbstractActionController
             'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => $this->getFlashMessages(),
-            'calendarData' => $calendarData,
-            'calendarHtml' => \Request\Helper\Calendar::drawCalendar('11', '2016', $calendarData)
+            'calendarData' => $calendarDateTextData,
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar( '10', '2016', [] )
         ]);
         $view->setTemplate( 'request/manager-queues/' . $managerView . '.phtml' );
         return $view;

@@ -1009,7 +1009,7 @@ class Employee extends BaseDB {
      *
      */
     public function findTimeOffCalendarByManager( $employerNumber = '002', $managerEmployeeNumber = null,
-                                                  $managerReportsType = 'D', $startDate = null, $endDate = null  ) {
+                                                  $managerReportsType = 'D', $startDate = null, $endDate = null ) {
         $startDate = new \Datetime( $startDate );
         $startDate = $startDate->format( "Y-m-d" );
         $endDate = new \Datetime( $endDate );
