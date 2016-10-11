@@ -1004,6 +1004,65 @@ class Employee extends BaseDB {
         return $calendarData; //\Request\Helper\Format::trimData( $calendarData );
     }
 
+    /**
+     * Find time off calendar data by Manager. Handles Direct, Indirect, and Both reports.
+     *
+     */
+    public function findTimeOffCalendarByManager( $employerNumber = '002', $managerEmployeeNumber = null,
+                                                  $managerReportsType = 'D', $startDate = null, $endDate = null  ) {
+        $startDate = new \Datetime( $startDate );
+        $startDate = $startDate->format( "Y-m-d" );
+        $endDate = new \Datetime( $endDate );
+        $endDate = $endDate->format( "Y-m-d" );
+
+        $rawSql = "select
+            entry.REQUEST_DATE, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME,
+            TRIM(request.EMPLOYEE_NUMBER), sum(entry.REQUESTED_HOURS) as REQUESTED_HOURS
+            FROM TIMEOFF_REQUEST_ENTRIES entry
+            INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
+            INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+            INNER JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
+            INNER JOIN table (
+              SELECT
+              EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+              DIRECT_INDIRECT,
+              MANAGER_LEVEL FROM table (
+                CARE_GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
+              ) as data
+            ) hierarchy ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
+            WHERE
+              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND
+              IS_DELETED = 0
+            group by employee.PRCOMN, employee.PRLNM, request.EMPLOYEE_NUMBER, entry.request_date
+            ORDER BY entry.request_date, employee.PRCOMN, employee.PRLNM";
+
+        $statement = $this->adapter->query( $rawSql );
+        $result = $statement->execute();
+
+        if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize( $result );
+            $data = $resultSet->toArray();
+        } else {
+            $data = [ ];
+        }
+
+        $calendarData = [];
+        foreach( $data as $ctr => $request ) {
+            if( !array_key_exists( $request['REQUEST_DATE'], $calendarData ) ) {
+                $counter = 0;
+                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['REQUESTED_HOURS'] = $request['REQUESTED_HOURS'];
+            } else {
+                $counter++;
+                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['REQUESTED_HOURS'] = $request['REQUESTED_HOURS'];
+            }
+        }
+
+        return $calendarData;
+    }
+
     public function findTimeOffRequestsByEmployeeAndStatus( $employeeNumber = null, $status = "A", $startDate = null, $endDate = null ) {
         $sql = new Sql( $this->adapter );
         if ( $startDate == null || $endDate == null ) {

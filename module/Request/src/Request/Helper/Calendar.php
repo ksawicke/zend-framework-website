@@ -354,7 +354,7 @@ class Calendar
         foreach($calendarData as $key => $cal) {
             $date = \DateTime::createFromFormat("Y-m-d", $cal['REQUEST_DATE']);
             if($list_day==$date->format('j')) {
-                $data .= '' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . '<br />' . $cal['REQUESTED_HOURS'] . ' ' . $cal['REQUEST_TYPE'] . '<br /><br />';
+//                 $data .= '' . $cal['FIRST_NAME'] . ' ' . $cal['LAST_NAME'] . ' - ' . $cal['REQUESTED_HOURS'] . '<br />';
             }
         }
         $data .= self::$afterDayData;
