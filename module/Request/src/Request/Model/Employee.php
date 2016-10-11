@@ -1015,26 +1015,30 @@ class Employee extends BaseDB {
         $endDate = new \Datetime( $endDate );
         $endDate = $endDate->format( "Y-m-d" );
 
-        $rawSql = "select
-            entry.REQUEST_DATE, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME,
-            TRIM(request.EMPLOYEE_NUMBER), sum(entry.REQUESTED_HOURS) as REQUESTED_HOURS
-            FROM TIMEOFF_REQUEST_ENTRIES entry
-            INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
-            INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
-            INNER JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
-            INNER JOIN table (
+        $rawSql = "select report_requests.REQUEST_DATE, report_requests.EMPLOYEE_NUMBER,
+            report_requests.EMPLOYEE_NAME, report_requests.TOTAL_HOURS from table (
               SELECT
-              EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
-              DIRECT_INDIRECT,
-              MANAGER_LEVEL FROM table (
-                CARE_GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
-              ) as data
-            ) hierarchy ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
-            WHERE
-              entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND
-              IS_DELETED = 0
-            group by employee.PRCOMN, employee.PRLNM, request.EMPLOYEE_NUMBER, entry.request_date
-            ORDER BY entry.request_date, employee.PRCOMN, employee.PRLNM";
+                EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
+                DIRECT_INDIRECT,
+                MANAGER_LEVEL FROM table (
+                  CARE_GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
+                ) as data
+            ) hierarchy
+            INNER JOIN table(
+              select
+                entry.REQUEST_DATE, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME, request.EMPLOYEE_NUMBER, sum(entry.REQUESTED_HOURS) as TOTAL_HOURS
+                FROM TIMEOFF_REQUEST_ENTRIES entry
+                INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
+                INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+                INNER JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
+                WHERE
+                  entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND
+                  IS_DELETED = 0 AND
+                  request.REQUEST_STATUS IN('A','F','S','U')
+                group by employee.PRCOMN, employee.PRLNM, request.EMPLOYEE_NUMBER, entry.request_date, request.REQUEST_STATUS
+                ORDER BY entry.request_date, employee.PRCOMN, employee.PRLNM
+            ) report_requests ON report_requests.EMPLOYEE_NUMBER = hierarchy.EMPLOYEE_NUMBER
+            ORDER BY report_requests.REQUEST_DATE, hierarchy.EMPLOYEE_NUMBER";
 
         $statement = $this->adapter->query( $rawSql );
         $result = $statement->execute();
@@ -1052,11 +1056,11 @@ class Employee extends BaseDB {
             if( !array_key_exists( $request['REQUEST_DATE'], $calendarData ) ) {
                 $counter = 0;
                 $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
-                $calendarData[$request['REQUEST_DATE']][$counter]['REQUESTED_HOURS'] = $request['REQUESTED_HOURS'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['TOTAL_HOURS'] = $request['TOTAL_HOURS'];
             } else {
                 $counter++;
                 $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
-                $calendarData[$request['REQUEST_DATE']][$counter]['REQUESTED_HOURS'] = $request['REQUESTED_HOURS'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['TOTAL_HOURS'] = $request['TOTAL_HOURS'];
             }
         }
 

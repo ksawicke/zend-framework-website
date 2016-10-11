@@ -325,7 +325,7 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('home');
         }
 
-        $calendarData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-12-01', '2016-12-31' );
+        $calendarData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-11-01', '2016-11-30' );
         echo '<pre>';
         var_dump( $calendarData );
         die();
