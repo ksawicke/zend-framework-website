@@ -102,48 +102,14 @@ class CalendarApi extends ApiController {
         foreach( $calendarDates as $timeFrame => $timeObject ) {
             $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
         }
-//         $endDate = $dates['oneMonthOut'];
-        $endDate = '2016-10-31';
+        $endDate = date("m/d/Y", strtotime("-1 day", strtotime($dates['oneMonthOut'])));
 
         $Employee = new \Request\Model\Employee();
-//         $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $post->employeeNumber, $post->managerReportsType, $startDate, $endDate );
-//         \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
 
-
-
-        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $post->employeeNumber, 'B', '2016-10-01', '2016-10-31' );
+        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $post->employeeNumber, $post->managerReportsType, $startDate, $endDate );
         \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
-//         \Request\Helper\Calendar::drawCalendar( '10', '2016', [] )
-
-
-//         echo $post->employeeNumber . "<br />";
-//         echo $post->managerReportsType . "<br />";
-//         echo $startDate . "<br />";
-//         echo $endDate . "<br />";
-//         echo $startMonth . "<br />";
-//         echo $startYear;
-//         exit();
 
         $calendar1Html = \Request\Helper\Calendar::drawCalendar( $startMonth, $startYear, [] );
-
-//         echo $calendarHtml;
-//         die();
-
-//         $Employee = new \Request\Model\Employee();
-//         $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', '49602', 'B', '2016-10-01', '2016-10-31' );
-//         \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
-
-//         $calendarHtml = \Request\Helper\Calendar::drawCalendar( '10', '2016', [] );
-
-//         echo '<pre>';
-//         var_dump( $calendarHtml );
-//         echo '</pre>';
-//         die();
-
-//         echo '<pre>';
-//         var_dump( $calendarHtml );
-//         echo '</pre>';
-//         die();
 
         $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $startYear, $startMonth );
 

@@ -588,6 +588,15 @@ td.calendar-day {
     position: relative;
 }
 
+/*div.day-number {
+	margin-right:6px;
+}*/
+td.calendar-day p {
+	margin-top:0px;
+	margin-left:20px;
+	text-align:left;
+}
+
 * html div.calendar-day {
     height: 20px;
 }

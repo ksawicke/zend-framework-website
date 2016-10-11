@@ -26,6 +26,18 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
     }
     
     /**
+     * Handle clicking previous or next buttons on calendars
+     */
+    this.handleCalendarNavigation = function() {
+        $('body').on('click', '.calendarNavigation', function(e) {
+//        	console.log( $(this) );
+        	month = $(this).attr("data-month");
+        	year = $(this).attr("data-year");
+        	timeOfMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar( );
+        });
+    }
+    
+    /**
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadMyEmployeeRequestsCalendar = function() {
@@ -36,7 +48,7 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
                 startMonth : month,
                 startYear : year,
                 employeeNumber : employee_number,
-                managerReportsType: 'D',
+                managerReportsType: 'B',
                 calendarsToLoad: 1
             },
             dataType : 'json'
@@ -71,18 +83,6 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
         $("#calendar1Body").html(calendarData.calendars[1]);
 
 //        timeOffCreateRequestHandler.highlightDates();
-    }
-    
-    /**
-     * Handle clicking previous or next buttons on calendars
-     */
-    this.handleCalendarNavigation = function() {
-        $('body').on('click', '.calendarNavigation', function(e) {
-        	console.log( $(this) );
-//        	month = $(this).attr("data-month");
-//        	year = $(this).attr("data-year");
-//        	timeOfMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar( );
-        });
     }
 };
 
