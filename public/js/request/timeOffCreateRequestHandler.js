@@ -803,9 +803,6 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Loads calendars via ajax and displays them on the page.
      */
-    /**
-     * Loads calendars via ajax and displays them on the page.
-     */
     this.loadCalendars = function(employeeNumber, calendarsToLoad, request_id) {
       var month = (new Date()).getMonth() + 1,
           year = (new Date()).getFullYear();
