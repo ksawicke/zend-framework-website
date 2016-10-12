@@ -71,7 +71,8 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
             $this->headScript()
                     ->prependFile( $this->basePath( 'templates/swiftit/js/jquery/1.11.2/jquery.min.js' ) );
 
-            $phpVars = [ 'employee_number' => $this->employeeNumber,
+            $phpVars = [ 'logged_in_employee_number' => $this->employeeNumber,
+                         'employee_number' => $this->employeeNumber,
                          'basePath' => ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ?
                                          'http://swift:10080' . $this->basepath() :
                                          'http://aswift:10080' . $this->basepath() ),

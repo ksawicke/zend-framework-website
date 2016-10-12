@@ -26,6 +26,19 @@ return [
                 'child_routes' => []
             ],
 
+            'loadCalendarManagerEmployees' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/calendar/get/manager-employees',
+                    'defaults' => [
+                        'controller' => 'Application\API\CalendarApi',
+                        'action' => 'loadCalendarManagerEmployees'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
+
             'submitTimeoffRequest' => [
                 'type' => 'segment',
                 'options' => [

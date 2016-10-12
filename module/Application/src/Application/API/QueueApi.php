@@ -132,6 +132,8 @@ class QueueApi extends ApiController {
      * @return array
      */
     public function getManagerEmployeesRequestsDatatable( $data = null, $statuses = [] ) {
+        $redirectUrl = ( empty( $statuses ) ? '/request/view-manager-queue/my-employee-requests' : '/request/view-manager-queue/pending-manager-approval' );
+
         /**
          * return empty result if not called by Datatable
          */
@@ -157,7 +159,7 @@ class QueueApi extends ApiController {
 
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
-            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'];
+            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'] . '?q=' . $redirectUrl;
 
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
