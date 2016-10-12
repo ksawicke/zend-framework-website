@@ -228,7 +228,7 @@ var timeOffCreateRequestHandler = new function() {
     } else {
       $( "#warnBereavementHoursPerRequest" ).hide();
     }
-
+    
     if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).show();
     } else {
@@ -349,7 +349,7 @@ var timeOffCreateRequestHandler = new function() {
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
             if( requestForEmployeeObject.SALARY_TYPE=='S' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
-          	   validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
+          	   validates = ( hoursOff <= 12 && hoursOff >= 8 ? true : false );
             }
         });
 
@@ -752,6 +752,10 @@ var timeOffCreateRequestHandler = new function() {
     
     this.setViewAsReadOnly = function() {
     	var requestStatus = $.trim( $("#reviewRequestStatus").html() );
+    	var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+    	if( isHandledFromReviewRequestScreen===false ) {
+    		return;
+    	}
     	if( ( loggedInUserData.isPayroll=="N" && phpVars.request_id!=0 && $.inArray( requestStatus, nonPayrollReadOnlyStatuses )!=-1 ) ||
     		phpVars.logged_in_employee_number==requestForEmployeeObject.EMPLOYEE_NUMBER ) {
     		viewIsReadOnly = true;

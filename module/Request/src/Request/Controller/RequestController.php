@@ -378,6 +378,26 @@ class RequestController extends AbstractActionController
         return $payrollViewName;
     }
 
+    protected function handleNonPayrollRedirect()
+    {
+        $request = $this->getRequest();
+        $request->getHeader('referer');
+        $referredPage = $request->getQuery('q');
+
+        die( $referredPage );
+        if (trim($referredPage) != '') {
+            die( getcwd() . $referredPage );
+        }
+        exit();
+        if( !is_null( $referredPage ) ) {
+            die( "redirect to " . $referredPage );
+        } else {
+            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+            return $this->redirect()->toRoute('home');
+            exit();
+        }
+    }
+
     /**
      * Allow payroll to view requests in the Pending Checks status.
      *
@@ -395,8 +415,9 @@ class RequestController extends AbstractActionController
         $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
 
         if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
-            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
-            return $this->redirect()->toRoute('home');
+            $this->handleNonPayrollRedirect();
+//             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+//             return $this->redirect()->toRoute('home');
         }
 
         $this->layout()->setVariable( 'payrollView', $payrollView );
@@ -452,6 +473,10 @@ class RequestController extends AbstractActionController
 
     public function reviewRequestAction()
     {
+        $request = $this->getRequest();
+        $request->getHeader('referer');
+        $referredPage = $request->getQuery('q');
+
         $requestId = $this->params()->fromRoute('request_id');
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
@@ -461,12 +486,37 @@ class RequestController extends AbstractActionController
         $Employee->ensureEmployeeScheduleIsDefined( $employeeNumberAssociatedWithRequest );
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
 
+        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+        $viewQueueLink = '';
+        switch( $timeOffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
+            case "Pending Manager Approval":
+                $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
+                break;
+            case "Completed PAFs":
+                $viewQueueLink = '/request/view-payroll-queue/completed-pafs';
+                break;
+            case "Denied":
+                $viewQueueLink = '/request/view-payroll-queue/denied';
+                break;
+            case "Pending AS400 Upload":
+                $viewQueueLink = '/request/view-payroll-queue/pending-as400-upload';
+                break;
+            case "Pending Payroll Approval":
+                $viewQueueLink = '/request/view-payroll-queue/pending-payroll-approval';
+                break;
+            case "Update Checks":
+                $viewQueueLink = '/request/view-payroll-queue/update-checks';
+                break;
+        }
+
         return new ViewModel( [
+            'isPayroll' => $isPayroll,
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,
             'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
             'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
-            'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] )
+            'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] ),
+            'viewQueueLink' => ( $isPayroll=="Y" ? $viewQueueLink : $referredPage )
         ] );
     }
 

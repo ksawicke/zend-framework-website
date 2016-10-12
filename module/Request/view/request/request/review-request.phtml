@@ -5,32 +5,6 @@
 }
 </style>
 
-<?php
-
-$this->isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
-$viewQueueLink = '';
-switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
-    case "Pending Manager Approval":
-        $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
-        break;
-    case "Completed PAFs":
-        $viewQueueLink = '/request/view-payroll-queue/completed-pafs';
-        break;
-    case "Denied":
-        $viewQueueLink = '/request/view-payroll-queue/denied';
-        break;
-    case "Pending AS400 Upload":
-        $viewQueueLink = '/request/view-payroll-queue/pending-as400-upload';
-        break;
-    case "Pending Payroll Approval":
-        $viewQueueLink = '/request/view-payroll-queue/pending-payroll-approval';
-        break;
-    case "Update Checks":
-        $viewQueueLink = '/request/view-payroll-queue/update-checks';
-        break;
-}
-?>
-
 <div class="row gutter-10">
     <div class="col-md-6 col-lg-6">
       <h4>Review Request <?php echo $timeoffRequestData['REQUEST_ID']; ?></h4>
@@ -324,7 +298,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ||
-                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $this->isPayroll=="Y" )
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $$isPayroll=="Y" )
                                 ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
@@ -377,7 +351,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber &&
-                                              $this->isPayroll=="Y" ) { ?>
+                                              $$isPayroll=="Y" ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <br />
                                         <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionSaveChangesToCompletedRequest">Save</button>
