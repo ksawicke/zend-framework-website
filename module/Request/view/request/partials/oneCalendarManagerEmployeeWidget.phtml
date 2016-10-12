@@ -1,11 +1,13 @@
+<select id="calendarViewManagerReportsType"><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option><option value="B">Both</option></select>
+
 <div>
     <div>
     	<div style="width:100%;padding-right:10px;float:left;text-align:center;">
-    		<div id="calendar1Header">
+    		<div id="calendarManagerHeader">
     			<span id="calendarNavigationFastRewind" class="fc-icon fc-icon-left-double-arrow calendarNavigation" title="Go back 3 months" data-month="" data-year=""></span>
     			<span id="calendarNavigationRewind" class="fc-icon fc-icon-left-single-arrow calendarNavigation" title="Go back 1 month" data-month="" data-year=""></span>
     			&nbsp;&nbsp;&nbsp;
-    			<strong><span id="calendar1Label"></span></strong>
+    			<strong><span id="calendarManagerLabel"></span></strong>
                         &nbsp;&nbsp;&nbsp;
     			<span id="calendarNavigationForward" class="fc-icon fc-icon-right-single-arrow calendarNavigation" title="Go forward 1 month" data-month="" data-year=""></span>
     			<span id="calendarNavigationFastForward" class="fc-icon fc-icon-right-double-arrow calendarNavigation" title="Go forward 3 months" data-month="" data-year=""></span>
@@ -15,10 +17,12 @@
         <br /><br />
 
     	<div style="width:100%;padding-right:10px;float:left;text-align:center;">
-    		<div id="calendar1Body"></div>
+    		<div id="calendarManagerBody"></div>
     	</div>
     </div>
 </div>
+
+<img id="calendarLoadingImage" src="<?php echo $this->basePath( 'img/loading/clock.gif'); ?>">
 
 <br style="clear:both;" />
 <br style="clear:both;" />

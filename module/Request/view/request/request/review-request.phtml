@@ -6,6 +6,8 @@
 </style>
 
 <?php
+
+$this->isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
 $viewQueueLink = '';
 switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
     case "Pending Manager Approval":
@@ -196,7 +198,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                             <div class="col-lg-2 col-md-2 text-right">
                                 <strong>Status</strong>
                             </div>
-                            <div class="col-lg-10 col-md-10">
+                            <div class="col-lg-10 col-md-10" id="reviewRequestStatus">
                                 <?php echo $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']; ?>
                             </div>
                         </div>
@@ -322,7 +324,7 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ||
-                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs"
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $this->isPayroll=="Y" )
                                 ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
@@ -374,7 +376,8 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
                                     <?php } ?>
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" &&
-                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber &&
+                                              $this->isPayroll=="Y" ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <br />
                                         <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionSaveChangesToCompletedRequest">Save</button>
@@ -401,7 +404,8 @@ switch( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
 
 <?php
 // $timeoffRequestData['EMPLOYEE_DATA']
-$phpVars = [ 'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER,
+$phpVars = [ 'logged_in_employee_number' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
+             'employee_number' => $timeoffRequestData['EMPLOYEE_DATA']->EMPLOYEE_NUMBER,
              'basePath' => ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ?
                              'http://swift:10080' . $this->basepath() :
                              'http://aswift:10080' . $this->basepath() ),

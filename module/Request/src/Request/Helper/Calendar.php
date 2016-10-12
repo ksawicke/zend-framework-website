@@ -692,7 +692,7 @@ class Calendar
                 if( !array_key_exists( $date, $calendarDateTextToAppend ) ) {
                     $calendarDateTextToAppend[$date] = '';
                 }
-                $calendarDateTextToAppend[$date] .= $d['EMPLOYEE_NAME'] . " - " . $d['TOTAL_HOURS'] . '<br />';
+                $calendarDateTextToAppend[$date] .= $d['EMPLOYEE_NAME'] . " (" . $d['TOTAL_HOURS'] . ')<br />';
             }
         }
         self::$calendarDateTextToAppend = $calendarDateTextToAppend;

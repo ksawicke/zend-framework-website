@@ -1,12 +1,13 @@
 /**
- * Javascript timeOfMyEmployeeRequestsCalendarHandler 'class'
+ * Javascript timeOffMyEmployeeRequestsCalendarHandler 'class'
  *
  */
-var timeOfMyEmployeeRequestsCalendarHandler = new function ()
+var timeOffMyEmployeeRequestsCalendarHandler = new function ()
 {
 	var timeOffLoadEmployeeRequestsCalendarUrl = phpVars.basePath + '/api/calendar/get/manager-employees',
 	    month = (new Date()).getMonth() + 1,
         year = (new Date()).getFullYear(),
+        managerReportsType = 'D',
         employee_number = phpVars.employee_number;
 	
 	/**
@@ -14,14 +15,22 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
      */
     this.initialize = function () {
         $(document).ready(function () {
-        	timeOfMyEmployeeRequestsCalendarHandler.handleClickCalendarViewTab();
-        	timeOfMyEmployeeRequestsCalendarHandler.handleCalendarNavigation();
+        	timeOffMyEmployeeRequestsCalendarHandler.handleClickCalendarViewTab();
+        	timeOffMyEmployeeRequestsCalendarHandler.handleCalendarNavigation();
+        	timeOffMyEmployeeRequestsCalendarHandler.handleChangeCalendarViewReportsType();
         });
+    }
+    
+    this.handleChangeCalendarViewReportsType = function () {
+    	$('body').on('change', '#calendarViewManagerReportsType', function(e) {
+    		managerReportsType = $(this).val();
+    		timeOffMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar();
+    	});
     }
     
     this.handleClickCalendarViewTab = function () {
     	$('body').on('click', '#myEmployeeRequestsCalendarViewTab', function(e) {
-    		timeOfMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar();
+    		timeOffMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar();
         });
     }
     
@@ -30,10 +39,9 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
      */
     this.handleCalendarNavigation = function() {
         $('body').on('click', '.calendarNavigation', function(e) {
-//        	console.log( $(this) );
         	month = $(this).attr("data-month");
         	year = $(this).attr("data-year");
-        	timeOfMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar( );
+        	timeOffMyEmployeeRequestsCalendarHandler.loadMyEmployeeRequestsCalendar();
         });
     }
     
@@ -41,6 +49,7 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
      * Loads calendars via ajax and displays them on the page.
      */
     this.loadMyEmployeeRequestsCalendar = function() {
+    	timeOffMyEmployeeRequestsCalendarHandler.toggleCalendarLoading();
         $.ajax({
             url : timeOffLoadEmployeeRequestsCalendarUrl,
             type : 'POST',
@@ -48,13 +57,14 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
                 startMonth : month,
                 startYear : year,
                 employeeNumber : employee_number,
-                managerReportsType: 'B',
+                managerReportsType: managerReportsType,
                 calendarsToLoad: 1
             },
             dataType : 'json'
         })
         .success(function(json) {
-        	timeOfMyEmployeeRequestsCalendarHandler.drawOneCalendar(json.calendarData);
+        	timeOffMyEmployeeRequestsCalendarHandler.drawOneCalendar(json.calendarData);
+        	timeOffMyEmployeeRequestsCalendarHandler.toggleCalendarLoading();
             return;
         }).error(function() {
             console.log('There was some error.');
@@ -77,14 +87,33 @@ var timeOfMyEmployeeRequestsCalendarHandler = new function ()
         $("#calendarNavigationForward").attr("data-year", calendarData.navigation.calendarNavigationForward.year);
 
         /** Draw calendar labels **/
-        $("#calendar1Label").html(calendarData.headers[1]);
+        $("#calendarManagerLabel").html(calendarData.headers[1]);
 
         /** Draw calendars **/
-        $("#calendar1Body").html(calendarData.calendars[1]);
-
-//        timeOffCreateRequestHandler.highlightDates();
+        $("#calendarManagerBody").html(calendarData.calendars[1]);
+        
+        timeOffMyEmployeeRequestsCalendarHandler.unhighlightDates(); // Don't want the manger's calendar to show anything highlighted on this view
+    }
+    
+    this.unhighlightDates = function() {
+    	$.each($(".calendar-day"), function(index, blah) {
+            $(this).removeClass('timeOffPTOSelected');
+            $(this).removeClass('timeOffFloatSelected');
+            $(this).removeClass('timeOffSickSelected');
+            $(this).removeClass('timeOffGrandfatheredSelected');
+            $(this).removeClass('timeOffBereavementSelected');
+            $(this).removeClass('timeOffApprovedNoPaySelected');
+            $(this).removeClass('timeOffCivicDutySelected');
+            $(this).removeClass('timeOffUnexcusedAbsenceSelected');
+        });
+    }
+    
+    this.toggleCalendarLoading = function() {
+    	$("#calendarManagerHeader").toggle();
+    	$("#calendarManagerBody").toggle();
+    	$("#calendarLoadingImage").toggle();
     }
 };
 
 // Initialize the class
-timeOfMyEmployeeRequestsCalendarHandler.initialize();
+timeOffMyEmployeeRequestsCalendarHandler.initialize();

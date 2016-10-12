@@ -1016,7 +1016,7 @@ class Employee extends BaseDB {
         $endDate = $endDate->format( "Y-m-d" );
 
         $rawSql = "select report_requests.REQUEST_DATE, report_requests.EMPLOYEE_NUMBER,
-            report_requests.EMPLOYEE_NAME, report_requests.TOTAL_HOURS from table (
+            report_requests.PRCOMN, report_requests.PRLNM, report_requests.EMPLOYEE_NAME, report_requests.TOTAL_HOURS from table (
               SELECT
                 EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
@@ -1026,7 +1026,7 @@ class Employee extends BaseDB {
             ) hierarchy
             INNER JOIN table(
               select
-                entry.REQUEST_DATE, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME, request.EMPLOYEE_NUMBER, sum(entry.REQUESTED_HOURS) as TOTAL_HOURS
+                entry.REQUEST_DATE, TRIM(employee.PRCOMN) AS PRCOMN, TRIM(employee.PRLNM) AS PRLNM, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME, request.EMPLOYEE_NUMBER, sum(entry.REQUESTED_HOURS) as TOTAL_HOURS
                 FROM TIMEOFF_REQUEST_ENTRIES entry
                 INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
                 INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
@@ -1053,13 +1053,14 @@ class Employee extends BaseDB {
 
         $calendarData = [];
         foreach( $data as $ctr => $request ) {
+            $employeeAbbrName = substr( $request['PRCOMN'], 0, 1 ) . ". " . $request['PRLNM'];
             if( !array_key_exists( $request['REQUEST_DATE'], $calendarData ) ) {
                 $counter = 0;
-                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $employeeAbbrName;
                 $calendarData[$request['REQUEST_DATE']][$counter]['TOTAL_HOURS'] = $request['TOTAL_HOURS'];
             } else {
                 $counter++;
-                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $request['EMPLOYEE_NAME'];
+                $calendarData[$request['REQUEST_DATE']][$counter]['EMPLOYEE_NAME'] = $employeeAbbrName;
                 $calendarData[$request['REQUEST_DATE']][$counter]['TOTAL_HOURS'] = $request['TOTAL_HOURS'];
             }
         }
