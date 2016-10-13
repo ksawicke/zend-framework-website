@@ -208,6 +208,26 @@ class RequestController extends AbstractActionController
         ]);
     }
 
+    public function manageSupervisorProxiesAction()
+    {
+
+//         $view = new ViewModel();
+//         $view->setTemplate('application/hradmin/personnelActions.phtml');
+
+//         return $view;
+
+        $Employee = new \Request\Model\Employee();
+
+        return new ViewModel([
+            'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL'),
+            'flashMessages' => ['success' => $this->flashMessenger()->getCurrentSuccessMessages(),
+                                'warning' => $this->flashMessenger()->getCurrentWarningMessages(),
+                                'error' => $this->flashMessenger()->getCurrentErrorMessages(),
+                                'info' => $this->flashMessenger()->getCurrentInfoMessages()
+                               ]
+        ]);
+    }
+
     public function manageEmailOverridesAction()
     {
         $Employee = new \Request\Model\Employee();

@@ -579,7 +579,7 @@ class Employee extends BaseDB {
         return $this->employeeData;
     }
 
-    public function findProxyEmployees( $managerEmployeeNumber = null, $search = null ) {
+    public function findProxyEmployees( $managerEmployeeNumber = null, $search = null, $directFilter = null ) {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
@@ -588,6 +588,7 @@ class Employee extends BaseDB {
               trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
             )
         )";
+
         $rawSql = "SELECT
                 CASE
                     when trim(employee.PRCOMN) IS NOT NULL then trim(employee.PRLNM) || ', ' || trim(employee.PRCOMN)
@@ -767,7 +768,7 @@ class Employee extends BaseDB {
      * @return \Zend\Db\ResultSet\ResultSet[]
      */
     public function findManagerEmployees( $managerEmployeeNumber = null, $search = null, $directReportFilter = null,
-            $isProxy = null, $proxyFor = [] ) {
+            $isProxy = null, $proxyFor = [], $exclude = null ) {
         $isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
         $isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
         $where = "WHERE (
@@ -778,6 +779,12 @@ class Employee extends BaseDB {
               trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
             )
         )";
+
+        if ($exclude !== null && trim($exclude) !== '' && trim($exclude) !== 'proxy') {
+            $where .= " AND TRIM(PREN) != '".$exclude."' ";
+        }
+//         var_dump($directFilter);
+//         var_dump($where);
 
         if ( $isPayrollAdmin === "Y" ||
              $isPayrollAssistant === "Y" ) {

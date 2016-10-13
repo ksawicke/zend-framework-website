@@ -185,20 +185,20 @@ h1, h2, h3, h4, h5, h6 {
 
 /** Bootstrap tabs **/
 ul.nav.nav-tabs {
-	margin-top: -35px;
+  margin-top: -35px;
 }
 ul.nav.nav-tabs li a {
-	color: #919194;
-	background-color: #fff;
-	border: 1px solid #ccc;
+  color: #919194;
+  background-color: #fff;
+  border: 1px solid #ccc;
 }
 ul.nav.nav-tabs li.active a {
-	color: #fff;
-	background-color: #337ab7;
+  color: #fff;
+  background-color: #337ab7;
 }
 .tab-content {
-	border: 1px solid #ccc;
-	padding:15px;
+  border: 1px solid #ccc;
+  padding:15px;
 }
 /**
 Swift Blue: #005590
@@ -221,6 +221,12 @@ label {
     color: #000;
     font-weight: bold;
     border: 2px solid #ffcc00;
+}
+
+.btn-primary-no-border-color {
+    background-color: #FFF;
+    color: #000;
+    font-weight: bold;
 }
 
 .btn-primary:hover {
