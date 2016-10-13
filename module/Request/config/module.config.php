@@ -7,7 +7,7 @@ $config = [
         'factories' => [
             'TimeOffEmailReminderService' => Factory\TimeOffEmailReminderServiceFactory::class,
             'EmailService' => Factory\EmailServiceFactory::class,
-            'UserSettingsService' => Factory\UserSettingsServiceFactory::class,
+            'UserSettingsService' => Service\UserSettings\UserSettingsServiceFactory::class,
 
             'UserSettingsDAO' => DAO\UserSettings\UserSettingsDAOFactory::class,
 

@@ -3,6 +3,8 @@ namespace Request\Service\UserSettings;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Request\DAO\UserSettings\UserSettingsDAO;
+use Request\Model\EmployeeId;
+use Request\Model\UserSetting;
 
 class UserSettingsService
 {
@@ -15,14 +17,14 @@ class UserSettingsService
         $this->userSettingsDAO = $userSettingsDAO;
     }
 
-    public function getUserSettings($employeeId)
+    public function getUserSettings(EmployeeId $employeeId)
     {
         $userSettingsDAOResult = $this->userSettingsDAO->getUserSettings($employeeId);
 
         return $userSettingsDAOResult;
     }
 
-    public function setUserSettings($employeeId, $setting)
+    public function setUserSettings(EmployeeId $employeeId, UserSetting $setting)
     {
         $this->userSettingsDAO->setUserSettings($employeeId, $setting);
     }
