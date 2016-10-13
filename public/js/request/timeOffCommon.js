@@ -240,7 +240,7 @@ var timeOffCommon = new function ()
 
         myEmployee['employeeId'] = phpVars.logged_in_employee_number;
 
-        mySetting['showCalendarLegendersonnelActionCode'] = encodeURIComponent($("#calendarLegend").is(':visible'));
+        mySetting['showCalendarLegender'] = encodeURIComponent($("#calendarLegend").is(':visible'));
 
         myJson['employee'] = myEmployee;
         myJson['setting'] = mySetting;
@@ -273,7 +273,7 @@ var timeOffCommon = new function ()
             dataType : 'json',
             success: function(data) {
                 $.each(data, function(key, value) {
-                    if (key == "showCalendarLegendersonnelActionCode" ) {
+                    if (key == "showCalendarLegend" ) {
                         if ((value == 'false' && $("#calendarLegend").is(':visible')) ||
                             (value == 'true' && $("#calendarLegend").is(':hidden'))) {
                             $("#calendarLegend").toggle();
