@@ -69,7 +69,9 @@ var timeOffCreateRequestHandler = new function() {
             'timeOffApprovedNoPay' : 'Time Off Without Pay'
         },
         directReportFilter = 'B',
-        doRealDelete = true;
+        doRealDelete = true,
+        nonPayrollReadOnlyStatuses = [ "Pending AS400 Upload", "Completed PAFs", "Denied" ],
+        viewIsReadOnly = false;
 
    /**
     * Handles what happens when you choose another employee in the For: field.
@@ -90,7 +92,7 @@ var timeOffCreateRequestHandler = new function() {
     * Initializes binding
     */
    this.initialize = function() {
-       $(document).ready(function() {
+       $(document).ready(function() {    	   
            var $requestForEventSelect = $("#requestFor");
             /**
              * When we change the for dropdown using select2,
@@ -226,7 +228,7 @@ var timeOffCreateRequestHandler = new function() {
     } else {
       $( "#warnBereavementHoursPerRequest" ).hide();
     }
-
+    
     if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).show();
     } else {
@@ -347,7 +349,7 @@ var timeOffCreateRequestHandler = new function() {
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
         	var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
             if( requestForEmployeeObject.SALARY_TYPE=='S' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
-          	   validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
+          	   validates = ( hoursOff <= 12 && hoursOff >= 8 ? true : false );
             }
         });
 
@@ -726,6 +728,9 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.handleClickCategory = function() {
         $(".selectTimeOffCategory").click(function() {
+        	if( viewIsReadOnly==true ) {
+          	  return;
+            }
         	if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===false ) {
         		timeOffCreateRequestHandler.selectCategory($(this));
         	}
@@ -743,6 +748,20 @@ var timeOffCreateRequestHandler = new function() {
                 timeOffCreateRequestHandler.loadNewCalendars($(this).attr("data-month"), $(this).attr("data-year"), 3);
             }
         });
+    }
+    
+    this.setViewAsReadOnly = function() {
+    	var requestStatus = $.trim( $("#reviewRequestStatus").html() );
+    	var isHandledFromReviewRequestScreen = timeOffCreateRequestHandler.isHandledFromReviewRequestScreen();
+    	if( isHandledFromReviewRequestScreen===false ) {
+    		return;
+    	}
+    	if( ( loggedInUserData.isPayroll=="N" && phpVars.request_id!=0 && $.inArray( requestStatus, nonPayrollReadOnlyStatuses )!=-1 ) ||
+    		phpVars.logged_in_employee_number==requestForEmployeeObject.EMPLOYEE_NUMBER ) {
+    		viewIsReadOnly = true;
+    		$("#timeOffCalendarWarningNoCategorySelected").hide();
+    	}
+    	
     }
 
     /**
@@ -803,9 +822,6 @@ var timeOffCreateRequestHandler = new function() {
     /**
      * Loads calendars via ajax and displays them on the page.
      */
-    /**
-     * Loads calendars via ajax and displays them on the page.
-     */
     this.loadCalendars = function(employeeNumber, calendarsToLoad, request_id) {
       var month = (new Date()).getMonth() + 1,
           year = (new Date()).getFullYear();
@@ -824,7 +840,7 @@ var timeOffCreateRequestHandler = new function() {
             dataType : 'json'
         })
         .success(function(json) {
-            if (requestForEmployeeNumber === '') {
+            if (requestForEmployeeNumber == '') {
                 loggedInUserData = json.employeeData;
                 loggedInUserData.isManager = json.loggedInUserData.isManager;
                 loggedInUserData.isSupervisor = json.loggedInUserData.isSupervisor;
@@ -839,9 +855,10 @@ var timeOffCreateRequestHandler = new function() {
                     }
                 }
             }
-
+            
             requestForEmployeeNumber = json.employeeData.EMPLOYEE_NUMBER;
             requestForEmployeeObject = json.employeeData;
+            timeOffCreateRequestHandler.setViewAsReadOnly();
             if( calendarsToLoad===1 ) {
                 timeOffCreateRequestHandler.drawOneCalendar(json.calendarData);
             }
@@ -1131,6 +1148,7 @@ var timeOffCreateRequestHandler = new function() {
             dataType : 'json'
         }).success(function(json) {
             requestForEmployeeObject = json.employeeData;
+            timeOffCreateRequestHandler.setViewAsReadOnly();
             if( calendarsToLoad==1 ) {
                 timeOffCreateRequestHandler.drawOneCalendar(json.calendarData);
                 timeOffCreateRequestHandler.unhighlightDeletedDates(startMonth, startYear, json.calendarData);
@@ -1807,7 +1825,7 @@ var timeOffCreateRequestHandler = new function() {
                         '<th style="width:60px;">Date</th>' +
                         '<th style="width:40px;">Hours</th>' +
                         '<th>Category</th>' +
-                        '<th style="width:15px;text-align:center;">Delete</th>' +
+                        ( viewIsReadOnly==false ? '<th style="width:15px;text-align:center;">Delete</th>' : '' ) +
                     '</tr>' +
                 '</thead>' +
                 '<tbody>';
@@ -1829,11 +1847,13 @@ var timeOffCreateRequestHandler = new function() {
               timeOffCreateRequestHandler.getCategoryText(selectedDatesNew[selectedIndex].category) +
               '</span>' +
               '</td>' +
-              '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
-              'data-date="' + selectedDatesNew[selectedIndex].date + '" ' +
-              'data-category="' + selectedDatesNew[selectedIndex].category + '" ' +
-              'data-selecteddatesnew-key="' + selectedIndex + '" ' +
-              'title="Remove date from request">' + '</span></td>' +
+              ( viewIsReadOnly==false ?
+                  '<td style="width:15px;text-align:center;"><span class="glyphicon glyphicon-remove-circle red remove-date-requested" ' +
+                  'data-date="' + selectedDatesNew[selectedIndex].date + '" ' +
+                  'data-category="' + selectedDatesNew[selectedIndex].category + '" ' +
+                  'data-selecteddatesnew-key="' + selectedIndex + '" ' +
+                  'title="Remove date from request">' + '</span></td>'
+                : '' ) +
               '</tr>';
       }
     }
@@ -1997,7 +2017,7 @@ var timeOffCreateRequestHandler = new function() {
         if( timeOffCommon.empty( category ) ) {
             return settingsDisableHoursInputFields===true ? ' disabled="disabled"' : '';
         }
-        return category==="timeOffFloat" ? ' disabled="disabled"' : '';
+        return ( category==="timeOffFloat" || viewIsReadOnly==true ? ' disabled="disabled"' : '' );
     }
 
     this.checkIfRequestFormShouldBeDisabled = function() {

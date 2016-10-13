@@ -73,6 +73,104 @@ class CalendarApi extends ApiController {
 
     }
 
+    public function loadCalendarManagerEmployeesAction() {
+        $post = $this->getRequest()->getPost();
+        $Employee = new \Request\Model\Employee();
+        $Employee->ensureEmployeeScheduleIsDefined( $post->employeeNumber );
+        $employeeData = $Employee->findEmployeeTimeOffData( $post->employeeNumber, "Y" );
+        $startYear = null;
+        $startMonth = null;
+
+        if( empty( $post->calendarsToLoad ) ) {
+            $post->calendarsToLoad = 1;
+        }
+
+        $startYear = $post->startYear;
+        $startMonth = $post->startMonth;
+
+        $startDate = date( "Y-m-d", strtotime( $startYear . "-" . $startMonth . "-01" ) );
+        $dates = [];
+        $headers = [];
+        $calendars = [];
+
+        \Request\Helper\Calendar::setCalendarHeadings( ['S', 'M', 'T', 'W', 'T', 'F', 'S' ] );
+        \Request\Helper\Calendar::setBeginWeekOne( '<tr class="calendar-row" style="height:40px;">' );
+        \Request\Helper\Calendar::setBeginCalendarRow( '<tr class="calendar-row" style="height:40px;">' );
+        \Request\Helper\Calendar::setInvalidRequestDates( $this->invalidRequestDates );
+
+        $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $startYear, $startMonth );
+        foreach( $calendarDates as $timeFrame => $timeObject ) {
+            $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
+        }
+        $endDate = date("m/d/Y", strtotime("-1 day", strtotime($dates['oneMonthOut'])));
+
+        $Employee = new \Request\Model\Employee();
+
+        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $post->employeeNumber, $post->managerReportsType, $startDate, $endDate );
+        \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
+
+        $calendar1Html = \Request\Helper\Calendar::drawCalendar( $startMonth, $startYear, [] );
+
+        $calendarDates = \Request\Helper\Calendar::getDatesForOneCalendar( $startYear, $startMonth );
+
+        foreach( $calendarDates as $timeFrame => $timeObject ) {
+            $dates[$timeFrame] = $timeObject->format( "Y-m-d" );
+        }
+
+        $highlightDates = $Employee->findTimeOffCalendarByEmployeeNumber( $post->employeeNumber, $startDate,
+            ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] ), $post->requestId );
+
+        $threeCalendars = \Request\Helper\Calendar::getOneCalendar( $startYear, $startMonth, $highlightDates, $post->requestId );
+        $navigation = [ 'calendarNavigationFastRewind' => [ 'month' => $calendarDates['threeMonthsBack']->format( "m" ), 'year' => $calendarDates['threeMonthsBack']->format( "Y" ) ],
+            'calendarNavigationRewind' => [ 'month' => $calendarDates['oneMonthBack']->format( "m" ), 'year' => $calendarDates['oneMonthBack']->format( "Y" ) ],
+            'calendarNavigationForward' => [ 'month' => $calendarDates['oneMonthOut']->format( "m" ), 'year' => $calendarDates['oneMonthOut']->format( "Y" ) ],
+            'calendarNavigationFastForward' => [ 'month' => $calendarDates['threeMonthsOut']->format( "m" ), 'year' => $calendarDates['threeMonthsOut']->format( "Y" ) ],
+        ];
+
+        foreach( $threeCalendars['calendars'] as $key => $calendar ) {
+            $headers[$key] = $calendar['header'];
+            $calendars[$key] = $calendar['data'];
+        }
+
+        foreach( $highlightDates as $key => $dateObject ) {
+            $highlightDates[$key]['REQUEST_DATE'] = date( "m/d/Y", strtotime( $dateObject['REQUEST_DATE'] ) );
+        }
+
+        $endDate = ( $post->calendarsToLoad==3 ? $dates['threeMonthsOut'] : $dates['oneMonthOut'] );
+        $result = new JsonModel( [
+            'success' => true,
+            'employeeData' => $employeeData,
+            'loggedInUserData' => [ 'isManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_MANAGER' ),
+                'isSupervisor' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_SUPERVISOR' ),
+                'isPayroll' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ),
+                'isPayrollAdmin' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ),
+                'isPayrollAssistant' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ),
+                'isProxy' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' ),
+                'isProxyForManager' => \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY_FOR_MANAGER' )
+            ],
+            'proxyFor' => ( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ?
+                $Employee->findProxiesByEmployeeNumber( $post->employeeNumber ) :
+                []
+                ),
+            'calendarData' => [
+                'headers' => $headers,
+                'calendars' => $calendars,
+                'calendar1Html' => $calendar1Html,
+                'navigation' => $navigation,
+                'highlightDates' => $highlightDates,
+                'holidays' => $this->invalidRequestDates['individual'],
+                'startDate' => date( "m/d/Y", strtotime( $startDate ) ),
+                'endDate' => date( "m/d/Y", strtotime( $endDate ) )
+            ]
+        ] );
+
+        if( \Login\Helper\UserSession::getUserSessionVariable( 'IS_PROXY' )==="Y" ) {
+
+        }
+
+        return $result;
+    }
+
     /**
      * Load three calendars and employee data.
      *

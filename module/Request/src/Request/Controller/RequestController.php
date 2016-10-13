@@ -1,7 +1,7 @@
 <?php
 namespace Request\Controller;
 
-//use Request\Service\RequestServiceInterface;
+use Request\Service\RequestServiceInterface;
 //use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -11,9 +11,9 @@ use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 use \Request\Helper\ValidationHelper;
 use \Login\Helper\UserSession;
-
 use \Request\Model\RequestEntry;
 use \Request\Model\Papaatmp;
+use \Request\Helper\Calendar;
 use PHPExcel;
 use PHPExcel_Style_NumberFormat;
 use PHPExcel_Style_Color;
@@ -24,7 +24,7 @@ use PHPExcel_IOFactory;
 
 class RequestController extends AbstractActionController
 {
-//    protected $requestService;
+   protected $requestService;
 //
 //    protected $requestForm;
 
@@ -345,6 +345,16 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('home');
         }
 
+        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-10-01', '2016-10-31' );
+        \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
+
+//         echo '<pre>';
+//         var_dump( $calendarData );
+//         die();
+//         $calendarData[0]['FIRST_NAME'] = 'GUIDO';
+//         $calendarData[0]['LAST_NAME'] = 'FAECKE';
+//         $calendarData[0]['REQUEST_TYPE'] = 'PTO';
+
         $this->layout()->setVariable( 'managerView', $managerView );
 
         $view = new ViewModel([
@@ -354,7 +364,9 @@ class RequestController extends AbstractActionController
             'managerView' => $managerView,
             'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
-            'flashMessages' => $this->getFlashMessages()
+            'flashMessages' => $this->getFlashMessages(),
+            'calendarData' => $calendarDateTextData,
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar( '10', '2016', [] )
         ]);
         $view->setTemplate( 'request/manager-queues/' . $managerView . '.phtml' );
         return $view;
@@ -386,6 +398,26 @@ class RequestController extends AbstractActionController
         return $payrollViewName;
     }
 
+    protected function handleNonPayrollRedirect()
+    {
+        $request = $this->getRequest();
+        $request->getHeader('referer');
+        $referredPage = $request->getQuery('q');
+
+        die( $referredPage );
+        if (trim($referredPage) != '') {
+            die( getcwd() . $referredPage );
+        }
+        exit();
+        if( !is_null( $referredPage ) ) {
+            die( "redirect to " . $referredPage );
+        } else {
+            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+            return $this->redirect()->toRoute('home');
+            exit();
+        }
+    }
+
     /**
      * Allow payroll to view requests in the Pending Checks status.
      *
@@ -403,8 +435,9 @@ class RequestController extends AbstractActionController
         $isPayrollAssistant = $Employee->isPayrollAssistant( $this->employeeNumber );
 
         if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
-            $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
-            return $this->redirect()->toRoute('home');
+            $this->handleNonPayrollRedirect();
+//             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
+//             return $this->redirect()->toRoute('home');
         }
 
         $this->layout()->setVariable( 'payrollView', $payrollView );
@@ -460,6 +493,10 @@ class RequestController extends AbstractActionController
 
     public function reviewRequestAction()
     {
+        $request = $this->getRequest();
+        $request->getHeader('referer');
+        $referredPage = $request->getQuery('q');
+
         $requestId = $this->params()->fromRoute('request_id');
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
@@ -469,12 +506,37 @@ class RequestController extends AbstractActionController
         $Employee->ensureEmployeeScheduleIsDefined( $employeeNumberAssociatedWithRequest );
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
 
+        $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
+        $viewQueueLink = '';
+        switch( $timeOffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
+            case "Pending Manager Approval":
+                $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
+                break;
+            case "Completed PAFs":
+                $viewQueueLink = '/request/view-payroll-queue/completed-pafs';
+                break;
+            case "Denied":
+                $viewQueueLink = '/request/view-payroll-queue/denied';
+                break;
+            case "Pending AS400 Upload":
+                $viewQueueLink = '/request/view-payroll-queue/pending-as400-upload';
+                break;
+            case "Pending Payroll Approval":
+                $viewQueueLink = '/request/view-payroll-queue/pending-payroll-approval';
+                break;
+            case "Update Checks":
+                $viewQueueLink = '/request/view-payroll-queue/update-checks';
+                break;
+        }
+
         return new ViewModel( [
+            'isPayroll' => $isPayroll,
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
             'timeoffRequestData' => $timeOffRequestData,
             'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
             'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
-            'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] )
+            'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] ),
+            'viewQueueLink' => ( $isPayroll=="Y" ? $viewQueueLink : $referredPage )
         ] );
     }
 
