@@ -736,7 +736,7 @@ class RequestApi extends ApiController {
             $renderer->basePath( '/request/review-request/' . $post->request_id );
         $emailVariables = $this->getEmailRequestVariables( $post->request_id );
         $to = $post->request['forEmployee']['EMAIL_ADDRESS'];
-        $cc = $post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
+        $cc = ''; //$post->request['forEmployee']['MANAGER_EMAIL_ADDRESS'];
         if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
             $to = $this->emailOverrideList;
             $cc = '';
