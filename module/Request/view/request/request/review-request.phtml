@@ -298,7 +298,7 @@
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
                                     $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ||
-                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $$isPayroll=="Y" )
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $isPayroll=="Y" )
                                 ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>

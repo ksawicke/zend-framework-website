@@ -543,6 +543,7 @@ class RequestController extends AbstractActionController
     {
         $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
         $data['columns'][0]['search']['value'] = ( !empty( $this->getRequest()->getPost('reportFilter') ) ? $this->getRequest()->getPost('reportFilter') : 'D' );
+        $data['columns'][2]['search']['value'] = ( !empty( $this->getRequest()->getPost('statusFilter') ) ? $this->getRequest()->getPost('statusFilter') : 'All' );
         $queue = $this->params()->fromRoute('queue');
         $ManagerQueues = new \Request\Model\ManagerQueues();
         $Employee = new Employee();

@@ -166,7 +166,7 @@ class QueueApi extends ApiController {
                 'APPROVER_QUEUE' => $request['APPROVER_QUEUE'],
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
-                'REQUEST_REASON' => $request['REQUEST_REASON'],
+                'REQUEST_REASON' => trim( $request['REQUEST_REASON'] ),
                 'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 3 days' ),
                 'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
             ];
@@ -184,7 +184,8 @@ class QueueApi extends ApiController {
             "draw" => $draw,
             "data" => $data,
             "recordsTotal" => $recordsTotal,
-            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+            "recordsFiltered" => $recordsFiltered, // count of what is actually being searched on
+            "blah" => 223942
         );
 
         /**
