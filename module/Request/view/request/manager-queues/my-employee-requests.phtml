@@ -13,9 +13,27 @@
 		<table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
             <thead>
                 <tr>
-                    <th>Employee</th>
+                    <th>
+                    	Employee<br />
+                    	<select id="myEmployeeRequestsQueueViewColumnEmployeeFilter">
+                    		<option value="D" selected>Direct Reports</option>
+                    		<option value="I">Indirect Reports</option>
+                    		<option value="B">Both</option>
+                    	</select>
+                    </th>
                     <th>Approver queue</th>
-                    <th>Request Status</th>
+                    <th>
+                    	Request Status<br />
+                    	<select id="myEmployeeRequestsQueueViewColumnRequestStatusFilter">
+                    		<option value="All" selected>All</option>
+                    		<option value="Pending Manager Approval">Pending Manager Approval</option>
+                    		<option value="Completed PAFs">Completed PAFs</option>
+                    		<option value="Denied">Denied</option>
+                    		<option value="Pending AS400 Upload">Pending AS400 Upload</option>
+                    		<option value="Pending Payroll Approval">Pending Payroll Approval</option>
+                    		<option value="Update Checks">Update Checks</option>
+                    	</select>
+                    </th>
                     <th>Hours Requested</th>
                     <th>Request Reason</th>
                     <th>First Day<br />Requested</th>

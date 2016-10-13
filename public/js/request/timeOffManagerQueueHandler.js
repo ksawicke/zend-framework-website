@@ -4,7 +4,8 @@
  */
 var timeOffManagerQueueHandler = new function ()
 {
-	var currentManagerReportFilter = 'D'; // Defaults to Direct Reports
+	var currentManagerReportFilter = 'D', // Defaults to Direct Reports
+	    currentStatusFilter = 'All';
 	
     /**
      * Initializes binding
@@ -25,7 +26,7 @@ var timeOffManagerQueueHandler = new function ()
             $.ajax( { type: 'post',
                       url: href,
                       dataType: 'json',
-                      data: { reportFilter: currentManagerReportFilter },
+                      data: { reportFilter: currentManagerReportFilter, statusFilter: currentStatusFilter },
                       success: function(data) {
                     	  /**
                     	   * Dynamically load the Excel spreadsheet.
@@ -77,41 +78,23 @@ var timeOffManagerQueueHandler = new function ()
             initComplete: function () {
                 var table = $('#manager-queue-my-employee-requests').DataTable();
 
-                table.columns().every( function () {
-                    var column = this;
-                    var idx = this.index();
-                    var title = table.column( idx ).header();
-
-                    if( $(title).html()=="Employee" ) {
-                        var select = $('<br /><select><option value="D" selected>Direct Reports</option><option value="I">Indirect Reports</option><option value="B">Both</option></select>')
-                            .appendTo( $(column.header()) )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-                                currentManagerReportFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
-                                column
-                                    .search( val ? val : '', true, false )
-                                    .draw();
-                            } );
-                    }
-                    if( $(title).html()=="Request Status" ) {
-                        var select = $('<br /><select><option value="All" selected>All</option></select>')
-                            .appendTo( $(column.header()) )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-
-                                column
-                                    .search( val ? val : '', true, false )
-                                    .draw();
-                            } );
-                        column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
-                        } );
-                    }
-                } );
+                $('#myEmployeeRequestsQueueViewColumnEmployeeFilter')
+	                .on( 'change', function () {
+	                    var val = $.fn.dataTable.util.escapeRegex(
+	                        $(this).val()
+	                    );
+	                    currentManagerReportFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
+	                    table.column( 0 ).search( val ? val : '', true, false ).draw();
+	                } );
+                
+                $('#myEmployeeRequestsQueueViewColumnRequestStatusFilter')
+	                .on( 'change', function () {
+	                    var val = $.fn.dataTable.util.escapeRegex(
+	                        $(this).val()
+	                    );
+	                    currentStatusFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
+	                    table.column( 2 ).search( val ? val : '', true, false ).draw();
+	                } );
             }
         })
         .on("error.dt", function (e, settings, techNote, message) {
