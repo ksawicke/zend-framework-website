@@ -325,15 +325,15 @@ class RequestController extends AbstractActionController
             return $this->redirect()->toRoute('home');
         }
 
-        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'B', '2016-10-01', '2016-10-31' );
-        \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
+        $startDate = date( "Y-m-01" );
+        $oneMonthOut = date( "Y-m-d", strtotime( "+1 month", strtotime( $startDate ) ) );
+        $endDate = date( "Y-m-d", strtotime( "-1 day", strtotime( $oneMonthOut ) ) );
 
-//         echo '<pre>';
-//         var_dump( $calendarData );
-//         die();
-//         $calendarData[0]['FIRST_NAME'] = 'GUIDO';
-//         $calendarData[0]['LAST_NAME'] = 'FAECKE';
-//         $calendarData[0]['REQUEST_TYPE'] = 'PTO';
+        $startMonth = date( "m" );
+        $startYear = date( "Y" );
+
+        $calendarDateTextData = $Employee->findTimeOffCalendarByManager( '002', $this->employeeNumber, 'D', $startDate, $endDate );
+        \Request\Helper\Calendar::setCalendarDateTextToAppend( $calendarDateTextData );
 
         $this->layout()->setVariable( 'managerView', $managerView );
 
@@ -346,7 +346,7 @@ class RequestController extends AbstractActionController
             'employeeNumber' => $this->employeeNumber,
             'flashMessages' => $this->getFlashMessages(),
             'calendarData' => $calendarDateTextData,
-            'calendarHtml' => \Request\Helper\Calendar::drawCalendar( '10', '2016', [] )
+            'calendarHtml' => \Request\Helper\Calendar::drawCalendar( $startMonth, $startYear, [] )
         ]);
         $view->setTemplate( 'request/manager-queues/' . $managerView . '.phtml' );
         return $view;
