@@ -240,7 +240,7 @@ var timeOffCommon = new function ()
 
         myEmployee['employeeId'] = phpVars.logged_in_employee_number;
 
-        mySetting['showCalendarLegender'] = encodeURIComponent($("#calendarLegend").is(':visible'));
+        mySetting['showCalendarLegend'] = encodeURIComponent($("#calendarLegend").is(':visible'));
 
         myJson['employee'] = myEmployee;
         myJson['setting'] = mySetting;
