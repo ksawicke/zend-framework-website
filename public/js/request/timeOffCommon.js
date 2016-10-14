@@ -5,7 +5,9 @@
 var timeOffCommon = new function ()
 {
     var timeOffSubmitEmployeeScheduleRequestUrl = phpVars.basePath + '/api/employee-schedule',
-        employeeScheduleFormErrors = 0;
+        employeeScheduleFormErrors = 0,
+        updateUserSetting = phpVars.basePath + '/api/update-user-setting',
+        getUserSettings = phpVars.basePath + '/api/get-user-settings';
 
     /**
      * What to run on initialize of this class.
@@ -17,6 +19,7 @@ var timeOffCommon = new function ()
             timeOffCommon.fadeOutFlashMessage();
             timeOffCommon.autoOpenDropdownOnHover();
             timeOffCommon.handleToggleLegend();
+            timeOffCommon.checkSettings();
 
             $( "#dialogEditEmployeeSchedule" ).on( "dialogopen", function( event, ui ) {
                 $('#employeeScheduleForm').parsley().validate();
@@ -230,7 +233,56 @@ var timeOffCommon = new function ()
      * @returns {undefined}     */
     this.toggleLegend = function() {
         $("#calendarLegend").toggle();
+
+        var myJson = {};
+        var myEmployee = {};
+        var mySetting = {};
+
+        myEmployee['employeeId'] = phpVars.logged_in_employee_number;
+
+        mySetting['showCalendarLegender'] = encodeURIComponent($("#calendarLegend").is(':visible'));
+
+        myJson['employee'] = myEmployee;
+        myJson['setting'] = mySetting;
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url : updateUserSetting,
+            type : 'POST',
+            data : JSON.stringify(myJson),
+            dataType : 'json'
+        });
     }
+
+    this.checkSettings = function() {
+        var myEmployee = {};
+
+        myEmployee['employeeId'] = phpVars.logged_in_employee_number;
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url : getUserSettings,
+            type : 'POST',
+            data : JSON.stringify(myEmployee),
+            dataType : 'json',
+            success: function(data) {
+                $.each(data, function(key, value) {
+                    if (key == "showCalendarLegend" ) {
+                        if ((value == 'false' && $("#calendarLegend").is(':visible')) ||
+                            (value == 'true' && $("#calendarLegend").is(':hidden'))) {
+                            $("#calendarLegend").toggle();
+                        }
+                    }
+                });
+            }
+        });
+    };
 }
 
 // Initialize the class

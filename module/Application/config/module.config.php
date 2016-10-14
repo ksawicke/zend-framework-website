@@ -518,6 +518,30 @@ return [
                 ),
             ),
 
+            'updateUserSetting' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/api/update-user-setting',
+//                     'route'    => 'set_pending_transaction_to_completed',
+                    'defaults' => array(
+                        'controller' => 'Application\API\UserSettingsApi',
+                        'action'     => 'updateUserSettings',
+                    ),
+                ),
+            ),
+
+            'getUserSetting' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/api/get-user-settings',
+//                     'route'    => 'set_pending_transaction_to_completed',
+                    'defaults' => array(
+                        'controller' => 'Application\API\UserSettingsApi',
+                        'action'     => 'getUserSettings',
+                    ),
+                ),
+            ),
+
         ],
     ],
     'controllers' => [
@@ -528,7 +552,8 @@ return [
             'Application\API\RequestApi' => API\RequestApi::class,
             'Application\API\ProxyApi' => API\ProxyApi::class,
             'Application\API\PayrollAdminApi' => API\PayrollAdminApi::class,
-            'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class
+            'Application\API\PayrollAssistantApi' => API\PayrollAssistantApi::class,
+            'Application\API\UserSettingsApi' => API\UserSettingsApi::class
         ],
         'factories' => array(
             'API\Scheduler\Controller' => API\Scheduler\SchedulerFactory::class,
