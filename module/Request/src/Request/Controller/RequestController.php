@@ -477,6 +477,9 @@ class RequestController extends AbstractActionController
         $request->getHeader('referer');
         $referredPage = $request->getQuery('q');
 
+        $fromQueue = $this->params()->fromRoute('fromQueue');
+//         var_dump($fromQueue);
+
         $requestId = $this->params()->fromRoute('request_id');
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
@@ -488,6 +491,7 @@ class RequestController extends AbstractActionController
 
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
         $viewQueueLink = '';
+
         switch( $timeOffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
             case "Pending Manager Approval":
                 $viewQueueLink = '/request/view-manager-queue/pending-manager-approval';
@@ -507,6 +511,10 @@ class RequestController extends AbstractActionController
             case "Update Checks":
                 $viewQueueLink = '/request/view-payroll-queue/update-checks';
                 break;
+        }
+
+        if ($fromQueue !== null) {
+            $viewQueueLink = '/request/view-payroll-queue/by-status';
         }
 
         return new ViewModel( [
