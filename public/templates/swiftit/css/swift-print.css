@@ -1,0 +1,62 @@
+@media print {
+    html, body {
+        height: 99%;
+        margin: 0 !important;
+    }
+    body {
+        padding: 0 !important;
+    }
+    /*     @page {
+        size: letter portrait;
+    }
+
+    header nav, footer {
+        display: none;
+    }
+*/
+    .nav {
+        display: none;
+    }
+    .navbar-header {
+        display: none;
+    }
+    .navbar {
+        display: none;
+    }
+    #developerOutput {
+        display: none;
+    }
+    .calendar tr {
+        height: 30px !important;
+    }
+    td.calendar-day {
+        min-height: 10px !important;
+        font-size: 11px;
+        position: relative;
+    }
+    #calendarManagerBody>table>tbody>tr>td:nth-child(1)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(2)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(3)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(4)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(5)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(6)>p,
+        #calendarManagerBody>table>tbody>tr>td:nth-child(7)>p {
+        vertical-align: top;
+        text-align: left;
+        padding: 0px 0px 5px 5px;
+        height: 95px;
+        margin-left: 10px;
+    }
+
+    #dialogEditEmployeeSchedule {
+        display: none;
+    }
+    .copyright {
+        display: none;
+    }
+
+    .well {
+        padding: 0px !important;
+        margin-bottom: 0px !important;
+    }
+}

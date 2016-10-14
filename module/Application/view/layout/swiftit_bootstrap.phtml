@@ -54,6 +54,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/montserrat.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap.min.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/bootstrap_swift_custom.css' ); ?>" rel="stylesheet">
+        <link href="<?php echo $this->basePath( 'templates/swiftit/css/swift-print.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/custom_dropzone.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/navbar-fixed-top.css' ); ?>" rel="stylesheet">
         <link href="<?php echo $this->basePath( 'templates/swiftit/css/parsley.css' ); ?>" rel="stylesheet">
@@ -181,7 +182,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="<?php echo $this->basepath(); ?>/request/view-my-requests">My Requests</a></li>
                                 <?php if( $this->isManager=="Y" || $this->isSupervisor=="Y" || $this->isProxyForManager=="Y" ) { ?>
-                                	<li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/my-employee-requests">My Employee Requests</a></li>
+                                  <li><a href="<?php echo $this->basepath(); ?>/request/view-manager-queue/my-employee-requests">My Employee Requests</a></li>
                                 <?php } ?>
                                 <li><a href="<?php echo $this->basepath(); ?>/request/create">New</a></li>
                             </ul>
@@ -221,7 +222,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                         <li class="dropdown" id="menuHelp">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
-                            	<?php echo $this->partial( 'application/partials/helpMenuWidget.phtml' ); ?>
+                              <?php echo $this->partial( 'application/partials/helpMenuWidget.phtml' ); ?>
                             </ul>
                         </li>
 
