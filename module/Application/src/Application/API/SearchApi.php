@@ -57,7 +57,7 @@ class SearchApi extends ApiController {
         $Employee = new \Request\Model\Employee();
         $managerEmployees = $Employee->findManagerEmployees( $request->getPost()->employeeNumber,
             $request->getPost()->search, $request->getPost()->directReportFilter, $request->getPost()->isProxy,
-            $request->getPost()->proxyFor );
+            $request->getPost()->proxyFor, $request->getPost()->exclude );
         foreach ( $managerEmployees as $id => $data ) {
             $return[] = [ 'id' => $data->EMPLOYEE_NUMBER,
                 'text' => $data->EMPLOYEE_NAME . ' (' . $data->EMPLOYEE_NUMBER . ') - ' . $data->POSITION_TITLE

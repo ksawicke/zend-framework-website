@@ -11,6 +11,7 @@ use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
+use Application\Model\DataTableInquiry;
 
 /**
  * All Database functions for employee proxies
@@ -35,24 +36,33 @@ class EmployeeProxies extends BaseDB {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
         WHERE trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
-        // INNER JOIN HRDBFA.PRPMS employee ON employee.PREN = p.PROXY_EMPLOYEE_NUMBER
-
-//        $where = [];
-//        $where[] = "trim(p.EMPLOYEE_NUMBER) = '" . $data['employeeNumber'] . "'";
-//
-//        if( $isFiltered ) {
-//            if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-//                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-//                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-//                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
-//                            )";
-//            }
-//        }
-//        $rawSql .=  " WHERE " . implode( " AND ", $where );
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $employeeData['RCOUNT'];
+    }
+
+    public function countAllSupervisorProxies(DataTableInquiry $datatableInquiry, $isFiltered = false )
+    {
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUEST_EMPLOYEE_PROXIES');
+
+        $select->columns(['RCOUNT' => new Expression("COUNT(*)")]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['RCOUNT'];
+        }
+
+        return 0;
     }
 
     public function getProxies( $post )
@@ -85,6 +95,30 @@ class EmployeeProxies extends BaseDB {
         }
 
         return $proxyData;
+    }
+
+    public function getAllSupervisorProxies(DataTableInquiry $datatableInquiry)
+    {
+        $sql = new Sql($this->adapter);
+
+        $select = $sql->select();
+
+        $select->from('TIMEOFF_REQUEST_EMPLOYEE_PROXIES');
+
+        $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), ['PROXY_PRLNM' => 'PRLNM', 'PROXY_PRCOMN' => 'PRCOMN']);
+        $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), ['EMPLOYEE_PRLNM' => 'PRLNM', 'EMPLOYEE_PRCOMN' => 'PRCOMN']);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize( $result );
+            return $resultSet->toArray();
+        }
+
+        return [];
     }
 
     /**
@@ -207,8 +241,8 @@ class EmployeeProxies extends BaseDB {
     public function toggleProxy( $post )
     {
         $rawSql = "UPDATE TIMEOFF_REQUEST_EMPLOYEE_PROXIES SET STATUS = '" . $post->STATUS . "' WHERE " .
-                  "EMPLOYEE_NUMBER = " . $post->EMPLOYEE_NUMBER . " AND " .
-                  "PROXY_EMPLOYEE_NUMBER = " . $post->PROXY_EMPLOYEE_NUMBER;
+                  "EMPLOYEE_NUMBER = '" . str_pad(trim($post->EMPLOYEE_NUMBER), 9, ' ', STR_PAD_LEFT) . "' AND " .
+                  "PROXY_EMPLOYEE_NUMBER = '" . str_pad(trim($post->PROXY_EMPLOYEE_NUMBER), 9, ' ', STR_PAD_LEFT) . "'";
 
         $proxyData = \Request\Helper\ResultSetOutput::executeRawSql($this->adapter, $rawSql);
 
