@@ -27,23 +27,27 @@ class UserSettingsApi extends ApiController
 
     public function getUserSettingsAction()
     {
-        $decodedJson = json_decode($this->getRequest()->getContent());
-
-        $employeeId = new EmployeeId();
-        $employeeId->setEmployeeId($decodedJson->employeeId);
-
-        $userSettingsService = $this->serviceLocator->get('UserSettingsService');
-        $userSettingsResult = $userSettingsService->getUserSettings($employeeId);
-
         $userSettingsData = [];
+        $userSettingsResult = [];
 
-        foreach ($userSettingsResult as $setting) {
-            $subSetting = json_decode($setting['SYSTEM_VALUE']);
-            foreach ($subSetting as $key => $value) {
-                $userSettingsData[$key] = $value;
+        if (trim(\Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME')) != '' and trim(\Login\Helper\UserSession::getUserSessionVariable('FIRST_NAME')) != null) {
+            $decodedJson = json_decode($this->getRequest()->getContent());
+
+            if ($decodedJson->employeeId != null) {
+                $employeeId = new EmployeeId();
+                $employeeId->setEmployeeId($decodedJson->employeeId);
+
+                $userSettingsService = $this->serviceLocator->get('UserSettingsService');
+                $userSettingsResult = $userSettingsService->getUserSettings($employeeId);
+
+                foreach ($userSettingsResult as $setting) {
+                    $subSetting = json_decode($setting['SYSTEM_VALUE']);
+                    foreach ($subSetting as $key => $value) {
+                        $userSettingsData[$key] = $value;
+                    }
+                }
             }
         }
-
         return new JsonModel($userSettingsData);
     }
 }
