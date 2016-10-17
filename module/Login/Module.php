@@ -89,9 +89,7 @@ class Module
         } else {
             /** Redirect back to login! **/
             if ($requestedResource != 'Login\Controller\Login-index' && ! in_array ( $requestedResource, $whiteList )) {
-                $redirectUrl = '?q=' . $event->getRequest()->getURI()->getPath();
-                $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl . $redirectUrl ) );
-//                 $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl ) );
+                $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl ) );
                 $response->setStatusCode( 302 );
             }
             if (isset($_SERVER['DOCUMENT_URI'])) {
