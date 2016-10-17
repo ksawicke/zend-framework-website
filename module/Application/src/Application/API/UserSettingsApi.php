@@ -9,6 +9,11 @@ use Request\Model\UserSetting;
 class UserSettingsApi extends ApiController
 {
 
+    /**
+     * Updates user's settings.
+     *
+     * @return \Zend\View\Model\JsonModel
+     */
     public function updateUserSettingsAction()
     {
         $decodedJson = json_decode($this->getRequest()->getContent());
@@ -25,6 +30,9 @@ class UserSettingsApi extends ApiController
         return new JsonModel([]);
     }
 
+    /**
+     * Gets a user's settings.
+     */
     public function getUserSettingsAction()
     {
         $userSettingsData = [];
