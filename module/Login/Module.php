@@ -89,7 +89,9 @@ class Module
         } else {
             /** Redirect back to login! **/
             if ($requestedResource != 'Login\Controller\Login-index' && ! in_array ( $requestedResource, $whiteList )) {
-                $response->setHeaders( $response->getHeaders ()->addHeaderLine ( 'Location', $this->loggedInFalseRedirectToUrl ) );
+                /** Detect if we need to send user to a specific URL after they successfully login. **/
+                $redirectUrl = '?q=' . $event->getRequest()->getURI()->getPath();
+                $response->setHeaders( $response->getHeaders()->addHeaderLine( 'Location', $this->loggedInFalseRedirectToUrl . $redirectUrl ) );
                 $response->setStatusCode( 302 );
             }
             if (isset($_SERVER['DOCUMENT_URI'])) {
