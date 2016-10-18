@@ -5,6 +5,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Model\JsonModel;
 use Request\Service\TimeOffEmailReminderService;
 use Application\API\ApiController;
+use Request\Factory\RequestServiceFactory;
+use Request\Factory\RequestMapperFactory;
+use Request\Mapper\RequestMapper;
+use Request\Model\RequestEntry;
 
 class Scheduler extends ApiController
 {

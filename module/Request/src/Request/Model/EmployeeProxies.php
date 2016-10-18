@@ -11,7 +11,6 @@ use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
-use Application\Model\DataTableInquiry;
 
 /**
  * All Database functions for employee proxies
@@ -40,29 +39,6 @@ class EmployeeProxies extends BaseDB {
         $employeeData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
         return (int) $employeeData['RCOUNT'];
-    }
-
-    public function countAllSupervisorProxies(DataTableInquiry $datatableInquiry, $isFiltered = false )
-    {
-        $sql = new Sql($this->adapter);
-
-        $select = $sql->select();
-
-        $select->from('TIMEOFF_REQUEST_EMPLOYEE_PROXIES');
-
-        $select->columns(['RCOUNT' => new Expression("COUNT(*)")]);
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-
-        $result = $statement->execute();
-
-        if ($result instanceof ResultInterface && $result->isQueryResult()) {
-            $resultSet = new ResultSet();
-            $resultSet->initialize($result);
-            return $resultSet->toArray()[0]['RCOUNT'];
-        }
-
-        return 0;
     }
 
     public function getProxies( $post )
@@ -95,30 +71,6 @@ class EmployeeProxies extends BaseDB {
         }
 
         return $proxyData;
-    }
-
-    public function getAllSupervisorProxies(DataTableInquiry $datatableInquiry)
-    {
-        $sql = new Sql($this->adapter);
-
-        $select = $sql->select();
-
-        $select->from('TIMEOFF_REQUEST_EMPLOYEE_PROXIES');
-
-        $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), ['PROXY_PRLNM' => 'PRLNM', 'PROXY_PRCOMN' => 'PRCOMN']);
-        $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), ['EMPLOYEE_PRLNM' => 'PRLNM', 'EMPLOYEE_PRCOMN' => 'PRCOMN']);
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-
-        $result = $statement->execute();
-
-        if ( $result instanceof ResultInterface && $result->isQueryResult() ) {
-            $resultSet = new ResultSet;
-            $resultSet->initialize( $result );
-            return $resultSet->toArray();
-        }
-
-        return [];
     }
 
     /**
