@@ -18,6 +18,11 @@ use PHPExcel;
 use PHPExcel_Style_NumberFormat;
 use PHPExcel_Style_Color;
 use PHPExcel_IOFactory;
+
+// TODO: REMOVE (2)
+use \Request\Model\EmployeeSchedules;
+use \Request\Helper\OutlookHelper;
+
 // use Request\Helper\PHPExcel\PHPExcel;
 // use PHPExcel_Style_NumberFormat;
 // use PHPExcel_IOFactory;
@@ -435,6 +440,23 @@ class RequestController extends AbstractActionController
 
     public function viewMyRequestsAction()
     {
+        $OutlookHelper = new OutlookHelper();
+        $RequestEntry = new RequestEntry();
+        $TimeOffRequests = new TimeOffRequests();
+        $Employee = new Employee();
+        $EmployeeSchedules = new EmployeeSchedules();
+
+        $data = [ 'request_id' => '100012' ];
+
+        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $data['request_id'] );
+        $dateRequestBlocks = $RequestEntry->getRequestObject( $data['request_id'] );
+        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
+        $employeeProfile = $EmployeeSchedules->getEmployeeProfile( $dateRequestBlocks['for']['employee_number'] );
+        $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
+            $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
+
+        die( "... end test ..." );
+
         $redirect = \Login\Helper\UserSession::getUserSessionVariable('redirect');
         if ($redirect != false) {
             \Login\Helper\UserSession::setUserSessionVariable('redirect', false);
@@ -476,9 +498,7 @@ class RequestController extends AbstractActionController
         $request = $this->getRequest();
         $request->getHeader('referer');
         $referredPage = $request->getQuery('q');
-
         $fromQueue = $this->params()->fromRoute('fromQueue');
-//         var_dump($fromQueue);
 
         $requestId = $this->params()->fromRoute('request_id');
         $Employee = new Employee();
@@ -490,7 +510,7 @@ class RequestController extends AbstractActionController
         $timeOffRequestData = $TimeOffRequests->findRequest( $requestId, UserSession::getUserSessionVariable( 'IS_PAYROLL' ) );
 
         $isPayroll = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' );
-        $viewQueueLink = '';
+        $viewQueueLink = '/request/view-payroll-queue/by-status';
 
         switch( $timeOffRequestData['REQUEST_STATUS_DESCRIPTION'] ) {
             case "Pending Manager Approval":
@@ -513,10 +533,6 @@ class RequestController extends AbstractActionController
                 break;
         }
 
-        if ($fromQueue !== null) {
-            $viewQueueLink = '/request/view-payroll-queue/by-status';
-        }
-
         return new ViewModel( [
             'isPayroll' => $isPayroll,
             'loggedInEmployeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ),
@@ -524,7 +540,7 @@ class RequestController extends AbstractActionController
             'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
             'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
             'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] ),
-            'viewQueueLink' => ( $isPayroll=="Y" ? $viewQueueLink : $referredPage )
+            'viewQueueLink' => ( !empty( $referredPage ) ? $referredPage : $viewQueueLink )
         ] );
     }
 

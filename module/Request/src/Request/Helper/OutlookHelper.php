@@ -18,6 +18,7 @@ class OutlookHelper {
     public $endDate = '';
     public $startTime = '';
     public $endTime = '';
+    public $inviteType = '';
 
     /**
      * Array of email addresses to send all emails when running on SWIFT.
@@ -33,6 +34,7 @@ class OutlookHelper {
         $this->emailOverrideList = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ?
             $emailOverrideList : '' );
 
+        $this->inviteType = 'MEETING';
         $this->startTime = '0000';
         $this->endTime = '2359';
     }
@@ -95,13 +97,48 @@ END:VTIMEZONE\r\n";
     }
 
     public function outputVEvents( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText ) {
+        $vEvents = '';
+        switch( $this->inviteType ) {
+            case 'MEETING':
+                $vEvents = $this->outputVEventsAsMeeting( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText );
+                break;
+
+            case 'APPOINTMENT':
+            default:
+                $vEvents = $this->outputVEventsAsAppointment( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText );
+                break;
+        }
+        return $vEvents;
+    }
+
+    public function outputVEventsAsAppointment( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText ) {
         $dtStamp = date( 'Ymd' );
         $vEvents = '';
-        $startDate = date( "Ymd", strtotime( $request['start'] ) );
-        $endDate = date( "Ymd", strtotime( $request['end'] ) );
-        if( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ) {
-            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
-        }
+        $startDate = $this->getIcalDate( $request['start'] );
+        $endDate = $this->getIcalDate( $request['end'] );
+        $created = $this->getCreatedTimeStamp();
+
+        $vEvents .= 'BEGIN:VEVENT
+UID:' . $this->outputUID() . '
+SUMMARY:' . $subject . '
+CLASS:PUBLIC
+CREATED:' . $created . '
+DTSTAMP:' . $created . '
+LAST-MODIFIED:' . $created . '
+DTSTART;VALUE=DATE:' . $startDate . '
+DTEND;VALUE=DATE:' . $endDate . '
+TRANSP:TRANSPARENT
+END:VEVENT
+';
+
+        return $vEvents;
+    }
+
+    public function outputVEventsAsMeeting( $request, $subject, $descriptionString, $organizerName, $organizerEmail, $participantsText ) {
+        $dtStamp = date( 'Ymd' );
+        $vEvents = '';
+        $startDate = $this->getIcalDate( $request['start'] );
+        $endDate = $this->getIcalDate( $request['end'] );
 
         $vEvents .= "BEGIN:VEVENT
 UID:" . $this->outputUID() . "
@@ -124,8 +161,17 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         return $vEvents;
     }
 
+    public function getIcalDate( $date ) {
+        return date( "Ymd", strtotime( $date ) );
+    }
+
+    public function getCreatedTimeStamp() {
+        return date( "Ymd" ) . 'T' . date( "His" );
+    }
+
     protected function buildCalendarRequestObject( $calendarInviteData, $employeeData, $sendToEmployee, $sendToManager ) {
         $subject = strtoupper( trim( $employeeData['EMPLOYEE_NAME'] ) ) . ' - APPROVED TIME OFF';
+        $subject = $this->setSubject( $subject );
         $to = trim( $employeeData['EMAIL_ADDRESS'] ) . ',' . trim( $employeeData['MANAGER_EMAIL_ADDRESS'] );
         if( $sendToEmployee ) {
             $participants[] = [ 'name' => ucwords( strtolower( trim( $employeeData['EMPLOYEE_NAME'] ) ) ), 'email' => trim( $employeeData['EMAIL_ADDRESS'] ) ];
@@ -135,8 +181,8 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
         }
         if( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) {
             $to = implode( ',', $this->emailOverrideList );
-            $subject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $subject;
         }
+        $subject = $this->getSubject();
         return [ 'datesRequested' => $calendarInviteData['datesRequested'], 'for' => $employeeData['EMPLOYEE_NAME'],
             'organizer' => [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ],
             'subject' => $subject, 'to' => $to,  'participants' => $participants
@@ -154,7 +200,7 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
             $descriptionString = $this->outputDescriptionString( $request );
             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
             $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
-            $participantsText = $this->outputParticipantsText( $calendarRequestObject );
+            $participantsText = ( $this->inviteType=="APPOINTMENT" ? $this->outputParticipantsText( $calendarRequestObject ) : '' );
 
             $message = $this->outputBeginVCalendar() .
                     $this->outputVTimezone() .
@@ -165,43 +211,11 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
             $mailsent = mail( $calendarRequestObject['to'], $calendarRequestObject['subject'], $message, $headers );
         }
 
+        echo '<pre>';
+        die( $headers );
+
         return ($mailsent) ? (true) : (false);
     }
-
-    /*     * **
-     * GOOD...SAVING
-     *
-     * $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-      $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n"; #EDIT: TYPO
-
-      $method = "REQUEST";
-
-      $dateBlock = "DTSTART:" . $this->getDate() . "T" . $this->getStartTime() . "00Z\r\n
-      DTEND:" . $this->getDate() . "T" . $this->getEndTime() . "00Z\r\n";
-      $vevent = "BEGIN:VEVENT\r\n
-      UID:" . md5(uniqid(mt_rand(), true)) . "swifttrans.com\r\n
-      " . $dateBlock . "
-      SUMMARY:" . $this->getSubject() . "\r\n
-      ORGANIZER;CN=" . $this->getOrganizerName() . ":mailto:" . $this->getOrganizerEmail() . "\r\n
-      LOCATION:" . $this->getLocation() . "\r\n
-      DESCRIPTION:" . $this->getDescription() . "\r\n
-      STATUS:CONFIRMED\r\n
-      X-MICROSOFT-CDO-BUSYSTATUS:FREE\r\n
-      X-MICROSOFT-CDO-INSTTYPE:0\r\n
-      X-MICROSOFT-CDO-INTENDEDSTATUS:FREE\r\n
-      X-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\n
-      FBTYPE:FREE\r\n
-      ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN" . $this->getParticipantName1() . ";X-NUM-GUESTS=0:MAILTO:" . $this->getParticipantEmail1() . "\r\n
-      ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN" . $this->getParticipantName2() . ";X-NUM-GUESTS=0:MAILTO:" . $this->getParticipantEmail2() . "\r\n
-      END:VEVENT\r\n";
-
-      $message = "BEGIN:VCALENDAR\r\n
-      VERSION:2.0\r\n
-      PRODID:-//SwiftTransportation//TimeoffRequests/NONSGML v1.0//EN\r\n
-      METHOD:" . $method . "\r\n
-      " . $vevent . "
-      END:VCALENDAR\r\n";
-     */
 
     public function getToEmail() {
         return $this->toEmail;
@@ -264,7 +278,7 @@ ORGANIZER;CN=" . $organizerName . ":mailto:" . $organizerEmail . "\r\n" .
     }
 
     public function setSubject( $subject ) {
-        $this->subject = $subject;
+        $this->subject = ( ENVIRONMENT==='development' || ENVIRONMENT==='testing' ? '[ ' . strtoupper( ENVIRONMENT ) . ' ] - ' : '' ) . $subject;
     }
 
     public function getLocation() {
