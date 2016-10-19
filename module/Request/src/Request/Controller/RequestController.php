@@ -19,10 +19,6 @@ use PHPExcel_Style_NumberFormat;
 use PHPExcel_Style_Color;
 use PHPExcel_IOFactory;
 
-// TODO: REMOVE (2)
-use \Request\Model\EmployeeSchedules;
-use \Request\Helper\OutlookHelper;
-
 // use Request\Helper\PHPExcel\PHPExcel;
 // use PHPExcel_Style_NumberFormat;
 // use PHPExcel_IOFactory;
@@ -440,23 +436,6 @@ class RequestController extends AbstractActionController
 
     public function viewMyRequestsAction()
     {
-        $OutlookHelper = new OutlookHelper();
-        $RequestEntry = new RequestEntry();
-        $TimeOffRequests = new TimeOffRequests();
-        $Employee = new Employee();
-        $EmployeeSchedules = new EmployeeSchedules();
-
-        $data = [ 'request_id' => '100012' ];
-
-        $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $data['request_id'] );
-        $dateRequestBlocks = $RequestEntry->getRequestObject( $data['request_id'] );
-        $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-        $employeeProfile = $EmployeeSchedules->getEmployeeProfile( $dateRequestBlocks['for']['employee_number'] );
-        $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
-            $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
-
-        die( "... end test ..." );
-
         $redirect = \Login\Helper\UserSession::getUserSessionVariable('redirect');
         if ($redirect != false) {
             \Login\Helper\UserSession::setUserSessionVariable('redirect', false);
