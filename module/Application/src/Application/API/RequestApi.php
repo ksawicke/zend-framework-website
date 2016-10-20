@@ -549,7 +549,7 @@ class RequestApi extends ApiController {
     public function submitTimeoffRequestAction()
     {
         $calendarInviteService = $this->serviceLocator->get('CalendarInviteService');
-        $calendarInviteService->setRequestId( '100012' );
+        $calendarInviteService->setRequestId( '100036' );
         $calendarInviteService->send();
 
 
