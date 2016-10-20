@@ -28,6 +28,7 @@ use \Request\Helper\OutlookHelper;
 use \Request\Helper\ValidationHelper;
 use \Login\Helper\UserSession;
 use \Application\Factory\EmailFactory;
+use \Request\Service\CalendarInviteService;
 
 /**
  * Handles API requests for the Time Off application.
@@ -547,6 +548,13 @@ class RequestApi extends ApiController {
      */
     public function submitTimeoffRequestAction()
     {
+        $calendarInviteService = $this->serviceLocator->get('CalendarInviteService');
+        $calendarInviteService->setRequestId( '100012' );
+        $calendarInviteService->send();
+
+
+        die( "stoping here...from RequestApi.php" );
+
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
