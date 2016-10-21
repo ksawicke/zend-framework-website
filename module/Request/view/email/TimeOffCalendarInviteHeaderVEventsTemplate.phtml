@@ -1,0 +1,17 @@
+BEGIN:VEVENT
+UID:<?php echo $this->formatUID; ?>swifttrans.com\r\n
+DTSTART;TZID=America/Phoenix:<?php echo $this->startDate; ?>T<?php echo $this->startTime; ?>00\r\n
+DTEND;TZID=America/Phoenix:<?php echo $this->endDate; ?>T<?php echo $this->endTime; ?>00\r\n
+DTSTAMP:<?php echo $this->dtStamp; ?>\r\n
+SUMMARY:<?php echo $this->subject; ?>\r\n
+LOCATION:\r\n
+DESCRIPTION:<?php echo $this->descriptionString; ?>\r\n
+STATUS:CONFIRMED\r\n
+X-MICROSOFT-CDO-BUSYSTATUS:FREE\r\n
+X-MICROSOFT-CDO-INSTTYPE:0\r\n
+X-MICROSOFT-CDO-INTENDEDSTATUS:FREE\r\n
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\n
+FBTYPE:FREE\r\n
+ORGANIZER;CN=<?php echo $this->fromName; ?>:mailto:<?php echo $this->fromEmail; ?>\r\n
+<?php echo $this->participantsText; ?>\r\n
+END:VEVENT\r\n

@@ -548,10 +548,13 @@ class RequestApi extends ApiController {
      */
     public function submitTimeoffRequestAction()
     {
-        $calendarInviteService = $this->serviceLocator->get('CalendarInviteService');
+        $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
         $calendarInviteService->setRequestId( '100036' );
         $calendarInviteService->send();
+//         $calendarRequestObject = $calendarInviteService->getCalendarRequestObject();
 
+        echo '<pre>';
+        var_dump( $calendarRequestObject );
 
         die( "stoping here...from RequestApi.php" );
 
