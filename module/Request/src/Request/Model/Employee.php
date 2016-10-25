@@ -1164,8 +1164,8 @@ class Employee extends BaseDB {
         $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
 
         foreach ($employeeHierarchy as $hierarchyRecord) {
-            if ($hierarchyRecord['MANAG00004'] == 'Manager') {
-                $employeeId = $hierarchyRecord['MANAG00002'];
+            if ($hierarchyRecord['MANAGER_SUPERVISOR'] == 'Manager') {
+                $employeeId = $hierarchyRecord['MANAGER_EMPLOYEE_ID'];
                 break;
             }
         }
