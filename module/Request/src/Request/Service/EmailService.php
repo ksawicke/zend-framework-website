@@ -101,7 +101,6 @@ class EmailService extends AbstractActionController
 
     public function send()
     {
-
         $text = new Part($this->emailBody);
         $text->type = Mime::TYPE_HTML;
         $text->charset = "UTF-8";
