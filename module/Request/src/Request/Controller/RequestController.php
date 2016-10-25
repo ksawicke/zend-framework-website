@@ -564,9 +564,12 @@ class RequestController extends AbstractActionController
 
     public function downloadReportManagerActionNeededAction()
     {
+        $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $data['columns'][2]['search']['value'] = ( !empty( $this->getRequest()->getPost('statusFilter') ) ? $this->getRequest()->getPost('statusFilter') : 'All' );
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
-        $queueData = $PayrollQueues->getManagerActionEmailQueue( [], [ 'WARN_TYPE' => 'OLD_REQUESTS' ]);
+        $queueData = $PayrollQueues->getManagerActionEmailQueue( $data, [ 'WARN_TYPE' => 'OLD_REQUESTS' ]);
+
         $this->outputReportManagerActionNeeded( $queueData );
 
         exit;
@@ -574,10 +577,12 @@ class RequestController extends AbstractActionController
 
     public function downloadUpdateChecksAction()
     {
+        $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
+        $data['columns'][2]['search']['value'] = ( !empty( $this->getRequest()->getPost('statusFilter') ) ? $this->getRequest()->getPost('statusFilter') : 'All' );
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
 //         echo "<pre>";
-        $queueData = $PayrollQueues->getUpdateChecksQueue();
+        $queueData = $PayrollQueues->getUpdateChecksQueue( $data );
 //         var_dump($queueData);
         $this->outputUpdatesCheckQueue( $queueData );
 
@@ -702,13 +707,19 @@ class RequestController extends AbstractActionController
             $worksheet->setCellValue('F'.($key+2), date( "m/d/Y", strtotime( $minDateRequested ) ) );
         }
 
-        // Redirect output to a client's web browser (Excel2007)
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="ManagerActionNeeded_' . date('Ymd-his') . '.xlsx"');
-        header('Cache-Control: max-age=0');
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        ob_start();
         $objWriter->save('php://output');
+        $xlsData = ob_get_contents();
+        ob_end_clean();
+
+        //         $response = [ 'op' => 'ok', 'file' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData) ];
+        $response = [ 'op' => 'ok',
+            'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
+            'fileName' => 'ManagerActionNeeded_' . date('Ymd-his') . '.xlsx'
+        ];
+
+        die( json_encode( $response ) );
     }
 
     private function outputUpdatesCheckQueue( $spreadsheetRows = [] )

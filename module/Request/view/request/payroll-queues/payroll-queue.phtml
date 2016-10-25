@@ -43,7 +43,18 @@ var reloadByStatusDT = function() {
             <?php echo ( $this->payrollView == 'update-checks' ? '<th>Cycle Code</th>' : '' ); ?>
             <th>Employee</th>
             <th>Approver queue</th>
-            <th>Request Status</th>
+            <th>
+				Request Status<?php if( in_array( $this->payrollView, [ 'by-status' ] ) ) { ?><br />
+            	<select id="columnRequestStatusFilter">
+            		<option value="All" selected>All</option>
+            		<option value="Pending Manager Approval">Pending Manager Approval</option>
+            		<option value="Completed PAFs">Completed PAFs</option>
+            		<option value="Denied">Denied</option>
+            		<option value="Pending AS400 Upload">Pending AS400 Upload</option>
+            		<option value="Pending Payroll Approval">Pending Payroll Approval</option>
+            		<option value="Update Checks">Update Checks</option>
+            	</select><?php } ?>
+			</th>
             <th>Hours Requested</th>
             <th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
             <th>First Day<br />Requested</th>
@@ -54,7 +65,7 @@ var reloadByStatusDT = function() {
 
 <?php if( $this->payrollView === 'manager-action') { ?>
     <br />
-    <a href="<?php echo $this->basePath(); ?>/request/download-report-manager-action-needed"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+    <a id="downloadReportManagerActionNeeded" href="<?php echo $this->basePath(); ?>/request/download-report-manager-action-needed"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
 <?php } ?>
 <?php if( $this->payrollView === 'update-checks') { ?>
     <br />
