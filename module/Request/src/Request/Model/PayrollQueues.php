@@ -245,7 +245,7 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN PYPMS payroll_master_file ON payroll_master_file.PYEN = request.EMPLOYEE_NUMBER and payroll_master_file.PYER = '002'
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
-            WHERE request.REQUEST_STATUS = 'U' " . $where1 . "
+            WHERE request.REQUEST_STATUS = 'U' " . $where1 .  "
       ) AS DATA
         ) AS DATA2";
 
@@ -724,6 +724,9 @@ class PayrollQueues extends BaseDB {
             }
         }
 
+        $where1 = ( ($data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+            " AND status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
+
         $rawSql = "
         SELECT COUNT(*) AS RCOUNT FROM (
             SELECT
@@ -757,7 +760,7 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
-                  " . $singleManager . "
+                  " . $singleManager . $where1 . "
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
@@ -778,6 +781,9 @@ class PayrollQueues extends BaseDB {
     public function getManagerActionEmailQueue( $data = [], $params = [] )
     {
         $singleManager = "";
+
+        $where1 = ( (array_key_exists( 'columns', $data ) && $data['columns'][2]['search']['value']!=="" && $data['columns'][2]['search']['value']!=="All") ?
+            " AND status.DESCRIPTION = '" . $data['columns'][2]['search']['value'] . "'" : "" );
 
         if( array_key_exists( 'MANAGER_EMPLOYEE_NUMBER', $params ) ) {
             $singleManager = " AND TRIM(manager_addons.PREN) = " . $params['MANAGER_EMPLOYEE_NUMBER'] . " AND TRIM(manager_addons.PRER) = '002' AND ";
@@ -833,7 +839,7 @@ class PayrollQueues extends BaseDB {
             INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
             INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
-                  " . $singleManager . "
+                  " . $singleManager . $where1 . "
             ORDER BY
                 MIN_DATE_REQUESTED ASC
             ) AS DATA
