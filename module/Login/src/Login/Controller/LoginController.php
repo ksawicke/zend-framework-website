@@ -135,6 +135,9 @@ class LoginController extends AbstractActionController
         /* set session */
         $this->setSession($result);
 
+        /* Remove the redirect variable from the session */
+        \Login\Helper\UserSession::setUserSessionVariable('redirect', false);
+
         /* reroute to request view */
         return $this->redirect()->toUrl( $this->getRequest()->getBaseUrl() . '/request/view-my-requests' );
 
