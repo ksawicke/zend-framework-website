@@ -663,7 +663,7 @@ class Employee extends BaseDB {
         $proxyForPartial = implode(",", $proxyFor);
 
         //$where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
-        $where .= " AND trim(manager.SPSPEN) IN(" . $proxyForPartial . ") AND PRER = '002'" ;
+        $where .= " AND trim(manager.SPSPEN) IN(" . $proxyForPartial . ") AND employee.PRER = '002'" ;
 
         $rawSql = "SELECT
             CASE
