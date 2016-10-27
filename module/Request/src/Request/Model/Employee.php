@@ -101,20 +101,19 @@ class Employee extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
-        INNER JOIN table (
+        JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
+        JOIN PRPMS manager_addons ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
+        JOIN table (
             SELECT
-                EMPLOYEE_ID AS EMPLOYEE_NUMBER,
+                TRIM(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
                 TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL
             FROM table (
-                CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+                GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
             ) as data
         ) hierarchy
-            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002'  = employee.PRER";
+            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'P'";
@@ -196,7 +195,7 @@ class Employee extends BaseDB {
             FROM TIMEOFF_REQUESTS request
             JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
             JOIN PRPMS manager_addons ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
-            INNER JOIN table (
+            JOIN table (
                 SELECT
                     TRIM(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
                     TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
