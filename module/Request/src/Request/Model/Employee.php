@@ -484,7 +484,7 @@ class Employee extends BaseDB {
     public function getExcludedLevel2() {
         $where = '';
         foreach ( $this->excludeLevel2 as $excluded ) {
-            $where .= "employee.PRL02 <> '" . implode( ', ', $this->excludeLevel2 ) . "' and ";
+            $where .= "employee.PRL02 != '" . implode( ', ', $this->excludeLevel2 ) . "' and ";
         }
         return $where;
     }
@@ -747,16 +747,14 @@ class Employee extends BaseDB {
                           DIRECT_INDIRECT,
                           MANAGER_LEVEL
                       FROM table (
-                          CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+                          GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                       ) as data
                 ) hierarchy
-                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
-                INNER JOIN PRPSP manager
-                      ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-                INNER JOIN PRPMS manager_addons
-                     ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
+                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+                JOIN PRPMS manager_addons
+                     ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
                 " . $where . "
-                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+                ORDER BY EMPLOYEE_NAME";
     }
 
     /**
@@ -774,9 +772,9 @@ class Employee extends BaseDB {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
-            ( trim(employee.PREN) LIKE '%" . strtoupper( $search ) . "%' OR
-              trim(employee.PRLNM) LIKE '%" . strtoupper( $search ) . "%' OR
-              trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
+            ( employee.PREN LIKE '" . strtoupper( $search ) . "%' OR
+              employee.PRLNM LIKE '" . strtoupper( $search ) . "%' OR
+              employee.PRFNM LIKE '" . strtoupper( $search ) . "%'
             )
         )";
 
