@@ -10,7 +10,6 @@ use Request\Model\RequestEntry;
 use Request\Model\TimeOffRequests;
 use Request\Model\Employee;
 use Request\Model\EmployeeSchedules;
-use Request\Service\EmailService;
 
 /**
  * CalendarInviteService.php
@@ -75,13 +74,14 @@ class CalendarInviteService extends AbstractActionController
 
     protected $endTime;
 
-    public function __construct( TimeOffRequestSettings $timeOffRequestSettings, RequestEntry $requestEntry, TimeOffRequests $timeOffRequests, Employee $employee, EmployeeSchedules $employeeSchedules )
+    public function __construct( TimeOffRequestSettings $timeOffRequestSettings, RequestEntry $requestEntry, TimeOffRequests $timeOffRequests, Employee $employee, EmployeeSchedules $employeeSchedules, EmailService $emailService )
     {
         $this->timeOffRequestSettings = $timeOffRequestSettings;
         $this->requestEntry = $requestEntry;
         $this->timeOffRequests = $timeOffRequests;
         $this->employee = $employee;
         $this->employeeSchedules = $employeeSchedules;
+        $this->emailService = $emailService;
     }
 
     /**
@@ -300,19 +300,25 @@ ORGANIZER;CN=" . $fromName . ":mailto:" . $fromEmail . "\r\n" .
 
         $viewModel = new ViewModel();
         $viewModel->setTemplate( 'mailTemplateVEvents' )
-            ->setVariables( [ 'formatUID' => '9e7e62a18de5b6e8c5dcb300376fe189', 'startTime' => '0000', 'endTime' => '2359',
-                'dtStamp' => '20161021', 'subject' => '[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF',
-                'descriptionString' => 'Time off from 10/17/2016 - 10/18/2016',
-                'fromName' => 'Time Off Requests', 'fromEmail' => 'timeoffrequests-donotreply@swifttrans.com', 'participantsText' => 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson'
-            ] );
-
+            ->setVariables( [ 'formatUID' => '9e7e62a18de5b6e8c5dcb300376fe189',
+                'timeZone' => 'America/Phoenix',
+                'startDate' => '20161027',
+                'startTime' => '0000',
+                'endDate' => '20161028',
+                'endTime' => '2359',
+                'dtStamp' => '20161026',
+                'subject' => '[ DEVELOPMENT - Time Off Requests ] - KEVIN SAWICKE - APPROVED TIME OFF',
+                'descriptionString' => 'Time off from 10/27/2016 - 10/28/2016',
+                'fromName' => 'Time Off Requests Administrator',
+                'fromEmail' => 'ASWIFT_SYSTEM@SWIFTTRANS.COM',
+                'participantsText' => 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNKevin Sawicke;X-NUM-GUESTS=0:kevin_sawicke@swifttrans.com
+ATTENDEE;'
+            ] ); // ;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
         $content = $view->render($viewModel);
 
         $viewModel = new ViewModel();
         $viewModel->setTemplate( 'mailTemplate' )
                   ->setVariables( [ 'content' => $content ] );
-
         $content = $view->render($viewModel);
 
         $viewLayout = new ViewModel();
@@ -324,8 +330,27 @@ ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNM
 
     public function send()
     {
-        echo $this->renderEmail();
-        die();
+        $emailBody = $this->renderEmail();
+        //$emailHeaders = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset=\"utf-8\"\r\n";' . $emailBody;
+        
+        /* prepare and send email */
+        $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
+             ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
+             ->setSubject( 'KEVIN SAWICKE - APPROVED TIME OFF' )
+             ->setBody( $emailBody )
+//              ->setHeaders( [ 'Content-Type' => 'text/calendar', 'Content-Type' => 'text/html; charset=UTF-8' ] )
+//              ->sendAsCalendarInvite();
+             ->send();
+        
+        echo '<pre>EMAIL BODY:<br />';
+        var_dump( $emailBody );
+        echo '</pre>';
+        
+//         echo '<pre>EMAIL HEADERS:<br />';
+//         var_dump( $emailHeaders );
+//         echo '</pre>';
+        
+        die( "<br /><br /><br />message sent.");
 
         /**
          * <pre>HEADERS:string(1422) "Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset="utf-8"

@@ -1,7 +1,7 @@
 BEGIN:VEVENT
 UID:<?php echo $this->formatUID; ?>swifttrans.com\r\n
-DTSTART;TZID=America/Phoenix:<?php echo $this->startDate; ?>T<?php echo $this->startTime; ?>00\r\n
-DTEND;TZID=America/Phoenix:<?php echo $this->endDate; ?>T<?php echo $this->endTime; ?>00\r\n
+DTSTART;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->startDate; ?>T<?php echo $this->startTime; ?>00\r\n
+DTEND;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->endDate; ?>T<?php echo $this->endTime; ?>00\r\n
 DTSTAMP:<?php echo $this->dtStamp; ?>\r\n
 SUMMARY:<?php echo $this->subject; ?>\r\n
 LOCATION:\r\n

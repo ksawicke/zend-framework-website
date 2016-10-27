@@ -19,8 +19,9 @@ class CalendarInviteServiceFactory implements FactoryInterface
         $timeOffRequests = new TimeOffRequests();
         $employee = new Employee();
         $employeeSchedules = new EmployeeSchedules();
+        $emailService = $serviceLocator->get('EmailService');
 
-        $calendarInviteService = new CalendarInviteService( $timeOffRequestSettings, $requestEntry, $timeOffRequests, $employee, $employeeSchedules );
+        $calendarInviteService = new CalendarInviteService( $timeOffRequestSettings, $requestEntry, $timeOffRequests, $employee, $employeeSchedules, $emailService );
 
         return $calendarInviteService;
     }
