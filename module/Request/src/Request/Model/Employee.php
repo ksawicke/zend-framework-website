@@ -794,8 +794,6 @@ class Employee extends BaseDB {
                     break;
             }
         }
-        
-//         die( $rawSql );
 
         $employeeData = \Request\Helper\ResultSetOutput::getResultArrayFromRawSql( $this->adapter, $rawSql );
 
