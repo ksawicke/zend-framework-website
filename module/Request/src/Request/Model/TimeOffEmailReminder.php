@@ -90,16 +90,13 @@ class TimeOffEmailReminder extends BaseDB
      */
     public function insertReminderRecords( $reminderRecords = null )
     {
-        echo "insert reminder records begin".PHP_EOL;
         if ($reminderRecords == null ) {
             return false;
         }
-        echo "insert reminder records before each".PHP_EOL;
-        var_dump($reminderRecords);
+
         foreach ($reminderRecords as $reminder) {
             $this->insertReminderRecord( $reminder );
         }
-//         die();
     }
 
     /**
