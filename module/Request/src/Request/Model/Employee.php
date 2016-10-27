@@ -120,9 +120,9 @@ class Employee extends BaseDB {
 
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+                $where[] = "( employee.PREN LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                              employee.PRFNM LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                              employee.PRLNM LIKE '" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
