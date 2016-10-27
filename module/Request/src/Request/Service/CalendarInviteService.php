@@ -329,9 +329,8 @@ ATTENDEE;'
     }
 
     public function send()
-    {
+    {        
         $emailBody = $this->renderEmail();
-        //$emailHeaders = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset=\"utf-8\"\r\n";' . $emailBody;
         
         /* prepare and send email */
         $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
