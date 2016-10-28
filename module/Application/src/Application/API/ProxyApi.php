@@ -19,6 +19,7 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\EmployeeProxies;
+use Application\Model\DataTableInquiry;
 // use \Login\Helper\UserSession;
 // use \Application\Factory\EmailFactory;
 
@@ -33,6 +34,28 @@ class ProxyApi extends ApiController {
     public function loadProxiesAction()
     {
         return new JsonModel( $this->getProxyDatatable( $_POST ) );
+    }
+
+    /**
+     *
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function getSupervisorProxiesDataTableAction()
+    {
+        $jsonDecodedData = json_decode($this->getRequest()->getContent());
+
+        $dataTableInquiry = new DataTableInquiry();
+
+        $dataTableInquiry->setDraw($jsonDecodedData->draw)
+        ->setColumns($jsonDecodedData->columns)
+        ->setOrder($jsonDecodedData->order)
+        ->setStart($jsonDecodedData->start)
+        ->setLength($jsonDecodedData->length)
+        ->setSearch($jsonDecodedData->search);
+
+        $supervisorProxiesResult = $this->getSupervisorProxiesDatatable( $dataTableInquiry );
+
+        return new JsonModel( $supervisorProxiesResult );
     }
 
     /**
@@ -86,6 +109,59 @@ class ProxyApi extends ApiController {
             "message" => "data loaded",
             "draw" => $draw,
             "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+
+        /**
+         * return result
+         */
+        return $result;
+    }
+
+    public function getSupervisorProxiesDatatable( DataTableInquiry $dataTableInquiry )
+    {
+        /**
+         * increase draw counter for adatatable
+         */
+        $dataTableInquiry->increaseDraw();
+
+        $EmployeeProxies = new EmployeeProxies();
+
+        $employeeProxiesResult = $EmployeeProxies->getAllSupervisorProxies( $dataTableInquiry );
+
+        $proxyData = [];
+
+        foreach ( $employeeProxiesResult as $employeeProxiesRow ) {
+            //             var_dump($employeeProxiesRow);
+            //             $viewLinkUrl = "#";
+            //             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
+
+            //             $data[] = [
+            //                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
+            //                 'STATUS' => '<div class="switch">' .
+            //                             '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat proxy-toggle" type="checkbox"' . $checked .
+            //                             ' data-proxy-employee-number="' . $request['PROXY_EMPLOYEE_NUMBER'] . '"' .
+            //                             ' data-status="' . $request['STATUS'] . '">' .
+            //                             '<label for="cmn-toggle-' . $ctr . '"></label>' .
+            //                             '</div>',
+            //                 'ACTIONS' => '<a href="' . $viewLinkUrl . '">' .
+            //                              '<button type="button" class="btn btn-form-primary btn-xs remove-proxy" data-proxy-employee-number="' .
+            //                              $request['PROXY_EMPLOYEE_NUMBER'] . '">Remove</button></a>'
+            //             ];
+        }
+
+        $recordsTotal = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, false );
+        $recordsFiltered = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, true );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $dataTableInquiry->getDraw(),
+            "data" => $employeeProxiesResult,
             "recordsTotal" => $recordsTotal,
             "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
         );
