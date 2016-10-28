@@ -951,7 +951,7 @@ class RequestMapper implements RequestMapperInterface {
                       DIRECT_INDIRECT,
                       MANAGER_LEVEL
                   FROM table (
-                      CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+                      GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                   ) as data
             ) hierarchy
                   ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
@@ -1025,7 +1025,7 @@ class RequestMapper implements RequestMapperInterface {
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL
             FROM table (
-                CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'D')
+                GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', 'D')
             ) as data
         ) hierarchy
             ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)

@@ -202,7 +202,7 @@ class Employee extends BaseDB {
                     DIRECT_INDIRECT,
                     MANAGER_LEVEL
                 FROM table (
-                    CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+                    GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
                 ) as data
             ) hierarchy
                 ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
@@ -1018,7 +1018,7 @@ class Employee extends BaseDB {
                 EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL FROM table (
-                  CARE_GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
+                  GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
                 ) as data
             ) hierarchy
             INNER JOIN table(
