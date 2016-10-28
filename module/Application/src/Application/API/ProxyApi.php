@@ -20,8 +20,6 @@ namespace Application\API;
 use Zend\View\Model\JsonModel;
 use \Request\Model\EmployeeProxies;
 use Application\Model\DataTableInquiry;
-// use \Login\Helper\UserSession;
-// use \Application\Factory\EmailFactory;
 
 /**
  * Handles API requests for the Time Off application.

@@ -53,8 +53,8 @@ class EmployeeProxies extends BaseDB {
         $select->columns(['RCOUNT' => new Expression("COUNT(*)")]);
 
         if ($isFiltered === true) {
-            $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), [/*'PROXY_PRLNM' => 'PRLNM', 'PROXY_PRCOMN' => 'PRCOMN'*/]);
-            $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), [/*'EMPLOYEE_PRLNM' => 'PRLNM', 'EMPLOYEE_PRCOMN' => 'PRCOMN'*/]);
+            $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), []);
+            $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), []);
 
             $select->offset($datatableInquiry->getStart());
             $select->limit($datatableInquiry->getLength());
