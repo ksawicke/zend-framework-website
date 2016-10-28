@@ -19,8 +19,7 @@ namespace Application\API;
 
 use Zend\View\Model\JsonModel;
 use \Request\Model\EmployeeProxies;
-// use \Login\Helper\UserSession;
-// use \Application\Factory\EmailFactory;
+use Application\Model\DataTableInquiry;
 
 /**
  * Handles API requests for the Time Off application.
@@ -33,6 +32,28 @@ class ProxyApi extends ApiController {
     public function loadProxiesAction()
     {
         return new JsonModel( $this->getProxyDatatable( $_POST ) );
+    }
+
+    /**
+     *
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function getSupervisorProxiesDataTableAction()
+    {
+        $jsonDecodedData = json_decode($this->getRequest()->getContent());
+
+        $dataTableInquiry = new DataTableInquiry();
+
+        $dataTableInquiry->setDraw($jsonDecodedData->draw)
+        ->setColumns($jsonDecodedData->columns)
+        ->setOrder($jsonDecodedData->order)
+        ->setStart($jsonDecodedData->start)
+        ->setLength($jsonDecodedData->length)
+        ->setSearch($jsonDecodedData->search);
+
+        $supervisorProxiesResult = $this->getSupervisorProxiesDatatable( $dataTableInquiry );
+
+        return new JsonModel( $supervisorProxiesResult );
     }
 
     /**
@@ -86,6 +107,40 @@ class ProxyApi extends ApiController {
             "message" => "data loaded",
             "draw" => $draw,
             "data" => $data,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
+        );
+
+        /**
+         * return result
+         */
+        return $result;
+    }
+
+    public function getSupervisorProxiesDatatable( DataTableInquiry $dataTableInquiry )
+    {
+        /**
+         * increase draw counter for adatatable
+         */
+        $dataTableInquiry->increaseDraw();
+
+        $EmployeeProxies = new EmployeeProxies();
+
+        $employeeProxiesResult = $EmployeeProxies->getAllSupervisorProxies( $dataTableInquiry );
+
+        $proxyData = [];
+
+        $recordsTotal = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, false );
+        $recordsFiltered = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, true );
+
+        /**
+         * prepare return result
+         */
+        $result = array(
+            "status" => "success",
+            "message" => "data loaded",
+            "draw" => $dataTableInquiry->getDraw(),
+            "data" => $employeeProxiesResult,
             "recordsTotal" => $recordsTotal,
             "recordsFiltered" => $recordsFiltered // count of what is actually being searched on
         );
