@@ -234,7 +234,7 @@ END:VTIMEZONE\r\n";
      * @return string
      */
     private function formatUID() {
-        return md5( uniqid( mt_rand(), true ) ) . "swifttrans.com";
+        return md5( uniqid( mt_rand(), true ) );
     }
 
     private function formatVEvents( $request, $subject, $descriptionString, $fromName, $fromEmail, $participantsText ) {
@@ -325,21 +325,45 @@ ATTENDEE;'
         $viewLayout->setTemplate('mailLayout')
                    ->setVariables( [ 'content' => $content ] );
 
-        return $view->render($viewLayout);
+//         die( $view->render($viewLayout) );           
+        
+        /** Returns new format as appointment... **/
+        return 'BEGIN:VCALENDAR\r\n
+VERSION 2.0\r\n
+PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN\r\n
+BEGIN:VEVENT
+UID:' . $this->formatUID() . '
+SUMMARY:Subject Here
+CREATED:20161028T1540
+DTSTAMP:20161028T1540
+DTSTART;VALUE=DATE:2017030
+DTEND;VALUE=DATE:20170131
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR';
+        
+//         return $view->render($viewLayout);
     }
 
     public function send()
     {        
         $emailBody = $this->renderEmail();
         
+//         $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
+// //         $headers .= 'Content-Type:text/plain;charset=utf-8;\r\n';
+//         $message = $emailBody;
+//         mail( 'kevin_sawicke@swifttrans.com', 'TEST APPOINTMENT', $message, $headers );
+        
+//         die( $emailBody );
+        
         /* prepare and send email */
         $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
              ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
              ->setSubject( 'KEVIN SAWICKE - APPROVED TIME OFF' )
              ->setBody( $emailBody )
-//              ->setHeaders( [ 'Content-Type' => 'text/calendar', 'Content-Type' => 'text/html; charset=UTF-8' ] )
-//              ->sendAsCalendarInvite();
-             ->send();
+             ->setHeaders( [ 'Content-Type' => 'text/calendar', 'Content-Type' => 'text/html; charset=UTF-8' ] )
+             ->sendAsCalendarInvite();
+//              ->send();
         
         echo '<pre>EMAIL BODY:<br />';
         var_dump( $emailBody );
