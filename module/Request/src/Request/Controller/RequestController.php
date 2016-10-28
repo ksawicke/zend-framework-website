@@ -494,8 +494,11 @@ class RequestController extends AbstractActionController
     public function reviewRequestAction()
     {
         $request = $this->getRequest();
+
         $request->getHeader('referer');
+
         $referredPage = $request->getQuery('q');
+
         $fromQueue = $this->params()->fromRoute('fromQueue');
 
         $requestId = $this->params()->fromRoute('request_id');
@@ -529,6 +532,10 @@ class RequestController extends AbstractActionController
             case "Update Checks":
                 $viewQueueLink = '/request/view-payroll-queue/update-checks';
                 break;
+        }
+
+        if ($fromQueue !== null) {
+            $viewQueueLink = '/request/view-payroll-queue/by-status';
         }
 
         return new ViewModel( [
