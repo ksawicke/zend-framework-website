@@ -132,25 +132,6 @@ class ProxyApi extends ApiController {
 
         $proxyData = [];
 
-        foreach ( $employeeProxiesResult as $employeeProxiesRow ) {
-            //             var_dump($employeeProxiesRow);
-            //             $viewLinkUrl = "#";
-            //             $checked = ( $request['STATUS']==1 ? ' checked="checked"' : '' );
-
-            //             $data[] = [
-            //                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
-            //                 'STATUS' => '<div class="switch">' .
-            //                             '<input id="cmn-toggle-' . $ctr . '" class="cmn-toggle cmn-toggle-round-flat proxy-toggle" type="checkbox"' . $checked .
-            //                             ' data-proxy-employee-number="' . $request['PROXY_EMPLOYEE_NUMBER'] . '"' .
-            //                             ' data-status="' . $request['STATUS'] . '">' .
-            //                             '<label for="cmn-toggle-' . $ctr . '"></label>' .
-            //                             '</div>',
-            //                 'ACTIONS' => '<a href="' . $viewLinkUrl . '">' .
-            //                              '<button type="button" class="btn btn-form-primary btn-xs remove-proxy" data-proxy-employee-number="' .
-            //                              $request['PROXY_EMPLOYEE_NUMBER'] . '">Remove</button></a>'
-            //             ];
-        }
-
         $recordsTotal = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, false );
         $recordsFiltered = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, true );
 
