@@ -1025,9 +1025,9 @@ class Employee extends BaseDB {
               select
                 entry.REQUEST_DATE, TRIM(employee.PRCOMN) AS PRCOMN, TRIM(employee.PRLNM) AS PRLNM, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME, request.EMPLOYEE_NUMBER, sum(entry.REQUESTED_HOURS) as TOTAL_HOURS
                 FROM TIMEOFF_REQUEST_ENTRIES entry
-                INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
-                INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
-                INNER JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
+                JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
+                JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+                JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
                 WHERE
                   entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND
                   IS_DELETED = 0 AND
