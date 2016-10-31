@@ -131,6 +131,7 @@ class ProxyApi extends ApiController {
         $proxyData = [];
 
         $recordsTotal = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, false );
+
         $recordsFiltered = $EmployeeProxies->countAllSupervisorProxies( $dataTableInquiry, true );
 
         /**
