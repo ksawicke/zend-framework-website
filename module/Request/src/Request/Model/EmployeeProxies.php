@@ -78,7 +78,11 @@ class EmployeeProxies extends BaseDB {
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
             $resultSet = new ResultSet();
             $resultSet->initialize($result);
-            return $resultSet->toArray()[0]['RCOUNT'];
+            $recordCount = $resultSet->toArray();
+            foreach ($recordCount as $key => $value) {
+                return $value["RCOUNT"];
+
+            }
         }
 
         return 0;
