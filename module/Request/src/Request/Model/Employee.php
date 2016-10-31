@@ -143,7 +143,7 @@ class Employee extends BaseDB {
     {
         $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
-            WHERE
+            WHERE p.STATUS = '1' AND
                TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;
 
         $statement = $this->adapter->query( $rawSql );
