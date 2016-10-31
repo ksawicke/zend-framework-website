@@ -289,470 +289,152 @@ ORGANIZER;CN=" . $fromName . ":mailto:" . $fromEmail . "\r\n" .
 
     protected function renderEmail()
     {
-        $view = new PhpRenderer();
-        $resolver = new TemplateMapResolver();
-        $resolver->setMap( [
-            'mailLayout' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteLayout.phtml',
-            'mailTemplate' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteHeaderTemplate.phtml',
-            'mailTemplateVEvents' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteHeaderVEventsTemplate.phtml',
-        ] );
-        $view->setResolver( $resolver );
+//         $view = new PhpRenderer();
+//         $resolver = new TemplateMapResolver();
+//         $resolver->setMap( [
+//             'mailLayout' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteLayout.phtml',
+//             'mailTemplate' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteHeaderTemplate.phtml',
+//             'mailTemplateVEvents' => __DIR__ . '/../../../view/email/TimeOffCalendarInviteHeaderVEventsTemplate.phtml',
+//         ] );
+//         $view->setResolver( $resolver );
 
-        $viewModel = new ViewModel();
-        $viewModel->setTemplate( 'mailTemplateVEvents' )
-            ->setVariables( [ 'formatUID' => '9e7e62a18de5b6e8c5dcb300376fe189',
-                'timeZone' => 'America/Phoenix',
-                'startDate' => '20161027',
-                'startTime' => '0000',
-                'endDate' => '20161028',
-                'endTime' => '2359',
-                'dtStamp' => '20161026',
-                'subject' => '[ DEVELOPMENT - Time Off Requests ] - KEVIN SAWICKE - APPROVED TIME OFF',
-                'descriptionString' => 'Time off from 10/27/2016 - 10/28/2016',
-                'fromName' => 'Time Off Requests Administrator',
-                'fromEmail' => 'ASWIFT_SYSTEM@SWIFTTRANS.COM',
-                'participantsText' => 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNKevin Sawicke;X-NUM-GUESTS=0:kevin_sawicke@swifttrans.com
-ATTENDEE;'
-            ] ); // ;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-        $content = $view->render($viewModel);
+//         $viewModel = new ViewModel();
+//         $viewModel->setTemplate( 'mailTemplateVEvents' )
+//             ->setVariables( [ 'formatUID' => $this->formatUID(),
+//                 'timeZone' => 'America/Phoenix',
+//                 'startDate' => '20161027',
+//                 'startTime' => '0000',
+//                 'endDate' => '20161028',
+//                 'endTime' => '2359',
+//                 'dtStamp' => '20161026',
+//                 'subject' => '[ DEVELOPMENT - Time Off Requests ] - KEVIN SAWICKE - APPROVED TIME OFF',
+//                 'descriptionString' => 'Time off from 10/27/2016 - 10/28/2016',
+//                 'fromName' => 'Time Off Requests Administrator',
+//                 'fromEmail' => 'ASWIFT_SYSTEM@SWIFTTRANS.COM',
+//                 'participantsText' => 'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNKevin Sawicke;X-NUM-GUESTS=0:kevin_sawicke@swifttrans.com
+// ATTENDEE;'
+//             ] ); // ;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
+//         $content = $view->render($viewModel);
 
-        $viewModel = new ViewModel();
-        $viewModel->setTemplate( 'mailTemplate' )
-                  ->setVariables( [ 'content' => $content ] );
-        $content = $view->render($viewModel);
+//         $viewModel = new ViewModel();
+//         $viewModel->setTemplate( 'mailTemplate' )
+//                   ->setVariables( [ 'content' => $content ] );
+//         $content = $view->render($viewModel);
 
-        $viewLayout = new ViewModel();
-        $viewLayout->setTemplate('mailLayout')
-                   ->setVariables( [ 'content' => $content ] );
+//         $viewLayout = new ViewModel();
+//         $viewLayout->setTemplate('mailLayout')
+//                    ->setVariables( [ 'content' => $content ] );
 
 //         die( $view->render($viewLayout) );           
         
+//         $dtstart = '20161122T000000';
+//         $dtend = '20161125T235959';
+//         $todaystamp = '20161031T111200';
+
+        
         /** Returns new format as appointment... **/
-        return 'BEGIN:VCALENDAR\r\n
-VERSION 2.0\r\n
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN\r\n
-BEGIN:VEVENT
-UID:' . $this->formatUID() . '
-SUMMARY:Subject Here
-CREATED:20161028T1540
-DTSTAMP:20161028T1540
-DTSTART;VALUE=DATE:2017030
-DTEND;VALUE=DATE:20170131
-TRANSP:TRANSPARENT
-END:VEVENT
-END:VCALENDAR';
+        $vcal = "BEGIN:VCALENDAR\r\n";
+        $vcal .= "VERSION:2.0\r\n";
+        $vcal .= "PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0\r\n";
+        $vcal .= "METHOD:REQUEST\r\n";
+        
+        $vcal .= "BEGIN:VTIMEZONE\r\n";
+        $vcal .= "TZID:America/Phoenix\r\n";
+        $vcal .= "X-LIC-LOCATION:America/Phoenix\r\n";
+        $vcal .= "BEGIN:STANDARD\r\n";
+        $vcal .= "TZOFFSETFROM:-0700\r\n";
+        $vcal .= "TZOFFSETTO:-0700\r\n";
+        $vcal .= "TZNAME:MST\r\n";
+        $vcal .= "DTSTART:19000101T000000\r\n";
+        $vcal .= "END:STANDARD\r\n";
+        $vcal .= "END:VTIMEZONE\r\n";
+        
+        $vcal .= "BEGIN:VEVENT\r\n";
+        $vcal .= "ATTENDEE;CN=\"Kevin Sawicke\";ROLE=REQ-PARTICIPANT;RSVP=FALSE:MAILTO:kevin_sawicke@swifttrans.com\r\n";
+        $vcal .= "UID:".$this->formatUID()."-swifttrans.com\r\n";
+        $vcal .= "DTSTAMP:".date('Ymd').'T'.date('His')."\r\n";
+        $vcal .= "DTSTART;TZID=America/Phoenix:20161201T000000\r\n";
+        $vcal .= "DTEND;TZID=America/Phoenix:20161231T235959\r\n";
+        $vcal .= "TRANSP:TRANSPARENT\r\n";
+        $vcal .= "STATUS:ACCEPTED\r\n";
+        $vcal .= "SUMMARY:TIME OFF\r\n";
+        $vcal .= "END:VEVENT\r\n";
+        $vcal .= "END:VCALENDAR\r\n";
+ 
+        return $vcal;
         
 //         return $view->render($viewLayout);
     }
 
     public function send()
     {        
-        $emailBody = $this->renderEmail();
-        
-//         $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-// //         $headers .= 'Content-Type:text/plain;charset=utf-8;\r\n';
-//         $message = $emailBody;
-//         mail( 'kevin_sawicke@swifttrans.com', 'TEST APPOINTMENT', $message, $headers );
-        
-//         die( $emailBody );
+        $message = $this->renderEmail();
+        $headers = "From: aswift_system@swifttrans.com"; 
+        $headers .= "\r\nMIME-version: 1.0\r\nContent-Type: text/calendar; method=REQUEST; charset=\"iso-8859-1\"";
+        $headers .= "\r\nContent-Transfer-Encoding: 7bit\r\n"; //X-Mailer: Microsoft Office Outlook 15.0
         
         /* prepare and send email */
-        $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
-             ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
-             ->setSubject( 'KEVIN SAWICKE - APPROVED TIME OFF' )
-             ->setBody( $emailBody )
-             ->setHeaders( [ 'Content-Type' => 'text/calendar', 'Content-Type' => 'text/html; charset=UTF-8' ] )
-             ->sendAsCalendarInvite();
+//         $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
+//              ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
+//              ->setSubject( 'APPOINTMENT TEST[1] ' . $this->formatUID() )
+//              ->setBody( $message )
+//              ->setHeaders( [ 'From' => 'aswift_system@swifttrans.com',
+//                              'Content-Type' => 'text/calendar',
+//                              'Content-Disposition' => 'inline; charset=utf-8;' ] )
+//              ->sendAsCalendarInvite();
+        
+//              $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
+//              ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
+//              ->setSubject( 'APPOINTMENT TEST[2] ' . $this->formatUID() )
+//              ->setBody( $message )
+//              ->setHeaders( [ 'Content-Type' => 'text/calendar', 'Content-Type' => 'text/html; charset=UTF-8' ] )
 //              ->send();
-        
+             
         echo '<pre>EMAIL BODY:<br />';
-        var_dump( $emailBody );
+        var_dump( $message );
         echo '</pre>';
         
-//         echo '<pre>EMAIL HEADERS:<br />';
-//         var_dump( $emailHeaders );
+        echo '<pre>HEADERS:<br />';
+        var_dump( $headers );
+        echo '</pre>';
+        
+        $mailsent = mail( 'Kevin Sawicke <kevin_sawicke@swifttrans.com>', 'APPOINTMENT TEST[7] ' . $this->formatUID(), $message, $headers );
+        
+        die( $mailsent );
+        
+//         $calendarRequestObject = $this->getCalendarRequestObject();
+
+//         echo '<pre>';
+//         var_dump( $calendarRequestObject );
 //         echo '</pre>';
-        
-        die( "<br /><br /><br />message sent.");
+// //         die( "...." );
 
-        /**
-         * <pre>HEADERS:string(1422) "Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset="utf-8"
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:9e7e62a18de5b6e8c5dcb300376fe189swifttrans.com
-DTSTART;TZID=America/Phoenix:20161017T00
-DTEND;TZID=America/Phoenix:20161018T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off from 10/17/2016 - 10/18/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
+//         foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
+//             $descriptionString = $this->formatDescriptionString( $request );
+//             $participantsText = $this->formatParticipantsText( $calendarRequestObject );
+//             $emailSubject = $this->formatSubject( $calendarRequestObject['employee']['name'], "upper" );
 
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>MESSAGE:string(1305) "BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:9e7e62a18de5b6e8c5dcb300376fe189swifttrans.com
-DTSTART;TZID=America/Phoenix:20161017T00
-DTEND;TZID=America/Phoenix:20161018T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off from 10/17/2016 - 10/18/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
+//             $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
+//             $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n";
+//             $message = $this->formatBeginVCalendar() .
+//                 $this->formatVTimezone() .
+//                 $this->formatVEvents( $request, $this->formatSubject( $calendarRequestObject['employee']['name'], "upper" ), $descriptionString,
+//                     $calendarRequestObject['from']['name'], $calendarRequestObject['from']['email'], $participantsText ) .
+//                     $this->formatEndVCalendar();
+//             $headers .= $message;
 
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>HEADERS:string(1407) "Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset="utf-8"
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:492e310ed52aa594b3e2143af11e3ba7swifttrans.com
-DTSTART;TZID=America/Phoenix:20161104T00
-DTEND;TZID=America/Phoenix:20161104T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off on 11/04/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
+//             echo '<pre>HEADERS:';
+//             var_dump( $headers );
+//             echo '</pre>';
 
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>MESSAGE:string(1290) "BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:492e310ed52aa594b3e2143af11e3ba7swifttrans.com
-DTSTART;TZID=America/Phoenix:20161104T00
-DTEND;TZID=America/Phoenix:20161104T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off on 11/04/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>HEADERS:string(1407) "Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset="utf-8"
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:6a15036ae37b7a5896eb25dc3c17fedaswifttrans.com
-DTSTART;TZID=America/Phoenix:20161121T00
-DTEND;TZID=America/Phoenix:20161121T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off on 11/21/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>MESSAGE:string(1290) "BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:6a15036ae37b7a5896eb25dc3c17fedaswifttrans.com
-DTSTART;TZID=America/Phoenix:20161121T00
-DTEND;TZID=America/Phoenix:20161121T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off on 11/21/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>HEADERS:string(1422) "Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\nContent-Type: text/plain;charset="utf-8"
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:5c06abfa378bd693732acef930dee349swifttrans.com
-DTSTART;TZID=America/Phoenix:20161227T00
-DTEND;TZID=America/Phoenix:20161230T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off from 12/27/2016 - 12/30/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-
-END:VEVENT
-END:VCALENDAR"
-</pre><pre>MESSAGE:string(1305) "BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0//EN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Phoenix
-X-LIC-LOCATION:America/Phoenix
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0700
-TZNAME:PST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-UID:5c06abfa378bd693732acef930dee349swifttrans.com
-DTSTART;TZID=America/Phoenix:20161227T00
-DTEND;TZID=America/Phoenix:20161230T00
-DTSTAMP:20161021
-SUMMARY:[ DEVELOPMENT - Time Off Requests ] - STEVEN S MCKIM - APPROVED TIME OFF
-LOCATION:
-DESCRIPTION:Time off from 12/27/2016 - 12/30/2016
-STATUS:CONFIRMED
-X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-INSTTYPE:0
-X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
-FBTYPE:FREE
-ORGANIZER;CN=Time Off Requests:mailto:timeoffrequests-donotreply@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNSteven S Mckim;X-NUM-GUESTS=0:MAILTO:steve_mckim@swifttrans.com
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CNMary Jackson;X-NUM-GUESTS=0:MAILTO:Mary Jackson
-
-END:VEVENT
-END:VCALENDAR"
-</pre>Test complete.
-         * @var unknown
-         */
-
-        $calendarRequestObject = $this->getCalendarRequestObject();
-
-        echo '<pre>';
-        var_dump( $calendarRequestObject );
-        echo '</pre>';
-//         die( "...." );
-
-        foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
-            $descriptionString = $this->formatDescriptionString( $request );
-            $participantsText = $this->formatParticipantsText( $calendarRequestObject );
-            $emailSubject = $this->formatSubject( $calendarRequestObject['employee']['name'], "upper" );
-
-            $headers = 'Content-Type:text/calendar; Content-Disposition: inline; charset=utf-8;\r\n';
-            $headers .= "Content-Type: text/plain;charset=\"utf-8\"\r\n";
-            $message = $this->formatBeginVCalendar() .
-                $this->formatVTimezone() .
-                $this->formatVEvents( $request, $this->formatSubject( $calendarRequestObject['employee']['name'], "upper" ), $descriptionString,
-                    $calendarRequestObject['from']['name'], $calendarRequestObject['from']['email'], $participantsText ) .
-                    $this->formatEndVCalendar();
-            $headers .= $message;
-
-            echo '<pre>HEADERS:';
-            var_dump( $headers );
-            echo '</pre>';
-
-            echo '<pre>MESSAGE:';
-            var_dump( $message );
-            echo '</pre>';
+//             echo '<pre>MESSAGE:';
+//             var_dump( $message );
+//             echo '</pre>';
 
 //             $mailsent = mail( $calendarRequestObject['to'], $calendarRequestObject['subject'], $message, $headers );
-        }
+//         }
 
-        die( "Test complete." );
+//         die( "Test complete." );
 
 //         return ($mailsent) ? (true) : (false);
     }
