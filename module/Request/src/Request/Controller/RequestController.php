@@ -211,12 +211,6 @@ class RequestController extends AbstractActionController
 
     public function manageSupervisorProxiesAction()
     {
-
-        //         $view = new ViewModel();
-        //         $view->setTemplate('application/hradmin/personnelActions.phtml');
-
-        //         return $view;
-
         $Employee = new \Request\Model\Employee();
 
         return new ViewModel([
