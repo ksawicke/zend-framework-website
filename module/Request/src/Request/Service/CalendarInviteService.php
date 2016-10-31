@@ -331,39 +331,79 @@ ORGANIZER;CN=" . $fromName . ":mailto:" . $fromEmail . "\r\n" .
 //         $dtend = '20161125T235959';
 //         $todaystamp = '20161031T111200';
 
+        /** Place into templates **/
+        $view = new PhpRenderer();
+        $resolver = new TemplateMapResolver();
+        $viewModel = new ViewModel();
+        $viewLayout = new ViewModel();
         
-        /** Returns new format as appointment... **/
-        $vcal = "BEGIN:VCALENDAR\r\n";
-        $vcal .= "VERSION:2.0\r\n";
-        $vcal .= "PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0\r\n";
-        $vcal .= "METHOD:REQUEST\r\n";
+        $resolver->setMap( [
+            'layoutBeginVCalendar' => __DIR__ . '/../../../view/calendarInvite/beginVCalendar.phtml',
+            'layoutTimeZoneAmericaPhoenix' => __DIR__ . '/../../../view/calendarInvite/timeZoneAmericaPhoenix.phtml',
+            'layoutEndVCalendar' => __DIR__ . '/../../../view/calendarInvite/endVCalendar.phtml',
+            'layoutCalendarInvite' => __DIR__ . '/../../../view/calendarInvite/calendarInviteLayout.phtml',
+        ] );
+        $view->setResolver( $resolver );
+                
+        $viewModel->setTemplate( 'layoutBeginVCalendar' );
+        $contentBeginVCalendar = $view->render( $viewModel );
         
-        $vcal .= "BEGIN:VTIMEZONE\r\n";
-        $vcal .= "TZID:America/Phoenix\r\n";
-        $vcal .= "X-LIC-LOCATION:America/Phoenix\r\n";
-        $vcal .= "BEGIN:STANDARD\r\n";
-        $vcal .= "TZOFFSETFROM:-0700\r\n";
-        $vcal .= "TZOFFSETTO:-0700\r\n";
-        $vcal .= "TZNAME:MST\r\n";
-        $vcal .= "DTSTART:19000101T000000\r\n";
-        $vcal .= "END:STANDARD\r\n";
-        $vcal .= "END:VTIMEZONE\r\n";
+        $viewModel->setTemplate( 'layoutTimeZoneAmericaPhoenix' );
+        $contentTimeZone = $view->render( $viewModel );
         
-        $vcal .= "BEGIN:VEVENT\r\n";
-        $vcal .= "ATTENDEE;CN=\"Kevin Sawicke\";ROLE=REQ-PARTICIPANT;RSVP=FALSE:MAILTO:kevin_sawicke@swifttrans.com\r\n";
-        $vcal .= "UID:".$this->formatUID()."-swifttrans.com\r\n";
-        $vcal .= "DTSTAMP:".date('Ymd').'T'.date('His')."\r\n";
-        $vcal .= "DTSTART;TZID=America/Phoenix:20161201T000000\r\n";
-        $vcal .= "DTEND;TZID=America/Phoenix:20161231T235959\r\n";
-        $vcal .= "TRANSP:TRANSPARENT\r\n";
-        $vcal .= "STATUS:ACCEPTED\r\n";
-        $vcal .= "SUMMARY:TIME OFF\r\n";
-        $vcal .= "END:VEVENT\r\n";
-        $vcal .= "END:VCALENDAR\r\n";
+        $viewModel->setTemplate( 'layoutEndVCalendar' )
+            ->setVariables( [ 'attendeeName' => 'Kevin Sawicke',
+                'attendeeEmail' => 'kevin_sawicke@swifttrans.com',
+                'UID' => $this->formatUID(),
+                'dtStamp' => '20161031',
+                'timeZone' => 'America/Phoenix',
+                'dtStart' => '20161117',
+                'timeStart' => '000000',
+                'dtEnd' => '20161125',
+                'timeEnd' => '235959',
+                'summary' => 'TIME OFF REQUEST'
+            ] );
+        $contentEndVCalendar = $view->render($viewModel);
+        
+        $viewLayout->setTemplate( 'layoutCalendarInvite' )
+                   ->setVariables( [ 'content' => $contentBeginVCalendar . $contentTimeZone . $contentEndVCalendar
+            ] );
+        
+//         die( $contentBeginVCalendar . $contentTimeZone . $contentEndVCalendar );
+        /** /Place into templates **/
+        
+//         /** Returns new format as appointment... **/
+//         $vcal = "BEGIN:VCALENDAR\r\n";
+//         $vcal .= "VERSION:2.0\r\n";
+//         $vcal .= "PRODID:-//SwiftTransportation//TimeOffRequests/NONSGML v1.0\r\n";
+//         $vcal .= "METHOD:REQUEST\r\n";
+        
+//         $vcal .= "BEGIN:VTIMEZONE\r\n";
+//         $vcal .= "TZID:America/Phoenix\r\n";
+//         $vcal .= "X-LIC-LOCATION:America/Phoenix\r\n";
+//         $vcal .= "BEGIN:STANDARD\r\n";
+//         $vcal .= "TZOFFSETFROM:-0700\r\n";
+//         $vcal .= "TZOFFSETTO:-0700\r\n";
+//         $vcal .= "TZNAME:MST\r\n";
+//         $vcal .= "DTSTART:19000101T000000\r\n";
+//         $vcal .= "END:STANDARD\r\n";
+//         $vcal .= "END:VTIMEZONE\r\n";
+        
+//         $vcal .= "BEGIN:VEVENT\r\n";
+//         $vcal .= "ATTENDEE;CN=\"Kevin Sawicke\";ROLE=REQ-PARTICIPANT;RSVP=FALSE:MAILTO:kevin_sawicke@swifttrans.com\r\n";
+//         $vcal .= "UID:".$this->formatUID()."-swifttrans.com\r\n";
+//         $vcal .= "DTSTAMP:".date('Ymd').'T'.date('His')."\r\n";
+//         $vcal .= "DTSTART;TZID=America/Phoenix:20161201T000000\r\n";
+//         $vcal .= "DTEND;TZID=America/Phoenix:20161231T235959\r\n";
+//         $vcal .= "TRANSP:TRANSPARENT\r\n";
+//         $vcal .= "STATUS:ACCEPTED\r\n";
+//         $vcal .= "SUMMARY:TIME OFF\r\n";
+//         $vcal .= "END:VEVENT\r\n";
+//         $vcal .= "END:VCALENDAR\r\n";
  
-        return $vcal;
+//         return $vcal;
         
-//         return $view->render($viewLayout);
+        return $view->render( $viewLayout );
     }
 
     public function send()
@@ -398,7 +438,7 @@ ORGANIZER;CN=" . $fromName . ":mailto:" . $fromEmail . "\r\n" .
         var_dump( $headers );
         echo '</pre>';
         
-        $mailsent = mail( 'Kevin Sawicke <kevin_sawicke@swifttrans.com>', 'APPOINTMENT TEST[7] ' . $this->formatUID(), $message, $headers );
+        $mailsent = mail( 'Kevin Sawicke <kevin_sawicke@swifttrans.com>', 'APPOINTMENT TEST[9] ', $message, $headers );
         
         die( $mailsent );
         

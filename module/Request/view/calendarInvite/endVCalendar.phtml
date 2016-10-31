@@ -1,0 +1,16 @@
+BEGIN:VEVENT
+ATTENDEE;CN=\"<?php echo $this->attendeeName; ?>\";ROLE=REQ-PARTICIPANT;RSVP=FALSE:MAILTO:<?php echo $this->attendeeEmail; ?>
+
+UID:<?php echo $this->UID; ?>-swifttrans.com
+DTSTAMP:<?php echo $this->dtStamp; ?>
+
+DTSTART;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->dtStart; ?>T<?php echo $this->timeStart; ?>
+
+DTEND;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->dtEnd; ?>T<?php echo $this->timeEnd; ?>
+
+TRANSP:TRANSPARENT
+STATUS:ACCEPTED
+SUMMARY:<?php echo $this->summary; ?>
+
+END:VEVENT
+END:VCALENDAR
