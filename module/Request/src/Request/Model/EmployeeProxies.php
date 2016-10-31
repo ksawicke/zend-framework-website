@@ -53,13 +53,13 @@ class EmployeeProxies extends BaseDB {
         $select->columns(['RCOUNT' => new Expression("COUNT(*)")]);
 
         if ($isFiltered === true) {
-            $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), []);
-            $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), []);
-
-            $select->offset($datatableInquiry->getStart());
-            $select->limit($datatableInquiry->getLength());
-
             if (trim($datatableInquiry->getSearch()->value) !== '') {
+                $select->join(['PROXY_PRPMS' => 'PRPMS'], new Expression("TRIM(PROXY_PRPMS.PREN) = trim(PROXY_EMPLOYEE_NUMBER) and TRIM(PROXY_PRPMS.PRER) = '002'"), []);
+                $select->join(['EMPLOYEE_PRPMS' => 'PRPMS'], new Expression("TRIM(EMPLOYEE_PRPMS.PREN) = trim(EMPLOYEE_NUMBER) and TRIM(EMPLOYEE_PRPMS.PRER) = '002'"), []);
+
+                $select->offset($datatableInquiry->getStart());
+                $select->limit($datatableInquiry->getLength());
+
                 $where = new Where();
                 $where->like('PROXY_PRPMS.PRFNM', "%".strtoupper($datatableInquiry->getSearch()->value)."%")
                 ->or->like('PROXY_PRPMS.PRLNM', "%".strtoupper($datatableInquiry->getSearch()->value)."%")
@@ -81,7 +81,6 @@ class EmployeeProxies extends BaseDB {
             $recordCount = $resultSet->toArray();
             foreach ($recordCount as $key => $value) {
                 return $value["RCOUNT"];
-
             }
         }
 
