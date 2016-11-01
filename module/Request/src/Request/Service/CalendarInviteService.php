@@ -82,6 +82,9 @@ class CalendarInviteService extends AbstractActionController
         $this->employee = $employee;
         $this->employeeSchedules = $employeeSchedules;
         $this->emailService = $emailService;
+        
+        /** Check for Email Override settings. **/
+        $this->checkEmailOverride();
     }
 
     /**
@@ -103,10 +106,8 @@ class CalendarInviteService extends AbstractActionController
      */
     public function setSubject( $emailSubject )
     {
-        $this->emailSubject = $emailSubject;
-        if ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) {
-            $this->emailSubject = '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $this->emailSubject;
-        }
+        $this->emailSubject = ( ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ?
+            '[ ' . strtoupper( ENVIRONMENT ) . ' - Time Off Requests ] - ' . $emailSubject : $emailSubject );
         return $this;
     }
 
@@ -168,6 +169,30 @@ class CalendarInviteService extends AbstractActionController
     }
 
     /**
+     * Formats an individual Calendar Request Object element
+     * 
+     * @param string $name
+     * @param string $emailAddress
+     * @param string $timezone
+     * @param unknown $dtStart
+     * @param unknown $dtEnd
+     */
+    protected function formatCalendarRequestObjectElement( $name = '', $emailAddress = '', $timezone = 'America/Phoenix', $dtStart = null, $dtEnd = null )
+    {
+        return [ 'attendeeName' => $name,
+                 'attendeeEmail' => $emailAddress,
+                 'UID' => $this->formatUID(),
+                 'dtStamp' => date( 'Ymd' ),
+                 'timeZone' => 'America/Phoenix',
+                 'dtStart' => date( "Ymd", strtotime( $dtStart ) ),
+                 'timeStart' => '000000',
+                 'dtEnd' => date( "Ymd", strtotime( $dtEnd ) ),
+                 'timeEnd' => '235959',
+                 'summary' => 'TIME OFF REQUEST'
+               ];
+    }
+    
+    /**
      * Gets a calendar request object based on Request ID that we use to send the invite.
      *
      * @return array
@@ -178,16 +203,41 @@ class CalendarInviteService extends AbstractActionController
         $dateRequestBlocks = $this->requestEntry->getRequestObject( $this->requestId );
         $employeeData = $this->employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
         $employeeProfile = $this->employeeSchedules->getEmployeeProfile( $dateRequestBlocks['for']['employee_number'] );
-
-        return [ 'from' => [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ],
-                 'employee' => [ 'name' =>  $this->formatName( $employeeData['EMPLOYEE_NAME'] ), 'email' => $this->formatEmail( $employeeData['EMAIL_ADDRESS'] ) ],
-                 'manager' => [ 'name' => $this->formatName( $employeeData['MANAGER_NAME'] ), 'email' => $this->formatEmail( $employeeData['MANAGER_EMAIL_ADDRESS'] ) ],
-                 'sendInvitationsTo' => [ 'employee' => $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'], 'manager' => $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ],
-                 'datesRequested' => $calendarInviteData['datesRequested']
-        ];
+        $calendarRequestObject = [];
+        
+        // Format the request object to contain data for each email that needs to be sent.
+        foreach ( $calendarInviteData['datesRequested'] as $key => $request ) {
+            if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
+                foreach( $this->emailOverrideList as $emailCounter => $emailAddress ) {
+                    $calendarRequestObject[] = $this->formatCalendarRequestObjectElement( $this->formatEmail( $emailAddress ), $this->formatEmail( $emailAddress ), 'America/Phoenix', $request['start'], $request['end'] );
+                }
+            }
+            if( $this->overrideEmails==0 && $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE']==1 ) {
+                $calendarRequestObject[] = $this->formatCalendarRequestObjectElement( $this->formatName( $employeeData['EMPLOYEE_NAME'] ), $this->formatEmail( $employeeData['EMAIL_ADDRESS'] ), 'America/Phoenix', $request['start'], $request['end'] );
+            }
+        
+            if( $this->overrideEmails==0 && $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER']==1 ) {
+                $calendarRequestObject[] = $this->formatCalendarRequestObjectElement( $this->formatName( $employeeData['MANAGER_NAME'] ), $this->formatEmail( $employeeData['MANAGER_EMAIL_ADDRESS'] ), 'America/Phoenix', $request['start'], $request['end'] );
+            }
+        }
+        
+        return $calendarRequestObject;
+        
+//         return [ 'from' => [ 'name' => 'Time Off Requests', 'email' => 'timeoffrequests-donotreply@swifttrans.com' ],
+//                  'employee' => [ 'name' =>  $this->formatName( $employeeData['EMPLOYEE_NAME'] ), 'email' => $this->formatEmail( $employeeData['EMAIL_ADDRESS'] ) ],
+//                  'manager' => [ 'name' => $this->formatName( $employeeData['MANAGER_NAME'] ), 'email' => $this->formatEmail( $employeeData['MANAGER_EMAIL_ADDRESS'] ) ],
+//                  'sendInvitationsTo' => [ 'employee' => $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'], 'manager' => $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ],
+//                  'datesRequested' => $calendarInviteData['datesRequested']
+//         ];
     }
 
-    protected function renderEmail()
+    /**
+     * Generates the body of the email.
+     * 
+     * @param array $calendarRequestData
+     * @return string
+     */
+    protected function renderEmailBody( $calendarRequestData = [] )
     {
         $view = new PhpRenderer();
         $resolver = new TemplateMapResolver();
@@ -209,66 +259,47 @@ class CalendarInviteService extends AbstractActionController
         $contentTimeZone = $view->render( $viewModel );
         
         $viewModel->setTemplate( 'layoutEndVCalendar' )
-            ->setVariables( [ 'attendeeName' => 'Kevin Sawicke',
-                'attendeeEmail' => 'kevin_sawicke@swifttrans.com',
+            ->setVariables( [ 'attendeeName' => $calendarRequestData['attendeeName'],
+                'attendeeEmail' => $calendarRequestData['attendeeEmail'],
                 'UID' => $this->formatUID(),
-                'dtStamp' => '20161031',
+                'dtStamp' => $calendarRequestData['dtStamp'],
                 'timeZone' => 'America/Phoenix',
-                'dtStart' => '20161114',
+                'dtStart' => $calendarRequestData['dtStart'],
                 'timeStart' => '000000',
-                'dtEnd' => '20161116',
+                'dtEnd' => $calendarRequestData['dtEnd'],
                 'timeEnd' => '235959',
                 'summary' => 'TIME OFF REQUEST'
             ] );
         $contentEndVCalendar = $view->render($viewModel);
         
         $viewLayout->setTemplate( 'layoutCalendarInvite' )
-                   ->setVariables( [ 'content' => $contentBeginVCalendar . $contentTimeZone . $contentEndVCalendar
-            ] );
+            ->setVariables( [ 'content' => $contentBeginVCalendar . $contentTimeZone . $contentEndVCalendar
+        ] );
         
         return $view->render( $viewLayout );
     }
 
     /**
-     * Sends the calendar invitation as an appointment.
+     * Sends the calendar invitations for a request as an appointment.
      * Does not block off as busy.
      */
     public function send()
     {
         $calendarRequestObject = $this->getCalendarRequestObject();
-        
-        echo '<pre>';
-        var_dump( $calendarRequestObject );
-        echo '</pre>';
-        
-        foreach ( $calendarRequestObject['datesRequested'] as $key => $request ) {
-            
-            echo '<pre>';
-            var_dump( $request );
-            echo '</pre>';
-            
-//             $message = $this->renderEmail();
-//             $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
-//                 ->setFrom( $calendarRequestObject['from']['name'] . ' <' . $calendarRequestObject['from']['email'] . '>' )
-//                 ->setSubject( $this->emailSubject )
-//                 ->setBody( $message )
-//                 ->setHeaders( [ 'MIME-version' => '1.0',
-//                                 'Content-Type' => 'text/calendar; method=REQUEST; charset="iso-8859-1"',
-//                                 'Content-Transfer-Encoding' => '7bit' ] )
-//                 ->send();
-        }
-        
-//         $message = $this->renderEmail();
-//         $this->emailService->setTo( 'kevin_sawicke@swifttrans.com' )
-//             ->setFrom( 'Time Off Requests Administrator <ASWIFT_SYSTEM@SWIFTTRANS.COM>' )
-//             ->setSubject( 'APPOINTMENT TEST[10]' )
-//             ->setBody( $message )
-//             ->setHeaders( [ 'MIME-version' => '1.0',
-//                             'Content-Type' => 'text/calendar; method=REQUEST; charset="iso-8859-1"',
-//                             'Content-Transfer-Encoding' => '7bit' ] )
-//             ->send();
 
-        die();
+        foreach ( $calendarRequestObject as $calendarRequestCounter => $calendarRequestData ) {            
+            $message = $this->renderEmailBody( $calendarRequestData );
+//             $this->setSubject( $calendarRequestData['attendeeName'] . ' - APPROVED TIME OFF' );
+            
+            $this->emailService->setTo( $calendarRequestData['attendeeEmail'] )
+                ->setFrom( 'Time Off Requests <timeoffrequests-donotreply@swifttrans.com>' )
+                ->setSubject( $calendarRequestData['attendeeName'] . ' - APPROVED TIME OFF' )
+                ->setBody( $message )
+                ->setHeaders( [ 'MIME-version' => '1.0',
+                                'Content-Type' => 'text/calendar; method=REQUEST; charset="iso-8859-1"',
+                                'Content-Transfer-Encoding' => '7bit' ] )
+                ->send();
+        }
     }
 
 }
