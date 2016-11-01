@@ -548,14 +548,6 @@ class RequestApi extends ApiController {
      */
     public function submitTimeoffRequestAction()
     {
-        $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
-        $calendarInviteService->setRequestId( '100025' );
-        $calendarInviteService->send();
-//         $calendarRequestObject = $calendarInviteService->getCalendarRequestObject();
-
-
-        die( "stoping here...from RequestApi.php" );
-
         $Employee = new Employee();
         $TimeOffRequests = new TimeOffRequests();
         $TimeOffRequestLog = new TimeOffRequestLog();
@@ -598,7 +590,10 @@ class RequestApi extends ApiController {
         {
             $post['request_id'] = $requestId;
             $this->emailRequestToEmployee( $requestId, $post );
-            $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
+            
+            $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
+            $calendarInviteService->setRequestId( $requestId );
+            $calendarInviteService->send();
 
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
                 'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor hierarchy of ' .
@@ -1046,7 +1041,10 @@ class RequestApi extends ApiController {
                 $post->request_id,
                 $post->review_request_reason );
         } else {
-            $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
+            $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
+            $calendarInviteService->setRequestId( $post->request_id );
+            $calendarInviteService->send();
+            
             $RequestEntry = new RequestEntry();
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
 
@@ -1100,35 +1098,6 @@ class RequestApi extends ApiController {
         }
 
         return $result;
-    }
-
-    public function sendCalendarInvitationsForRequestToEnabledUsers( $post )
-    {
-        $forEmployeeNumber = null;
-        $post = (array) $post;
-        if( array_key_exists( 'request', $post ) ) {
-            $forEmployeeNumber = $post['request']['forEmployee']['EMPLOYEE_NUMBER'];
-        } elseif( array_key_exists( 'loggedInUserEmployeeNumber', $post ) ) {
-            $forEmployeeNumber = $post['loggedInUserEmployeeNumber'];
-        }
-
-        if( !is_null( $forEmployeeNumber ) ) {
-            $EmployeeSchedules = new EmployeeSchedules();
-            $employeeProfile = $EmployeeSchedules->getEmployeeProfile( $forEmployeeNumber );
-
-            $OutlookHelper = new OutlookHelper();
-            $RequestEntry = new RequestEntry();
-            $TimeOffRequests = new TimeOffRequests();
-            $Employee = new Employee();
-            $calendarInviteData = $TimeOffRequests->findRequestCalendarInviteData( $post['request_id'] );
-            $dateRequestBlocks = $RequestEntry->getRequestObject( $post['request_id'] );
-            $employeeData = $Employee->findEmployeeTimeOffData( $dateRequestBlocks['for']['employee_number'], "Y", "EMPLOYER_NUMBER, EMPLOYEE_NUMBER, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, SALARY_TYPE" );
-
-            if( $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'] || $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] ) {
-                $OutlookHelper->addToCalendar( $calendarInviteData, $employeeData, $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE'],
-                    $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_MANAGER'] );
-            }
-        }
     }
 
     /**
@@ -1286,7 +1255,9 @@ class RequestApi extends ApiController {
                 'Status changed to Pending AS400 Upload' );
 
             /** Send calendar invites for this request **/
-            $isSent = $this->sendCalendarInvitationsForRequestToEnabledUsers( $post );
+            $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
+            $calendarInviteService->setRequestId( $post->request_id );
+            $calendarInviteService->send();
 
             /** Log sending calendar invites **/
             $TimeOffRequestLog->logEntry(

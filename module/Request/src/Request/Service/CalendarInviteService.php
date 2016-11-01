@@ -209,7 +209,8 @@ class CalendarInviteService extends AbstractActionController
         foreach ( $calendarInviteData['datesRequested'] as $key => $request ) {
             if( $this->overrideEmails==1 && !empty( $this->emailOverrideList ) ) {
                 foreach( $this->emailOverrideList as $emailCounter => $emailAddress ) {
-                    $calendarRequestObject[] = $this->formatCalendarRequestObjectElement( $this->formatEmail( $emailAddress ), $this->formatEmail( $emailAddress ), 'America/Phoenix', $request['start'], $request['end'] );
+                    // Note: We're using the acutal employee name, but the override email
+                    $calendarRequestObject[] = $this->formatCalendarRequestObjectElement( $this->formatName( $employeeData['EMPLOYEE_NAME'] ), $this->formatEmail( $emailAddress ), 'America/Phoenix', $request['start'], $request['end'] );
                 }
             }
             if( $this->overrideEmails==0 && $employeeProfile['SEND_CALENDAR_INVITATIONS_TO_EMPLOYEE']==1 ) {
@@ -270,7 +271,7 @@ class CalendarInviteService extends AbstractActionController
                 'timeEnd' => '235959',
                 'summary' => 'TIME OFF REQUEST'
             ] );
-        $contentEndVCalendar = $view->render($viewModel);
+        $contentEndVCalendar = $view->render( $viewModel );
         
         $viewLayout->setTemplate( 'layoutCalendarInvite' )
             ->setVariables( [ 'content' => $contentBeginVCalendar . $contentTimeZone . $contentEndVCalendar
@@ -286,10 +287,14 @@ class CalendarInviteService extends AbstractActionController
     public function send()
     {
         $calendarRequestObject = $this->getCalendarRequestObject();
+        
+//         echo '<pre>';
+//         var_dump( $calendarRequestObject );
+//         echo '</pre>';
+//         die();
 
         foreach ( $calendarRequestObject as $calendarRequestCounter => $calendarRequestData ) {            
             $message = $this->renderEmailBody( $calendarRequestData );
-//             $this->setSubject( $calendarRequestData['attendeeName'] . ' - APPROVED TIME OFF' );
             
             $this->emailService->setTo( $calendarRequestData['attendeeEmail'] )
                 ->setFrom( 'Time Off Requests <timeoffrequests-donotreply@swifttrans.com>' )
