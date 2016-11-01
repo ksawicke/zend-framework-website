@@ -159,7 +159,7 @@ class QueueApi extends ApiController {
 
         $data = [];
         foreach ( $queueData as $ctr => $request ) {
-            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'] . '?q=' . $redirectUrl;
+            $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'] . '?q=' . $this->getRequest()->getBasePath(). $redirectUrl;
 
             $data[] = [
                 'EMPLOYEE_DESCRIPTION' => $request['EMPLOYEE_DESCRIPTION'],
