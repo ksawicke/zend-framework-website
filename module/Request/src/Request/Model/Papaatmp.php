@@ -426,12 +426,15 @@ class Papaatmp extends BaseDB {
 
     /**
      * Append Reason to the pappa object.
+     * NOTE: 11/01/2016 Per Payroll, changed this function to simply add nothing to the AACOMM field.
+     * Reason: Not needed by Payroll, they can use the Time Off Requests system to look
+     * at the comment if needed. Also avoids having to truncate the reason after 75 characters.
      *
      * @param string $reason
      */
     public function Reason( $reason )
     {
-        $this->collection['AACOMM'] = $reason;
+        $this->collection['AACOMM'] = '';
     }
 
     /**
