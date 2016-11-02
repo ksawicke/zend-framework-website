@@ -29,6 +29,8 @@ class EmailService extends AbstractActionController
 
     protected $emailFrom;
 
+    protected $emailHeaders;
+
     protected $emailSubject;
 
     protected $emailBody;
@@ -67,6 +69,12 @@ class EmailService extends AbstractActionController
     public function setBCC( $emailBCC )
     {
         $this->emailBCC = $emailBCC;
+        return $this;
+    }
+    
+    public function setHeaders( array $emailHeaders )
+    {
+        $this->emailHeaders = $emailHeaders;
         return $this;
     }
 
@@ -117,14 +125,17 @@ class EmailService extends AbstractActionController
         $mail = new Message();
         $mail->setBody($mailBodyParts);
         $mail->setSubject( $this->emailSubject );
-        $mail->setFrom( $this->emailFrom);
-        $mail->addTo($this->emailTo);
-
+        $mail->setFrom( $this->emailFrom );
+        $mail->addTo( $this->emailTo );
+        if( !empty( $this->emailHeaders ) ) {
+            foreach( $this->emailHeaders as $headerKey => $headerValue ) {
+                $mail->getHeaders()->addHeaderLine( $headerKey, $headerValue );
+            }
+        }
+        
         $transport = new SmtpTransport();
         $transport->setOptions($options);
-
         $transport->send($mail);
-
     }
 }
 

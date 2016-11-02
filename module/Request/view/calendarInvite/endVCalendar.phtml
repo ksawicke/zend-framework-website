@@ -1,0 +1,18 @@
+BEGIN:VEVENT
+ATTENDEE;CN=\"<?php echo $this->attendeeName; ?>\";ROLE=REQ-PARTICIPANT;RSVP=FALSE:MAILTO:<?php echo $this->attendeeEmail; ?>
+
+UID:<?php echo $this->UID; ?>-swifttrans.com
+DTSTAMP:<?php echo $this->dtStamp; ?>
+
+DTSTART;VALUE=DATE:<?php echo $this->dtStart; ?>
+
+DTEND;VALUE=DATE:<?php echo $this->dtEnd; ?>
+
+TRANSP:TRANSPARENT
+STATUS:ACCEPTED
+SUMMARY:<?php echo $this->summary; ?>
+
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+
+END:VEVENT
+END:VCALENDAR
