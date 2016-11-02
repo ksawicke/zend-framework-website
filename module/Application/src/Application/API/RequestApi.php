@@ -590,10 +590,6 @@ class RequestApi extends ApiController {
         {
             $post['request_id'] = $requestId;
             $this->emailRequestToEmployee( $requestId, $post );
-            
-            $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
-            $calendarInviteService->setRequestId( $requestId );
-            $calendarInviteService->send();
 
             $return = $this->submitManagerApprovedAction( [ 'request_id' => $requestId,
                 'review_request_reason' => 'System auto-approved request because requester is in manager or supervisor hierarchy of ' .

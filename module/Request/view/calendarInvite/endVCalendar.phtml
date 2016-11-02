@@ -4,13 +4,15 @@ ATTENDEE;CN=\"<?php echo $this->attendeeName; ?>\";ROLE=REQ-PARTICIPANT;RSVP=FAL
 UID:<?php echo $this->UID; ?>-swifttrans.com
 DTSTAMP:<?php echo $this->dtStamp; ?>
 
-DTSTART;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->dtStart; ?>T<?php echo $this->timeStart; ?>
+DTSTART;VALUE=DATE:<?php echo $this->dtStart; ?>
 
-DTEND;TZID=<?php echo $this->timeZone; ?>:<?php echo $this->dtEnd; ?>T<?php echo $this->timeEnd; ?>
+DTEND;VALUE=DATE:<?php echo $this->dtEnd; ?>
 
 TRANSP:TRANSPARENT
 STATUS:ACCEPTED
 SUMMARY:<?php echo $this->summary; ?>
+
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
 
 END:VEVENT
 END:VCALENDAR
