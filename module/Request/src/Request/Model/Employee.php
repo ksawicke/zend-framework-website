@@ -101,29 +101,28 @@ class Employee extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
-        INNER JOIN table (
+        JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
+        JOIN PRPMS manager_addons ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
+        JOIN table (
             SELECT
-                EMPLOYEE_ID AS EMPLOYEE_NUMBER,
+                TRIM(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
                 TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL
             FROM table (
-                CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+                GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
             ) as data
         ) hierarchy
-            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002'  = employee.PRER";
+            ON hierarchy.EMPLOYEE_NUMBER = employee.PREN";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'P'";
 
         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-                $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                              employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+                $where[] = "( employee.PREN LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                              employee.PRFNM LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                              employee.PRLNM LIKE '" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
         }
@@ -144,7 +143,7 @@ class Employee extends BaseDB {
     {
         $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
-            WHERE
+            WHERE p.STATUS = '1' AND
                TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;
 
         $statement = $this->adapter->query( $rawSql );
@@ -194,21 +193,20 @@ class Employee extends BaseDB {
     TRIM(manager_addons.PRLNM) CONCAT ', ' CONCAT TRIM(manager_addons.PRFNM) CONCAT ' (' CONCAT TRIM(manager_addons.PREN) CONCAT ')' as APPROVER_QUEUE,
                 TRIM(manager_addons.PREML1) AS MANAGER_EMAIL_ADDRESS
             FROM TIMEOFF_REQUESTS request
-            INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
-            INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-            INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
-            INNER JOIN table (
+            JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER
+            JOIN PRPMS manager_addons ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
+            JOIN table (
                 SELECT
-                    EMPLOYEE_ID AS EMPLOYEE_NUMBER,
+                    TRIM(EMPLOYEE_ID) AS EMPLOYEE_NUMBER,
                     TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                     DIRECT_INDIRECT,
                     MANAGER_LEVEL
                 FROM table (
-                    CARE_GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
+                    GET_MANAGER_EMPLOYEES('002', '" . $data['employeeNumber'] . "', 'D')
                 ) as data
             ) hierarchy
-                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER
-            INNER JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
+                ON hierarchy.EMPLOYEE_NUMBER = employee.PREN
+            JOIN TIMEOFF_REQUEST_STATUSES status ON status.REQUEST_STATUS = request.REQUEST_STATUS
             WHERE request.REQUEST_STATUS = 'P'
             ORDER BY MIN_DATE_REQUESTED ASC, EMPLOYEE_LAST_NAME ASC) AS DATA
         ) AS DATA2";
@@ -224,9 +222,9 @@ class Employee extends BaseDB {
 
         $where = [];
         if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
-            $where[] = "( EMPLOYEE_NUMBER LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_FIRST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
-                          EMPLOYEE_LAST_NAME LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
+            $where[] = "( EMPLOYEE_NUMBER LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_FIRST_NAME LIKE '" . strtoupper( $data['search']['value'] ) . "%' OR
+                          EMPLOYEE_LAST_NAME LIKE '" . strtoupper( $data['search']['value'] ) . "%'
                         )";
         }
         if( $data !== null ) {
@@ -484,7 +482,7 @@ class Employee extends BaseDB {
     public function getExcludedLevel2() {
         $where = '';
         foreach ( $this->excludeLevel2 as $excluded ) {
-            $where .= "employee.PRL02 <> '" . implode( ', ', $this->excludeLevel2 ) . "' and ";
+            $where .= "employee.PRL02 != '" . implode( ', ', $this->excludeLevel2 ) . "' and ";
         }
         return $where;
     }
@@ -663,7 +661,7 @@ class Employee extends BaseDB {
         $proxyForPartial = implode(",", $proxyFor);
 
         //$where .= " AND trim(employee.PREN) IN(" . $proxyForPartial . ")";
-        $where .= " AND trim(manager.SPSPEN) IN(" . $proxyForPartial . ") AND PRER = '002'" ;
+        $where .= " AND trim(manager.SPSPEN) IN(" . $proxyForPartial . ") AND employee.PRER = '002'" ;
 
         $rawSql = "SELECT
             CASE
@@ -747,16 +745,14 @@ class Employee extends BaseDB {
                           DIRECT_INDIRECT,
                           MANAGER_LEVEL
                       FROM table (
-                          CARE_GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
+                          GET_MANAGER_EMPLOYEES('002', '" . $managerEmployeeNumber . "', '" . $directReportFilter . "')
                       ) as data
                 ) hierarchy
-                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN) and '002' = trim(employee.PRER)
-                INNER JOIN PRPSP manager
-                      ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-                INNER JOIN PRPMS manager_addons
-                     ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER
+                      ON hierarchy.EMPLOYEE_NUMBER = trim(employee.PREN)
+                JOIN PRPMS manager_addons
+                     ON hierarchy.DIRECT_MANAGER_EMPLOYEE_NUMBER = trim(manager_addons.PREN)
                 " . $where . "
-                ORDER BY employee.PRLNM ASC, employee.PRFNM ASC";
+                ORDER BY EMPLOYEE_NAME";
     }
 
     /**
@@ -774,9 +770,9 @@ class Employee extends BaseDB {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
-            ( trim(employee.PREN) LIKE '%" . strtoupper( $search ) . "%' OR
-              trim(employee.PRLNM) LIKE '%" . strtoupper( $search ) . "%' OR
-              trim(employee.PRFNM) LIKE '%" . strtoupper( $search ) . "%'
+            ( employee.PREN LIKE '" . strtoupper( $search ) . "%' OR
+              employee.PRLNM LIKE '" . strtoupper( $search ) . "%' OR
+              employee.PRFNM LIKE '" . strtoupper( $search ) . "%'
             )
         )";
 
@@ -1022,16 +1018,16 @@ class Employee extends BaseDB {
                 EMPLOYEE_ID AS EMPLOYEE_NUMBER, TRIM(DIRECT_MANAGER_EMPLOYEE_ID) AS DIRECT_MANAGER_EMPLOYEE_NUMBER,
                 DIRECT_INDIRECT,
                 MANAGER_LEVEL FROM table (
-                  CARE_GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
+                  GET_MANAGER_EMPLOYEES('" . $employerNumber . "', '" . $managerEmployeeNumber . "', '" . $managerReportsType . "')
                 ) as data
             ) hierarchy
             INNER JOIN table(
               select
                 entry.REQUEST_DATE, TRIM(employee.PRCOMN) AS PRCOMN, TRIM(employee.PRLNM) AS PRLNM, TRIM(employee.PRCOMN) CONCAT ' ' CONCAT TRIM(employee.PRLNM) as EMPLOYEE_NAME, request.EMPLOYEE_NUMBER, sum(entry.REQUESTED_HOURS) as TOTAL_HOURS
                 FROM TIMEOFF_REQUEST_ENTRIES entry
-                INNER JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
-                INNER JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
-                INNER JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
+                JOIN TIMEOFF_REQUESTS AS request ON request.REQUEST_ID = entry.REQUEST_ID
+                JOIN TIMEOFF_REQUEST_CODES AS requestcode ON requestcode.REQUEST_CODE = entry.REQUEST_CODE
+                JOIN PRPMS AS employee ON trim(employee.PREN) = trim(request.EMPLOYEE_NUMBER)
                 WHERE
                   entry.REQUEST_DATE BETWEEN '" . $startDate . "' AND '" . $endDate . "' AND
                   IS_DELETED = 0 AND
@@ -1164,8 +1160,8 @@ class Employee extends BaseDB {
         $employeeHierarchy = $this->getEmployeeHierarchy($employeeId);
 
         foreach ($employeeHierarchy as $hierarchyRecord) {
-            if ($hierarchyRecord['MANAG00004'] == 'Manager') {
-                $employeeId = $hierarchyRecord['MANAG00002'];
+            if ($hierarchyRecord['MANAGER_SUPERVISOR'] == 'Manager') {
+                $employeeId = $hierarchyRecord['MANAGER_EMPLOYEE_ID'];
                 break;
             }
         }

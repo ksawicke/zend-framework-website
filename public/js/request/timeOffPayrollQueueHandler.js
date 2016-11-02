@@ -4,7 +4,9 @@
  */
 var timeOffPayrollQueueHandler = new function ()
 {
-    /**
+    var currentStatusFilter = 'All';
+	
+	/**
      * Initializes binding
      */
     this.initialize = function () {
@@ -16,7 +18,32 @@ var timeOffPayrollQueueHandler = new function ()
             timeOffPayrollQueueHandler.handleLoadingDeniedQueue();
             timeOffPayrollQueueHandler.handleLoadingByStatusQueue();
             timeOffPayrollQueueHandler.handleLoadingManagerActionQueue();
+            timeOffPayrollQueueHandler.handleDownloadManagerActionReport();
         });
+    }
+    
+    this.handleDownloadManagerActionReport = function () {
+    	$( '#downloadReportManagerActionNeeded' ).on( 'click', function(e) {
+    		e.preventDefault();
+    		var hyperlink = $( "#downloadReportManagerActionNeeded" );
+            var href = hyperlink.attr("href");
+            $.ajax( { type: 'post',
+                      url: href,
+                      dataType: 'json',
+                      data: { statusFilter: currentStatusFilter },
+                      success: function(data) {
+                    	  /**
+                    	   * Dynamically load the Excel spreadsheet.
+                    	   */
+                    	  var $a = $("<a>");
+                    	  $a.attr( "href", data.fileContents );
+                    	  $( "body" ).append( $a );
+                    	  $a.attr( "download", data.fileName );
+                    	  $a[0].click();
+                    	  $a.remove();
+                      }
+            } );
+    	});
     }
 
     /**
@@ -324,28 +351,14 @@ var timeOffPayrollQueueHandler = new function ()
             initComplete: function () {
                 var table = $('#payroll-queue-by-status').DataTable();
 
-                table.columns().every( function () {
-                    var column = this;
-                    var idx = this.index();
-                    var title = table.column( idx ).header();
-
-                    if( $(title).html()=="Request Status" ) {
-                        var select = $('<br /><select><option value="All" selected>All</option></select>')
-                            .appendTo( $(column.header()) )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-
-                                column
-                                    .search( val ? val : '', true, false )
-                                    .draw();
-                            } );
-                        column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
-                        } );
-                    }
-                } );
+                $('#columnRequestStatusFilter')
+	                .on( 'change', function () {
+	                    var val = $.fn.dataTable.util.escapeRegex(
+	                        $(this).val()
+	                    );
+	                    currentStatusFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
+	                    table.column( 2 ).search( val ? val : '', true, false ).draw();
+	                } );
             }
         })
         .on("error.dt", function (e, settings, techNote, message) {
@@ -391,6 +404,18 @@ var timeOffPayrollQueueHandler = new function ()
                     });
                 },
                 type: "POST",
+            },
+            initComplete: function () {
+                var table = $('#payroll-queue-manager-action').DataTable();
+
+                $('#columnRequestStatusFilter')
+	                .on( 'change', function () {
+	                    var val = $.fn.dataTable.util.escapeRegex(
+	                        $(this).val()
+	                    );
+	                    currentStatusFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
+	                    table.column( 2 ).search( val ? val : '', true, false ).draw();
+	                } );
             }
         })
         .on("error.dt", function (e, settings, techNote, message) {

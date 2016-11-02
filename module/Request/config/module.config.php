@@ -128,6 +128,18 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
+            'manageSupervisorProxies' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => [
+                    'route' => '/request/manage-supervisor-proxies',
+                    'defaults' => [
+                        'controller' => 'RequestController',
+                        'action' => 'manageSupervisorProxies'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'manageEmailOverrides' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [

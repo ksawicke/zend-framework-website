@@ -42,6 +42,8 @@ class TimeOffEmailReminder extends BaseDB
 
         $where->notEqualTo('EMAIL_SEND', 'Y');
 
+        $select->where($where);
+
         $select->order(['SPSPEN', 'EMPLOYEE_NUMBER']);
 
         $statement = $sql->prepareStatementForSqlObject($select);

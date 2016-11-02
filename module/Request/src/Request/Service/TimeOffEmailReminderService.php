@@ -49,7 +49,6 @@ class TimeOffEmailReminderService extends AbstractActionController
         $getRouteUrl = $this->serviceLocator->get('viewhelpermanager')->get('url');
 
         /* resolve route 'home' with server name */
-//         $route = $getRouteUrl('home');
         $route = $getRouteUrl( 'viewManagerQueue', array(
             'controller' => 'request',
             'action' => 'view-manager-queue',
@@ -58,6 +57,7 @@ class TimeOffEmailReminderService extends AbstractActionController
 
         /* retrieve all unapproved records */
         $timeOffRequestsResult = $this->timeOffRequests->getRequestsOverThreeDaysUnapproved();
+
         if (count($timeOffRequestsResult) == 0 ) {
             return;
         }

@@ -192,9 +192,17 @@ class CalendarApi extends ApiController {
         }
 
         if( $post->calendarsToLoad==1 && $post->startYear==date("Y") && $post->startMonth==date("n") ) {
-            $startDateData = $Employee->getStartDateDataFromRequest( $post->requestId );
-            $startYear = $startDateData['START_YEAR'];
-            $startMonth = $startDateData['START_MONTH'];
+            if ((\Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL' ) == 'Y' ||
+                 \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' ) == 'Y' ||
+                 \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' ) == 'Y') &&
+                 $post->initialCalendarLoad == false) {
+                    $startYear = $post->startYear;
+                    $startMonth = $post->startMonth;
+            } else {
+                $startDateData = $Employee->getStartDateDataFromRequest( $post->requestId );
+                $startYear = $startDateData['START_YEAR'];
+                $startMonth = $startDateData['START_MONTH'];
+            }
         } else {
             $startYear = $post->startYear;
             $startMonth = $post->startMonth;

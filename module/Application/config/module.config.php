@@ -147,7 +147,18 @@ return [
              * Handle Proxies - people authorized to submit
              * on behalf of someone else.
              */
-
+            'get_supervisor_proxies_data_table' => [
+                'type' => 'segment',
+                'options' => [
+                    'route' => '/api/get_supervisor_proxies_data_table',
+                    'defaults' => [
+                        'controller' => 'Application\API\ProxyApi',
+                        'action' => 'getSupervisorProxiesDataTable'
+                    ]
+                ],
+                'may_terminate' => 1,
+                'child_routes' => []
+            ],
             'loadProxies' => [
                 'type' => 'segment',
                 'options' => [
