@@ -296,9 +296,9 @@
                         </div>
 
                         <?php if( ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Manager Approval" ||
-                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" ||
-                                    $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" ||
-                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $isPayroll=="Y" )
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" && $isPayroll=="Y" ) ||
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" && $isPayroll=="Y" ) ||
+                                    ( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" && $isPayroll=="Y"  )
                                 ) &&
                                   $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) {
                         ?>
@@ -335,6 +335,7 @@
                                     <?php } ?>
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Pending Payroll Approval" &&
+                                              $isPayroll=="Y" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <br />
@@ -345,13 +346,14 @@
                                     <?php } ?>
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Update Checks" &&
+                                              $isPayroll=="Y" &&
                                               $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionCompleteRequest">Approve</button>
                                     <?php } ?>
 
                                     <?php if( $timeoffRequestData['REQUEST_STATUS_DESCRIPTION']=="Completed PAFs" &&
-                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber &&
-                                              $isPayroll=="Y" ) { ?>
+                                              $isPayroll=="Y" &&
+                                              $timeoffRequestData['EMPLOYEE_NUMBER']!==$loggedInEmployeeNumber ) { ?>
                                         <textarea maxlength="500" rows="4" cols="80" id="payrollComment" name="payrollComment"></textarea>
                                         <br />
                                         <button type="button" class="btn btn-form-primary apiRequest" data-request-id="<?php echo $timeoffRequestData['REQUEST_ID']; ?>" data-apiaction="payrollActionSaveChangesToCompletedRequest">Save</button>
