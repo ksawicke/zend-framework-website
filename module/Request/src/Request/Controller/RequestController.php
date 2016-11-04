@@ -539,7 +539,8 @@ class RequestController extends AbstractActionController
             'totalHoursRequested' => $TimeOffRequests->countTimeoffRequested( $requestId ),
             'hoursRequestedHtml' => $TimeOffRequests->drawHoursRequested( $timeOffRequestData['ENTRIES'] ),
             'isPayrollReviewRequired' => $ValidationHelper->isPayrollReviewRequired( $timeOffRequestData['REQUEST_ID'], $timeOffRequestData['EMPLOYEE_NUMBER'] ),
-            'viewQueueLink' => ( !empty( $referredPage ) ? $referredPage : $viewQueueLink )
+            'viewQueueLink' => ( !empty( $referredPage ) ? $referredPage : $viewQueueLink ),
+            'nonPayrollReadOnlyStatuses' => [ "Pending Payroll Approval", "Pending AS400 Upload", "Completed PAFs", "Denied", "Update Checks" ]
         ] );
     }
 

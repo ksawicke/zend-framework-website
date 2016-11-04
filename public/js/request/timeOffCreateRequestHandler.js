@@ -70,7 +70,12 @@ var timeOffCreateRequestHandler = new function() {
         },
         directReportFilter = 'B',
         doRealDelete = true,
-        nonPayrollReadOnlyStatuses = [ "Pending AS400 Upload", "Completed PAFs", "Denied" ],
+        nonPayrollReadOnlyStatuses = [
+             "Pending Payroll Approval",
+             "Pending AS400 Upload",
+             "Completed PAFs",
+             "Denied",
+             "Update Checks" ],
         viewIsReadOnly = false,
         initialCalendarLoad = true;
 
@@ -1820,7 +1825,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     this.getHoursRequestedHeader = function() {
-        return '<strong>Hours Requested:</strong><br /><br />' +
+    	return '<strong>Hours Requested:</strong><br /><br />' +
                '<table class="employeeSchedule" style="width:100%">' +
                '<thead>' +
                     '<tr>' +
