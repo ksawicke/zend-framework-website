@@ -193,7 +193,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
                             </ul>
                         </li>
                         <?php }
-                        if( $this->isPayrollAdmin==="Y" ) { ?>
+                        if( $this->isPayrollAdmin==="Y" || $this->isPayrollAssistant === "Y") { ?>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <b class="caret"></b></a>
                             <ul class="dropdown-menu" role="menu">
