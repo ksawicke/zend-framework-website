@@ -7,11 +7,11 @@
 <?php if ($this->isPayrollAdmin === "Y") {?>
 <li><a href="<?php echo $this->basepath(); ?>/request/manage-company-holidays">Manage Company Holidays</a></li>
 <?php } ?>
-<?php if ($this->isPayrollAdmin === "Y") {?>
+<?php if ($this->isPayrollAdmin === "Y" || $this->isPayrollAssistant === "Y") {?>
 <li><a href="<?php echo $this->basepath(); ?>/request/manage-supervisor-proxies">Manage Supervisor Proxies</a></li>
 <?php } ?>
 <?php if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) && ( ENVIRONMENT=='testing' || ENVIRONMENT=='development' ) ) {
-          if ($this->isPayrollAdmin === "Y" || $this->isPayrollAssistant === "Y") {?>
+          if ($this->isPayrollAdmin === "Y") {?>
 <li><a href="<?php echo $this->basepath(); ?>/request/manage-email-overrides">Manage Email Overrides</a></li>
 <?php     }
       }
