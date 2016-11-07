@@ -228,7 +228,7 @@ var timeOffApproveRequestHandler = new function ()
         })
         .success(function (json) {
             if (json.success == true) {
-                window.location.href = phpVars.basePath + successUrl;
+                window.location.href = successUrl;
             } else {
                 alert(json.message);
             }
