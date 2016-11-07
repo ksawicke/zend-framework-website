@@ -770,9 +770,9 @@ class Employee extends BaseDB {
         $where = "WHERE (
             " . $this->getExcludedLevel2() . "
             employee.PRER = '002' AND employee.PRTEDH = 0 AND
-            ( employee.PREN LIKE '" . strtoupper( $search ) . "%' OR
-              employee.PRLNM LIKE '" . strtoupper( $search ) . "%' OR
-              employee.PRFNM LIKE '" . strtoupper( $search ) . "%'
+            ( TRIM(employee.PREN) LIKE '" . strtoupper( $search ) . "%' OR
+              TRIM(employee.PRLNM) LIKE '" . strtoupper( $search ) . "%' OR
+              TRIM(employee.PRFNM) LIKE '" . strtoupper( $search ) . "%'
             )
         )";
 
