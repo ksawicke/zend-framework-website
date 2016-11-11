@@ -473,22 +473,22 @@ class PayrollQueues extends BaseDB {
     {
         $rawSql = "SELECT COUNT(*) AS RCOUNT
         FROM TIMEOFF_REQUESTS request
-        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'
-        INNER JOIN PRPSP manager ON employee.PREN = manager.SPEN and employee.PRER = manager.SPER
-        INNER JOIN PRPMS manager_addons ON manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER";
+        INNER JOIN PRPMS employee ON employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'";
 
         $where = [];
         $where[] = "request.REQUEST_STATUS = 'S'";
 
-        if( $isFiltered ) {
+//         if( $isFiltered ) {
             if( array_key_exists( 'search', $data ) && !empty( $data['search']['value'] ) ) {
                 $where[] = "( employee.PREN LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRFNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%' OR
                               employee.PRLNM LIKE '%" . strtoupper( $data['search']['value'] ) . "%'
                             )";
             }
-        }
+//         }
         $rawSql .=  " WHERE " . implode( " AND ", $where );
+        
+        die( $rawSql );
 
         $queueData = \Request\Helper\ResultSetOutput::getResultRecordFromRawSql( $this->adapter, $rawSql );
 
