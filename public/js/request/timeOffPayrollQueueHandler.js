@@ -248,14 +248,17 @@ var timeOffPayrollQueueHandler = new function ()
                 { className: "breakLongWord", "targets": [ 4 ] }
             ],
             ajax: {
-                url: phpVars.basePath + "/api/queue/payroll/pending-as400-upload",
+                url: phpVars.basePath + "/api/queue/payroll/by-status",
                 data: function (d) {
                     return $.extend({}, d, {
-                        "employeeNumber": phpVars.employee_number
+                        "employeeNumber": phpVars.employee_number,
+                        "startDate": $("#startDate").val(),
+                        "endDate": $("#endDate").val(),
+                        "columns[2][search][value]": 'Pending AS400 Upload'
                     });
                 },
-                type: "POST",
-            }
+                type: "POST"
+            },
         })
         .on("error.dt", function (e, settings, techNote, message) {
             console.log("An error has been reported by DataTables: ", message);
