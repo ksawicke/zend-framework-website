@@ -28,8 +28,8 @@ var timeOffPayrollQueueHandler = new function ()
     	$( '#downloadReportManagerActionNeeded' ).on( 'click', function(e) {
     		e.preventDefault();
     		var hyperlink = $( "#downloadReportManagerActionNeeded" );
-            var href = hyperlink.attr("href");
-            if( !timeOffCommon.empty( href ) ) {
+            var href = phpVars.basePath + hyperlink.attr("href");
+            if( !timeOffCommon.empty( hyperlink.attr("href") ) ) {
             	var dataParams = { statusFilter: currentStatusFilter };
             	timeOffPayrollQueueHandler.dynamicallyLoadExcelSpreadsheet( href, dataParams );
             }
@@ -40,8 +40,8 @@ var timeOffPayrollQueueHandler = new function ()
     	$( '#downloadReportUpdateChecks' ).on( 'click', function(e) {
     		e.preventDefault();
     		var hyperlink = $( "#downloadReportUpdateChecks" );
-            var href = hyperlink.attr("href");
-            if( !timeOffCommon.empty( href ) ) {
+            var href = phpVars.basePath + hyperlink.attr("href");
+            if( !timeOffCommon.empty( hyperlink.attr("href") ) ) {
             	var dataParams = { cycleCodeFilter: currentCycleCodeFilter };
             	timeOffPayrollQueueHandler.dynamicallyLoadExcelSpreadsheet( href, dataParams );
             }
@@ -52,7 +52,7 @@ var timeOffPayrollQueueHandler = new function ()
     	$.ajax( { type: 'post',
             url: href,
             dataType: 'json',
-            data: dataParams,
+            data: JSON.stringify( dataParams ),
             success: function(data) {
           	  /**
           	   * Dynamically load the Excel spreadsheet.
