@@ -1,5 +1,4 @@
 <?php
-
 namespace Request;
 
 $config = [
@@ -9,53 +8,53 @@ $config = [
             'EmailService' => Factory\EmailServiceFactory::class,
             'CalendarInviteService' => Factory\CalendarInviteServiceFactory::class,
             'UserSettingsService' => Service\UserSettings\UserSettingsServiceFactory::class,
-
-            'UserSettingsDAO' => DAO\UserSettings\UserSettingsDAOFactory::class,
-
-//            'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
-//            'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
-        ],
+            
+            'UserSettingsDAO' => DAO\UserSettings\UserSettingsDAOFactory::class
+        ]
+        // 'Request\Mapper\RequestMapperInterface' => 'Request\Factory\RequestMapperFactory',
+        // 'Request\Service\RequestServiceInterface' => 'Request\Factory\RequestServiceFactory'
+        ,
         'invokables' => [
-//             'EmailService' => Factory\EmailServiceFactory::class,
-            'TimeOffEmailReminder' => Model\TimeOffEmailReminder::class,
-        ],
+            // 'EmailService' => Factory\EmailServiceFactory::class,
+            'TimeOffEmailReminder' => Model\TimeOffEmailReminder::class
+        ]
     ],
     'controllers' => [
-//        'factories' => [
-//            'RequestController' => 'Request\Factory\RequestControllerFactory'
-//        ],
+        // 'factories' => [
+        // 'RequestController' => 'Request\Factory\RequestControllerFactory'
+        // ],
         'invokables' => [
             'RequestController' => Controller\RequestController::class
         ]
     ],
     'router' => [
         'routes' => [
-//            'api' => [
-//                'type' => 'Zend\Mvc\Router\Http\Literal',
-//                'options' => [
-//                    'route' => '/request/api',
-//                    'defaults' => [
-//                        'controller' => 'RequestController',
-//                        'action' => 'api'
-//                    ]
-//                ],
-//                'may_terminate' => 1,
-//                'child_routes' => []
-//            ],
-//
-//             'testPapaa' => [
-//                 'type' => 'Zend\Mvc\Router\Http\Literal',
-//                 'options' => [
-//                     'route' => '/request/testpapaa',
-//                     'defaults' => [
-//                         'controller' => 'RequestController',
-//                         'action' => 'testPapaa'
-//                     ]
-//                 ],
-//                 'may_terminate' => 1,
-//                 'child_routes' => []
-//             ],
-
+            // 'api' => [
+            // 'type' => 'Zend\Mvc\Router\Http\Literal',
+            // 'options' => [
+            // 'route' => '/request/api',
+            // 'defaults' => [
+            // 'controller' => 'RequestController',
+            // 'action' => 'api'
+            // ]
+            // ],
+            // 'may_terminate' => 1,
+            // 'child_routes' => []
+            // ],
+            //
+            // 'testPapaa' => [
+            // 'type' => 'Zend\Mvc\Router\Http\Literal',
+            // 'options' => [
+            // 'route' => '/request/testpapaa',
+            // 'defaults' => [
+            // 'controller' => 'RequestController',
+            // 'action' => 'testPapaa'
+            // ]
+            // ],
+            // 'may_terminate' => 1,
+            // 'child_routes' => []
+            // ],
+            
             'approvedRequest' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -248,7 +247,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-
+            
             'downloadMyEmployeeRequests' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -261,7 +260,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-
+            
             'downloadReportManagerActionNeeded' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -274,7 +273,7 @@ $config = [
                 'may_terminate' => 1,
                 'child_routes' => []
             ],
-
+            
             'downloadUpdateChecks' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
@@ -286,9 +285,9 @@ $config = [
                 ],
                 'may_terminate' => 1,
                 'child_routes' => []
-            ],
-
+            ]
         ]
+        
     ],
     'view_manager' => [
         'template_path_stack' => [
@@ -298,111 +297,111 @@ $config = [
 ];
 
 // Test add new routes here to make it easier
-//$config['router']['routes'];
-//$route = new \Request\Helper\RouteHelper();
-//$config = $route->addNewRoute(
-//    $config,
-//    ['name' => 'home',
-//     'route' => '/request/view-my-requests',
-//     'controller' => 'RequestController',
-//     'action' => 'viewMyRequests'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['name' => 'success',
-//     'route' => '/request/submitted-for-approval',
-//     'controller' => 'RequestController',
-//     'action' => 'submittedForApproval'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/view-employee-requests',
-//     'controller' => 'RequestController',
-//     'action' => 'viewEmployeeRequests'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/view-my-team-calendar',
-//     'controller' => 'RequestController',
-//     'action' => 'viewMyTeamCalendar'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['name' => 'create',
-//     'route' => '/request/create',
-//     'controller' => 'RequestController',
-//     'action' => 'create'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['name' => 'create2',
-//     'route' => '/request/create',
-//     'controller' => 'RequestController',
-//     'action' => 'create'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/api',
-//     'controller' => 'RequestController',
-//     'action' => 'api'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/view-my-requests',
-//     'controller' => 'RequestController',
-//     'action' => 'viewMyRequests'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['type' => 'segment',
-//     'route' => '/request/review-request/[:request_id]',
-//     'controller' => 'RequestController',
-//     'action' => 'reviewRequest'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['type' => 'segment',
-//     'route' => '/request/build-papaa-test/[:request_id]',
-//     'controller' => 'RequestController',
-//     'action' => 'buildPapaaTest'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/approved-request',
-//     'controller' => 'RequestController',
-//     'action' => 'approvedRequest'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['route' => '/request/denied-request',
-//     'controller' => 'RequestController',
-//     'action' => 'deniedRequest'
-//    ]
-//);
-//$config = $route->addNewRoute(
-//    $config,
-//    ['type' => 'segment',
-//     'route' => '/request/test/[:employee_number]',
-//     'controller' => 'RequestController',
-//     'action' => 'test'
-//    ]
-//);
+// $config['router']['routes'];
+// $route = new \Request\Helper\RouteHelper();
+// $config = $route->addNewRoute(
+// $config,
+// ['name' => 'home',
+// 'route' => '/request/view-my-requests',
+// 'controller' => 'RequestController',
+// 'action' => 'viewMyRequests'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['name' => 'success',
+// 'route' => '/request/submitted-for-approval',
+// 'controller' => 'RequestController',
+// 'action' => 'submittedForApproval'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/view-employee-requests',
+// 'controller' => 'RequestController',
+// 'action' => 'viewEmployeeRequests'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/view-my-team-calendar',
+// 'controller' => 'RequestController',
+// 'action' => 'viewMyTeamCalendar'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['name' => 'create',
+// 'route' => '/request/create',
+// 'controller' => 'RequestController',
+// 'action' => 'create'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['name' => 'create2',
+// 'route' => '/request/create',
+// 'controller' => 'RequestController',
+// 'action' => 'create'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/api',
+// 'controller' => 'RequestController',
+// 'action' => 'api'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/view-my-requests',
+// 'controller' => 'RequestController',
+// 'action' => 'viewMyRequests'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['type' => 'segment',
+// 'route' => '/request/review-request/[:request_id]',
+// 'controller' => 'RequestController',
+// 'action' => 'reviewRequest'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['type' => 'segment',
+// 'route' => '/request/build-papaa-test/[:request_id]',
+// 'controller' => 'RequestController',
+// 'action' => 'buildPapaaTest'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/approved-request',
+// 'controller' => 'RequestController',
+// 'action' => 'approvedRequest'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['route' => '/request/denied-request',
+// 'controller' => 'RequestController',
+// 'action' => 'deniedRequest'
+// ]
+// );
+// $config = $route->addNewRoute(
+// $config,
+// ['type' => 'segment',
+// 'route' => '/request/test/[:employee_number]',
+// 'controller' => 'RequestController',
+// 'action' => 'test'
+// ]
+// );
 //
-//echo '<pre>';
-//print_r( $config );
-//echo '</pre>';
-//die();
+// echo '<pre>';
+// print_r( $config );
+// echo '</pre>';
+// die();
 
 return $config;
 
