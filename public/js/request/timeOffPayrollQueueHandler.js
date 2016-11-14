@@ -29,22 +29,10 @@ var timeOffPayrollQueueHandler = new function ()
     		e.preventDefault();
     		var hyperlink = $( "#downloadReportManagerActionNeeded" );
             var href = hyperlink.attr("href");
-            $.ajax( { type: 'post',
-                      url: href,
-                      dataType: 'json',
-                      data: { statusFilter: currentStatusFilter },
-                      success: function(data) {
-                    	  /**
-                    	   * Dynamically load the Excel spreadsheet.
-                    	   */
-                    	  var $a = $("<a>");
-                    	  $a.attr( "href", data.fileContents );
-                    	  $( "body" ).append( $a );
-                    	  $a.attr( "download", data.fileName );
-                    	  $a[0].click();
-                    	  $a.remove();
-                      }
-            } );
+            if( !timeOffCommon.empty( href ) ) {
+            	var dataParams = { statusFilter: currentStatusFilter };
+            	timeOffPayrollQueueHandler.dynamicallyLoadExcelSpreadsheet( href, dataParams );
+            }
     	});
     }
     
@@ -53,23 +41,30 @@ var timeOffPayrollQueueHandler = new function ()
     		e.preventDefault();
     		var hyperlink = $( "#downloadReportUpdateChecks" );
             var href = hyperlink.attr("href");
-            $.ajax( { type: 'post',
-                      url: href,
-                      dataType: 'json',
-                      data: { cycleCodeFilter: currentCycleCodeFilter },
-                      success: function(data) {
-                    	  /**
-                    	   * Dynamically load the Excel spreadsheet.
-                    	   */
-                    	  var $a = $("<a>");
-                    	  $a.attr( "href", data.fileContents );
-                    	  $( "body" ).append( $a );
-                    	  $a.attr( "download", data.fileName );
-                    	  $a[0].click();
-                    	  $a.remove();
-                      }
-            } );
+            if( !timeOffCommon.empty( href ) ) {
+            	var dataParams = { cycleCodeFilter: currentCycleCodeFilter };
+            	timeOffPayrollQueueHandler.dynamicallyLoadExcelSpreadsheet( href, dataParams );
+            }
     	});
+    }
+    
+    this.dynamicallyLoadExcelSpreadsheet = function( href, dataParams ) {
+    	$.ajax( { type: 'post',
+            url: href,
+            dataType: 'json',
+            data: dataParams,
+            success: function(data) {
+          	  /**
+          	   * Dynamically load the Excel spreadsheet.
+          	   */
+          	  var $a = $("<a>");
+          	  $a.attr( "href", data.fileContents );
+          	  $( "body" ).append( $a );
+          	  $a.attr( "download", data.fileName );
+          	  $a[0].click();
+          	  $a.remove();
+            }
+    	} );
     }
 
     /**
