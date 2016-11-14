@@ -202,7 +202,6 @@ class PayrollQueues extends BaseDB {
      * @return array
      */
     public function getUpdateChecksQueue( $data = null ) {
-
         if ($data === null) {
             $data['columns'][0]['search']['value'] = 'All';
         }

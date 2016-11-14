@@ -4,7 +4,8 @@
  */
 var timeOffPayrollQueueHandler = new function ()
 {
-    var currentStatusFilter = 'All';
+    var currentStatusFilter = 'All',
+        currentCycleCodeFilter = 'All';
 	
 	/**
      * Initializes binding
@@ -19,6 +20,7 @@ var timeOffPayrollQueueHandler = new function ()
             timeOffPayrollQueueHandler.handleLoadingByStatusQueue();
             timeOffPayrollQueueHandler.handleLoadingManagerActionQueue();
             timeOffPayrollQueueHandler.handleDownloadManagerActionReport();
+            timeOffPayrollQueueHandler.handleDownloadUpdateChecksReport();
         });
     }
     
@@ -31,6 +33,30 @@ var timeOffPayrollQueueHandler = new function ()
                       url: href,
                       dataType: 'json',
                       data: { statusFilter: currentStatusFilter },
+                      success: function(data) {
+                    	  /**
+                    	   * Dynamically load the Excel spreadsheet.
+                    	   */
+                    	  var $a = $("<a>");
+                    	  $a.attr( "href", data.fileContents );
+                    	  $( "body" ).append( $a );
+                    	  $a.attr( "download", data.fileName );
+                    	  $a[0].click();
+                    	  $a.remove();
+                      }
+            } );
+    	});
+    }
+    
+    this.handleDownloadUpdateChecksReport = function () {
+    	$( '#downloadReportUpdateChecks' ).on( 'click', function(e) {
+    		e.preventDefault();
+    		var hyperlink = $( "#downloadReportUpdateChecks" );
+            var href = hyperlink.attr("href");
+            $.ajax( { type: 'post',
+                      url: href,
+                      dataType: 'json',
+                      data: { cycleCodeFilter: currentCycleCodeFilter },
                       success: function(data) {
                     	  /**
                     	   * Dynamically load the Excel spreadsheet.
@@ -136,11 +162,11 @@ var timeOffPayrollQueueHandler = new function ()
                 var rowCount = table.rows().data();
 
                 if (rowCount.length == 0) {
-                    $("#updateChecksAnchor").removeAttr('href');
-                    $("#updateChecksAnchor").addClass('hrefDisabled');
+                    $("#downloadReportUpdateChecks").removeAttr('href');
+                    $("#downloadReportUpdateChecks").addClass('hrefDisabled');
                 } else {
-                    $("#updateChecksAnchor").attr('href', phpVars.basePath + '/request/download-update-checks');
-                    $("#updateChecksAnchor").removeClass('hrefDisabled');
+                    $("#downloadReportUpdateChecks").attr('href', phpVars.basePath + '/request/download-report-update-checks');
+                    $("#downloadReportUpdateChecks").removeClass('hrefDisabled');
                 }
 
                 table.columns().every( function () {
@@ -155,10 +181,10 @@ var timeOffPayrollQueueHandler = new function ()
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()
                                 );
+                                
+                                currentCycleCodeFilter = val;
 
-                                column
-                                    .search( val ? val : '', true, false )
-                                    .draw();
+                                column.search( val ? val : '', true, false ).draw();
                             } );
                         column.data().unique().sort().each( function ( d, j ) {
                             select.append( '<option value="'+d+'">'+d+'</option>' )

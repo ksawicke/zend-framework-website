@@ -278,10 +278,10 @@ $config = [
             'downloadUpdateChecks' => [
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => [
-                    'route' => '/request/download-update-checks',
+                    'route' => '/request/download-report-update-checks',
                     'defaults' => [
                         'controller' => 'RequestController',
-                        'action' => 'downloadUpdateChecks'
+                        'action' => 'downloadReportUpdateChecks'
                     ]
                 ],
                 'may_terminate' => 1,

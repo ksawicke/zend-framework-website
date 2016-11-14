@@ -2,32 +2,21 @@
 namespace Request\Controller;
 
 use Request\Service\RequestServiceInterface;
-//use Zend\Form\FormInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
-use Zend\Session\Container;
 use \Request\Model\Employee;
 use \Request\Model\TimeOffRequests;
 use \Request\Helper\ValidationHelper;
 use \Login\Helper\UserSession;
-use \Request\Model\RequestEntry;
-use \Request\Model\Papaatmp;
 use \Request\Helper\Calendar;
 use PHPExcel;
 use PHPExcel_Style_NumberFormat;
 use PHPExcel_Style_Color;
 use PHPExcel_IOFactory;
 
-// use Request\Helper\PHPExcel\PHPExcel;
-// use PHPExcel_Style_NumberFormat;
-// use PHPExcel_IOFactory;
-
 class RequestController extends AbstractActionController
 {
    protected $requestService;
-//
-//    protected $requestForm;
 
     protected $employeeNumber;
 
@@ -98,11 +87,6 @@ class RequestController extends AbstractActionController
 
         // Disable any dates in this array
         $this->invalidRequestDates['individual'] = $this->getCompanyHolidays();
-
-//        echo '<pre>';
-//        print_r( $this->invalidRequestDates );
-//        echo '</pre>';
-//        exit();
     }
 
     /**
@@ -430,8 +414,6 @@ class RequestController extends AbstractActionController
 
         if($isPayroll!=="Y" && $isPayrollAssistant !== 'Y') {
             $this->handleNonPayrollRedirect();
-//             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
-//             return $this->redirect()->toRoute('home');
         }
 
         $this->layout()->setVariable( 'payrollView', $payrollView );
@@ -477,11 +459,7 @@ class RequestController extends AbstractActionController
 
     public function viewMyTeamCalendarAction()
     {
-//         $calendarData = $this->requestService->findTimeOffCalendarByManager($this->employeeNumber, '2016-01-01', '2016-01-31');
-
         return new ViewModel(array(
-//             'calendarData' => $calendarData,
-//             'calendarHtml' => \Request\Helper\Calendar::drawCalendar('12', '2015', $calendarData)
         ));
     }
 
@@ -596,15 +574,16 @@ class RequestController extends AbstractActionController
         exit;
     }
 
-    public function downloadUpdateChecksAction()
+    public function downloadReportUpdateChecksAction()
     {
         $data = [ 'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable( 'EMPLOYEE_NUMBER' ) ];
-        $data['columns'][2]['search']['value'] = ( !empty( $this->getRequest()->getPost('statusFilter') ) ? $this->getRequest()->getPost('statusFilter') : 'All' );
+        $data['columns'][0]['search']['value'] = ( !empty( $this->getRequest()->getPost('cycleCodeFilter') ) ? $this->getRequest()->getPost('cycleCodeFilter') : 'All' );
+        
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
-//         echo "<pre>";
+        
         $queueData = $PayrollQueues->getUpdateChecksQueue( $data );
-//         var_dump($queueData);
+        
         $this->outputUpdatesCheckQueue( $queueData );
 
         exit;
@@ -659,18 +638,12 @@ class RequestController extends AbstractActionController
             $worksheet->setCellValue('F'.($key+2), date( "m/d/Y", strtotime( $minDateRequested ) ) );
         }
 
-        // Redirect output to a client's web browser (Excel2007)
-//         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-//         header('Content-Disposition: attachment;filename="MyEmployeesRequests_' . date('Ymd-his') . '.xlsx"');
-//         header('Cache-Control: max-age=0');
-
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         ob_start();
         $objWriter->save('php://output');
         $xlsData = ob_get_contents();
         ob_end_clean();
 
-//         $response = [ 'op' => 'ok', 'file' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData) ];
         $response = [ 'op' => 'ok',
                       'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
                       'fileName' => 'MyEmployeesRequests_' . date('Ymd-his') . '.xlsx'
@@ -734,7 +707,6 @@ class RequestController extends AbstractActionController
         $xlsData = ob_get_contents();
         ob_end_clean();
 
-        //         $response = [ 'op' => 'ok', 'file' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData) ];
         $response = [ 'op' => 'ok',
             'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
             'fileName' => 'ManagerActionNeeded_' . date('Ymd-his') . '.xlsx'
@@ -746,11 +718,7 @@ class RequestController extends AbstractActionController
     private function outputUpdatesCheckQueue( $spreadsheetRows = [] )
     {
         /** Include PHPExcel */
-//         $path = CURRENT_PATH . '/module/Request/src/Request/Helper/PHPExcel/PHPExcel.php';
-//         require_once( $path );
-
         $objPHPExcel = new PHPExcel();
-//         var_dump($spreadsheetRows); die();
 
         // Initialize spreadsheet
         $objPHPExcel->setActiveSheetIndex(0);
@@ -793,13 +761,18 @@ class RequestController extends AbstractActionController
             $worksheet->setCellValue('G'.($key+2), $minDateRequested);
         }
 
-        // Redirect output to a client's web browser (Excel2007)
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="UpdatesCheckQueue_' . date('Ymd-his') . '.xlsx"');
-        header('Cache-Control: max-age=0');
-
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        ob_start();
         $objWriter->save('php://output');
+        $xlsData = ob_get_contents();
+        ob_end_clean();
+        
+        $response = [ 'op' => 'ok',
+            'fileContents' => "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,".base64_encode($xlsData),
+            'fileName' => 'UpdatesCheckQueue_' . date('Ymd-his') . '.xlsx'
+        ];
+        
+        die( json_encode( $response ) );
     }
 
 }
