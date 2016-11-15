@@ -400,3 +400,4 @@ class ManagerQueues extends BaseDB
         return $maxDateRequested;
     }
 }
+
