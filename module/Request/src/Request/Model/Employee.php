@@ -141,7 +141,7 @@ class Employee extends BaseDB {
      */
     public function findProxiesByEmployeeNumber( $employeeNumber = null )
     {
-        $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER
+        $rawSql = "SELECT TRIM(EMPLOYEE_NUMBER) AS EMPLOYEE_NUMBER, GET_EMPLOYEE_COMMON_NAME('002', EMPLOYEE_NUMBER) AS EMPLOYEE_NAME
             FROM TIMEOFF_REQUEST_EMPLOYEE_PROXIES p
             WHERE p.STATUS = '1' AND
                TRIM(p.PROXY_EMPLOYEE_NUMBER) = " . $employeeNumber;

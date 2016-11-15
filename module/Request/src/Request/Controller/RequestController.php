@@ -334,6 +334,7 @@ class RequestController extends AbstractActionController
         $isLoggedInUserSupervisor = $Employee->isSupervisor($this->employeeNumber);
         $isPayroll = $Employee->isPayroll($this->employeeNumber);
         $isProxyForManager = $Employee->isProxyForManager($this->employeeNumber);
+        $isProxyFor = $Employee->findProxiesByEmployeeNumber( $this->employeeNumber);
         if($isLoggedInUserManager!="Y" && $isLoggedInUserSupervisor!="Y" && $isPayroll!="Y" && $isProxyForManager!="Y") {
             $this->flashMessenger()->addWarningMessage('You are not authorized to view that page.');
             return $this->redirect()->toRoute('home');
@@ -355,6 +356,7 @@ class RequestController extends AbstractActionController
             'isLoggedInUserManager' => $isLoggedInUserManager,
             'isLoggedInUserSupervisor' => $isLoggedInUserSupervisor,
             'isProxyForManager' => $isProxyForManager,
+            'isProxyFor' => $isProxyFor,
             'managerView' => $managerView,
             'managerViewName' => $this->getManagerViewName( $managerView ),
             'employeeNumber' => $this->employeeNumber,
@@ -576,7 +578,8 @@ class RequestController extends AbstractActionController
         foreach ( $proxyForEntries as $proxy) {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
         }
-        $queueData = $ManagerQueues->getManagerEmployeeRequests( $data, $proxyFor,  [] );
+//         $queueData = $ManagerQueues->getManagerEmployeeRequests( $data, $proxyFor,  [] );
+        $queueData = $ManagerQueues->getProxyEmployeeRequests( $data, $proxyFor,  [] );
 
         $this->outputReportMyEmployeeRequests( $queueData );
 
@@ -651,7 +654,7 @@ class RequestController extends AbstractActionController
             $worksheet->getStyle('D'.($key+2))->getNumberFormat()->setFormatCode(
                 \PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00 );
             $worksheet->setCellValue('E'.($key+2), $spreadsheetRow['REQUEST_REASON']);
-            if( $minDateRequested <= $dateToCompare ) {
+            if( $minDateRequested <= $dateToCompare && $spreadsheetRow['REQUEST_STATUS_DESCRIPTION'] == 'Pending Manager Approval') {
                 $phpColor->setRGB('ff0000');
                 $worksheet->getStyle('F'.($key+2))->getFont()->setColor( $phpColor );
                 $worksheet->getStyle('F'.($key+2))->getFont()->setBold(true);
