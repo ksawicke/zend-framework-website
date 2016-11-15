@@ -617,10 +617,12 @@ class RequestController extends AbstractActionController
 
     public function downloadReportUpdateChecksAction()
     {
+        $inputData = json_decode( $this->getRequest()->getContent() );
+        
         $data = [
             'employeeNumber' => \Login\Helper\UserSession::getUserSessionVariable('EMPLOYEE_NUMBER')
         ];
-        $data['columns'][0]['search']['value'] = (! empty($this->getRequest()->getPost('cycleCodeFilter')) ? $this->getRequest()->getPost('cycleCodeFilter') : 'All');
+        $data['columns'][0]['search']['value'] = ( !empty( $inputData->cycleCodeFilter ) ? $inputData->cycleCodeFilter : 'All');
         
         $queue = $this->params()->fromRoute('queue');
         $PayrollQueues = new \Request\Model\PayrollQueues();
@@ -700,8 +702,7 @@ class RequestController extends AbstractActionController
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         ob_start();
         $objWriter->save('php://output');
-        $xlsData = ob_get_contents();
-        ob_end_clean();
+        $xlsData = ob_get_clean();
         
         $response = [
             'op' => 'ok',
@@ -780,8 +781,7 @@ class RequestController extends AbstractActionController
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         ob_start();
         $objWriter->save('php://output');
-        $xlsData = ob_get_contents();
-        ob_end_clean();
+        $xlsData = ob_get_clean();
         
         $response = [
             'op' => 'ok',
