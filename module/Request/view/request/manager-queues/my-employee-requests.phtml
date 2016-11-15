@@ -10,44 +10,72 @@
 </ul>
 <div class="tab-content">
     <div class="tab-pane fade in active" id="myEmployeeRequestsQueueView">
-		<table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
+<!--     <div class="row"> -->
+    <div class="col-sm-4">
+    <label for="myEmployeeRequestsQueueViewColumnEmployeeFilter">Reports:</label>
+                      <select id="myEmployeeRequestsQueueViewColumnEmployeeFilter">
+                            <?php
+                                if ($isProxyForManager == 'Y') {
+                                    echo '<optgroup label="Manager Only">';
+                                }
+                                ?>
+                        <option value="D" selected>Direct Reports</option>
+                        <option value="I">Indirect Reports</option>
+                        <option value="B">Both</option>
+                            <?php
+                                if ($isProxyForManager == 'Y') {
+                                    echo '</optgroup>';
+                                    echo '<optgroup label="Proxy Only">';
+                                    foreach ($isProxyFor as $proxy) {
+                                        echo '<option id="' . $proxy['EMPLOYEE_NUMBER'] . '" value="P">' . trim($proxy['EMPLOYEE_NAME']) . ' (' . trim($proxy['EMPLOYEE_NUMBER']) . ')' . '</option>';
+                                    }
+                                    echo '<option value="P">All</option>';
+                                    echo '</optgroup>';
+                                }
+                            ?>
+                      </select>
+</div>
+    <div class="col-sm-4">
+    <label for="myEmployeeRequestsQueueViewColumnRequestStatusFilter">Status:</label>
+                      <select id="myEmployeeRequestsQueueViewColumnRequestStatusFilter">
+                        <option value="All" selected>All</option>
+                        <option value="Pending Manager Approval">Pending Manager Approval</option>
+                        <option value="Completed PAFs">Completed PAFs</option>
+                        <option value="Denied">Denied</option>
+                        <option value="Pending AS400 Upload">Pending AS400 Upload</option>
+                        <option value="Pending Payroll Approval">Pending Payroll Approval</option>
+                        <option value="Update Checks">Update Checks</option>
+                      </select>
+</div>
+<!-- </div> -->
+<div>
+    <table id="manager-queue-<?php echo $this->managerView; ?>" class="display" style="width:100%;">
             <thead>
                 <tr>
                     <th>
-                    	Employee<br />
-                    	<select id="myEmployeeRequestsQueueViewColumnEmployeeFilter">
-                    		<option value="D" selected>Direct Reports</option>
-                    		<option value="I">Indirect Reports</option>
-                    		<option value="B">Both</option>
-                    	</select>
+                      Employee<br />
                     </th>
                     <th>Approver queue</th>
                     <th>
-                    	Request Status<br />
-                    	<select id="myEmployeeRequestsQueueViewColumnRequestStatusFilter">
-                    		<option value="All" selected>All</option>
-                    		<option value="Pending Manager Approval">Pending Manager Approval</option>
-                    		<option value="Completed PAFs">Completed PAFs</option>
-                    		<option value="Denied">Denied</option>
-                    		<option value="Pending AS400 Upload">Pending AS400 Upload</option>
-                    		<option value="Pending Payroll Approval">Pending Payroll Approval</option>
-                    		<option value="Update Checks">Update Checks</option>
-                    	</select>
+                      Request Status<br />
                     </th>
                     <th>Hours Requested</th>
                     <th>Request Reason</th>
                     <th>First Day<br />Requested</th>
                     <th>Actions</th>
+                    <th>Manager Employee</th>
                 </tr>
             </thead>
         </table>
-
+</div>
         <br />
-		<a id="downloadReportMyEmployeeRequests" href="<?php echo $this->basePath(); ?>/request/download-report-my-employee-requests"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
-	</div>
+        <div class="row">
+        <div class="col-sm-12">
+    <a id="downloadReportMyEmployeeRequests" href="<?php echo $this->basePath(); ?>/request/download-report-my-employee-requests"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+</div>  </div></div>
     <div class="tab-pane fade" id="myEmployeeRequestsCalendarView">
-    	<?php echo $this->partial( 'request/partials/my-employee-requests-calendar-view.phtml' ); ?>
-	</div>
+      <?php echo $this->partial( 'request/partials/my-employee-requests-calendar-view.phtml' ); ?>
+  </div>
 </div>
 
 <?php } else { ?>

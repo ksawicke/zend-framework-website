@@ -595,12 +595,12 @@ td.calendar-day {
 }
 
 /*div.day-number {
-	margin-right:6px;
+  margin-right:6px;
 }
 td.calendar-day p {
-	margin-top:0px;
-	margin-left:20px;
-	text-align:left;
+  margin-top:0px;
+  margin-left:20px;
+  text-align:left;
 }*/
 
 #calendarManagerBody > table > tbody > tr > td:nth-child(1) > p,
@@ -610,17 +610,17 @@ td.calendar-day p {
 #calendarManagerBody > table > tbody > tr > td:nth-child(5) > p,
 #calendarManagerBody > table > tbody > tr > td:nth-child(6) > p,
 #calendarManagerBody > table > tbody > tr > td:nth-child(7) > p {
-	/*margin: 0px;
-	padding: 0px;
-	margin-top:0px;
+  /*margin: 0px;
+  padding: 0px;
+  margin-top:0px;
     margin-left:25px;
     text-align:left;*/
-	vertical-align: top;
-	text-align:left;
+  vertical-align: top;
+  text-align:left;
     padding: 0px 0px 5px 5px;
     /*width: 392px;*/
     height: 125px;
-	margin-left:20px;
+  margin-left:20px;
 }
 
 * html div.calendar-day {
@@ -1372,6 +1372,9 @@ div.buttons {
 .dataTables_info {
     font-weight:normal;
     font-size:80%;
+    line-height: 2.7em;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 /**

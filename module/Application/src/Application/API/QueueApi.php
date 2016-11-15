@@ -148,16 +148,28 @@ class QueueApi extends ApiController {
 
         $ManagerQueues = new \Request\Model\ManagerQueues();
         $Employee = new Employee();
-        $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $_POST['employeeNumber']);
 
         $proxyFor = [];
+
+        /* is a proxy manager selected ? */
+        if ('' == trim($data['currentProxyManagerSelected'])) {
+            /* load all employees we have access to */
+            $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $_POST['employeeNumber']);
+        } else {
+            /* choose only one manager */
+            $proxyForEntries[] = ['EMPLOYEE_NUMBER' => $data['currentProxyManagerSelected']];
+        }
+
+        /* extract employee number */
         foreach ( $proxyForEntries as $proxy) {
             $proxyFor[] = $proxy['EMPLOYEE_NUMBER'];
         }
 
-        $queueData = $ManagerQueues->getManagerEmployeeRequests( $_POST, $proxyFor, $statuses );
+        /* retrieve all data */
+        $queueData = $ManagerQueues->getProxyEmployeeRequests( $data, $proxyFor, $statuses);
 
         $data = [];
+
         foreach ( $queueData as $ctr => $request ) {
             $viewLinkUrl = $this->getRequest()->getBasePath() . '/request/review-request/' . $request['REQUEST_ID'] . '?q=' . $redirectUrl;
 
@@ -167,13 +179,14 @@ class QueueApi extends ApiController {
                 'REQUEST_STATUS_DESCRIPTION' => $request['REQUEST_STATUS_DESCRIPTION'],
                 'REQUESTED_HOURS' => $request['REQUESTED_HOURS'],
                 'REQUEST_REASON' => trim( $request['REQUEST_REASON'] ),
-                'MIN_DATE_REQUESTED' => $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 3 days' ),
-                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>'
+                'MIN_DATE_REQUESTED' => ($request['REQUEST_STATUS_DESCRIPTION'] == 'Pending Manager Approval' ? $this->showFirstDayRequested( $request['MIN_DATE_REQUESTED'], '- 3 days' ) : date_format(date_create($request['MIN_DATE_REQUESTED']), 'm/d/Y')),
+                'ACTIONS' => '<a href="' . $viewLinkUrl . '"><button type="button" class="btn btn-form-primary btn-xs">View</button></a>',
+                'MANAGER_EMPLOYEE_ID' => $request['MANAGER_EMPLOYEE_ID']
             ];
         }
 
-        $recordsTotal = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, false, $proxyFor, $statuses );
-        $recordsFiltered = $ManagerQueues->countManagerEmployeeRequestItems( $_POST, true, $proxyFor, $statuses );
+        $recordsTotal = $ManagerQueues->getProxyEmployeeRequestsCount( $_POST, false, $proxyFor, $statuses );
+        $recordsFiltered = $ManagerQueues->getProxyEmployeeRequestsCount( $_POST, true, $proxyFor, $statuses );
 
         /**
          * prepare return result
@@ -689,7 +702,7 @@ class QueueApi extends ApiController {
      * @param string $dateDiff
      * @return string
      */
-    protected function showFirstDayRequested( $minDateRequested = null, $dateDiff = null )
+    private function showFirstDayRequested( $minDateRequested = null, $dateDiff = null )
     {
         $minDateRequestedNewFormat = date_create( $minDateRequested );
         $minDateRequestedNewFormat = date_format( $minDateRequestedNewFormat, "m/d/Y") ;
