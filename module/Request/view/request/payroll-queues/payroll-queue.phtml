@@ -3,21 +3,25 @@
 <br />
 
 <?php
-$isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ADMIN' );
-$isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable( 'IS_PAYROLL_ASSISTANT' );
-$isLoggedInUserPayroll = ( ( $isPayrollAdmin || $isPayrollAssistant ) ? "Y" : "N" );
-if($isLoggedInUserPayroll==="Y") { ?>
+$isPayrollAdmin = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ADMIN');
+$isPayrollAssistant = \Login\Helper\UserSession::getUserSessionVariable('IS_PAYROLL_ASSISTANT');
+$isLoggedInUserPayroll = (($isPayrollAdmin || $isPayrollAssistant) ? "Y" : "N");
+if ($isLoggedInUserPayroll === "Y") {
+    ?>
 
 <?php if( $this->payrollView === 'by-status' ) { ?>
-<table border="0" cellspacing="5" cellpadding="5" style="float:right;">
-    <tbody>
-        <tr>
-            <td style="border:0px solid #fff;">Days requested are between <input type="text" id="startDate" name="startDate" value="" placeholder="Start Date"> and <input type="text" id="endDate" name="endDate" value="" placeholder="End Date">
-            </td>
-        </tr>
-    </tbody>
+<table border="0" cellspacing="5" cellpadding="5" style="float: right;">
+	<tbody>
+		<tr>
+			<td style="border: 0px solid #fff;">Days requested are between <input
+				type="text" id="startDate" name="startDate" value=""
+				placeholder="Start Date"> and <input type="text" id="endDate"
+				name="endDate" value="" placeholder="End Date">
+			</td>
+		</tr>
+	</tbody>
 </table>
-<br style="clear:both;" />
+<br style="clear: both;" />
 <script>
 $( "#startDate" ).datepicker({
   dateFormat: "mm/dd/yy"
@@ -37,52 +41,68 @@ var reloadByStatusDT = function() {
 }
 </script>
 <?php } ?>
-<table id="payroll-queue-<?php echo $this->payrollView; ?>" class="display dataTable" style="width:100%;">
-    <thead>
-        <tr>
+<table id="payroll-queue-<?php echo $this->payrollView; ?>"
+	class="display dataTable" style="width: 100%;">
+	<thead>
+		<tr>
             <?php echo ( $this->payrollView == 'update-checks' ? '<th>Cycle Code</th>' : '' ); ?>
             <th>Employee</th>
-            <th>Approver queue</th>
-            <th>
+			<th>Approver queue</th>
+			<th>
 				Request Status<?php if( in_array( $this->payrollView, [ 'by-status' ] ) ) { ?><br />
-            	<select id="columnRequestStatusFilter">
-            		<option value="All" selected>All</option>
-            		<option value="Pending Manager Approval">Pending Manager Approval</option>
-            		<option value="Completed PAFs">Completed PAFs</option>
-            		<option value="Denied">Denied</option>
-            		<option value="Pending AS400 Upload">Pending AS400 Upload</option>
-            		<option value="Pending Payroll Approval">Pending Payroll Approval</option>
-            		<option value="Update Checks">Update Checks</option>
-            	</select><?php } ?>
+				<select id="columnRequestStatusFilter">
+					<option value="All" selected>All</option>
+					<option value="Pending Manager Approval">Pending Manager Approval</option>
+					<option value="Completed PAFs">Completed PAFs</option>
+					<option value="Denied">Denied</option>
+					<option value="Pending AS400 Upload">Pending AS400 Upload</option>
+					<option value="Pending Payroll Approval">Pending Payroll Approval</option>
+					<option value="Update Checks">Update Checks</option>
+			</select><?php } ?>
 			</th>
-            <th>Hours Requested</th>
-            <th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
-            <th>First Day<br />Requested</th>
-            <th style="width:150px;">Actions</th>
-        </tr>
-    </thead>
+			<th>Hours Requested</th>
+			<th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
+			<th>First Day<br />Requested
+			</th>
+			<th style="width: 150px;">Actions</th>
+		</tr>
+	</thead>
 </table>
 
 <?php if( $this->payrollView === 'manager-action') { ?>
-    <br />
-    <a id="downloadReportManagerActionNeeded" href="<?php echo $this->basePath(); ?>/request/download-report-manager-action-needed"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+<br />
+<a id="downloadReportManagerActionNeeded"
+	href="/request/download-report-manager-action-needed"><img
+	style="margin-right: 5px;"
+	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+	Report in Excel</a>
 <?php } ?>
 <?php if( $this->payrollView === 'update-checks') { ?>
-    <br />
-    <a href="<?php echo $this->basePath(); ?>/request/download-update-checks" id="updateChecksAnchor"><img style="margin-right:5px;" src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download Report in Excel</a>
+<br />
+<a id="downloadReportUpdateChecks"
+	href="/request/download-report-update-checks"><img
+	style="margin-right: 5px;"
+	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+	Report in Excel</a>
 <?php } ?>
 
 <?php } else { ?>
 
 <div class="alert alert-danger" role="alert">
-  <span class="glyphicon glyphicon-warning-sign pull-left" aria-hidden="true"></span>&nbsp;&nbsp;
-  <strong>You do not have access to this page.</strong>
+	<span class="glyphicon glyphicon-warning-sign pull-left"
+		aria-hidden="true"></span>&nbsp;&nbsp; <strong>You do not have access
+		to this page.</strong>
 </div>
 
 <?php } ?>
 
-<script type="text/javascript" src="<?php echo $this->basePath( 'js/datatables/datatables.js'); ?>"></script>
-<script type="text/javascript" src="<?php echo $this->basePath( 'js/request/timeOffPayrollQueueHandler.js'); ?>"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffCreateRequestHandler.js"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
-<script type="text/javascript" src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>
+<script type="text/javascript"
+	src="<?php echo $this->basePath( 'js/datatables/datatables.js'); ?>"></script>
+<script type="text/javascript"
+	src="<?php echo $this->basePath( 'js/request/timeOffPayrollQueueHandler.js'); ?>"></script>
+<script type="text/javascript"
+	src="<?php echo $this->basepath(); ?>/js/request/timeOffCreateRequestHandler.js"></script>
+<script type="text/javascript"
+	src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestHandler.js"></script>
+<script type="text/javascript"
+	src="<?php echo $this->basepath(); ?>/js/request/timeOffApproveRequestInitHandler.js"></script>
