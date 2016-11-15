@@ -648,7 +648,7 @@ class RequestController extends AbstractActionController
         exit();
     }
 
-    public function downloadUpdateChecksAction()
+    public function downloadReportUpdateChecksAction()
     {
         $inputData = json_decode($this->getRequest()->getContent());
 
