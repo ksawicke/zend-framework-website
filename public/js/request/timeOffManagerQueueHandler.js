@@ -88,7 +88,7 @@ var timeOffManagerQueueHandler = new function ()
                       var val = $.fn.dataTable.util.escapeRegex(
                           $(this).val()
                       );
-
+                      table.search('');
                       currentProxyManagerSelected = $.trim(selected[0].id);
                       currentManagerReportFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
                       table.column( 0 ).search( val ? val : '', true, false ).draw();
@@ -99,6 +99,7 @@ var timeOffManagerQueueHandler = new function ()
                       var val = $.fn.dataTable.util.escapeRegex(
                           $(this).val()
                       );
+                      table.search('');
                       currentStatusFilter = val; // Update the value first to the selection, then search again. *IMPORTANT* to update before doing .search again.
                       table.column( 2 ).search( val ? val : '', true, false ).draw();
                   } );
