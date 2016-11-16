@@ -152,12 +152,16 @@ class QueueApi extends ApiController {
         $proxyFor = [];
 
         /* is a proxy manager selected ? */
-        if ('' == trim($data['currentProxyManagerSelected'])) {
+        if (isset($data['currentProxyManagerSelected']) && '' == trim($data['currentProxyManagerSelected'])) {
             /* load all employees we have access to */
             $proxyForEntries = $Employee->findProxiesByEmployeeNumber( $_POST['employeeNumber']);
         } else {
-            /* choose only one manager */
-            $proxyForEntries[] = ['EMPLOYEE_NUMBER' => $data['currentProxyManagerSelected']];
+            if (isset($data['currentProxyManagerSelected'])) {
+                /* choose only one manager */
+                $proxyForEntries[] = ['EMPLOYEE_NUMBER' => $data['currentProxyManagerSelected']];
+            } else {
+                $proxyForEntries[] = ['EMPLOYEE_NUMBER' => $data['employeeNumber']];
+            }
         }
 
         /* extract employee number */
