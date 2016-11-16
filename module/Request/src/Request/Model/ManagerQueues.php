@@ -92,8 +92,15 @@ class ManagerQueues extends BaseDB
             $subProxy = $this->prepareProxySql();
 
             /* in case we have more proxies */
+            $proxyUnion = [];
             foreach ($this->proxyFor as $proxy) {
-                $subProxy->combine($this->prepareProxyUnionSql( $proxy ), 'UNION ALL');
+                $proxyUnion[] = $this->prepareProxyUnionSql( $proxy );
+            }
+
+            $currentProxy = $subProxy;
+            foreach ($proxyUnion as $proxy) {
+                $proxy->combine($currentProxy, 'UNION ALL');
+                $currentProxy = $proxy;
             }
         }
 
@@ -101,7 +108,7 @@ class ManagerQueues extends BaseDB
         $select->join(['employee'       => 'prpms'], "employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'", ['prlnm', 'prfnm', 'pren']);
         $select->join(['manager'        => 'prpsp'], "employee.PREN = manager.SPEN and employee.PRER = manager.SPER", ['sper', 'spen', 'spspen']);
         $select->join(['manager_addons' => 'prpms'], "manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER", ['preml1', 'prlnm', 'prfnm', 'pren']);
-        $select->join(['hierarchy'      => new TableIdentifier("table(" . $subProxy->getSqlString($this->sql->getAdapter()->platform) . ")")], "hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER", [/*'EMPLOYEE_NUMBER',*/ 'DIRECT_MANAGER_EMPLOYEE_NUMBER', 'DIRECT_INDIRECT', 'MANAGER_LEVEL']);
+        $select->join(['hierarchy'      => new TableIdentifier("table(" . $currentProxy->getSqlString($this->sql->getAdapter()->platform) . ")")], "hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER", [/*'EMPLOYEE_NUMBER',*/ 'DIRECT_MANAGER_EMPLOYEE_NUMBER', 'DIRECT_INDIRECT', 'MANAGER_LEVEL']);
         $select->join(['status'         => 'timeoff_request_statuses'], "status.REQUEST_STATUS = request.REQUEST_STATUS", ['description']);
 
         $where = new Where();
@@ -241,8 +248,15 @@ class ManagerQueues extends BaseDB
             $subProxy = $this->prepareProxySql();
 
             /* in case we have more proxies */
+            $proxyUnion = [];
             foreach ($this->proxyFor as $proxy) {
-                $subProxy->combine($this->prepareProxyUnionSql( $proxy ), 'UNION ALL');
+                $proxyUnion[] = $this->prepareProxyUnionSql( $proxy );
+            }
+
+            $currentProxy = $subProxy;
+            foreach ($proxyUnion as $proxy) {
+                $proxy->combine($currentProxy, 'UNION ALL');
+                $currentProxy = $proxy;
             }
         }
 
@@ -250,7 +264,7 @@ class ManagerQueues extends BaseDB
         $select->join(['employee'       => 'prpms'], "employee.PREN = request.EMPLOYEE_NUMBER and employee.PRER = '002'", ['prlnm', 'prfnm', 'pren']);
         $select->join(['manager'        => 'prpsp'], "employee.PREN = manager.SPEN and employee.PRER = manager.SPER", ['sper', 'spen', 'spspen']);
         $select->join(['manager_addons' => 'prpms'], "manager_addons.PREN = manager.SPSPEN and manager_addons.PRER = manager.SPSPER", ['preml1', 'prlnm', 'prfnm', 'pren']);
-        $select->join(['hierarchy'      => new TableIdentifier("table(" . $subProxy->getSqlString($this->sql->getAdapter()->platform) . ")")], "hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER", [/*'EMPLOYEE_NUMBER',*/ 'DIRECT_MANAGER_EMPLOYEE_NUMBER', 'DIRECT_INDIRECT', 'MANAGER_LEVEL']);
+        $select->join(['hierarchy'      => new TableIdentifier("table(" . $currentProxy->getSqlString($this->sql->getAdapter()->platform) . ")")], "hierarchy.EMPLOYEE_NUMBER = employee.PREN and '002' = employee.PRER", [/*'EMPLOYEE_NUMBER',*/ 'DIRECT_MANAGER_EMPLOYEE_NUMBER', 'DIRECT_INDIRECT', 'MANAGER_LEVEL']);
         $select->join(['status'         => 'timeoff_request_statuses'], "status.REQUEST_STATUS = request.REQUEST_STATUS", ['description']);
 
         /* create outer select to incorporate row_number */
