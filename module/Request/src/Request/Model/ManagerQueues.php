@@ -69,6 +69,7 @@ class ManagerQueues extends BaseDB
                 'EMPLOYEE_NUMBER'       => new Expression("trim(request.EMPLOYEE_NUMBER)"),
                 'REQUEST_REASON'        => 'request_reason',
                 'REQUEST_STATUS_DESCRIPTION' => new Expression('status.description'),
+                'REQUEST_STATUS'        => 'request_status',
                 'REQUESTED_HOURS'       => $requestedHours,
                 'MIN_DATE_REQUESTED'    => $minDateRequested,
                 'MAX_DATE_REQUESTED'    => $maxDateRequested,
@@ -138,6 +139,10 @@ class ManagerQueues extends BaseDB
                   ->or->like('upper(request_reason)', '%' . strtoupper($data['search']['value']) . '%')
                   ->or->like("convert_from_date(min_date_requested, 'mm/dd/yyyy')", '%' . strtoupper($data['search']['value']) . '%')
                   ->unnest;
+        }
+
+        if( !empty( $statuses ) ) {
+            $where->and->in('REQUEST_STATUS', $statuses);
         }
 
         /* attach where clause */
@@ -226,6 +231,7 @@ class ManagerQueues extends BaseDB
                 'EMPLOYEE_NUMBER'       => new Expression("trim(request.EMPLOYEE_NUMBER)"),
                 'REQUEST_REASON'        => 'request_reason',
                 'REQUEST_STATUS_DESCRIPTION' => new Expression('status.description'),
+                'REQUEST_STATUS'        => 'request_status',
                 'REQUESTED_HOURS'       => $requestedHours,
                 'MIN_DATE_REQUESTED'    => $minDateRequested,
                 'MAX_DATE_REQUESTED'    => $maxDateRequested,
@@ -297,6 +303,10 @@ class ManagerQueues extends BaseDB
                   ->or->like('upper(request_reason)', '%' . strtoupper($data['search']['value']) . '%')
                   ->or->like("convert_from_date(min_date_requested, 'mm/dd/yyyy')", '%' . strtoupper($data['search']['value']) . '%')
                   ->unnest;
+        }
+
+        if( !empty( $statuses ) ) {
+            $where->and->in('REQUEST_STATUS', $statuses);
         }
 
         /* attach where clause */
