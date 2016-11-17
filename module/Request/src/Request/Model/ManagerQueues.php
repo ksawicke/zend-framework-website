@@ -84,7 +84,7 @@ class ManagerQueues extends BaseDB
         $this->managerReportsType = 'P';
 
         if (array_key_exists( 'columns', $data ) && $data['columns'][0]['search']['value'] !== "P" ) {
-            $this->managerReportType = trim($data['columns'][0]['search']['value']) != '' ? $data['columns'][0]['search']['value'] : 'B';
+            $this->managerReportType = trim($data['columns'][0]['search']['value']) != '' ? $data['columns'][0]['search']['value'] : 'D';
             $this->proxyFor = [$data['employeeNumber']];
         }
 
