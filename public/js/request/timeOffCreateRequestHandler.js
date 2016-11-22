@@ -334,9 +334,6 @@ var timeOffCreateRequestHandler = new function() {
 
         if( +bereavementDayCount > 3 ) {
             validates = true;
-            $('.submitTimeOffRequest').addClass('disabled');
-        } else {
-        	$('.submitTimeOffRequest').removeClass('disabled');
         }
 
         return validates;
