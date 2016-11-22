@@ -99,6 +99,10 @@ table.siteLogoHeaderTable td {
   margin: 0px;
 }
 
+.bold {
+	font-weight: bold;
+}
+
 .swift-header-item-sm {
     float: left;
     margin-right: 5px;
@@ -1203,10 +1207,22 @@ button .full-width {
 #dialogSelectAPayrollAssistant,
 #dialogConfirmDeleteCompanyHoliday,
 #dialogConfirmEditSchedule,
-#warningEmailOverridesTurnedOff,
 #dialogDateIsUnavailableForSelection,
 #dialogDateIsAlreadySubmitted,
-#calendarLoadingImage {
+#calendarLoadingImage,
+#datesSelectedDetails,
+#warningEmailOverridesTurnedOff,
+#warnFirstDateRequestedTooOld,
+#warnExceededGrandfatheredHours,
+#warnExceededSickHours,
+#warnBereavementDaysPerRequest,
+#warnSalaryTakingRequiredHoursPerDay,
+#warnHourlyTakingRequiredHoursPerDay,
+#requestSubmitDetails,
+#warnExceededPTOHours,
+#warnExceededFloatHours,
+#warnSick,
+#warnGF {
     display: none;
 }
 

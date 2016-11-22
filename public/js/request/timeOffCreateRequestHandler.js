@@ -230,9 +230,9 @@ var timeOffCreateRequestHandler = new function() {
       }
 
     if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
-      $( "#warnBereavementHoursPerRequest" ).show();
+      $( "#warnBereavementDaysPerRequest" ).show();
     } else {
-      $( "#warnBereavementHoursPerRequest" ).hide();
+      $( "#warnBereavementDaysPerRequest" ).hide();
     }
 
     if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
@@ -259,7 +259,7 @@ var timeOffCreateRequestHandler = new function() {
       $('#warnExceededFloatHours').hide();
     }
 
-    if( exceededHours.Grandfathered || exceededHours.Sick || bereavementTotalForRequest > 24 ||
+    if( exceededHours.Grandfathered || exceededHours.Sick || timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ||
         timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
@@ -310,19 +310,30 @@ var timeOffCreateRequestHandler = new function() {
         });
         return bereavementTotalForRequest;
     }
+    
+    /**
+     * Returns the number of days requested with Bereavement
+     */
+    this.getBereavementDayCountRequested = function() {
+    	var bereavementDayCount = 0;
+    	$.each( selectedDatesNew, function( index, selectedDateNewObject ) {
+    		if( selectedDateNewObject.category=="timeOffBereavement" ) {
+    			bereavementDayCount++;
+    		}
+    	});
+    	
+    	return bereavementDayCount;
+    }
 
+    /**
+     * Returns true or false if bereavement limit is reached.
+     */
     this.verifyBereavementRequestLimitReached = function() {
-        var validates = false;
-        bereavementTotalForRequest = timeOffCreateRequestHandler.getBereavementHoursRequested();
+        var validates = false,
+            bereavementDayCount = timeOffCreateRequestHandler.getBereavementDayCountRequested();
 
-        if( +bereavementTotalForRequest > 24 ) {
+        if( +bereavementDayCount > 3 ) {
             validates = true;
-            if( +bereavementTotalForRequest > 24 ||
-                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
-              $('.submitTimeOffRequest').addClass('disabled');
-            } else {
-              $('.submitTimeOffRequest').removeClass('disabled');
-            }
         }
 
         return validates;
