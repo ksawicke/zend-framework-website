@@ -329,8 +329,8 @@ var timeOffCreateRequestHandler = new function() {
      * Returns true or false if bereavement limit is reached.
      */
     this.verifyBereavementRequestLimitReached = function() {
-        var validates = false;
-        bereavementDayCount = timeOffCreateRequestHandler.getBereavementDayCountRequested();
+        var validates = false,
+            bereavementDayCount = timeOffCreateRequestHandler.getBereavementDayCountRequested();
 
         if( +bereavementDayCount > 3 ) {
             validates = true;
