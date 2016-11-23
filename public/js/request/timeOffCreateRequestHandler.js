@@ -259,7 +259,7 @@ var timeOffCreateRequestHandler = new function() {
       $('#warnExceededFloatHours').hide();
     }
 
-    if( exceededHours.Grandfathered || exceededHours.Sick || timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ||
+    if( exceededHours.Grandfathered || exceededHours.Sick ||
         timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
@@ -332,7 +332,7 @@ var timeOffCreateRequestHandler = new function() {
         var validates = false,
             bereavementDayCount = timeOffCreateRequestHandler.getBereavementDayCountRequested();
 
-        if( +bereavementDayCount > 3 ) {
+        if( +bereavementDayCount >= 3 ) {
             validates = true;
         }
 
@@ -621,6 +621,10 @@ var timeOffCreateRequestHandler = new function() {
           if( $(this).hasClass( 'calendar-day-disabled') ) {
             timeOffCreateRequestHandler.alertUserDateIsUnavailableForSelection();
             return;
+          }
+          
+          if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+        	  return;
           }
 
           var selectedCalendarDateObject = $(this),
