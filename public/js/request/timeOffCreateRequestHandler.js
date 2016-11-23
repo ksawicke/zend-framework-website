@@ -332,7 +332,7 @@ var timeOffCreateRequestHandler = new function() {
         var validates = false,
             bereavementDayCount = timeOffCreateRequestHandler.getBereavementDayCountRequested();
 
-        if( +bereavementDayCount >= 3 ) {
+        if( bereavementDayCount >= 3 ) {
             validates = true;
         }
 
