@@ -622,10 +622,6 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.alertUserDateIsUnavailableForSelection();
             return;
           }
-          
-          if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
-        	  return;
-          }
 
           var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
