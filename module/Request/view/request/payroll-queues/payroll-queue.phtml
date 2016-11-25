@@ -13,7 +13,7 @@ if ($isLoggedInUserPayroll === "Y") {
 <table class="payrollQueueFilter">
 	<tbody>
 		<tr>
-			<td style="border: 0px solid #fff;">Days requested are between <input
+			<td class="filterWrapper">Days requested are between <input
 				type="text" id="startDate" name="startDate" value=""
 				placeholder="Start Date"> and <input type="text" id="endDate"
 				name="endDate" value="" placeholder="End Date">
@@ -21,7 +21,7 @@ if ($isLoggedInUserPayroll === "Y") {
 		</tr>
 	</tbody>
 </table>
-<br style="clear: both;" />
+
 <script>
 $( "#startDate" ).datepicker({
   dateFormat: "mm/dd/yy"
@@ -42,7 +42,7 @@ var reloadByStatusDT = function() {
 </script>
 <?php } ?>
 <table id="payroll-queue-<?php echo $this->payrollView; ?>"
-	class="display dataTable" style="width: 100%;">
+	class="display dataTable fullWidth">
 	<thead>
 		<tr>
             <?php echo ( $this->payrollView == 'update-checks' ? '<th>Cycle Code</th>' : '' ); ?>
@@ -64,28 +64,28 @@ var reloadByStatusDT = function() {
 			<th><?php echo ( $this->payrollView == 'update-checks' ? 'Payroll Comment' : 'Request Reason' ); ?></th>
 			<th>First Day<br />Requested
 			</th>
-			<th style="width: 150px;">Actions</th>
+			<th class="payrollActionsColumnWidth">Actions</th>
 		</tr>
 	</thead>
 </table>
 
-<p class="clear">
-    <?php if( $this->payrollView === 'manager-action') { ?>
-    <a id="downloadReportManagerActionNeeded"
-    	href="<?php echo $this->url('downloadReportManagerActionNeeded'); ?>"><img
-    	style="margin-right: 5px;"
-    	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
-    	Report in Excel</a>
-    <?php } ?>
-    <?php if( $this->payrollView === 'update-checks') { ?>
-    <br />
-    <a id="downloadReportUpdateChecks"
-    	href="<?php echo $this->url('downloadUpdateChecks'); ?>"><img
-    	style="margin-right: 5px;"
-    	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
-    	Report in Excel</a>
-    <?php } ?>
-</p>
+<p class="clear"></p>
+
+<?php if( $this->payrollView === 'manager-action') { ?>
+<a id="downloadReportManagerActionNeeded"
+	href="<?php echo $this->url('downloadReportManagerActionNeeded'); ?>"><img
+	class="excelIconMargin"
+	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+	Report in Excel</a>
+<?php } ?>
+<?php if( $this->payrollView === 'update-checks') { ?>
+<br />
+<a id="downloadReportUpdateChecks"
+	href="<?php echo $this->url('downloadUpdateChecks'); ?>"><img
+	class="excelIconMargin"
+	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+	Report in Excel</a>
+<?php } ?>
 
 <?php } else { ?>
 
