@@ -1508,6 +1508,11 @@ p.clear {
 	clear: both;
 }
 
+.payrollQueueFilter {
+	border: 0;
+	float: right;
+}
+
 /**
  * Mobile first media queries
  **/

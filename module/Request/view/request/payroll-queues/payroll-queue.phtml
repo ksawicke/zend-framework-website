@@ -10,7 +10,7 @@ if ($isLoggedInUserPayroll === "Y") {
     ?>
 
 <?php if( $this->payrollView === 'by-status' ) { ?>
-<table border="0" cellspacing="5" cellpadding="5" style="float: right;">
+<table class="payrollQueueFilter">
 	<tbody>
 		<tr>
 			<td style="border: 0px solid #fff;">Days requested are between <input
@@ -80,7 +80,7 @@ var reloadByStatusDT = function() {
     <?php if( $this->payrollView === 'update-checks') { ?>
     <br />
     <a id="downloadReportUpdateChecks"
-    	href="/request/download-report-update-checks"><img
+    	href="<?php echo $this->url('downloadUpdateChecks'); ?>"><img
     	style="margin-right: 5px;"
     	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
     	Report in Excel</a>
