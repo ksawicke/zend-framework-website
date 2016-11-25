@@ -1513,6 +1513,19 @@ p.clear {
 	float: right;
 }
 
+.fullWidth {
+	width: 100%;
+}
+.filterWrapper {
+	border: 0px solid #fff;
+}
+.excelIconMargin {
+	margin-right: 5px;
+}
+.payrollActionsColumnWidth {
+	width: 150px;
+}
+
 /**
  * Mobile first media queries
  **/
