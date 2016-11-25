@@ -69,22 +69,23 @@ var reloadByStatusDT = function() {
 	</thead>
 </table>
 
-<?php if( $this->payrollView === 'manager-action') { ?>
-<br />
-<a id="downloadReportManagerActionNeeded"
-	href="/request/download-report-manager-action-needed"><img
-	style="margin-right: 5px;"
-	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
-	Report in Excel</a>
-<?php } ?>
-<?php if( $this->payrollView === 'update-checks') { ?>
-<br />
-<a id="downloadReportUpdateChecks"
-	href="/request/download-report-update-checks"><img
-	style="margin-right: 5px;"
-	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
-	Report in Excel</a>
-<?php } ?>
+<p class="clear">
+    <?php if( $this->payrollView === 'manager-action') { ?>
+    <a id="downloadReportManagerActionNeeded"
+    	href="<?php echo $this->url('downloadReportManagerActionNeeded'); ?>"><img
+    	style="margin-right: 5px;"
+    	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+    	Report in Excel</a>
+    <?php } ?>
+    <?php if( $this->payrollView === 'update-checks') { ?>
+    <br />
+    <a id="downloadReportUpdateChecks"
+    	href="/request/download-report-update-checks"><img
+    	style="margin-right: 5px;"
+    	src="<?php echo $this->basePath(); ?>/img/excel_logo_32x32.png">Download
+    	Report in Excel</a>
+    <?php } ?>
+</p>
 
 <?php } else { ?>
 

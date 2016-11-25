@@ -1504,6 +1504,10 @@ div.buttons {
     word-wrap: break-word;
 }
 
+p.clear {
+	clear: both;
+}
+
 /**
  * Mobile first media queries
  **/
