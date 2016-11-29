@@ -396,7 +396,6 @@ var timeOffCreateRequestHandler = new function() {
     			validates = false;
     		}
     	}
-    	console.log( "validates: " + validates );
     	
     	return validates;
     }
@@ -420,8 +419,8 @@ var timeOffCreateRequestHandler = new function() {
         });
 
       return selectedDatesNewHoursByDate;
-    }   
-    
+    }
+
     /**
      * Verifies if user exceeded PTO time.
      */

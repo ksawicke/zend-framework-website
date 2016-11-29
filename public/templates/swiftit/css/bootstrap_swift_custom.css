@@ -1196,37 +1196,6 @@ button .full-width {
 }
 ****/
 
-#dialogGrandfatheredAlert,
-#dialogConfirmSelectHoliday,
-#dialogDeleteSplitDateAlert,
-#dialogUnableToSplitTimeAlert,
-#dialogEditEmployeeSchedule,
-#dialogEditEmployeeProxies,
-#dialogSelectAProxy,
-#dialogSelectAPayrollAdmin,
-#dialogSelectAPayrollAssistant,
-#dialogConfirmDeleteCompanyHoliday,
-#dialogConfirmEditSchedule,
-#dialogDateIsUnavailableForSelection,
-#dialogDateIsAlreadySubmitted,
-#calendarLoadingImage,
-#datesSelectedDetails,
-#warningEmailOverridesTurnedOff,
-#warnFirstDateRequestedTooOld,
-#warnExceededGrandfatheredHours,
-#warnExceededSickHours,
-#warnBereavementDaysPerRequest,
-#warnSalaryHoursRequestedMatchSchedule,
-#warnSalaryTakingRequiredHoursPerDay,
-#warnHourlyTakingRequiredHoursPerDay,
-#requestSubmitDetails,
-#warnExceededPTOHours,
-#warnExceededFloatHours,
-#warnSick,
-#warnGF {
-    display: none;
-}
-
 .hidden {
     display:none;
 }
