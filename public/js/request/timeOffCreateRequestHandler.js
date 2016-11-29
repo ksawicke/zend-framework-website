@@ -622,10 +622,6 @@ var timeOffCreateRequestHandler = new function() {
             timeOffCreateRequestHandler.alertUserDateIsUnavailableForSelection();
             return;
           }
-          
-          if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
-        	  return;
-          }
 
           var selectedCalendarDateObject = $(this),
                 isCompanyHoliday = timeOffCreateRequestHandler.isCompanyHoliday( $(this) ),
@@ -697,23 +693,24 @@ var timeOffCreateRequestHandler = new function() {
                 }
               });
             } else {
-            if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
-            ) {
-              timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+	            if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
+	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
+	            ) {
+                  timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-            } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
-              timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
+	          } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
+                  timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
               } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
-                timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
-                  timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
-                }
-                timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-              } else {
-                timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+            	  timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
+                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                    timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
+                  }
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
+              } else if( selectedTimeOffCategory=="timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+            	  return;
+              } else {
+            	  timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
+	              timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
               }
               timeOffCreateRequestHandler.sortDatesSelected();
               timeOffCreateRequestHandler.drawHoursRequested();
@@ -2370,7 +2367,6 @@ var timeOffCreateRequestHandler = new function() {
         var warnFirstDateRequestedTooOld = false;
         var counter = 0;
         var compareToDate = moment().locale("en").subtract(14, 'd').format("MM/DD/YYYY");
-        //moment().add(7, 'days').subtract(1, 'months').year(2009).hours(0).minutes(0).seconds(0);
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
             if( selectedDateNewObject.date <= compareToDate ) {
                 counter++;
@@ -2417,7 +2413,7 @@ var timeOffCreateRequestHandler = new function() {
       timeOffCreateRequestHandler.subtractTime( selectedDatesNew[deleteIndex].category, Number( selectedDatesNew[deleteIndex].hours ) );
         timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDatesNew[deleteIndex].date, selectedDatesNew[deleteIndex].category );
         if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===false ) {
-          selectedDatesNew.splice(deleteIndex, 1); // taco
+          selectedDatesNew.splice(deleteIndex, 1); 
         } else if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()===true ) {
            if( selectedDatesNew[deleteIndex].hasOwnProperty('isDeleted') &&
              selectedDatesNew[deleteIndex].isDeleted===true ) {
