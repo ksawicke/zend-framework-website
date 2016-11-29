@@ -725,19 +725,19 @@ var timeOffCreateRequestHandler = new function() {
               });
             } else {
             	if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory &&
-	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted == true
+	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted === true
 	            ) {
                   timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-	          } else if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') == false ) {
+	          } else if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') === false ) {
                   timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
               } else if( isSelected.isSelected == true && typeof isSelected.isSelected == 'boolean' ) {
             	  timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() == false ) {
+                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() === false ) {
                     timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
                   }
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-              } else if( selectedTimeOffCategory == "timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() == true ) {
+              } else if( selectedTimeOffCategory == "timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() === true ) {
             	  return;
               } else {
             	  timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
@@ -780,7 +780,7 @@ var timeOffCreateRequestHandler = new function() {
           if( viewIsReadOnly==true ) {
               return;
             }
-          if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===false ) {
+          if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen() === false ) {
             timeOffCreateRequestHandler.selectCategory($(this));
           }
         });
