@@ -2464,13 +2464,12 @@ var timeOffCreateRequestHandler = new function() {
     
     this.setRequestForEmployeeSchedule = function( employeeScheduleObject ) {
     	var requestForEmployeeObject = this.getRequestForEmployeeObject();
-    	requestForEmployeeObject.SCHEDULE_MON = +employeeScheduleObject.SCHEDULE_MON;
-    	requestForEmployeeObject.SCHEDULE_TUE = +employeeScheduleObject.SCHEDULE_TUE;
-    	requestForEmployeeObject.SCHEDULE_WED = +employeeScheduleObject.SCHEDULE_WED;
-    	requestForEmployeeObject.SCHEDULE_THU = +employeeScheduleObject.SCHEDULE_THU;
-    	requestForEmployeeObject.SCHEDULE_FRI = +employeeScheduleObject.SCHEDULE_FRI;
-    	requestForEmployeeObject.SCHEDULE_SAT = +employeeScheduleObject.SCHEDULE_SAT;
-    	requestForEmployeeObject.SCHEDULE_SUN = +employeeScheduleObject.SCHEDULE_SUN;
+    	var days ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    	$.map(days, function(val, i) {
+    	    var key = 'SCHEDULE_' + val;
+    	    requestForEmployeeObject[key] = employeeScheduleObject[key],    
+    	});
     }
 };
 //Initialize the class

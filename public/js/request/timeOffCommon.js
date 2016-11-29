@@ -144,7 +144,8 @@ var timeOffCommon = new function ()
         	var myJson = { request : {
                              forEmployee : employeeScheduleObject,
                              byEmployee : $("#employeeScheduleBy").val()
-                         };
+                           }
+        				 };
             $.ajax({
                 url : timeOffSubmitEmployeeScheduleRequestUrl,
                 type : 'POST',
