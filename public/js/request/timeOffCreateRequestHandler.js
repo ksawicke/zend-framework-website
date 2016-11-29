@@ -356,7 +356,7 @@ var timeOffCreateRequestHandler = new function() {
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
           
-          if( requestForEmployeeObject.SALARY_TYPE == 'H' && typeof hoursOff === 'number' && isNaN(hoursOff) === false && validates ) {
+          if( requestForEmployeeObject.SALARY_TYPE == 'H' && typeof hoursOff == 'number' && isNaN(hoursOff) === false && validates ) {
            validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
           }
       });
@@ -373,7 +373,7 @@ var timeOffCreateRequestHandler = new function() {
 
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
-            if( requestForEmployeeObject.SALARY_TYPE == 'S' && typeof hoursOff === 'number' && isNaN(hoursOff) === false && validates ) {
+            if( requestForEmployeeObject.SALARY_TYPE == 'S' && typeof hoursOff == 'number' && isNaN(hoursOff) === false && validates ) {
                validates = ( hoursOff <= 12 && hoursOff >= 8 ? true : false );
             }
         });
