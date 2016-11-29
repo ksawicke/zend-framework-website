@@ -266,8 +266,11 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     if( exceededHours.Grandfathered || exceededHours.Sick ||
-        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ||
-        requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) {
+    	requestForEmployeeObject.SALARY_TYPE == 'S' && (
+          timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ||
+          timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) ||
+        requestForEmployeeObject.SALARY_TYPE == 'H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay() === false
+      ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
           $('.submitTimeOffRequest').removeClass('disabled');
