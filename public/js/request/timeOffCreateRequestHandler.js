@@ -218,51 +218,51 @@ var timeOffCreateRequestHandler = new function() {
       exceededHours = timeOffCreateRequestHandler.verifyExceededHours();
 
       if( exceededHours.Grandfathered && +totalGrandfatheredRequested > 0 ) {
-        $("#warnExceededGrandfatheredHours").show();
+        $("#warnExceededGrandfatheredHours").removeClass('hidden');
       } else {
-        $("#warnExceededGrandfatheredHours").hide();
+        $("#warnExceededGrandfatheredHours").addClass('hidden');
       }
 
       if( exceededHours.Sick && +totalSickRequested > 0 ) {
-        $("#warnExceededSickHours").show();
+        $("#warnExceededSickHours").removeClass('hidden');
       } else {
-        $("#warnExceededSickHours").hide();
+        $("#warnExceededSickHours").addClass('hidden');
       }
 
     if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() === true ) {
-      $( "#warnBereavementDaysPerRequest" ).show();
+      $( "#warnBereavementDaysPerRequest" ).removeClass('hidden');
     } else {
-      $( "#warnBereavementDaysPerRequest" ).hide();
+      $( "#warnBereavementDaysPerRequest" ).addClass('hidden');
     }
 
     if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ) {
-      $( '#warnSalaryTakingRequiredHoursPerDay' ).show();
+      $( '#warnSalaryTakingRequiredHoursPerDay' ).removeClass('hidden');
     } else {
-      $( '#warnSalaryTakingRequiredHoursPerDay' ).hide();
+      $( '#warnSalaryTakingRequiredHoursPerDay' ).addClass('hidden');
     }
     
     if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) {
-    	$( '#warnSalaryHoursRequestedMatchSchedule' ).show();
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).removeClass('hidden');
     } else {
-    	$( '#warnSalaryHoursRequestedMatchSchedule' ).hide();
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).addClass('hidden');
     }
     
     if( requestForEmployeeObject.SALARY_TYPE == 'H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay() === false ) {
-      $( '#warnHourlyTakingRequiredHoursPerDay' ).show();
+      $( '#warnHourlyTakingRequiredHoursPerDay' ).removeClass('hidden');
     } else {
-      $( '#warnHourlyTakingRequiredHoursPerDay' ).hide();
+      $( '#warnHourlyTakingRequiredHoursPerDay' ).addClass('hidden');
     }
 
     if( exceededHours.PTO && +totalPTORequested > 0 ) {
-      $('#warnExceededPTOHours').show();
+      $('#warnExceededPTOHours').removeClass('hidden');
     } else {
-      $('#warnExceededPTOHours').hide();
+      $('#warnExceededPTOHours').addClass('hidden');
     }
 
     if( exceededHours.Float && +totalFloatRequested > 0 ) {
-      $('#warnExceededFloatHours').show();
+      $('#warnExceededFloatHours').removeClass('hidden');
     } else {
-      $('#warnExceededFloatHours').hide();
+      $('#warnExceededFloatHours').addClass('hidden');
     }
 
     if( exceededHours.Grandfathered || exceededHours.Sick ||
@@ -2051,12 +2051,12 @@ var timeOffCreateRequestHandler = new function() {
 
         $("#datesSelectedDetails").html(datesSelectedDetailsHtml);
         if (selectedDatesNew.length === 0) {
-            $('#datesSelectedDetails').hide();
-            $("#requestSubmitDetails").hide();
+            $('#datesSelectedDetails').addClass('hidden');
+            $("#requestSubmitDetails").addClass('hidden');
             timeOffCreateRequestHandler.unselectCategory();
         } else {
-            $('#datesSelectedDetails').show();
-            $("#requestSubmitDetails").show();
+            $('#datesSelectedDetails').removeClass('hidden');
+            $("#requestSubmitDetails").removeClass('hidden');
             timeOffCreateRequestHandler.setStep('3');
         }
 
@@ -2468,7 +2468,7 @@ var timeOffCreateRequestHandler = new function() {
 
     	$.map(days, function(val, i) {
     	    var key = 'SCHEDULE_' + val;
-    	    requestForEmployeeObject[key] = employeeScheduleObject[key],    
+    	    requestForEmployeeObject[key] = employeeScheduleObject[key];
     	});
     }
 };

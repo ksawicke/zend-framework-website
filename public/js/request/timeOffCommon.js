@@ -131,7 +131,7 @@ var timeOffCommon = new function ()
 
     	$.map(days, function(val, i) {
     	    var key = 'SCHEDULE_' + val;
-    	    employeeSchedule[key] = $("#employeeSchedule" + key).val(),    
+    	    employeeSchedule[key] = $("#employeeSchedule" + key).val();
     	});
     	
     	return employeeSchedule;
@@ -147,10 +147,13 @@ var timeOffCommon = new function ()
                            }
         				 };
             $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
                 url : timeOffSubmitEmployeeScheduleRequestUrl,
                 type : 'POST',
-                data : JSON.stringify( myJson )
-                },
+                data : JSON.stringify( myJson ),
                 dataType : 'json'
             }).success(function(json) {
                 if (json.success == true) {
