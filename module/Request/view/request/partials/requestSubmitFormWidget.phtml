@@ -4,51 +4,55 @@
 
         </div>
         <div class="col-md-6 col-lg-6">
-            <div id="datesSelectedDetails">
-
-            </div>
+            <div id="datesSelectedDetails" class="hidden"></div>
 
             <input type="hidden" name="formDirty" id="formDirty" value="false" />
 
             <br style="clear:both;"/>
 
-            <div id="warnFirstDateRequestedTooOld">
+            <div id="warnFirstDateRequestedTooOld" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> First date of request is 14 or more days old. Payroll will review this request.
                 </div>
             </div>
             
-            <div id="warnExceededGrandfatheredHours">
+            <div id="warnExceededGrandfatheredHours" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> You have exceeded the number of Grandfathered hours remaining. Please make the needed adjustments to your request.
                 </div>
             </div>
             
-            <div id="warnExceededSickHours">
+            <div id="warnExceededSickHours" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> You have exceeded the number of Sick hours remaining. Please make the needed adjustments to your request.
                 </div>
             </div>
 
-            <div id="warnBereavementDaysPerRequest">
+            <div id="warnBereavementDaysPerRequest" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> A maximum of 3 days of Bereavement are allowed per request.
                 </div>
             </div>
 
-            <div id="warnSalaryTakingRequiredHoursPerDay">
+			<div id="warnSalaryHoursRequestedMatchSchedule" class="hidden">
+                <div class="alert alert-danger bold" role="alert">
+                    <i class="fa fa-warning"></i> Salaried employees must take off hours equal to their schedule for each day requested.
+                </div>
+            </div>
+
+            <div id="warnSalaryTakingRequiredHoursPerDay" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> Salaried employees must take between 8-12 hours off for each day requested.
                 </div>
             </div>
 
-            <div id="warnHourlyTakingRequiredHoursPerDay">
+            <div id="warnHourlyTakingRequiredHoursPerDay" class="hidden">
                 <div class="alert alert-danger bold" role="alert">
                     <i class="fa fa-warning"></i> Hourly employees must take between 0-12 hours off for each day requested.
                 </div>
             </div>
 
-            <div id="requestSubmitDetails">
+            <div id="requestSubmitDetails" class="hidden">
                 <strong>Reason for request:</strong>
                 <br style="clear:both;"/>
                 <br style="clear:both;"/>
@@ -56,25 +60,25 @@
                 <br style="clear:both;"/>
                 <br style="clear:both;"/>
 
-                <div id="warnExceededPTOHours">
+                <div id="warnExceededPTOHours" class="hidden">
                     <div class="alert alert-danger bold" role="alert">
                         <i class="fa fa-warning"></i> PTO time remaining has been exceeded. Payroll will review this request.
                     </div>
                 </div>
 
-                <div id="warnExceededFloatHours">
+                <div id="warnExceededFloatHours" class="hidden">
                     <div class="alert alert-danger bold" role="alert">
                         <i class="fa fa-warning"></i> Float time remaining has been exceeded. Payroll will review this request.
                     </div>
                 </div>
 
-                <div id="warnSick">
+                <div id="warnSick" class="hidden">
                     <div class="alert alert-danger bold" role="alert">
                         <i class="fa fa-warning"></i> Sick time remaining has been exceeded. Payroll will review this request.
                     </div>
                 </div>
 
-                <div id="warnGF">
+                <div id="warnGF" class="hidden">
                     <div class="alert alert-danger bold" role="alert">
                         <i class="fa fa-warning"></i> Grandfathered time remaining has been exceeded. Payroll will review this request.
                     </div>

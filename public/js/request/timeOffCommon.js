@@ -122,27 +122,34 @@ var timeOffCommon = new function ()
 
         return validates;
     }
+    
+    this.getEmployeeScheduleObject = function() {
+    	var days ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    	var employeeSchedule = {
+    	    EMPLOYEE_NUMBER : $("#employeeScheduleFor").val()
+    	};
+
+    	$.map(days, function(val, i) {
+    	    var key = 'SCHEDULE_' + val;
+    	    employeeSchedule[key] = $("#employeeSchedule" + key).val(),    
+    	});
+    	
+    	return employeeSchedule;
+    }
 
     this.submitEmployeeScheduleUpdate = function () {
         var validates = timeOffCommon.checkFormValidates();
         if( validates==true ) {
+        	var employeeScheduleObject = timeOffCommon.getEmployeeScheduleObject();
+        	var myJson = { request : {
+                             forEmployee : employeeScheduleObject,
+                             byEmployee : $("#employeeScheduleBy").val()
+                           }
+        				 };
             $.ajax({
                 url : timeOffSubmitEmployeeScheduleRequestUrl,
                 type : 'POST',
-                data : {
-                    request : {
-                        forEmployee : {
-                            EMPLOYEE_NUMBER : $("#employeeScheduleFor").val(),
-                            SCHEDULE_SUN: $("#employeeScheduleSUN").val(),
-                            SCHEDULE_MON: $("#employeeScheduleMON").val(),
-                            SCHEDULE_TUE: $("#employeeScheduleTUE").val(),
-                            SCHEDULE_WED: $("#employeeScheduleWED").val(),
-                            SCHEDULE_THU: $("#employeeScheduleTHU").val(),
-                            SCHEDULE_FRI: $("#employeeScheduleFRI").val(),
-                            SCHEDULE_SAT: $("#employeeScheduleSAT").val()
-                        },
-                        byEmployee : $("#employeeScheduleBy").val()
-                    }
+                data : JSON.stringify( myJson )
                 },
                 dataType : 'json'
             }).success(function(json) {
@@ -151,6 +158,7 @@ var timeOffCommon = new function ()
                 } else {
                     timeOffCommon.setEmployeeScheduleFormError( 'saveError' );
                 }
+                timeOffCreateRequestHandler.setRequestForEmployeeSchedule( employeeScheduleObject );
                 return;
             }).error(function() {
                 timeOffCommon.setEmployeeScheduleFormError( 'uploadError' );

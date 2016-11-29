@@ -229,19 +229,25 @@ var timeOffCreateRequestHandler = new function() {
         $("#warnExceededSickHours").hide();
       }
 
-    if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+    if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() === true ) {
       $( "#warnBereavementDaysPerRequest" ).show();
     } else {
       $( "#warnBereavementDaysPerRequest" ).hide();
     }
 
-    if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+    if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ) {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).show();
     } else {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).hide();
     }
-
-    if( requestForEmployeeObject.SALARY_TYPE=='H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay()==false ) {
+    
+    if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) {
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).show();
+    } else {
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).hide();
+    }
+    
+    if( requestForEmployeeObject.SALARY_TYPE == 'H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay() === false ) {
       $( '#warnHourlyTakingRequiredHoursPerDay' ).show();
     } else {
       $( '#warnHourlyTakingRequiredHoursPerDay' ).hide();
@@ -260,7 +266,8 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     if( exceededHours.Grandfathered || exceededHours.Sick ||
-        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ||
+        requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
           $('.submitTimeOffRequest').removeClass('disabled');
@@ -278,8 +285,8 @@ var timeOffCreateRequestHandler = new function() {
      */
     this.verifyNewRequest = function() {
         $(document).on('click', '.submitTimeOffRequest', function() {
-            if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()===false &&
-                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()===true ) {
+            if( timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() === false &&
+                timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === true ) {
                 requestReason = $("#requestReason").val();
                 timeOffCreateRequestHandler.handlePleaseWaitStatus( $(this) );
                 timeOffCreateRequestHandler.submitTimeOffRequest();
@@ -348,7 +355,8 @@ var timeOffCreateRequestHandler = new function() {
 
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
-          if( requestForEmployeeObject.SALARY_TYPE=='H' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
+          
+          if( requestForEmployeeObject.SALARY_TYPE == 'H' && typeof hoursOff == 'number' && isNaN(hoursOff) === false && validates ) {
            validates = ( hoursOff <= 12 && hoursOff >= 0 ? true : false );
           }
       });
@@ -365,12 +373,34 @@ var timeOffCreateRequestHandler = new function() {
 
         $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           var hoursOff = +selectedDatesNewHoursByDate[selectedDateNewObject.date];
-            if( requestForEmployeeObject.SALARY_TYPE=='S' && typeof hoursOff==='number' && isNaN(hoursOff)===false && validates ) {
+            if( requestForEmployeeObject.SALARY_TYPE == 'S' && typeof hoursOff == 'number' && isNaN(hoursOff) === false && validates ) {
                validates = ( hoursOff <= 12 && hoursOff >= 8 ? true : false );
             }
         });
 
         return validates;
+    }
+    
+    /**
+     * Validates whether each day requested matches employee schedule
+     */
+    this.verifyHoursRequestedMatchSchedule = function() {
+    	var validates = true;
+    	var requestForEmployeeObject = timeOffCreateRequestHandler.getRequestForEmployeeObject();
+    	var hoursRequestedByDate = timeOffCreateRequestHandler.getSelectedDatesNewHoursByDate();
+    	
+    	for( date in hoursRequestedByDate ) {
+    		if ( hoursRequestedByDate.hasOwnProperty( date ) ) {
+	    		var dow = moment( date, "MM/DD/YYYY" ).format("ddd").toUpperCase();
+	    		var scheduleKey = "SCHEDULE_" + dow;
+	    		
+	    		if( validates == true && hoursRequestedByDate[date] != requestForEmployeeObject[scheduleKey] ) {
+	    			validates = false;
+	    		}
+    		}
+    	}
+    	
+    	return validates;
     }
 
     /**
@@ -381,7 +411,7 @@ var timeOffCreateRequestHandler = new function() {
 
       $.each( selectedDatesNew, function( index, selectedDateNewObject ) {
           if( !selectedDatesNewHoursByDate.hasOwnProperty(selectedDateNewObject.date) ) {
-              if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted===true ) {
+              if( selectedDateNewObject.hasOwnProperty('isDeleted') && selectedDateNewObject.isDeleted === true ) {
                 // do nothing
               } else {
                 selectedDatesNewHoursByDate[selectedDateNewObject.date] = +selectedDateNewObject.hours;
@@ -478,12 +508,13 @@ var timeOffCreateRequestHandler = new function() {
      * Handle user changing the hours for a date manually
      */
     this.handleChangeHoursForDateManually = function() {
-        $(document).on('blur', '.selectedDateHours', function() {
-            var key = $(this).attr("data-key");
-            var value = $(this).val();
+    	$(document).on('blur', '.selectedDateHours', function() {
+            var key = $(this).attr("data-key"),
+                value = $(this).val();
 
             selectedDatesNew[key].hours = value;
             selectedDatesNew[key].fieldDirty = true;
+            
             $("#formDirty").val('true');
             // Recalculate totals
             timeOffCreateRequestHandler.updateTotalsPerCategory();
@@ -506,7 +537,7 @@ var timeOffCreateRequestHandler = new function() {
             //   2. If in review (Pending Manger Approval or Pending Payroll Approval),
             //      leave the remaining time alone for that day.
 
-            if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+            if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() === false ) {
               timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
             }
             timeOffCreateRequestHandler.sortDatesSelected();
@@ -665,7 +696,7 @@ var timeOffCreateRequestHandler = new function() {
           if( isCompanyHoliday ) {
              if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
                timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-               if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+               if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() === false ) {
                   timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
                }
                timeOffCreateRequestHandler.sortDatesSelected();
@@ -693,20 +724,20 @@ var timeOffCreateRequestHandler = new function() {
                 }
               });
             } else {
-	            if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
+            	if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory &&
+	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted === true
 	            ) {
                   timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-	          } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
+	          } else if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') === false ) {
                   timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
-              } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+              } else if( isSelected.isSelected == true && typeof isSelected.isSelected == 'boolean' ) {
             	  timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() === false ) {
                     timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
                   }
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-              } else if( selectedTimeOffCategory=="timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+              } else if( selectedTimeOffCategory == "timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() === true ) {
             	  return;
               } else {
             	  timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
@@ -749,7 +780,7 @@ var timeOffCreateRequestHandler = new function() {
           if( viewIsReadOnly==true ) {
               return;
             }
-          if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen()===false ) {
+          if( timeOffCreateRequestHandler.isHandledFromViewMyRequestsScreen() === false ) {
             timeOffCreateRequestHandler.selectCategory($(this));
           }
         });
@@ -2425,6 +2456,20 @@ var timeOffCreateRequestHandler = new function() {
           }
         }
         timeOffCreateRequestHandler.drawHoursRequested();
+    }
+    
+    this.getRequestForEmployeeObject = function() {
+    	return requestForEmployeeObject;
+    }
+    
+    this.setRequestForEmployeeSchedule = function( employeeScheduleObject ) {
+    	var requestForEmployeeObject = this.getRequestForEmployeeObject();
+    	var days ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    	$.map(days, function(val, i) {
+    	    var key = 'SCHEDULE_' + val;
+    	    requestForEmployeeObject[key] = employeeScheduleObject[key],    
+    	});
     }
 };
 //Initialize the class
