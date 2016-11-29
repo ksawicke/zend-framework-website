@@ -44,7 +44,6 @@ var timeOffCommon = new function ()
                                 timeOffCommon.setEmployeeScheduleFormError( 'success' );
                                 $(this).dialog("close");
                                 timeOffCommon.submitEmployeeScheduleUpdate();
-                                
                             } else {
                                 timeOffCommon.setEmployeeScheduleFormError( 'error' );
                             }
