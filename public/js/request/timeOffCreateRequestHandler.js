@@ -266,7 +266,7 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     if( exceededHours.Grandfathered || exceededHours.Sick ||
-        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ||
+        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() === false ||
         requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() === false ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
