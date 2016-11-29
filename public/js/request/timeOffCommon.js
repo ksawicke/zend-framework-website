@@ -44,6 +44,7 @@ var timeOffCommon = new function ()
                                 timeOffCommon.setEmployeeScheduleFormError( 'success' );
                                 $(this).dialog("close");
                                 timeOffCommon.submitEmployeeScheduleUpdate();
+                                
                             } else {
                                 timeOffCommon.setEmployeeScheduleFormError( 'error' );
                             }
@@ -122,25 +123,30 @@ var timeOffCommon = new function ()
 
         return validates;
     }
+    
+    this.getEmployeeScheduleObject = function() {
+    	var employeeSchedule = { EMPLOYEE_NUMBER : $("#employeeScheduleFor").val(),
+                SCHEDULE_SUN: $("#employeeScheduleSUN").val(),
+                SCHEDULE_MON: $("#employeeScheduleMON").val(),
+                SCHEDULE_TUE: $("#employeeScheduleTUE").val(),
+                SCHEDULE_WED: $("#employeeScheduleWED").val(),
+                SCHEDULE_THU: $("#employeeScheduleTHU").val(),
+                SCHEDULE_FRI: $("#employeeScheduleFRI").val(),
+                SCHEDULE_SAT: $("#employeeScheduleSAT").val() };
+    	
+    	return employeeSchedule;
+    }
 
     this.submitEmployeeScheduleUpdate = function () {
         var validates = timeOffCommon.checkFormValidates();
         if( validates==true ) {
+        	var employeeScheduleObject = timeOffCommon.getEmployeeScheduleObject();
             $.ajax({
                 url : timeOffSubmitEmployeeScheduleRequestUrl,
                 type : 'POST',
                 data : {
                     request : {
-                        forEmployee : {
-                            EMPLOYEE_NUMBER : $("#employeeScheduleFor").val(),
-                            SCHEDULE_SUN: $("#employeeScheduleSUN").val(),
-                            SCHEDULE_MON: $("#employeeScheduleMON").val(),
-                            SCHEDULE_TUE: $("#employeeScheduleTUE").val(),
-                            SCHEDULE_WED: $("#employeeScheduleWED").val(),
-                            SCHEDULE_THU: $("#employeeScheduleTHU").val(),
-                            SCHEDULE_FRI: $("#employeeScheduleFRI").val(),
-                            SCHEDULE_SAT: $("#employeeScheduleSAT").val()
-                        },
+                        forEmployee : employeeScheduleObject,
                         byEmployee : $("#employeeScheduleBy").val()
                     }
                 },
@@ -151,6 +157,7 @@ var timeOffCommon = new function ()
                 } else {
                     timeOffCommon.setEmployeeScheduleFormError( 'saveError' );
                 }
+                timeOffCreateRequestHandler.setRequestForEmployeeSchedule( employeeScheduleObject );
                 return;
             }).error(function() {
                 timeOffCommon.setEmployeeScheduleFormError( 'uploadError' );

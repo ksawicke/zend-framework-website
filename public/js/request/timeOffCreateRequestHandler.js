@@ -235,13 +235,19 @@ var timeOffCreateRequestHandler = new function() {
       $( "#warnBereavementDaysPerRequest" ).hide();
     }
 
-    if( requestForEmployeeObject.SALARY_TYPE=='S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+    if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay() == false ) {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).show();
     } else {
       $( '#warnSalaryTakingRequiredHoursPerDay' ).hide();
     }
-
-    if( requestForEmployeeObject.SALARY_TYPE=='H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay()==false ) {
+    
+    if( requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() == false ) {
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).show();
+    } else {
+    	$( '#warnSalaryHoursRequestedMatchSchedule' ).hide();
+    }
+    
+    if( requestForEmployeeObject.SALARY_TYPE == 'H' && timeOffCreateRequestHandler.verifyHourlyTakingRequiredHoursPerDay() == false ) {
       $( '#warnHourlyTakingRequiredHoursPerDay' ).show();
     } else {
       $( '#warnHourlyTakingRequiredHoursPerDay' ).hide();
@@ -260,7 +266,8 @@ var timeOffCreateRequestHandler = new function() {
     }
 
     if( exceededHours.Grandfathered || exceededHours.Sick ||
-        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ) {
+        timeOffCreateRequestHandler.verifySalaryTakingRequiredHoursPerDay()==false ||
+        requestForEmployeeObject.SALARY_TYPE == 'S' && timeOffCreateRequestHandler.verifyHoursRequestedMatchSchedule() == false ) {
           $('.submitTimeOffRequest').addClass('disabled');
         } else {
           $('.submitTimeOffRequest').removeClass('disabled');
@@ -372,6 +379,27 @@ var timeOffCreateRequestHandler = new function() {
 
         return validates;
     }
+    
+    /**
+     * Validates whether each day requested matches employee schedule
+     */
+    this.verifyHoursRequestedMatchSchedule = function() {
+    	var validates = true;
+    	var requestForEmployeeObject = timeOffCreateRequestHandler.getRequestForEmployeeObject();
+    	var hoursRequestedByDate = timeOffCreateRequestHandler.getSelectedDatesNewHoursByDate();
+    	
+    	for( date in hoursRequestedByDate ) {
+    		var dow = moment( date, "MM/DD/YYYY" ).format("ddd").toUpperCase();
+    		var scheduleKey = "SCHEDULE_" + dow;
+    		
+    		if( validates == true && hoursRequestedByDate[date] != requestForEmployeeObject[scheduleKey] ) {
+    			validates = false;
+    		}
+    	}
+    	console.log( "validates: " + validates );
+    	
+    	return validates;
+    }
 
     /**
      * Returns an array of dates and how many hours have been requested per day.
@@ -392,8 +420,8 @@ var timeOffCreateRequestHandler = new function() {
         });
 
       return selectedDatesNewHoursByDate;
-    }
-
+    }   
+    
     /**
      * Verifies if user exceeded PTO time.
      */
@@ -478,12 +506,13 @@ var timeOffCreateRequestHandler = new function() {
      * Handle user changing the hours for a date manually
      */
     this.handleChangeHoursForDateManually = function() {
-        $(document).on('blur', '.selectedDateHours', function() {
-            var key = $(this).attr("data-key");
-            var value = $(this).val();
+    	$(document).on('blur', '.selectedDateHours', function() {
+            var key = $(this).attr("data-key"),
+                value = $(this).val();
 
             selectedDatesNew[key].hours = value;
             selectedDatesNew[key].fieldDirty = true;
+            
             $("#formDirty").val('true');
             // Recalculate totals
             timeOffCreateRequestHandler.updateTotalsPerCategory();
@@ -693,20 +722,20 @@ var timeOffCreateRequestHandler = new function() {
                 }
               });
             } else {
-	            if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory &&
-	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted===true
+            	if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory &&
+	              selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') && selectedDatesNew[foundIndex].isDeleted == true
 	            ) {
                   timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-	          } else if( foundIndex!==null && selectedDatesNew[foundIndex].category!=selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted')===false ) {
+	          } else if( foundIndex != null && selectedDatesNew[foundIndex].category != selectedTimeOffCategory && selectedDatesNew[foundIndex].hasOwnProperty('isDeleted') == false ) {
                   timeOffCreateRequestHandler.splitRequestedDate( method, isSelected, foundIndex );
-              } else if( isSelected.isSelected === true && typeof isSelected.isSelected==='boolean' ) {
+              } else if( isSelected.isSelected == true && typeof isSelected.isSelected == 'boolean' ) {
             	  timeOffCreateRequestHandler.removeRequestedDate( method, isSelected );
-                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen()==false ) {
+                  if( timeOffCreateRequestHandler.isHandledFromReviewRequestScreen() == false ) {
                     timeOffCreateRequestHandler.adjustRemainingDate( method, isSelected );
                   }
                   timeOffCreateRequestHandler.toggleDateCategorySelection( selectedDate );
-              } else if( selectedTimeOffCategory=="timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached()==true ) {
+              } else if( selectedTimeOffCategory == "timeOffBereavement" && timeOffCreateRequestHandler.verifyBereavementRequestLimitReached() == true ) {
             	  return;
               } else {
             	  timeOffCreateRequestHandler.addRequestedDate( method, isSelected );
@@ -2425,6 +2454,21 @@ var timeOffCreateRequestHandler = new function() {
           }
         }
         timeOffCreateRequestHandler.drawHoursRequested();
+    }
+    
+    this.getRequestForEmployeeObject = function() {
+    	return requestForEmployeeObject;
+    }
+    
+    this.setRequestForEmployeeSchedule = function( employeeScheduleObject ) {
+    	var requestForEmployeeObject = this.getRequestForEmployeeObject();
+    	requestForEmployeeObject.SCHEDULE_MON = +employeeScheduleObject.SCHEDULE_MON;
+    	requestForEmployeeObject.SCHEDULE_TUE = +employeeScheduleObject.SCHEDULE_TUE;
+    	requestForEmployeeObject.SCHEDULE_WED = +employeeScheduleObject.SCHEDULE_WED;
+    	requestForEmployeeObject.SCHEDULE_THU = +employeeScheduleObject.SCHEDULE_THU;
+    	requestForEmployeeObject.SCHEDULE_FRI = +employeeScheduleObject.SCHEDULE_FRI;
+    	requestForEmployeeObject.SCHEDULE_SAT = +employeeScheduleObject.SCHEDULE_SAT;
+    	requestForEmployeeObject.SCHEDULE_SUN = +employeeScheduleObject.SCHEDULE_SUN;
     }
 };
 //Initialize the class
