@@ -124,7 +124,7 @@ var timeOffCommon = new function ()
     }
     
     this.getEmployeeScheduleObject = function() {
-    	var days ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    	var days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     	var employeeSchedule = {
     	    EMPLOYEE_NUMBER : $("#employeeScheduleFor").val()
     	};

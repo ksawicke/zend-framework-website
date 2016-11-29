@@ -2464,7 +2464,7 @@ var timeOffCreateRequestHandler = new function() {
     
     this.setRequestForEmployeeSchedule = function( employeeScheduleObject ) {
     	var requestForEmployeeObject = this.getRequestForEmployeeObject();
-    	var days ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    	var days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
     	$.map(days, function(val, i) {
     	    var key = 'SCHEDULE_' + val;
