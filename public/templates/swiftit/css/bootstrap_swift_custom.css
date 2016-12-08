@@ -100,7 +100,7 @@ table.siteLogoHeaderTable td {
 }
 
 .bold {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .swift-header-item-sm {
@@ -1196,6 +1196,24 @@ button .full-width {
 }
 ****/
 
+#dialogGrandfatheredAlert,
+#dialogConfirmSelectHoliday,
+#dialogDeleteSplitDateAlert,
+#dialogUnableToSplitTimeAlert,
+#dialogEditEmployeeSchedule,
+#dialogEditEmployeeProxies,
+#dialogSelectAProxy,
+#dialogSelectAPayrollAdmin,
+#dialogSelectAPayrollAssistant,
+#dialogConfirmDeleteCompanyHoliday,
+#dialogConfirmEditSchedule,
+#warningEmailOverridesTurnedOff,
+#dialogDateIsUnavailableForSelection,
+#dialogDateIsAlreadySubmitted,
+#calendarLoadingImage {
+    display: none;
+}
+
 .hidden {
     display:none;
 }
@@ -1475,25 +1493,25 @@ div.buttons {
 }
 
 p.clear {
-	clear: both;
+    clear: both;
 }
 
 .payrollQueueFilter {
-	border: 0;
-	float: right;
+    border: 0;
+    float: right;
 }
 
 .fullWidth {
-	width: 100%;
+    width: 100%;
 }
 .filterWrapper {
-	border: 0px solid #fff;
+    border: 0px solid #fff;
 }
 .excelIconMargin {
-	margin-right: 5px;
+    margin-right: 5px;
 }
 .payrollActionsColumnWidth {
-	width: 150px;
+    width: 150px;
 }
 
 /**

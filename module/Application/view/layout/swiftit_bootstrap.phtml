@@ -242,7 +242,7 @@ if ( isset( $_SESSION['Timeoff_' . ENVIRONMENT] ) ) {
             <span class="copyright">Copyright &copy; <?php echo date( "Y" ); ?> Swift Transportation.</span>
         </div> <!-- /container -->
 
-        <?php echo $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ); ?>
+        <?php echo ( 'Y' == $this->isLoggedIn ? $this->partial( 'request/partials/dialogEditEmployeeScheduleWidget.phtml' ) : ''); ?>
 
         <!-- Bootstrap core JavaScript
         ================================================== -->
