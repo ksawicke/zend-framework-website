@@ -2,19 +2,16 @@
 
 namespace Request\Model;
 
-// use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Update;
-// use Zend\Db\Sql\Expression;
-// use Zend\Db\Adapter\Driver\ResultInterface;
-// use Zend\Db\ResultSet\ResultSet;
 use Request\Model\BaseDB;
 use Zend\Db\Sql\Where;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Expression;
 use Application\Factory\Logger;
+use Request\Model\Employee;
 
 /**
  * Common Request arrays
@@ -540,6 +537,12 @@ class TimeOffRequests extends BaseDB {
         }
 
         $request['EMPLOYEE_DATA'] = json_decode( $request['EMPLOYEE_DATA'] );
+        
+        // Re-grab current Pay Type, just in case it changed
+        $Employee = new Employee();
+        $salaryType = $Employee->getEmployeeSalaryType( $request['EMPLOYEE_DATA']->EMPLOYEE_NUMBER );
+        $request['EMPLOYEE_DATA']->SALARY_TYPE = $Employee->getEmployeeSalaryType( $request['EMPLOYEE_DATA']->EMPLOYEE_NUMBER );
+        
         $request['ENTRIES'] = $this->findRequestEntries( $requestId );
         $request['LOG_ENTRIES'] = $this->findRequestLogEntries( $requestId, $isPayroll );
         $request['CHANGES_MADE'] = $this->findLastRequestChangeMade( $requestId );
