@@ -701,7 +701,7 @@ class Employee extends BaseDB {
         
         $select->from('PRPMS');
         
-        $select->columns(['PRPAY' => 'PRPAY']);
+        $select->columns(['PRPAY']);
         
         $where = new Where();
         
