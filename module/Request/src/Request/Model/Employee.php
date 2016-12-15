@@ -693,6 +693,35 @@ class Employee extends BaseDB {
         return $rawSql;
     }
 
+    public function getEmployeeSalaryType( $employee_id )
+    {
+        $sql = new Sql($this->adapter);
+        
+        $select = $sql->select();
+        
+        $select->from('PRPMS');
+        
+        $select->columns(['PRPAY' => 'PRPAY']);
+        
+        $where = new Where();
+        
+        $where->equalTo( 'PREN', str_pad( trim( $employee_id ), 9, ' ', STR_PAD_LEFT ) )
+              ->and->equalTo( 'PRER', '002' );
+        
+        $select->where($where);
+        
+        $statement = $sql->prepareStatementForSqlObject($select);
+        
+        $result = $statement->execute();
+        
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            return $resultSet->toArray()[0]['PRPAY'];
+        }
+        return [];
+    }
+    
     public function getEmployeeAltDescription( $employee_id )
     {
         $sql = new Sql($this->adapter);
