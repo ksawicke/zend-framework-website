@@ -122,30 +122,30 @@ var timeOffCommon = new function ()
 
         return validates;
     }
-    
-    this.getEmployeeScheduleObject = function() {
-    	var days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    	var employeeSchedule = {
-    	    EMPLOYEE_NUMBER : $("#employeeScheduleFor").val()
-    	};
 
-    	$.map(days, function(val, i) {
-    	    var key = 'SCHEDULE_' + val;
-    	    employeeSchedule[key] = $("#employeeSchedule" + key).val();
-    	});
-    	
-    	return employeeSchedule;
+    this.getEmployeeScheduleObject = function() {
+        var days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        var employeeSchedule = {
+            EMPLOYEE_NUMBER : $("#employeeScheduleFor").val()
+        };
+
+        $.map(days, function(val, i) {
+            var key = val;
+            employeeSchedule[key] = $("#employeeSchedule" + key).val();
+        });
+
+        return employeeSchedule;
     }
 
     this.submitEmployeeScheduleUpdate = function () {
         var validates = timeOffCommon.checkFormValidates();
         if( validates==true ) {
-        	var employeeScheduleObject = timeOffCommon.getEmployeeScheduleObject();
-        	var myJson = { request : {
+            var employeeScheduleObject = timeOffCommon.getEmployeeScheduleObject();
+            var myJson = { request : {
                              forEmployee : employeeScheduleObject,
                              byEmployee : $("#employeeScheduleBy").val()
                            }
-        				 };
+                         };
             $.ajax({
                 headers: {
                     'Accept': 'application/json',
