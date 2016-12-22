@@ -1200,7 +1200,6 @@ button .full-width {
 #dialogConfirmSelectHoliday,
 #dialogDeleteSplitDateAlert,
 #dialogUnableToSplitTimeAlert,
-#dialogEditEmployeeSchedule,
 #dialogEditEmployeeProxies,
 #dialogSelectAProxy,
 #dialogSelectAPayrollAdmin,
@@ -1212,6 +1211,10 @@ button .full-width {
 #dialogDateIsAlreadySubmitted,
 #calendarLoadingImage {
     display: none;
+}
+
+.nodisplay {
+	display:none;
 }
 
 .hidden {
