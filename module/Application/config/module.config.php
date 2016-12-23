@@ -9,6 +9,8 @@
 
 namespace Application;
 
+use Zend\Mvc\Router\Http\Literal;
+
 return [
     'router' => [
         'routes' => [
@@ -328,7 +330,7 @@ return [
              */
 
             'submitEmployeeScheduleRequest' => [
-                'type' => 'segment',
+                'type' => Literal::class,
                 'options' => [
                     'route' => '/api/employee-schedule',
                     'defaults' => [

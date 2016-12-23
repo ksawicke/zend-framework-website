@@ -142,19 +142,16 @@ var timeOffCommon = new function ()
         var validates = timeOffCommon.checkFormValidates();
         if( validates==true ) {
             var employeeScheduleObject = timeOffCommon.getEmployeeScheduleObject();
-            var myJson = { request : {
-                             forEmployee : employeeScheduleObject,
-                             byEmployee : $("#employeeScheduleBy").val()
-                           }
-                         };
+            var jsonData = {};
+
+            jsonData['forEmployee'] = employeeScheduleObject;
+            jsonData['byEmployee'] = $("#employeeScheduleBy").val();
+
+            console.log(jsonData);
             $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
                 url : timeOffSubmitEmployeeScheduleRequestUrl,
                 type : 'POST',
-                data : JSON.stringify( myJson ),
+                data : JSON.stringify(jsonData),
                 dataType : 'json'
             }).success(function(json) {
                 if (json.success == true) {

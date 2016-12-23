@@ -81,14 +81,14 @@ class EmployeeSchedules extends BaseDB {
     public function updateEmployeeSchedule( $post = null )
     {
         $rawSql = "UPDATE timeoff_request_employee_schedules SET " .
-                  "SCHEDULE_SUN = '" . $post->request['forEmployee']['SCHEDULE_SUN'] . "', " .
-                  "SCHEDULE_MON = '" . $post->request['forEmployee']['SCHEDULE_MON'] . "', " .
-                  "SCHEDULE_TUE = '" . $post->request['forEmployee']['SCHEDULE_TUE'] . "', " .
-                  "SCHEDULE_WED = '" . $post->request['forEmployee']['SCHEDULE_WED'] . "', " .
-                  "SCHEDULE_THU = '" . $post->request['forEmployee']['SCHEDULE_THU'] . "', " .
-                  "SCHEDULE_FRI = '" . $post->request['forEmployee']['SCHEDULE_FRI'] . "', " .
-                  "SCHEDULE_SAT = '" . $post->request['forEmployee']['SCHEDULE_SAT'] . "' " .
-                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post->request['byEmployee'] . "'";
+                  "SCHEDULE_SUN = '" . $post['forEmployee']['SCHEDULE_SUN'] . "', " .
+                  "SCHEDULE_MON = '" . $post['forEmployee']['SCHEDULE_MON'] . "', " .
+                  "SCHEDULE_TUE = '" . $post['forEmployee']['SCHEDULE_TUE'] . "', " .
+                  "SCHEDULE_WED = '" . $post['forEmployee']['SCHEDULE_WED'] . "', " .
+                  "SCHEDULE_THU = '" . $post['forEmployee']['SCHEDULE_THU'] . "', " .
+                  "SCHEDULE_FRI = '" . $post['forEmployee']['SCHEDULE_FRI'] . "', " .
+                  "SCHEDULE_SAT = '" . $post['forEmployee']['SCHEDULE_SAT'] . "' " .
+                  "WHERE TRIM(EMPLOYEE_NUMBER) = '" . $post['byEmployee'] . "'";
         $employeeData = \Request\Helper\ResultSetOutput::executeRawSql( $this->adapter, $rawSql );
     }
 

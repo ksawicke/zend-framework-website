@@ -498,14 +498,15 @@ class RequestApi extends ApiController {
     public function submitEmployeeScheduleRequestAction()
     {
         $EmployeeSchedules = new EmployeeSchedules();
-        $post = $this->getRequest()->getPost();
+
+        $post = json_decode($this->request->getContent(), true);
 
         try {
             $EmployeeSchedules->updateEmployeeSchedule( $post );
 
             $result = new JsonModel([
                 'success' => true,
-                'byEmployee' => $post->request['byEmployee']
+                'byEmployee' => $post['byEmployee']
             ]);
         } catch ( \Exception $ex ) {
             $result = new JsonModel([
@@ -1040,7 +1041,7 @@ class RequestApi extends ApiController {
             $calendarInviteService = $this->serviceLocator->get( 'CalendarInviteService' );
             $calendarInviteService->setRequestId( $post->request_id );
             $calendarInviteService->send();
-            
+
             $RequestEntry = new RequestEntry();
             $dateRequestBlocks = $RequestEntry->getRequestObject( $post->request_id );
 
