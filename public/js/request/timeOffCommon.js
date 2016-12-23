@@ -130,8 +130,9 @@ var timeOffCommon = new function ()
         };
 
         $.map(days, function(val, i) {
-            var key = val;
-            employeeSchedule[key] = $("#employeeSchedule" + key).val();
+            var key = 'SCHEDULE_' + val;
+            var key2 = val;
+            employeeSchedule[key] = $("#employeeSchedule" + key2).val();
         });
 
         return employeeSchedule;
